@@ -20,11 +20,25 @@ export function preventDoubleSubmit(
   }
   (form as HTMLFormElement & { __locked?: boolean }).__locked = true;
   form.setAttribute("data-locked", "true");
-  // Auto-unlock after 30 s so users aren’t permanently stuck
+  form.setAttribute("aria-busy", "true");
+
+  // Temporarily disable submit buttons within this form to prevent repeated clicks
+  const buttons = form.querySelectorAll<HTMLButtonElement>('button[type="submit"], input[type="submit"]');
+  buttons.forEach((btn) => {
+    btn.style.pointerEvents = "none";
+    btn.style.opacity = "0.75";
+  });
+
+  // Auto-unlock after 15 s so users aren’t permanently stuck if network hangs
   setTimeout(() => {
     if (form) {
       (form as HTMLFormElement & { __locked?: boolean }).__locked = false;
       form.removeAttribute("data-locked");
+      form.removeAttribute("aria-busy");
+      buttons.forEach((btn) => {
+        btn.style.pointerEvents = "";
+        btn.style.opacity = "";
+      });
     }
-  }, 30_000);
+  }, 15_000);
 }

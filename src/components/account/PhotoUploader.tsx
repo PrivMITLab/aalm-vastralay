@@ -13,6 +13,7 @@ export default function PhotoUploader({
   alt,
   size = 112,
   rounded = "full",
+  extraPayload,
 }: {
   endpoint: string;
   initialUrl: string | null;
@@ -20,6 +21,7 @@ export default function PhotoUploader({
   alt: string;
   size?: number;
   rounded?: "full" | "lg";
+  extraPayload?: Record<string, string>;
 }) {
   const [url, setUrl] = useState(initialUrl);
   const [busy, setBusy] = useState(false);
@@ -46,7 +48,7 @@ export default function PhotoUploader({
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: dataUrl, mime: file.type }),
+        body: JSON.stringify({ data: dataUrl, mime: file.type, ...extraPayload }),
       });
       const json = (await res.json()) as { ok?: boolean; url?: string; error?: string };
       if (!res.ok || !json.ok) throw new Error(json.error ?? "Upload failed");
@@ -62,7 +64,11 @@ export default function PhotoUploader({
   function clear() {
     setUrl(null);
     setBusy(true);
-    fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: "" }) })
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: "", ...extraPayload }),
+    })
       .then(() => toast.success(`${name} removed`))
       .catch(() => toast.error("Could not remove photo"))
       .finally(() => setBusy(false));

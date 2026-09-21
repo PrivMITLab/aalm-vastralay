@@ -241,18 +241,29 @@ select.input {
  * CSS custom properties. Use explicit hex colours in BOTH schemes + color-scheme
  * so option text is always visible (the “white dropdown with white text” bug).
  */
-select.input { background-color: #ffffff; color: #1f1a17; }
+select,
+select.input {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #1f1a17;
+}
+select option,
+select optgroup,
 select.input option,
 select.input optgroup,
 select.input optgroup option {
   background-color: #ffffff;
   color: #1f1a17;
 }
+.dark select,
 .dark select.input,
+.dark select option,
+.dark select optgroup,
 .dark select.input option,
 .dark select.input optgroup,
 .dark select.input optgroup option {
-  background-color: #211d1b;
+  color-scheme: dark;
+  background-color: #1c1917;
   color: #f4efe9;
 }
 input[type='date'], input[type='time'], input[type='datetime-local'] { color-scheme: light; }

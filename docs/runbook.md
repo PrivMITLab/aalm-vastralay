@@ -1,61 +1,108 @@
-# Operator runbook
+# Operator Runbook & Production Operations Manual
 
-A 60-second field guide for what to do when something on Aalm Vastralay breaks. Every action links to the relevant admin screen so you can react from a phone.
+A field guide for operating, deploying, verifying, and recovering Aalm Vastralay in production.
 
-## 🟢 Service health
+```mermaid
+flowchart TD
+  GitPush[git push origin main] --> CI[Cloudflare Pages / CI Pipeline]
+  CI --> DBBootstrap[npm run db:bootstrap /api/bootstrap]
+  DBBootstrap --> Neon[(Neon PostgreSQL - Tables & Settings Verified)]
+  CI --> Build[npm run build - Next.js Static & SSR Assets]
+  Build --> Deploy[Production Edge Deployment]
+  Deploy --> Smoke[Automated Smoke Checks /api/health]
+```
+
+---
+
+## 🟢 Service Health & Incident Response
+
+```mermaid
+flowchart LR
+  Symptom{Incident Detected}
+  Symptom -->|500 Errors| SecurityAudit[/admin/security Logs]
+  Symptom -->|DB Disconnect| NeonCheck[Check Neon Console & Connection Pool]
+  Symptom -->|Bot Shield Fail| PowAdjust[Lower security.powDifficulty to 2]
+  Symptom -->|Lockout| Unlock[Clear login_attempts or wait 15m]
+```
 
 | Symptom | First check | Fix |
 | --- | --- | --- |
-| `/api/health` returns `{ok:false}` | Neon status page (`https://neonstatus.com`) | If Neon is up, check connection-pool exhaustion in `audit_logs`; restart the page. |
+| `/api/health` returns `{ok:false}` | Neon status page (`https://neonstatus.com`) | If Neon is up, check connection-pool exhaustion in `audit_logs`; restart the instance or raise pool limit. |
 | 500s on `seller.orders` | `/admin/security` → last 80 entries | If a single actor shows multiple 429s, raise `security.formRateLimit` or unlock the account. |
-| Email confirmations not arriving | `audit_logs` → search for `order.place` | `QUIETMAIL_API_*` missing? Messages are logged to the server console until keys are set. |
+| Email confirmations not arriving | `audit_logs` → search for `order.place` | `QUIETMAIL_API_*` missing? Messages are safely logged to the server console until keys are set. |
 | Bot shield slow / blocking real users | `/admin/settings?group=security` | Lower `security.powDifficulty` from 3 to 2 (≈ 16× faster). |
 | Sign-in lockouts | `/admin/security` → "Recent failed sign-ins" | Truncate `login_attempts` or wait `security.lockMinutes`. |
-| Catalogue empty after deploy | `scripts/db-bootstrap.ts` | `npm run db:bootstrap` — idempotent, will create missing tables and re-add settings. |
+| Catalogue empty after deploy | `scripts/seed-and-backfill.ts` | `npm run db:bootstrap` — idempotent, will create missing tables and backfill settings. |
 
-## 🚀 Deploy
+---
 
-```bash
-git push origin main
-# Cloudflare Pages auto-builds → https://aalm-vastralay.pages.dev
-# ImageKit / B2 / quiet-mail keys are read from Cloudflare env vars (no rebuild needed).
+## 🚀 Production Deployment Flow
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Admin as Operator
+  participant Edge as Cloudflare / Vercel Edge
+  participant Next as Next.js Runtime
+  participant DB as Neon PostgreSQL
+
+  Admin->>Edge: Deploy New Release
+  Edge->>Next: Trigger Pre-start Hook
+  Next->>DB: Run /api/bootstrap (Idempotent Table & Setting Check)
+  DB-->>Next: Schema & Settings Ready
+  Next-->>Edge: Ready for Traffic (Zero Downtime)
+  Admin->>Edge: Smoke Test GET /api/health (HTTP 200 OK)
 ```
 
-For a manual cut-over:
+### Deployment Commands
 
 ```bash
+# 1. Clean install dependencies
 npm ci
-npm run db:bootstrap       # creates any missing tables + settings rows
+
+# 2. Idempotent database schema & settings bootstrap
+npm run db:bootstrap
+
+# 3. Production build
 npm run build
-# Upload `.next/` to your host or `wrangler pages deploy .vercel/output/static`
+
+# 4. Deploy to edge / container
+git push origin main
 ```
 
-## 🛟 Common tasks
+---
 
-| Task | How |
+## 🛟 Common Operator Tasks
+
+| Task | Location / Action |
 | --- | --- |
-| Disable a coupon | `/admin` → Coupons row → toggle |
-| Suspend a seller | `/admin` → Stores → Suspend |
-| Add a new top-level category | `/admin` → Categories → Add |
-| Refund a single order | `/seller/orders` → set status to `cancelled` (refund tracks in audit log) |
+| Toggle demo accounts | `/admin/settings?group=features` → `Show demo accounts box on sign-in page` |
+| Disable a coupon | `/admin` → Coupons row → toggle active switch |
+| Suspend an abusive seller | `/admin` → Stores → Click "Suspend" |
+| Add a top-level category | `/admin` → Categories → Click "Add category" |
+| Process order refund | `/seller/orders` → set status to `cancelled` (refund logged in audit log) |
 | Adjust commission window | `/admin/settings?group=seller` → `Commission-free months` |
-| Whitelist a corporate IP | `/admin/settings?group=security` → keep `Trusted proxy headers` on; the edge already honours `cf-connecting-ip` |
+| Whitelist trusted IP | `/admin/settings?group=security` → keep `Trusted proxy headers` enabled |
 
-## 🧪 Smoke tests after a release
+---
+
+## 🧪 Smoke Tests After Release
 
 ```bash
 curl -fsS https://<site>/api/health | grep '"ok":true'
-curl -fsS https://<site>/api/security/challenge | grep '"enabled":true'
+curl -fsS https://<site>/api/security/challenge | grep '"algorithm":'
 curl -fsS https://<site>/sitemap.xml | head
 curl -fsS https://<site>/robots.txt | head
 ```
 
-## 📈 Capacity triggers (what to upgrade first)
+---
 
-| Metric | Free tier cap | Upgrade to |
+## 📈 Capacity & Tier Scaling Triggers
+
+| Metric | Free Tier Cap | Production Scaling Path |
 | --- | --- | --- |
-| Neon rows ≈ 200 MB | 0.5 GB | Neon Launch plan ($19/mo) |
-| ImageKit bandwidth ≈ 20 GB | 20 GB / mo | ImageKit Starter ($25/mo) |
-| Cloudflare Pages requests | unlimited | stay free |
-| Cloudflare Worker B2 proxy | 100k / day | stay free, or swap to R2 |
-| Sign-in active users | 50k MAU (Clerk) | Clerk Pro when swapped in |
+| Neon Database Rows | ~200 MB storage | Neon Launch / Scale tier |
+| ImageKit CDN Bandwidth | 20 GB / month | ImageKit Starter ($25/mo) |
+| Cloudflare Pages Edge | Unlimited requests | Stays free |
+| Cloudflare Worker B2 Proxy | 100k requests / day | Cloudflare R2 or Worker Paid ($5/mo) |
+| Authentication | Built-in PBKDF2 / Clerk | Scalable up to 50k MAU |

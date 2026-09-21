@@ -121,7 +121,7 @@ export default function HeaderNav({
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4">
       <div className="flex h-16 items-center gap-2 sm:gap-4">
-        <button type="button" onClick={() => setDrawer(true)} className="btn btn-ghost btn-icon lg:hidden" aria-label="Open menu">
+        <button type="button" onClick={() => setDrawer(true)} className="btn btn-ghost btn-icon md:hidden" aria-label="Open menu">
           <Menu className="h-5 w-5" />
         </button>
 
@@ -237,22 +237,26 @@ export default function HeaderNav({
                 </span>
                 <span className="hidden max-w-[7rem] truncate text-sm font-medium sm:block">{user.fullName?.split(" ")[0] ?? "Account"}</span>
               </summary>
-              <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 shadow-2xl">
-                <div className="px-3 py-2">
-                  <p className="truncate text-sm font-semibold">{user.fullName}</p>
+              <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl">
+                <div className="border-b border-[color:var(--border)] px-3 py-2">
+                  <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
                   <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
                   <span className="badge mt-1 capitalize">{user.role}</span>
                 </div>
-                <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" />
-                <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" />
-                {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" />}
-                {isSeller ? <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" /> : <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" />}
-                {user.role === "admin" && <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" />}
-                <form action={signOut}>
-                  <button type="submit" className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-[color:var(--surface-2)]">
-                    <LogOut className="h-4 w-4" /> Sign out
-                  </button>
-                </form>
+                <div className="py-1">
+                  <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" />
+                  <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" />
+                  {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" />}
+                  {isSeller ? <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" /> : <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" />}
+                  {user.role === "admin" && <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" />}
+                </div>
+                <div className="border-t border-[color:var(--border)] pt-1">
+                  <form action={signOut}>
+                    <button type="submit" className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-[color:var(--surface-2)]">
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </form>
+                </div>
               </div>
             </details>
           ) : (
@@ -267,26 +271,26 @@ export default function HeaderNav({
       <div className="pb-2 md:hidden">
         <form onSubmit={submit} className="flex items-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-4 pr-1">
           <Search className="h-4 w-4 text-[color:var(--text-soft)]" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} type="search" placeholder="Search ethnic wear…" className="h-9 w-full bg-transparent px-2 text-sm outline-none" aria-label="Search products" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} type="search" placeholder="Search ethnic wear…" className="h-9 w-full bg-transparent px-2 text-sm text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-soft)]" aria-label="Search products" />
           <button type="submit" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color:var(--brand)] text-white" aria-label="Search">
             <Search className="h-3.5 w-3.5" />
           </button>
         </form>
       </div>
 
-      {/* desktop category strip */}
-      <div className="hidden border-t border-[color:var(--border)] lg:block">
-        <div className="flex items-center gap-1 py-1.5 text-sm">
+      {/* desktop & tablet category strip */}
+      <div className="hidden border-t border-[color:var(--border)] md:block">
+        <div className="flex items-center gap-1 overflow-x-auto py-1.5 text-sm scrollbar-none">
           <Link href="/products" className="shrink-0 rounded-full px-3 py-1 font-medium text-[color:var(--brand)] hover:bg-[color:var(--surface-2)]">
             All Products
           </Link>
           {groups.map((c) => (
             <details key={c.slug} className="group relative">
-              <summary className="shrink-0 cursor-pointer list-none rounded-full px-3 py-1 text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">{c.name}</summary>
+              <summary className="shrink-0 cursor-pointer list-none rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">{c.name}</summary>
               {c.children.length > 0 && (
-                <div className="absolute top-8 left-0 z-50 w-56 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 shadow-2xl">
+                <div className="absolute top-8 left-0 z-50 w-56 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl">
                   {c.children.map((child) => (
-                    <Link key={child.slug} href={`/products?category=${child.slug}`} className="block rounded-xl px-3 py-2 text-sm text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
+                    <Link key={child.slug} href={`/products?category=${child.slug}`} className="block rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
                       {child.name}
                     </Link>
                   ))}
@@ -297,7 +301,7 @@ export default function HeaderNav({
           <Link href="/products?sort=discount" className="shrink-0 rounded-full px-3 py-1 font-semibold text-[color:var(--brand)] hover:bg-[color:var(--surface-2)]">
             Wedding Sale
           </Link>
-          <Link href="/stores" className="shrink-0 rounded-full px-3 py-1 text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
+          <Link href="/stores" className="shrink-0 rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
             Stores
           </Link>
         </div>
@@ -305,7 +309,7 @@ export default function HeaderNav({
 
       {/* mobile drawer */}
       {drawer && (
-        <div className="fixed inset-0 z-[80] lg:hidden">
+        <div className="fixed inset-0 z-[80] md:hidden">
           <button type="button" aria-label="Close menu" className="absolute inset-0 bg-black/45" onClick={() => setDrawer(false)} />
           <aside className="animate-slide-in absolute top-0 left-0 flex h-full w-[85vw] max-w-sm flex-col gap-3 overflow-y-auto border-r border-[color:var(--border)] bg-[color:var(--surface)] p-4">
             <div className="flex items-center justify-between">

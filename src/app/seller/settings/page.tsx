@@ -18,8 +18,8 @@ export default async function SellerSettingsPage() {
       </div>
       <section className="card space-y-5 p-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <PhotoUploader endpoint="/api/uploads/logo" initialUrl={store.logoUrl} name="Logo" alt={store.storeName + " logo"} size={104} rounded="lg" />
-          <PhotoUploader endpoint="/api/uploads/logo" initialUrl={store.bannerUrl} name="Banner" alt={store.storeName + " banner"} size={104} rounded="lg" />
+          <PhotoUploader endpoint="/api/uploads/logo" initialUrl={store.logoUrl} name="Logo" alt={store.storeName + " logo"} size={104} rounded="lg" extraPayload={{ kind: "logo" }} />
+          <PhotoUploader endpoint="/api/uploads/logo" initialUrl={store.bannerUrl} name="Banner" alt={store.storeName + " banner"} size={104} rounded="lg" extraPayload={{ kind: "banner" }} />
           <p className="text-xs text-[color:var(--text-soft)] sm:max-w-sm">
             Logo is shown on your storefront card and on the product page header. Banner is the wide image at the top of /stores/{store.slug}.
             Use a 16:5 banner and a square logo. JPG, PNG, WebP, AVIF or SVG · max 5 MB.

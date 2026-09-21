@@ -155,6 +155,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "features.occasions", group: "features", label: "Occasion chips", type: "boolean", default: "true" },
   { key: "features.sellerHub", group: "features", label: "Seller onboarding & hub", type: "boolean", default: "true" },
   { key: "features.analytics", group: "features", label: "Privacy-friendly analytics", type: "boolean", default: "true" },
+  { key: "features.showDemoAccounts", group: "features", label: "Show demo accounts box on sign-in page", type: "boolean", default: "false", help: "Enable only during staging or testing. Keep disabled in live production." },
 ];
 
 export const SETTINGS_DEFAULTS: Record<string, string> = Object.fromEntries(SETTINGS_FIELDS.map((f) => [f.key, f.default]));

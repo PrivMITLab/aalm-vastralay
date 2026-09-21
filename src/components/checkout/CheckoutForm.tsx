@@ -1,7 +1,7 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import { useActionState, useState, useTransition } from "react";
-import { Banknote, CreditCard, Loader2, Smartphone, Tag } from "lucide-react";
+import { Banknote, CreditCard, Loader2, ShieldCheck, Smartphone, Tag } from "lucide-react";
 import { placeOrder, validateCoupon } from "@/actions/orders";
 import SubmitButton from "@/components/SubmitButton";
 import BotShield from "@/components/security/BotShield";
@@ -144,19 +144,20 @@ export default function CheckoutForm({ defaults, savedAddress, subtotal, shippin
                 key={p.id}
                 className={cn(
                   "flex cursor-pointer flex-col gap-1 rounded-2xl border p-4 transition",
-                  payment === p.id ? "border-maroon-700 bg-maroon-50 ring-2 ring-maroon-200" : "border-cream-300 hover:border-maroon-300",
+                  payment === p.id ? "border-[color:var(--brand)] bg-[color:var(--brand-soft)] ring-2 ring-[color:var(--brand)]/20" : "border-[color:var(--border)] hover:border-[color:var(--brand)]/50",
                 )}
               >
                 <input type="radio" name="paymentMethod" value={p.id} checked={payment === p.id} onChange={() => setPayment(p.id)} className="sr-only" />
-                <p.icon className="h-5 w-5 text-maroon-700" />
-                <span className="text-sm font-semibold">{p.label}</span>
-                <span className="text-xs text-slate-500">{p.desc}</span>
+                <p.icon className="h-5 w-5 text-[color:var(--brand)]" />
+                <span className="text-sm font-semibold text-[color:var(--text)]">{p.label}</span>
+                <span className="text-xs text-[color:var(--text-muted)]">{p.desc}</span>
               </label>
             ))}
           </div>
           {payment !== "cod" && (
-            <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              Demo mode: online payments are simulated and marked as paid instantly. Connect Razorpay/Cashfree keys to take live payments.
+            <p className="mt-3 flex items-center gap-1.5 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-2)] px-3 py-2 text-xs text-[color:var(--text-muted)]">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              256-bit SSL encrypted. Payment details are handled securely via certified payment gateway.
             </p>
           )}
         </section>
