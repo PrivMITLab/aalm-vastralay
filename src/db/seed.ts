@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+config();
 import { sql } from "drizzle-orm";
 import { db, pool } from "./index";
 import {
@@ -9,6 +11,7 @@ import {
   productVariants,
   products,
   reviews,
+  settings,
   stores,
   users,
 } from "./schema";
@@ -621,8 +624,10 @@ export async function seed() {
   await db.update(stores).set({ totalSales: 1 }).where(sql`${stores.id} = ${storeKey.nawabi}`);
 
   /* settings – fresh installs land on the modern defaults */
-  const { ensureSettingsRows } = await import("../lib/settings");
-  await ensureSettingsRows();
+  const { SETTINGS_FIELDS } = await import("../lib/settings-defs");
+  for (const f of SETTINGS_FIELDS) {
+    await db.insert(settings).values({ key: f.key, value: f.default, group: f.group, label: f.label }).onConflictDoNothing();
+  }
   await db.execute(sql`UPDATE settings SET value = 'system' WHERE key = 'theme.defaultMode' AND value = 'light'`);
   await db.execute(sql`UPDATE settings SET value = 'true' WHERE key = 'theme.allowUserToggle'`);
   await db.execute(sql`UPDATE settings SET value = '8' WHERE key = 'security.formRateLimit'`);

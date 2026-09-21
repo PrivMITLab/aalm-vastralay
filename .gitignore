@@ -18,6 +18,7 @@ node_modules
 
 # Next.js build and outputs
 .next/
+.open-next/
 out/
 build/
 dist/
