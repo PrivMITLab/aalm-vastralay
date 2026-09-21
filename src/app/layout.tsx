@@ -1,0 +1,105 @@
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import Script from "next/script";
+import { cookies } from "next/headers";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import FloatingBar from "@/components/ui/FloatingBar";
+import MobileTabBar from "@/components/ui/MobileTabBar";
+import { ThemeProvider, DEFAULT_PREFS, type Prefs } from "@/components/theme/ThemeProvider";
+import { ToastProvider } from "@/components/ui/Toast";
+import FormGuard from "@/components/ui/FormGuard";
+import { getBrand, getSettingBool, getSettings, getTheme } from "@/lib/settings";
+import "./globals.css";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: { default: `${brand.name} – Wedding & Ethnic Wear Marketplace`, template: `%s | ${brand.name}` },
+    description: brand.tagline,
+    keywords: ["bridal lehenga online", "banarasi saree", "sherwani", "ethnic wear", "wedding wear India", "cash on delivery"],
+    openGraph: { title: brand.name, description: brand.tagline, type: "website" },
+    icons: {
+      icon: [{ url: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="48" font-size="48">${brand.faviconEmoji}</text></svg>`)}` }],
+    },
+    robots: { index: true, follow: true },
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#7a1f2b" },
+    { media: "(prefers-color-scheme: dark)", color: "#12100f" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+function readPrefs(raw: string | undefined, defaultMode: Prefs["mode"]): Prefs {
+  if (!raw) return { ...DEFAULT_PREFS, mode: defaultMode };
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw)) as Partial<Prefs>;
+    return { ...DEFAULT_PREFS, mode: defaultMode, ...parsed };
+  } catch {
+    return { ...DEFAULT_PREFS, mode: defaultMode };
+  }
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const [theme, brand, settings, showAnalytics, showSellerHub, showWishlist] = await Promise.all([
+    getTheme(),
+    getBrand(),
+    getSettings(),
+    getSettingBool("features.analytics", true),
+    getSettingBool("features.sellerHub", true),
+    getSettingBool("features.wishlist", true),
+  ]);
+  const cookieStore = await cookies();
+  const prefs = readPrefs(cookieStore.get("av_prefs")?.value, theme.defaultMode);
+  const analyticsSrc = process.env.NEXT_PUBLIC_ANALYTICS_SCRIPT_URL;
+  const analyticsDomain = process.env.NEXT_PUBLIC_LOGLYUK_DOMAIN;
+  const isDark = prefs.mode === "dark";
+
+  const cssVars = {
+    "--brand": isDark ? theme.primaryLight : theme.primary,
+    "--brand-hover": isDark ? theme.primaryLight : theme.primary,
+    "--accent": isDark ? theme.accentLight : theme.accent,
+    "--radius": theme.radius,
+    "--font-display-stack": theme.fontDisplay,
+  } as React.CSSProperties;
+
+  return (
+    <html lang="en" className={`${isDark ? "dark" : ""} ${prefs.density === "compact" ? "density-compact" : ""} ${prefs.motion ? "" : "reduce-motion"}`} style={{ ...cssVars, colorScheme: isDark ? "dark" : "light" }}>
+      <body className="flex min-h-screen flex-col antialiased">
+        <ThemeProvider initial={prefs}>
+          <ToastProvider>
+            <FormGuard />
+            <Header />
+            <main className="flex-1 pb-16 lg:pb-0">{children}</main>
+            <Footer />
+            <MobileTabBar
+              showWishlist={showWishlist}
+              showSellerHub={showSellerHub}
+              sellerFreeMonths={Number(settings["seller.freeMonths"] ?? 6)}
+            />
+            <FloatingBar whatsapp={brand.whatsapp} phone={brand.phone} showThemeToggle={theme.allowUserToggle} />
+            <Script id="av-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "OnlineStore",
+                name: brand.name,
+                description: brand.tagline,
+                email: brand.email,
+                telephone: brand.phone,
+                address: { "@type": "PostalAddress", streetAddress: brand.address, addressCountry: "IN" },
+              }),
+            }} />
+            {showAnalytics && analyticsSrc && analyticsDomain && (
+              <Script defer data-domain={analyticsDomain} src={analyticsSrc} strategy="afterInteractive" />
+            )}
+          </ToastProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

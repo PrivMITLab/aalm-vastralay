@@ -1,0 +1,260 @@
+import Link from "next/link";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { ArrowRight, BadgePercent, RotateCcw, ShieldCheck, Sparkles, Store, Wallet } from "lucide-react";
+import { db } from "@/db";
+import { products } from "@/db/schema";
+import { getCategoryParents, getFeaturedProducts, getNavCategories, getNewProducts, getTopStores } from "@/lib/cache";
+import ProductCard from "@/components/ProductCard";
+import { Rating } from "@/components/Rating";
+import Reveal from "@/components/ui/Reveal";
+import { resolveImage } from "@/lib/media-resolver";
+import { getCommerce, getHomeConfig, getSettingBool, getSettingNumber, getSettings } from "@/lib/settings";
+import { formatINR, gridClass } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
+
+const DEFAULT_CATEGORY_ART: Record<string, string> = {
+  women: "/images/bridal-lehenga.jpg",
+  men: "/images/sherwani.jpg",
+  kids: "/images/kids-lehenga.jpg",
+  accessories: "/images/dupatta-jewellery.jpg",
+};
+
+export default async function HomePage() {
+  const [home, settings, commerce, showOccasions, showStores] = await Promise.all([
+    getHomeConfig(),
+    getSettings(),
+    getCommerce(),
+    getSettingBool("features.occasions", true),
+    getSettingBool("features.storesDirectory", true),
+  ]);
+  const freeMonths = await getSettingNumber("seller.freeMonths", 6);
+  const categoriesLimit = home.sections.find((s) => s.key === "categories")?.limit ?? 4;
+  const featuredLimit = home.sections.find((s) => s.key === "featured")?.limit ?? 8;
+  const arrivalsLimit = home.sections.find((s) => s.key === "newArrivals")?.limit ?? 8;
+  const storeLimit = home.sections.find((s) => s.key === "stores")?.limit ?? 4;
+  const sectionOn = (key: string) => home.sections.find((s) => s.key === key)?.enabled ?? false;
+
+  const [topCategories, featured, newArrivals, topStores] = await Promise.all([
+    sectionOn("categories") ? getCategoryParents() : Promise.resolve([]),
+    sectionOn("featured") ? getFeaturedProducts(featuredLimit) : Promise.resolve([] as Awaited<ReturnType<typeof getFeaturedProducts>>),
+    sectionOn("newArrivals") ? getNewProducts(arrivalsLimit) : Promise.resolve([] as Awaited<ReturnType<typeof getNewProducts>>),
+    sectionOn("stores") && showStores ? getTopStores(storeLimit) : Promise.resolve([] as Awaited<ReturnType<typeof getTopStores>>),
+  ]);
+  void getNavCategories; // shared with header via data cache
+
+  const grid = gridClass(home.grid, "gap-3 sm:gap-4");
+  const banner = home.banner;
+  const freeShippingNote = commerce.freeShippingThreshold > 0 ? `Free delivery above ${formatINR(commerce.freeShippingThreshold)}` : "Free delivery on all orders";
+
+  return (
+    <div>
+      {/* ---------------- hero banner (fully admin-configurable) ---------------- */}
+      <section className="relative overflow-hidden bg-[color:var(--brand)] text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={resolveImage(banner.url)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 1 - banner.overlay / 100 + 0.25 }} />
+        <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, rgba(0,0,0,${banner.overlay / 100}) 0%, rgba(0,0,0,${banner.overlay / 140}) 55%, rgba(0,0,0,0.12) 100%)` }} />
+        <div
+          className="relative mx-auto flex max-w-7xl flex-col justify-center gap-4 px-4 py-12 sm:gap-6 sm:py-16 lg:w-3/5 lg:px-0 lg:py-20 xl:w-1/2"
+          style={{ minHeight: `min(${banner.height}px, calc(78vh - 140px))` }}
+        >
+          {banner.badge && (
+            <span className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--accent)]/50 bg-black/25 px-3 py-1 text-[11px] font-semibold tracking-wide text-[color:var(--accent)] sm:text-xs">
+              <Sparkles className="h-3.5 w-3.5" /> {banner.badge}
+            </span>
+          )}
+          <h1 className="animate-fade-up font-display text-3xl leading-tight font-semibold sm:text-4xl md:text-5xl xl:text-6xl">{banner.title}</h1>
+          <p className="animate-fade-up max-w-xl text-sm text-white/90 sm:text-base md:text-lg">{banner.subtitle}</p>
+          <div className="flex flex-wrap gap-3">
+            {banner.ctaLabel && (
+              <Link href={banner.ctaHref} className="btn btn-gold px-5 sm:px-6">
+                {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+            {banner.cta2Label && (
+              <Link href={banner.cta2Href} className="btn border border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20">
+                {banner.cta2Label}
+              </Link>
+            )}
+          </div>
+          <div className="mt-1 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/90 sm:text-sm">
+            <span className="inline-flex items-center gap-1.5">
+              <Wallet className="h-4 w-4 text-[color:var(--accent)]" /> Cash on Delivery
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <RotateCcw className="h-4 w-4 text-[color:var(--accent)]" /> {commerce.returnWindowDays}-day returns
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-[color:var(--accent)]" /> Verified sellers
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <BadgePercent className="h-4 w-4 text-[color:var(--accent)]" /> {freeShippingNote}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- categories ---------------- */}
+      {sectionOn("categories") && topCategories.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
+          <Reveal className="mb-6 text-center">
+            <h2 className="section-title ornament">Shop by Category</h2>
+            <p className="mt-1 text-xs text-[color:var(--text-soft)] sm:text-sm">Lehnga · Saree · Sherwani · Dulhan collection — सब कुछ एक जगह</p>
+          </Reveal>
+          <div className={gridClass({ desktop: Math.min(4, home.grid.desktop + 2), tablet: 4, mobile: 2 }, "gap-3 sm:gap-4")}>
+            {topCategories.map((c, i) => (
+              <Reveal key={c.id} delay={i * 60}>
+                <Link href={`/products?category=${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={resolveImage(home.categoryCards[c.slug] ?? DEFAULT_CATEGORY_ART[c.slug] ?? "/images/hero.jpg")}
+                    alt={c.name}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-3 text-white sm:p-4">
+                    <p className="font-display text-base font-semibold sm:text-xl">{c.name}</p>
+                    <p className="text-[10px] text-white/80 sm:text-xs">Explore collection →</p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- occasions ---------------- */}
+      {sectionOn("occasions") && showOccasions && home.occasions.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4">
+          <div className="card flex flex-wrap items-center gap-2 px-4 py-3">
+            <span className="text-xs font-semibold text-[color:var(--brand)] sm:text-sm">Shop by occasion:</span>
+            {home.occasions.map((o) => (
+              <Link key={o} href={`/products?q=${encodeURIComponent(o.toLowerCase())}`} className="chip">
+                {o}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- featured ---------------- */}
+      {sectionOn("featured") && featured.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
+          <Reveal className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="section-title">Featured Picks</h2>
+              <p className="text-xs text-[color:var(--text-soft)] sm:text-sm">Handpicked bestsellers loved by our brides &amp; grooms</p>
+            </div>
+            <Link href="/products?sort=rating" className="shrink-0 text-sm font-semibold text-[color:var(--brand)] hover:underline">
+              View all →
+            </Link>
+          </Reveal>
+          <div className={grid}>
+            {featured.map((product, i) => (
+              <Reveal key={product.id} delay={(i % 4) * 50}>
+                <ProductCard product={product} priority={i < 4} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- seller CTA ---------------- */}
+      {sectionOn("sellerCta") && (
+        <section className="mx-auto max-w-7xl px-4">
+          <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[color:var(--brand)] to-black px-5 py-10 text-white sm:px-8 md:px-12">
+            <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-[color:var(--accent)]/25 blur-2xl" />
+            <div className="relative grid gap-8 md:grid-cols-2 md:items-center">
+              <div>
+                <p className="text-[11px] font-bold tracking-widest text-[color:var(--accent)] uppercase">For boutiques, weavers &amp; designers</p>
+                <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl md:text-4xl">Sell on {settings["site.name"]} with {freeMonths} months 0% commission</h2>
+                <p className="mt-3 text-sm text-white/85 sm:text-base">
+                  Unlimited free listings, COD support, courier or self-ship, and a seller dashboard with live stock and order tracking. After {freeMonths} months you pay
+                  just {settings["seller.commissionPercent"]}% per order.
+                </p>
+                <Link href="/onboarding" className="btn btn-gold mt-6">
+                  <Store className="h-4 w-4" /> Start selling – it&apos;s free
+                </Link>
+              </div>
+              <ul className="grid gap-3 text-sm">
+                {[
+                  ["0% commission", `for your first ${freeMonths} months, then ${settings["seller.commissionPercent"]}%`],
+                  ["No listing fees", "unlimited products, sizes, colours & video"],
+                  ["COD + UPI + cards", "we handle payments and reconciliation"],
+                  ["Seller dashboard", "orders, stock, tracking & payouts in one place"],
+                ].map(([t, d]) => (
+                  <li key={t} className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+                    <BadgePercent className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--accent)]" />
+                    <span>
+                      <span className="font-semibold">{t}</span> <span className="text-white/80">— {d}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </section>
+      )}
+
+      {/* ---------------- new arrivals ---------------- */}
+      {sectionOn("newArrivals") && newArrivals.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
+          <Reveal className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="section-title">New Arrivals</h2>
+              <p className="text-xs text-[color:var(--text-soft)] sm:text-sm">Fresh from the looms and ateliers this week</p>
+            </div>
+            <Link href="/products" className="shrink-0 text-sm font-semibold text-[color:var(--brand)] hover:underline">
+              View all →
+            </Link>
+          </Reveal>
+          <div className={grid}>
+            {newArrivals.map((product, i) => (
+              <Reveal key={product.id} delay={(i % 4) * 50}>
+                <ProductCard product={product} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- stores ---------------- */}
+      {sectionOn("stores") && showStores && topStores.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-6">
+          <Reveal className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="section-title">Trusted Stores</h2>
+              <p className="text-xs text-[color:var(--text-soft)] sm:text-sm">Family-run boutiques and weaver collectives across India</p>
+            </div>
+            <Link href="/stores" className="shrink-0 text-sm font-semibold text-[color:var(--brand)] hover:underline">
+              All stores →
+            </Link>
+          </Reveal>
+          <div className={gridClass({ desktop: 4, tablet: 2, mobile: 1 }, "gap-4")}>
+            {topStores.map((store) => (
+              <Reveal key={store.id}>
+                <Link href={`/stores/${store.slug}`} className="card card-hover group block overflow-hidden">
+                  <div className="h-28 overflow-hidden bg-[color:var(--surface-2)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={resolveImage(store.bannerUrl)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <div className="p-4">
+                    <p className="font-display text-lg font-semibold text-[color:var(--brand)]">{store.storeName}</p>
+                    <p className="text-xs text-[color:var(--text-soft)]">
+                      {store.city}, {store.state}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <Rating value={store.rating} />
+                      <span className="text-[color:var(--text-soft)]">{store.productCount} products</span>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
