@@ -121,7 +121,7 @@ export default function HeaderNav({
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4">
       <div className="flex h-16 items-center gap-2 sm:gap-4">
-        <button type="button" onClick={() => setDrawer(true)} className="btn btn-ghost btn-icon md:hidden" aria-label="Open menu">
+        <button type="button" onClick={() => setDrawer(true)} className="btn btn-ghost btn-icon md:!hidden" aria-label="Open menu">
           <Menu className="h-5 w-5" />
         </button>
 
