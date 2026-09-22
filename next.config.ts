@@ -27,13 +27,33 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // 1. Enable HTTP response compression (Brotli / Gzip)
+  compress: true,
+
+  // 2. Server external packages (Neon WebSocket / serverless)
   serverExternalPackages: ["@neondatabase/serverless"],
+
+  // 3. Image optimization & modern formats (AVIF, WebP)
+  images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days cache
+  },
+
   async headers() {
     return [
       {
         // Apply security headers to all routes
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        // Cache static assets aggressively
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
       },
     ];
   },
