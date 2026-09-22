@@ -3,6 +3,7 @@
 A production-grade, multi-vendor e-commerce platform built with **Next.js 16 (App Router) + PostgreSQL (Drizzle ORM)**, designed to run on **permanent free tiers with no credit card** and serve 1,000+ daily customers. Everything below is editable from `/admin` – no code changes needed.
 
 > **Live:** https://aalm-vastralay.pages.dev · **Operator console:** `/admin`
+> **Security Audit:** Audited & Hardened (Connection pooling, CSRF, PoW anti-bot, Open-redirect protection).
 
 ## 🚀 Quick start
 
