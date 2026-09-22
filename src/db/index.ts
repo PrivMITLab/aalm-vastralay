@@ -6,7 +6,6 @@ import * as schema from "./schema";
 // polyfill.  In Cloudflare Workers the native WebSocket is available, so the
 // require() will throw and we fall through silently.
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   neonConfig.webSocketConstructor = require("ws");
 } catch {
   // Cloudflare Workers environment — native WebSocket is available
