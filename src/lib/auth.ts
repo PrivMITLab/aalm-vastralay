@@ -24,7 +24,13 @@ export { hashPassword, verifyPassword } from "./password";
  */
 
 export const SESSION_COOKIE = "av_session";
-const SECRET = process.env.AUTH_SECRET ?? "aalm-vastralay-dev-secret-change-me";
+const SECRET = (() => {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    console.error("[CRITICAL SECURITY WARNING] AUTH_SECRET is not configured in production! Please set AUTH_SECRET in your environment variables to prevent cookie forgery.");
+  }
+  return secret || "aalm-vastralay-dev-secret-change-me";
+})();
 
 async function sessionDays() {
   const days = await getSettingNumber("security.sessionDays", 30);

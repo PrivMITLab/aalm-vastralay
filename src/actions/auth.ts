@@ -28,8 +28,11 @@ import { assertSameOrigin, honeypotFilled } from "@/lib/csrf";
 export type ActionState = { error?: string; success?: string } | null;
 
 function safeRedirect(target: FormDataEntryValue | null, fallback: string) {
-  const value = typeof target === "string" ? target : "";
-  return value.startsWith("/") && !value.startsWith("//") ? value : fallback;
+  const value = typeof target === "string" ? target.trim() : "";
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\") || value.includes("://") || value.includes("\r") || value.includes("\n")) {
+    return fallback;
+  }
+  return value;
 }
 
 /** Shared gate for every public form: proof-of-work + per-IP rate limit. */

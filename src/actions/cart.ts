@@ -55,7 +55,8 @@ export async function addToCart(productId: string, variantId: string | null, qua
 export async function updateCartQuantity(itemId: string, quantity: number): Promise<CartActionResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, requiresAuth: true };
-  if (quantity <= 0) return removeCartItem(itemId);
+  const parsedQty = Math.floor(Number(quantity));
+  if (!Number.isFinite(parsedQty) || parsedQty <= 0) return removeCartItem(itemId);
 
   const [row] = await db
     .select({ item: cart, productStock: products.stock, variantStock: productVariants.stock })
@@ -66,7 +67,7 @@ export async function updateCartQuantity(itemId: string, quantity: number): Prom
     .limit(1);
   if (!row) return { ok: false, error: "Item not found." };
   const available = row.variantStock ?? row.productStock;
-  const qty = Math.min(Math.floor(quantity), 10);
+  const qty = Math.min(parsedQty, 10);
   if (qty > available) return { ok: false, error: `Only ${available} left in stock.` };
 
   await db.update(cart).set({ quantity: qty }).where(eq(cart.id, itemId));
