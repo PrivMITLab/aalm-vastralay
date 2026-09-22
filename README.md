@@ -21,13 +21,13 @@ npx tsx src/db/seed.ts           # skip if data exists
 npx tsx src/db/seed.ts --reset   # wipe + reseed
 ```
 
-### Demo accounts
+### Production Roles & Access Control
 
-| Role | Email | Password | Try |
-| --- | --- | --- | --- |
-| Customer | `priya@example.com` | `Priya@123` | Bag → checkout with `WELCOME10`, orders, returns, reviews |
-| Seller | `rajwada@seller.com` | `Seller@123` | `/seller` – products, orders, settings, upload logo/banner |
-| Admin | `admin@aalmvastralay.com` | `Admin@123` | `/admin` – settings, security, integrations |
+| Role | How it is created | Access & Dashboard |
+| --- | --- | --- |
+| **Super Admin** | Auto-created on first deployment (`admin@aalmvastralay.com`) or via `ADMIN_EMAIL` | `/admin` — Full marketplace control (settings, commission, stores, security) |
+| **Seller (Vendor)** | Registered customers click **Become a Seller** or visit `/onboarding` | `/seller` — Manage products, stock, variants, and incoming orders |
+| **Customer (Shopper)** | Public registration at `/sign-up` | `/dashboard`, `/cart`, `/orders` — Browse, purchase, and review |
 
 ## 🧩 What you can customise without code
 
