@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import AuthForm from "@/components/auth/AuthForm";
-import { DEMO_ACCOUNTS } from "@/db/seed";
-import { getSettingBool } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Sign in" };
@@ -12,10 +10,6 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const { redirect_url } = await searchParams;
   const user = await getCurrentUser();
   if (user) redirect(redirect_url && redirect_url.startsWith("/") ? redirect_url : "/dashboard");
-
-  const showDemo =
-    process.env.NODE_ENV !== "production" ||
-    (await getSettingBool("features.showDemoAccounts", false));
 
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 lg:grid-cols-2 lg:items-center">
@@ -37,25 +31,6 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <div className="mt-6">
           <AuthForm mode="sign-in" redirectUrl={redirect_url} />
         </div>
-
-        {showDemo && (
-          <div className="mt-6 rounded-2xl border border-dashed border-[color:var(--accent)] bg-[color:var(--accent-soft)] p-4 text-[color:var(--text)]">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--accent-fg)]">Demo accounts</p>
-              <span className="text-[10px] text-[color:var(--text-soft)]">Development only</span>
-            </div>
-            <ul className="mt-2 space-y-1.5 text-xs">
-              {DEMO_ACCOUNTS.map((a) => (
-                <li key={a.email} className="flex justify-between gap-2 border-b border-[color:var(--border)]/50 pb-1">
-                  <span className="font-medium text-[color:var(--text)]">{a.label}</span>
-                  <span className="font-mono text-[color:var(--text-muted)]">
-                    {a.email} / {a.password}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );
