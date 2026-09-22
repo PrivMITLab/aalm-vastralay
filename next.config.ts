@@ -27,7 +27,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pg", "pg-cloudflare", "@neondatabase/serverless"],
+  serverExternalPackages: ["@neondatabase/serverless"],
   async headers() {
     return [
       {
