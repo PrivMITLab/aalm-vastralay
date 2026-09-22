@@ -7,7 +7,14 @@ export async function GET() {
   try {
     await db.execute(sql`select 1`);
     return Response.json({ ok: true });
-  } catch {
-    return Response.json({ ok: false }, { status: 500 });
+  } catch (err) {
+    return Response.json(
+      {
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      },
+      { status: 500 }
+    );
   }
 }
