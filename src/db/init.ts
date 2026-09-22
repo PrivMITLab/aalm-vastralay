@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "./index";
-import { categories, coupons, users } from "./schema";
+import { categories, coupons, settings, users } from "./schema";
 import { hashPassword } from "../lib/password";
 import { ensureSettingsRows } from "../lib/settings";
 import { autoPruneOldData } from "../lib/db-hygiene";
@@ -362,7 +362,19 @@ export async function initCleanBaseData() {
   // 5. Automated database hygiene (storage cleanup)
   await autoPruneOldData();
 
-  return { settingsCount, categoriesCount, adminCreated };
+  const [{ count: totalCategories }] = await db.select({ count: sql<number>`count(*)::int` }).from(categories);
+  const [{ count: totalSettings }] = await db.select({ count: sql<number>`count(*)::int` }).from(settings);
+  const [{ count: totalAdmins }] = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(sql`role = 'admin'`);
+
+  return {
+    status: "healthy",
+    message: "Base schema, settings, categories, and super-admin are fully active.",
+    settingsCount: totalSettings,
+    categoriesCount: totalCategories,
+    totalAdmins,
+    adminCreated: adminCreated || totalAdmins > 0,
+    newSettingsAdded: settingsCount,
+  };
 }
 
 /**

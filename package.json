@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "tsx tests/run-all-tests.ts",
     "db:bootstrap": "tsx scripts/seed-and-backfill.ts",
     "deploy:bootstrap": "tsx scripts/deploy-bootstrap.ts",
     "prepare": "husky"

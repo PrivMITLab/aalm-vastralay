@@ -165,6 +165,31 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ---------------- Clean Catalogue Warm State (when 0 products) ---------------- */}
+      {featured.length === 0 && newArrivals.length === 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-6">
+          <div className="rounded-3xl border border-cream-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-8 text-center shadow-xs">
+            <span className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-maroon-50 text-maroon-700 dark:bg-maroon-950/80 dark:text-amber-300">
+              <Sparkles className="h-6 w-6" />
+            </span>
+            <h3 className="mt-3 font-display text-xl font-bold text-slate-800 dark:text-zinc-100">
+              शादी व फेस्टिव कलेक्शन जल्द आ रहा है (New Collection Launching Soon)
+            </h3>
+            <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400 max-w-md mx-auto">
+              Master weavers and designer boutiques are curating fresh authentic handlooms. Add your own boutique or explore categories!
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Link href="/products" className="btn btn-outline text-xs">
+                Browse Categories
+              </Link>
+              <Link href="/onboarding" className="btn btn-primary text-xs">
+                Start Selling (दुकानदार जुड़ें)
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ---------------- Indian Authenticity & Trust Badges Strip ---------------- */}
       <IndiaTrustStrip />
 

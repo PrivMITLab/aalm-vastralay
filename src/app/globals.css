@@ -58,8 +58,8 @@
   --brand-soft: #2a1a1e;
   --brand-fg: #ffffff;
   --accent: #e6c65c;
-  --accent-soft: #33290f;
-  --accent-fg: #241b04;
+  --accent-soft: rgba(230, 198, 92, 0.18);
+  --accent-fg: #fef08a;
   --bg: #12100f;
   --surface: #1c1917;
   --surface-2: #211d1b;

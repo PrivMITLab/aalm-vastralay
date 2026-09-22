@@ -42,21 +42,22 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
           <button
             type="button"
             onClick={toggleMode}
-            className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--brand)] shadow-lg"
+            className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--brand)] shadow-md sm:hidden"
             aria-label="Toggle colour mode"
           >
-            <Sun className="hidden h-5 w-5 dark:block" />
-            <Moon className="h-5 w-5 dark:hidden" />
+            <Sun className="hidden h-4 w-4 dark:block" />
+            <Moon className="h-4 w-4 dark:hidden" />
           </button>
         )}
 
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
-          className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-lg hover:text-[color:var(--brand)]"
+          className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-md hover:text-[color:var(--brand)]"
           aria-label="Display settings"
+          title="Display settings"
         >
-          <Settings2 className="h-5 w-5" />
+          <Settings2 className="h-4 w-4" />
         </button>
 
         {whatsapp && (
@@ -67,10 +68,10 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
             className="group relative flex items-center"
             aria-label="Chat on WhatsApp"
           >
-            <span className="pointer-events-none mr-2 hidden rounded-full border border-emerald-200 bg-white/95 px-2.5 py-1 text-[11px] font-bold text-emerald-800 shadow-md backdrop-blur-xs transition-opacity duration-300 md:inline-block">
+            <span className="pointer-events-none mr-2 hidden rounded-full border border-emerald-200 dark:border-emerald-800/60 bg-white/95 dark:bg-zinc-900/95 px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 shadow-md backdrop-blur-xs transition-opacity duration-300 md:inline-block">
               सहायता चाहिए? WhatsApp करें
             </span>
-            <div className="animate-pulse-ring grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-white shadow-xl hover:bg-emerald-700">
+            <div className="animate-pulse-ring grid h-11 w-11 place-items-center rounded-full bg-emerald-600 text-white shadow-xl hover:bg-emerald-700">
               <MessageCircle className="h-5 w-5" />
             </div>
           </a>
