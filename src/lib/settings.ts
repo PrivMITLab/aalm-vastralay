@@ -215,7 +215,7 @@ export async function getHomeConfig(): Promise<HomeConfig> {
   const s = await getSettings();
   return {
     banner: {
-      url: s["home.bannerUrl"],
+      url: (!s["home.bannerUrl"] || s["home.bannerUrl"] === "/brand/poster.jpg") ? "/brand/poster.png" : s["home.bannerUrl"],
       height: Number(s["home.bannerHeight"]) || 520,
       overlay: Number(s["home.bannerOverlay"]) ?? 62,
       badge: s["home.bannerBadge"],

@@ -78,7 +78,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "theme.density", group: "theme", label: "Layout density", type: "select", options: ["comfortable", "compact"], default: "comfortable" },
 
   /* ---------------- home ---------------- */
-  { key: "home.bannerUrl", group: "home", label: "Hero banner image URL", type: "text", default: "/brand/poster.jpg" },
+  { key: "home.bannerUrl", group: "home", label: "Hero banner image URL", type: "text", default: "/brand/poster.png" },
   { key: "home.bannerHeight", group: "home", label: "Banner height (px, desktop)", type: "number", default: "520", min: 240, max: 900 },
   { key: "home.bannerOverlay", group: "home", label: "Banner dark overlay (%)", type: "number", default: "55", min: 0, max: 95 },
   { key: "home.bannerBadge", group: "home", label: "Banner badge", type: "text", default: "आलम वस्त्रालय · कल्याणपुर (Kalyanipur)" },
