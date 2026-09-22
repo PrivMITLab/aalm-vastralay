@@ -390,6 +390,7 @@ export async function initCleanBaseData() {
  */
 export async function wipeDemoData() {
   await db.execute(sql`
+    DELETE FROM addresses;
     DELETE FROM reviews;
     DELETE FROM order_items;
     DELETE FROM orders;
@@ -399,7 +400,10 @@ export async function wipeDemoData() {
     DELETE FROM products;
     DELETE FROM notifications;
     DELETE FROM stores;
+    DELETE FROM audit_logs;
+    DELETE FROM login_attempts;
+    DELETE FROM rate_limits;
     DELETE FROM users WHERE role != 'admin';
   `);
-  return { ok: true, message: "All demo products, orders, reviews, stores, and test users have been wiped clean." };
+  return { ok: true, message: "All demo products, orders, reviews, stores, addresses, audit logs, and test users have been wiped clean." };
 }
