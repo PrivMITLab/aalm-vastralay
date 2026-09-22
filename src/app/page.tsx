@@ -10,6 +10,8 @@ import Reveal from "@/components/ui/Reveal";
 import { resolveImage } from "@/lib/media-resolver";
 import { getCommerce, getHomeConfig, getSettingBool, getSettingNumber, getSettings } from "@/lib/settings";
 import { formatINR, gridClass } from "@/lib/utils";
+import FestiveOccasionsBar from "@/components/home/FestiveOccasionsBar";
+import IndiaTrustStrip from "@/components/home/IndiaTrustStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +96,9 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ---------------- Indian & Bihar festive occasions bar ---------------- */}
+      <FestiveOccasionsBar />
+
       {/* ---------------- categories ---------------- */}
       {sectionOn("categories") && topCategories.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
@@ -159,6 +164,9 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ---------------- Indian Authenticity & Trust Badges Strip ---------------- */}
+      <IndiaTrustStrip />
 
       {/* ---------------- seller CTA ---------------- */}
       {sectionOn("sellerCta") && (

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { and, eq, sql } from "drizzle-orm";
-import { Check, MapPin, Phone, RotateCcw, Truck, XCircle } from "lucide-react";
+import { MapPin, Phone, RotateCcw, XCircle } from "lucide-react";
 import { db } from "@/db";
 import { orderItems, orders, productVariants, products, stores } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -10,12 +10,10 @@ import { cancelOrder, requestReturn } from "@/actions/orders";
 import { resolveThumbnail } from "@/lib/media-resolver";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
 import SubmitButton from "@/components/SubmitButton";
+import OrderTimeline from "@/components/orders/OrderTimeline";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Order details" };
-
-const STEPS = ["pending", "confirmed", "processing", "shipped", "delivered"];
-const STEP_LABEL: Record<string, string> = { pending: "Placed", confirmed: "Confirmed", processing: "Packed", shipped: "Shipped", delivered: "Delivered" };
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -45,8 +43,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     .where(eq(orderItems.orderId, order.id));
 
   const addr = order.shippingAddress;
-  const terminal = order.status === "cancelled" || order.status === "returned";
-  const stepIndex = STEPS.indexOf(order.status);
   const canCancel = ["pending", "confirmed", "processing"].includes(order.status);
 
   return (
@@ -71,38 +67,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <span className={cn("badge px-3 py-1 text-xs capitalize", statusStyle(order.status))}>{order.status}</span>
       </div>
 
-      {/* Timeline */}
-      <div className="card mt-6 p-5">
-        {terminal ? (
-          <div className="flex items-center gap-3 text-sm">
-            <XCircle className="h-6 w-6 text-rose-600" />
-            <div>
-              <p className="font-semibold capitalize text-slate-900">{order.status}</p>
-              <p className="text-slate-500">Updated {formatDate(order.updatedAt)}</p>
-            </div>
-          </div>
-        ) : (
-          <ol className="grid grid-cols-5 gap-1">
-            {STEPS.map((s, i) => {
-              const done = i <= stepIndex;
-              return (
-                <li key={s} className="relative flex flex-col items-center text-center">
-                  {i > 0 && <span className={cn("absolute left-0 right-1/2 top-3.5 -z-0 h-0.5", i <= stepIndex ? "bg-maroon-700" : "bg-cream-200")} />}
-                  {i < STEPS.length - 1 && <span className={cn("absolute left-1/2 right-0 top-3.5 -z-0 h-0.5", i < stepIndex ? "bg-maroon-700" : "bg-cream-200")} />}
-                  <span className={cn("relative z-10 grid h-7 w-7 place-items-center rounded-full border-2 text-xs", done ? "border-maroon-700 bg-maroon-700 text-white" : "border-cream-300 bg-white text-slate-400")}>
-                    {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
-                  </span>
-                  <span className={cn("mt-1.5 text-[11px] font-medium", done ? "text-maroon-900" : "text-slate-400")}>{STEP_LABEL[s]}</span>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-        {(order.trackingNumber || order.courier) && (
-          <p className="mt-4 flex items-center gap-2 rounded-xl bg-cream-50 px-3 py-2 text-sm text-slate-700">
-            <Truck className="h-4 w-4 text-maroon-700" /> {order.courier ?? "Courier"} · Tracking ID <span className="font-mono font-semibold">{order.trackingNumber ?? "pending"}</span>
-          </p>
-        )}
+      {/* Visual Order Timeline */}
+      <div className="mt-6">
+        <OrderTimeline
+          status={order.status}
+          createdAt={order.createdAt}
+          trackingNumber={order.trackingNumber}
+          courier={order.courier}
+        />
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-[1fr_300px]">

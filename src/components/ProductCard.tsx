@@ -19,7 +19,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-[0_12px_32px_rgba(122,31,43,0.12)]"
+      className="card card-lift group flex flex-col overflow-hidden"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-cream-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}

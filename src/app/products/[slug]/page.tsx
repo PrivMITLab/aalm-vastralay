@@ -17,6 +17,10 @@ import Reveal from "@/components/ui/Reveal";
 import Watermark from "@/components/Watermark";
 import ProductCard from "@/components/ProductCard";
 import { Rating, RatingPill } from "@/components/Rating";
+import SizeGuideModal from "@/components/product/SizeGuideModal";
+import PincodeEstimator from "@/components/product/PincodeEstimator";
+import WhatsAppShare from "@/components/product/WhatsAppShare";
+import MobileStickyBar from "@/components/product/MobileStickyBar";
 
 export const dynamic = "force-dynamic";
 
@@ -154,7 +158,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
           <p className="mt-1 text-xs text-slate-500">Inclusive of all taxes · {product.price >= freeShippingThreshold() ? "Free delivery" : `${formatINR(49)} delivery, free above ${formatINR(freeShippingThreshold())}`}</p>
 
-          <div className="mt-6">
+          <div id="purchase-panel" className="mt-6">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[color:var(--text-muted)]">Select Size & Variant</span>
+              <SizeGuideModal categoryName={category?.name} />
+            </div>
             <PurchasePanel
               productId={product.id}
               price={product.price}
@@ -162,6 +170,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               variants={variants.map((v) => ({ id: v.id, size: v.size, color: v.color, stock: v.stock, priceAdjustment: v.priceAdjustment }))}
               initialWishlisted={wish.length > 0}
             />
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <WhatsAppShare
+              title={product.title}
+              price={product.price}
+              slug={product.slug}
+              storeName={store.storeName}
+            />
+            <PincodeEstimator />
           </div>
 
           <ul className="mt-6 grid grid-cols-2 gap-3 text-xs text-slate-700 sm:grid-cols-4">
@@ -306,6 +324,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
       )}
+
+      {/* Mobile Sticky Action Bar for quick purchase & WhatsApp consultation */}
+      <MobileStickyBar
+        title={product.title}
+        price={product.price}
+        mrp={product.mrp ?? undefined}
+        slug={product.slug}
+      />
     </div>
   );
 }

@@ -243,6 +243,16 @@ export default function CheckoutForm({ defaults, savedAddress, subtotal, shippin
         <SubmitButton className="w-full" pendingText="Placing order…">
           {payment === "cod" ? "Place order (COD)" : `Pay ${formatINR(total)} & place order`}
         </SubmitButton>
+
+        <div className="rounded-xl border border-cream-200 bg-cream-50/50 p-2.5 text-center dark:border-slate-800 dark:bg-slate-900/40">
+          <p className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-400">
+            <ShieldCheck className="h-4 w-4" /> 100% सुरक्षित ऑर्डर व सुरक्षित डिलीवरी
+          </p>
+          <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+            UPI, कार्ड या कैश ऑन डिलीवरी · {returnWindowDays} दिन में आसान वापसी
+          </p>
+        </div>
+
         <p className="text-center text-[11px] text-slate-500">By placing this order you agree to our {returnWindowDays}-day return policy. Orders are settled in INR.</p>
       </aside>
     </form>

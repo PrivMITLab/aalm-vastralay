@@ -474,6 +474,28 @@ details > summary::-webkit-details-marker {
   animation: slide-in-right 0.28s ease both;
 }
 
+@keyframes gold-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.shimmer-gold {
+  background: linear-gradient(90deg, transparent 0%, rgba(201, 162, 39, 0.22) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: gold-shimmer 3.2s infinite ease-in-out;
+}
+
+.card-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(122, 31, 43, 0.12);
+}
+
 /* reveal on scroll */
 .reveal {
   opacity: 0;
