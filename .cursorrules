@@ -1,0 +1,10 @@
+# ================================================================
+# 👑 AALM VASTRALAY — CURSOR AI RULES
+# ================================================================
+# Whenever starting a new session or making changes:
+# 1. READ .ai/RULES.md FIRST AND COMPLY WITH ALL 12 SECTIONS.
+# 2. READ .ai/CONTEXT.md FOR CURRENT VERIFIED PROJECT STATE.
+# 3. NEVER REMOVE OR BREAK EXISTING FEATURES.
+# 4. NEVER DROP DATABASE TABLES OR DESTROY DATA.
+# 5. ZERO-LOSS DATABASE MIGRATIONS ONLY (ADD COLUMN IF NOT EXISTS).
+# 6. RUN `npm test` AND `npm run typecheck` BEFORE COMPLETING.
