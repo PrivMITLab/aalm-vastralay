@@ -1,0 +1,40 @@
+# ==============================================================================
+# 👑 AALM VASTRALAY — VIBE CODING & SYSTEM CONTINUITY RULES
+# File: rules.txt
+# Purpose: Auto-sync documentation and ensure strict safety on every cycle
+# ==============================================================================
+
+[MANDATORY CYCLE PROTOCOL]
+1. ZERO REGRESSION:
+   - Kabhi bhi purane features, existing API endpoints, ya database tables/columns mat hatao.
+   - Har change PURE ADDITIVE aur backward-compatible hona chahiye.
+
+2. DOCUMENTATION AUTO-SYNC RULE (3-4 UPDATES CADENCE):
+   - Har 3 ya 4 updates / bug fixes / feature additions ke baad, AI ko automatically
+     saari `.md` files ko live features ke hisab se review aur update karna hoga:
+     * .ai/CHANGELOG.md  -> Har naye feature, fix, aur optimization ki tareekhwaar entry
+     * .ai/CONTEXT.md    -> Live verified status (build, tests, active features, stack)
+     * .ai/DECISIONS.md  -> Naye features ke architectural decisions (ADR format)
+     * .ai/PRD.md        -> Functional specifications aur business rules
+     * .ai/TODO.md       -> Completed tasks checked, upcoming tasks listed
+     * .ai/SETUP.md      -> Environment variables aur third-party dashboard steps
+     * walkthrough.md    -> User walkthrough with visual summaries and verification details
+
+3. TEST COVERAGE MANDATE:
+   - Har naye feature ya bug fix ke sath unit / integration test zaroor likho (`tests/unit/`).
+   - `npm test` chalao aur confirm karo ki 100% test suites pass ho rahe hain.
+   - `npm run typecheck` mein 0 errors confirm karo (0 `any` types).
+   - `npm run lint` mein 0 warnings / 0 errors confirm karo.
+
+4. DATABASE INTEGRITY:
+   - Always `ADD COLUMN IF NOT EXISTS` with safe defaults.
+   - Never DROP tables or columns.
+   - Preserves super admin, categories, coupons, settings, and audit logs.
+
+5. FREE-TIER EFFICIENCY:
+   - Neon: Pooled connection string (-pooler) always enforced.
+   - Vercel: Edge runtime & lightweight proxy/middleware.
+   - Clerk: Guest mode for browsing, auth only on checkout.
+   - B2: Private bucket + Cloudflare Worker immutable edge caching ($0 egress).
+   - UPI: Direct dynamic UPI QR (0% gateway commission).
+   - WhatsApp: 1-click order confirmation & bridal consultation.

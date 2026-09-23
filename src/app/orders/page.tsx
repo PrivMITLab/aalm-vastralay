@@ -7,6 +7,8 @@ import { orders, stores } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
 
+import WhatsAppOrderButton from "@/components/orders/WhatsAppOrderButton";
+
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Orders" };
 
@@ -30,15 +32,21 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       {placed && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" />
-          <div>
-            <p className="font-semibold text-emerald-900">Order placed successfully!</p>
-            <p className="text-sm text-emerald-800">
-              Order {placed.split(",").length > 1 ? "numbers" : "number"} <span className="font-mono font-semibold">{placed.split(",").join(", ")}</span>. A confirmation email is on
-              its way.
-            </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600 shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-900">Order placed successfully!</p>
+              <p className="text-sm text-emerald-800">
+                Order {placed.split(",").length > 1 ? "numbers" : "number"} <span className="font-mono font-semibold">{placed.split(",").join(", ")}</span>. A confirmation email is on its way.
+              </p>
+            </div>
           </div>
+          <WhatsAppOrderButton
+            orderNumber={placed.split(",")[0]}
+            total={rows[0]?.order.total ?? 0}
+            itemsSummary={rows[0]?.titles ?? undefined}
+          />
         </div>
       )}
 

@@ -230,6 +230,7 @@ const TABLE_DDL_STATEMENTS = [
 
 const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_addresses_user" ON "addresses" ("user_id")`,
+  `CREATE INDEX IF NOT EXISTS "idx_addresses_user_default" ON "addresses" ("user_id", "is_default")`,
   `CREATE INDEX IF NOT EXISTS "idx_audit_created" ON "audit_logs" ("created_at")`,
   `CREATE INDEX IF NOT EXISTS "idx_audit_actor" ON "audit_logs" ("actor_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_cart_user" ON "cart" ("user_id")`,
@@ -237,10 +238,14 @@ const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_orders_customer" ON "orders" ("customer_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_orders_store" ON "orders" ("store_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_orders_status" ON "orders" ("status")`,
+  `CREATE INDEX IF NOT EXISTS "idx_orders_created" ON "orders" ("created_at")`,
+  `CREATE INDEX IF NOT EXISTS "idx_order_items_order" ON "order_items" ("order_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_products_store" ON "products" ("store_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_products_category" ON "products" ("category_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_products_active" ON "products" ("is_active") WHERE is_active = true`,
+  `CREATE INDEX IF NOT EXISTS "idx_products_category_active" ON "products" ("category_id", "is_active")`,
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product" ON "reviews" ("product_id")`,
+  `CREATE INDEX IF NOT EXISTS "idx_reviews_product_verified" ON "reviews" ("product_id", "is_verified")`,
 ];
 
 /**

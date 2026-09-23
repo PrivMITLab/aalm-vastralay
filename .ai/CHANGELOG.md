@@ -1,6 +1,40 @@
 # 📜 AALM VASTRALAY — PROJECT CHANGELOG
 # Location: .ai/CHANGELOG.md
 
+---
+
+## [2026-09-23] — Dynamic UPI QR, 1-Click WhatsApp Commerce & Free-Tier Infrastructure Optimization
+
+### Added
+- **Dynamic UPI QR Code with Sound & 5-Minute Timer (`src/components/checkout/DynamicUpiQr.tsx`, `src/lib/upi.ts`):**
+  - Real-time NPCI-compliant UPI QR generator (`upi://pay?pa=8434061342@upi&pn=Aalm+Vastralay&am=...`) with zero payment gateway commission.
+  - 5-Minute countdown security timer with animated progress bar and auto-expiration state.
+  - 12-Digit Indian banking UTR / UPI Reference Number verification input with instant confirmation chime (Web Audio API synthesis).
+  - 1-Click mobile deep link buttons for Google Pay, PhonePe, Paytm, and BHIM.
+  - Automatic attachment of UTR reference to order notes for proprietor bank reconciliation.
+- **1-Click WhatsApp Order Confirmation & Bridal Consultation (`src/lib/whatsapp.ts`, `src/components/orders/WhatsAppOrderButton.tsx`, `src/components/product/WhatsAppConsultButton.tsx`, `src/components/admin/WhatsAppDispatchButton.tsx`):**
+  - Instant WhatsApp Order Confirmation button on order success and order detail views with pre-filled message: `"Namaste Aalam Vastralay, maine Order #[ORDER_NUMBER] ([ITEMS]) book kiya hai. Total: ₹[TOTAL]. Please confirm kijiye."`
+  - WhatsApp Bridal / Wedding Consultation & custom stitching measurement button on product detail pages.
+  - 1-Click WhatsApp dispatch update button with tracking details for Admin & Sellers.
+- **Neon Database Free-Tier Optimization (`src/db/index.ts`, `src/lib/db/pool.ts`):**
+  - Pooled connection string enforcement (`-pooler` validation with dev warning and production error).
+  - 10-Second connection timeout and 30-second idle timeout to support Neon scale-to-zero.
+  - Safe performance composite indexes on `products`, `orders`, `order_items`, `reviews`, and `addresses`.
+  - Edge-compatible HTTP Drizzle client export (`getHttpDb`).
+- **Vercel & Edge Runtime Optimization (`src/middleware.ts`, `src/lib/auth/config.ts`):**
+  - Lightweight Edge middleware skipping static assets, brand images, and public routes.
+  - Zero database queries in middleware.
+- **Clerk 50,000 MRU Optimization (`src/hooks/useGuestOrAuth.ts`, `src/lib/auth/cached.ts`):**
+  - `useGuestOrAuth` React 19 hook with `useSyncExternalStore` for guest shopping without burning Clerk quotas.
+  - React `cache()` request-scoped auth deduplication.
+- **Backblaze B2 Private Storage Optimization (`cloudflare-worker/b2-proxy.js`, `workers/b2-proxy/worker.js`, `src/lib/b2.ts`, `src/lib/upload-client.ts`):**
+  - Cloudflare Worker proxy script with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching.
+  - Presigned direct-to-B2 client upload pipeline bypassing Vercel 4.5MB serverless limits.
+- **16 Enterprise Test Suites (`tests/run-all-tests.ts`):**
+  - Added unit test suites: `db-pooled.test.ts`, `middleware-skip.test.ts`, `guest-mode.test.ts`, `clerk-webhook.test.ts`, `presign.test.ts`, `auth-cache.test.ts`, `upi-qr.test.ts`, and `whatsapp-integration.test.ts`.
+
+---
+
 ## [2026-09-22] — Enterprise Test Suite & Safe Reset Architecture
 ### Added
 - **7 Automated Enterprise Test Suites (`tests/`):**

@@ -5,6 +5,15 @@ import { testAuthSecurity } from "./auth-security.test";
 import { testCouponsAndCategories } from "./coupons-categories.test";
 import { testSellerPrivacyIsolation } from "./seller-privacy-isolation.test";
 import { testAdminCustomization } from "./admin-customization.test";
+import { testMediaResolver } from "./media-resolver.test";
+import { testDbPooledValidation } from "./unit/db-pooled.test";
+import { testMiddlewareSkip } from "./unit/middleware-skip.test";
+import { testGuestMode } from "./unit/guest-mode.test";
+import { testClerkWebhookSecurity } from "./unit/clerk-webhook.test";
+import { testUploadPresign } from "./unit/presign.test";
+import { testAuthCache } from "./unit/auth-cache.test";
+import { testUpiQrEngine } from "./unit/upi-qr.test";
+import { testWhatsAppIntegration } from "./unit/whatsapp-integration.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -21,6 +30,15 @@ async function runAllTests() {
     { name: "Coupons & Category Tree Hierarchy", fn: testCouponsAndCategories },
     { name: "Seller Multi-Vendor Privacy & Isolation", fn: testSellerPrivacyIsolation },
     { name: "Admin Zero-Code Customization & Settings", fn: testAdminCustomization },
+    { name: "Universal Media Resolver & CDN Engine", fn: testMediaResolver },
+    { name: "Neon Pooled Connection Enforcement", fn: testDbPooledValidation },
+    { name: "Vercel Middleware Static Skipping & Route Logic", fn: testMiddlewareSkip },
+    { name: "Clerk 50K MRU Guest Mode Session Logic", fn: testGuestMode },
+    { name: "Clerk Webhook Security & Tamper Resistance", fn: testClerkWebhookSecurity },
+    { name: "B2 Presigned Upload & Metadata Security", fn: testUploadPresign },
+    { name: "Server Component Request-Scoped Auth Caching", fn: testAuthCache },
+    { name: "Dynamic UPI QR & 12-Digit UTR Verification", fn: testUpiQrEngine },
+    { name: "1-Click WhatsApp Order Confirm & Live Tracking", fn: testWhatsAppIntegration },
   ];
 
   for (const suite of suites) {

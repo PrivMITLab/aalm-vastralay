@@ -170,7 +170,14 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         const share = discount > 0 ? round2(discount * (subtotal / grandSubtotal)) : 0;
         const total = round2(Math.max(0, subtotal + shipping - share));
         const orderNumber = generateOrderNumber();
-        const notes = [data.notes, share > 0 ? `Coupon ${couponCode} applied: -₹${share}` : null].filter(Boolean).join(" | ");
+        const upiUtr = formData.get("upiUtr")?.toString().trim();
+        const notes = [
+          data.notes,
+          share > 0 ? `Coupon ${couponCode} applied: -₹${share}` : null,
+          upiUtr ? `UPI UTR / Ref: ${upiUtr}` : null,
+        ]
+          .filter(Boolean)
+          .join(" | ");
 
         const [order] = await tx
           .insert(orders)

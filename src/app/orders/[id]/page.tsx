@@ -11,6 +11,8 @@ import { resolveThumbnail } from "@/lib/media-resolver";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
 import SubmitButton from "@/components/SubmitButton";
 import OrderTimeline from "@/components/orders/OrderTimeline";
+import WhatsAppOrderButton from "@/components/orders/WhatsAppOrderButton";
+import WhatsAppDispatchButton from "@/components/admin/WhatsAppDispatchButton";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Order details" };
@@ -64,7 +66,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             )}
           </p>
         </div>
-        <span className={cn("badge px-3 py-1 text-xs capitalize", statusStyle(order.status))}>{order.status}</span>
+        <div className="flex items-center gap-3">
+          <WhatsAppOrderButton
+            orderNumber={order.orderNumber}
+            total={order.total}
+            itemsSummary={items.map((i) => i.product?.title).filter(Boolean).slice(0, 2).join(", ")}
+          />
+          <span className={cn("badge px-3 py-1 text-xs capitalize", statusStyle(order.status))}>{order.status}</span>
+        </div>
       </div>
 
       {/* Visual Order Timeline */}
@@ -152,6 +161,20 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <Phone className="h-3 w-3" /> {addr.phone}
             </p>
           </div>
+
+          {(user.role === "admin" || user.role === "seller") && (
+            <div className="card p-4 text-sm">
+              <p className="mb-2 font-semibold text-slate-800">Customer Communication</p>
+              <WhatsAppDispatchButton
+                customerName={addr.fullName}
+                customerPhone={addr.phone}
+                orderNumber={order.orderNumber}
+                courier={order.courier}
+                trackingNumber={order.trackingNumber}
+                className="w-full"
+              />
+            </div>
+          )}
 
           {order.notes && (
             <div className="card p-4 text-sm">

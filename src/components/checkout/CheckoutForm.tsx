@@ -7,6 +7,7 @@ import SubmitButton from "@/components/SubmitButton";
 import BotShield from "@/components/security/BotShield";
 import type { ShippingAddress } from "@/db/schema";
 import { cn, formatINR } from "@/lib/utils";
+import DynamicUpiQr from "./DynamicUpiQr";
 
 type Props = {
   defaults: { fullName: string; phone: string };
@@ -154,7 +155,10 @@ export default function CheckoutForm({ defaults, savedAddress, subtotal, shippin
               </label>
             ))}
           </div>
-          {payment !== "cod" && (
+          {payment === "upi" && (
+            <DynamicUpiQr amount={total} orderReference="AV-PAY" />
+          )}
+          {payment === "online" && (
             <p className="mt-3 flex items-center gap-1.5 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-2)] px-3 py-2 text-xs text-[color:var(--text-muted)]">
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
               256-bit SSL encrypted. Payment details are handled securely via certified payment gateway.

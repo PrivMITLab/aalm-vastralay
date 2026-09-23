@@ -20,6 +20,7 @@ import { Rating, RatingPill } from "@/components/Rating";
 import SizeGuideModal from "@/components/product/SizeGuideModal";
 import PincodeEstimator from "@/components/product/PincodeEstimator";
 import WhatsAppShare from "@/components/product/WhatsAppShare";
+import WhatsAppConsultButton from "@/components/product/WhatsAppConsultButton";
 import MobileStickyBar from "@/components/product/MobileStickyBar";
 
 export const dynamic = "force-dynamic";
@@ -178,6 +179,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               price={product.price}
               slug={product.slug}
               storeName={store.storeName}
+            />
+            <WhatsAppConsultButton
+              productTitle={product.title}
+              productSlug={product.slug}
             />
             <PincodeEstimator />
           </div>

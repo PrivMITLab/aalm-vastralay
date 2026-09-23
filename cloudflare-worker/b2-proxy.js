@@ -1,5 +1,6 @@
 /**
  * 👑 AALM VASTRALAY — BACKBLAZE B2 PRIVATE BUCKET CLOUDFLARE WORKER PROXY
+ * Location: cloudflare-worker/b2-proxy.js
  *
  * Provides $0 egress fee media streaming via Cloudflare Bandwidth Alliance:
  *  - Serves private Backblaze B2 bucket objects without making bucket public
@@ -7,18 +8,11 @@
  *  - Emits immutable edge cache headers: Cache-Control: public, max-age=31536000, immutable
  *  - Emits CDN-Cache-Control for Cloudflare 300+ edge PoPs
  *  - Opaque proxy URLs: Browser never sees Backblaze S3 credentials or raw endpoint
- *
- * Environment variables:
- *  - B2_KEY_ID: Application key ID
- *  - B2_APP_KEY: Application key secret
- *  - B2_BUCKET_NAME: Target private bucket name
- *  - B2_TOKEN_KV: (Optional) Cloudflare KV namespace binding for cross-worker token sharing
  */
 
 let authCache = null;
 
 async function getB2Auth(env) {
-  // 1. Check Cloudflare KV namespace if bound
   if (env.B2_TOKEN_KV && typeof env.B2_TOKEN_KV.get === "function") {
     try {
       const cached = await env.B2_TOKEN_KV.get("b2_auth_token", "json");
@@ -30,12 +24,10 @@ async function getB2Auth(env) {
     }
   }
 
-  // 2. Check in-memory isolate cache
   if (authCache && authCache.expires > Date.now()) {
     return authCache;
   }
 
-  // 3. Request fresh authorization token from Backblaze B2
   const res = await fetch("https://api.backblazeb2.com/b2api/v2/b2_authorize_account", {
     headers: {
       Authorization: "Basic " + btoa(`${env.B2_KEY_ID}:${env.B2_APP_KEY}`),
@@ -50,12 +42,11 @@ async function getB2Auth(env) {
   const tokenData = {
     downloadUrl: json.downloadUrl,
     authorizationToken: json.authorizationToken,
-    expires: Date.now() + 23 * 60 * 60 * 1000, // Tokens expire in 24 hours, refresh after 23h
+    expires: Date.now() + 23 * 60 * 60 * 1000,
   };
 
   authCache = tokenData;
 
-  // 4. Persist to Cloudflare KV for 23 hours
   if (env.B2_TOKEN_KV && typeof env.B2_TOKEN_KV.put === "function") {
     try {
       await env.B2_TOKEN_KV.put("b2_auth_token", JSON.stringify(tokenData), {
@@ -78,12 +69,10 @@ const workerHandler = {
     const url = new URL(request.url);
     const key = decodeURIComponent(url.pathname.replace(/^\/+/, ""));
 
-    // Prevent path traversal
     if (!key || key.includes("..") || key.startsWith(".")) {
       return new Response("Not found", { status: 404 });
     }
 
-    // 1. Check Cloudflare Edge Cache API
     const cache = caches.default;
     const cacheKey = new Request(url.toString(), { method: "GET" });
     const cachedResponse = await cache.match(cacheKey);
@@ -91,7 +80,6 @@ const workerHandler = {
       return cachedResponse;
     }
 
-    // 2. Authenticate upstream
     let auth;
     try {
       auth = await getB2Auth(env);
@@ -99,7 +87,6 @@ const workerHandler = {
       return new Response(`Upstream authorization error: ${err.message}`, { status: 502 });
     }
 
-    // 3. Fetch from private Backblaze B2 bucket
     const upstreamUrl = `${auth.downloadUrl}/file/${env.B2_BUCKET_NAME}/${key}`;
     const upstream = await fetch(upstreamUrl, {
       headers: {
@@ -112,7 +99,6 @@ const workerHandler = {
     });
 
     if (upstream.status === 401) {
-      // Invalidate token cache on early revocation
       authCache = null;
       if (env.B2_TOKEN_KV && typeof env.B2_TOKEN_KV.delete === "function") {
         ctx.waitUntil(env.B2_TOKEN_KV.delete("b2_auth_token"));
@@ -125,13 +111,11 @@ const workerHandler = {
       });
     }
 
-    // 4. Construct response with aggressive edge caching headers
     const headers = new Headers();
     headers.set("Content-Type", upstream.headers.get("Content-Type") || "application/octet-stream");
     const len = upstream.headers.get("Content-Length");
     if (len) headers.set("Content-Length", len);
 
-    // 1 year immutable edge cache
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     headers.set("CDN-Cache-Control", "public, max-age=31536000");
     headers.set("Access-Control-Allow-Origin", "*");

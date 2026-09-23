@@ -99,6 +99,7 @@ export const products = pgTable(
     index("idx_products_store").on(t.storeId),
     index("idx_products_category").on(t.categoryId),
     index("idx_products_active").on(t.isActive).where(sql`is_active = true`),
+    index("idx_products_category_active").on(t.categoryId, t.isActive),
     index("idx_products_fts").using(
       "gin",
       sql`to_tsvector('english', ${t.title} || ' ' || COALESCE(${t.description}, ''))`,
@@ -145,18 +146,23 @@ export const orders = pgTable(
     index("idx_orders_customer").on(t.customerId),
     index("idx_orders_store").on(t.storeId),
     index("idx_orders_status").on(t.status),
+    index("idx_orders_created").on(t.createdAt),
   ],
 );
 
-export const orderItems = pgTable("order_items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  orderId: uuid("order_id").references(() => orders.id, { onDelete: "cascade" }),
-  productId: uuid("product_id").references(() => products.id),
-  variantId: uuid("variant_id").references(() => productVariants.id),
-  quantity: integer("quantity").notNull(),
-  price: money("price").notNull(),
-  total: money("total").notNull(),
-});
+export const orderItems = pgTable(
+  "order_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").references(() => products.id),
+    variantId: uuid("variant_id").references(() => productVariants.id),
+    quantity: integer("quantity").notNull(),
+    price: money("price").notNull(),
+    total: money("total").notNull(),
+  },
+  (t) => [index("idx_order_items_order").on(t.orderId)],
+);
 
 export const cart = pgTable(
   "cart",
@@ -196,7 +202,11 @@ export const reviews = pgTable(
     isVerified: boolean("is_verified").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [check("reviews_rating_check", sql`${t.rating} BETWEEN 1 AND 5`), index("idx_reviews_product").on(t.productId)],
+  (t) => [
+    check("reviews_rating_check", sql`${t.rating} BETWEEN 1 AND 5`),
+    index("idx_reviews_product").on(t.productId),
+    index("idx_reviews_product_verified").on(t.productId, t.isVerified),
+  ],
 );
 
 export const coupons = pgTable(
@@ -247,7 +257,10 @@ export const addresses = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [index("idx_addresses_user").on(t.userId)],
+  (t) => [
+    index("idx_addresses_user").on(t.userId),
+    index("idx_addresses_user_default").on(t.userId, t.isDefault),
+  ],
 );
 
 export const settings = pgTable("settings", {
