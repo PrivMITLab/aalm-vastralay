@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { and, eq, sql } from "drizzle-orm";
-import { MapPin, Phone, RotateCcw, XCircle } from "lucide-react";
+import { FileText, MapPin, Phone, RotateCcw, XCircle } from "lucide-react";
 import { db } from "@/db";
 import { orderItems, orders, productVariants, products, stores } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -68,7 +68,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             )}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <Link
+            href={`/orders/${order.id}/invoice`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-maroon-300 bg-cream-50 px-3 py-1.5 text-xs font-semibold text-maroon-800 hover:bg-maroon-100 hover:border-maroon-400 transition-colors shadow-xs"
+          >
+            <FileText className="h-3.5 w-3.5 text-maroon-700" />
+            <span>Tax Invoice / कर इनवॉइस</span>
+          </Link>
           <WhatsAppOrderButton
             orderNumber={order.orderNumber}
             total={order.total}
@@ -146,6 +153,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <p className="pt-1 text-xs text-slate-500">
               Payment: <span className="uppercase">{order.paymentMethod}</span> · {order.paymentStatus}
             </p>
+            <div className="pt-3 border-t border-cream-200">
+              <Link
+                href={`/orders/${order.id}/invoice`}
+                className="flex items-center justify-center gap-2 rounded-xl border border-cream-300 bg-cream-100/70 py-2.5 px-3 text-xs font-semibold text-maroon-900 hover:bg-cream-200 transition-colors shadow-xs"
+              >
+                <FileText className="h-4 w-4 text-maroon-800" />
+                <span>Download / Print Tax Invoice (कर इनवॉइस)</span>
+              </Link>
+            </div>
           </dl>
         </section>
 

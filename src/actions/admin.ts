@@ -11,6 +11,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { SETTINGS_DEFAULTS, SETTINGS_FIELDS, ensureSettingsRows, invalidateSettings } from "@/lib/settings";
 import { slugify } from "@/lib/utils";
 import { invalidateCatalog } from "@/lib/cache";
+import { transitionOrderStatus } from "@/lib/orders-lifecycle";
 import type { ActionState } from "./auth";
 
 async function assertAdmin() {
@@ -276,20 +277,26 @@ export async function toggleProductFeatured(formData: FormData) {
 
 /* --------------------------------- orders --------------------------------- */
 
-export async function updateAdminOrderStatus(formData: FormData) {
+export async function adminUpdateOrderStatus(formData: FormData) {
   const admin = await assertAdmin();
   if (!admin) return;
   const orderId = String(formData.get("orderId") ?? "");
   const status = String(formData.get("status") ?? "");
-  const allowed = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"];
-  if (!allowed.includes(status)) return;
-  const [ord] = await db.select({ orderNumber: orders.orderNumber }).from(orders).where(eq(orders.id, orderId)).limit(1);
-  if (!ord) return;
-  await db.update(orders).set({ status, updatedAt: new Date() }).where(eq(orders.id, orderId));
-  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "order.status", target: ord.orderNumber, detail: `Status changed to ${status}` });
-  revalidatePath("/admin/orders");
-  revalidatePath(`/orders/${orderId}`);
+  const courier = String(formData.get("courier") ?? "").trim() || undefined;
+  const trackingNumber = String(formData.get("trackingNumber") ?? "").trim() || undefined;
+
+  await transitionOrderStatus({
+    orderId,
+    status,
+    courier,
+    trackingNumber,
+    actorId: admin.id,
+    actorEmail: admin.email,
+    actorRole: "admin",
+  });
 }
+
+export const updateAdminOrderStatus = adminUpdateOrderStatus;
 
 /* --------------------------- maintenance tasks --------------------------- */
 

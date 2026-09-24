@@ -13,6 +13,7 @@ import { getSettingBool, getSettingNumber } from "@/lib/settings";
 import { invalidateCatalog } from "@/lib/cache";
 import { formatINR, slugify, uniqueSlug } from "@/lib/utils";
 import { restock } from "./orders";
+import { transitionOrderStatus } from "@/lib/orders-lifecycle";
 import type { ActionState } from "./auth";
 
 async function getOwnStore(userId: string) {
@@ -353,47 +354,13 @@ export async function updateOrderStatus(formData: FormData) {
   const rl = await rateLimit({ key: `order-status:${user.id}`, limit: 60, windowSeconds: 300 });
   if (!rl.ok) return;
 
-  await db
-    .update(orders)
-    .set({
-      status,
-      trackingNumber: trackingNumber || order.trackingNumber,
-      courier: courier || order.courier,
-      paymentStatus: status === "delivered" ? "paid" : status === "cancelled" || status === "returned" ? "refunded" : order.paymentStatus,
-      updatedAt: new Date(),
-    })
-    .where(eq(orders.id, orderId));
-
-  if ((status === "cancelled" || status === "returned") && order.status !== "cancelled" && order.status !== "returned") {
-    await restock(orderId);
-  }
-
-  if (order.customerId) {
-    const labels: Record<string, string> = {
-      confirmed: "Your order has been confirmed by the seller.",
-      processing: "Your order is being prepared.",
-      shipped: `Your order has been shipped${courier ? ` via ${courier}` : ""}${trackingNumber ? ` (Tracking: ${trackingNumber})` : ""}.`,
-      delivered: "Your order has been delivered. Enjoy your purchase!",
-      cancelled: "Your order was cancelled by the seller.",
-      returned: "Your return has been processed.",
-    };
-    await db.insert(notifications).values({
-      userId: order.customerId,
-      type: `order_${status}`,
-      title: `Order ${order.orderNumber} ${status}`,
-      body: labels[status] ?? `Status updated to ${status}.`,
-      data: { orderId },
-    });
-  }
-  await recordAudit({
+  await transitionOrderStatus({
+    orderId,
+    status,
+    trackingNumber: trackingNumber || undefined,
+    courier: courier || undefined,
     actorId: user.id,
     actorEmail: user.email,
-    action: "order.status",
-    target: order.orderNumber,
-    detail: `${order.status} → ${status}${courier || trackingNumber ? ` · ${courier} ${trackingNumber}`.trimEnd() : ""}`,
+    actorRole: user.role === "admin" ? "admin" : "seller",
   });
-  revalidatePath("/seller/orders");
-  revalidatePath("/orders");
-  revalidatePath(`/orders/${orderId}`);
-  revalidatePath("/admin");
 }

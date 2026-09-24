@@ -34,25 +34,113 @@ export interface PushNotificationPayload {
   tag: string;
 }
 
+export interface OrderStatusNotificationInput {
+  orderId: string;
+  orderNumber?: string;
+  userId?: string | null;
+  status: string;
+  courier?: string | null;
+  trackingNumber?: string | null;
+  productName?: string | null;
+}
+
 /**
- * Builds the standardized push notification payload for order dispatch.
+ * Builds standardized push notification payloads across all lifecycle states.
+ * Prompts customer for UGC photo review upon delivery.
  */
-export function buildDispatchNotificationPayload(input: OrderDispatchNotificationInput): PushNotificationPayload {
+export function buildStatusNotificationPayload(input: OrderStatusNotificationInput): PushNotificationPayload {
   const orderRef = input.orderNumber || input.orderId.slice(0, 8).toUpperCase();
   const courierName = input.courier || "Express Courier";
   const tracking = input.trackingNumber ? ` (AWB: ${input.trackingNumber})` : "";
   const itemDesc = input.productName ? ` (${input.productName})` : "";
 
-  return {
-    title: "Order Dispatched! 🚀",
-    body: `Your order #${orderRef}${itemDesc} has been handed over to ${courierName}${tracking}. Track your parcel live!`,
-    icon: "/icon",
-    badge: "/apple-icon",
-    url: `/orders/${input.orderId}`,
-    orderId: input.orderId,
-    trackingNumber: input.trackingNumber,
-    tag: `order-dispatch-${input.orderId}`,
-  };
+  switch (input.status) {
+    case "delivered":
+      return {
+        title: "Order Delivered! 📦✨",
+        body: `Your order #${orderRef}${itemDesc} has been delivered! How was the fit and quality? Share a photo review and get featured!`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        trackingNumber: input.trackingNumber,
+        tag: `order-delivered-${input.orderId}`,
+      };
+
+    case "shipped":
+      return {
+        title: "Order Dispatched! 🚀",
+        body: `Your order #${orderRef}${itemDesc} has been handed over to ${courierName}${tracking}. Track your parcel live!`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        trackingNumber: input.trackingNumber,
+        tag: `order-dispatch-${input.orderId}`,
+      };
+
+    case "confirmed":
+      return {
+        title: "Order Confirmed! 🌸",
+        body: `Your order #${orderRef} has been confirmed by Aalm Vastralay and is queued for preparation.`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        tag: `order-confirmed-${input.orderId}`,
+      };
+
+    case "processing":
+      return {
+        title: "Order in Tailoring & Processing 🧵",
+        body: `Your order #${orderRef} is being hand-inspected and tailored with royal care.`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        tag: `order-processing-${input.orderId}`,
+      };
+
+    case "cancelled":
+      return {
+        title: "Order Cancelled ⚠️",
+        body: `Your order #${orderRef} has been cancelled. If any payment was made, your refund is being initiated.`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        tag: `order-cancelled-${input.orderId}`,
+      };
+
+    case "returned":
+      return {
+        title: "Return Processed 🔄",
+        body: `Your return for order #${orderRef} has been processed successfully.`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        tag: `order-returned-${input.orderId}`,
+      };
+
+    default:
+      return {
+        title: `Order Update #${orderRef}`,
+        body: `Your order #${orderRef} status is now ${input.status}.`,
+        icon: "/icon",
+        badge: "/apple-icon",
+        url: `/orders/${input.orderId}`,
+        orderId: input.orderId,
+        tag: `order-${input.status}-${input.orderId}`,
+      };
+  }
+}
+
+/**
+ * Builds the standardized push notification payload for order dispatch.
+ */
+export function buildDispatchNotificationPayload(input: OrderDispatchNotificationInput): PushNotificationPayload {
+  return buildStatusNotificationPayload({ ...input, status: "shipped" });
 }
 
 /**
@@ -68,14 +156,14 @@ export function isValidPushSubscription(sub: unknown): sub is PushSubscriptionDa
 }
 
 /**
- * Records an in-app order dispatch notification in the database and triggers push dispatch.
+ * Records an in-app order status lifecycle notification in the database and triggers push dispatch.
  */
-export async function sendOrderDispatchNotification(input: OrderDispatchNotificationInput): Promise<{
+export async function sendOrderStatusPushNotification(input: OrderStatusNotificationInput): Promise<{
   success: boolean;
   notificationId?: string;
   message: string;
 }> {
-  const payload = buildDispatchNotificationPayload(input);
+  const payload = buildStatusNotificationPayload(input);
 
   try {
     let notificationId: string | undefined;
@@ -86,12 +174,13 @@ export async function sendOrderDispatchNotification(input: OrderDispatchNotifica
         .insert(notifications)
         .values({
           userId: input.userId,
-          type: "order_dispatch",
+          type: `order_${input.status}`,
           title: payload.title,
           body: payload.body,
           data: {
             url: payload.url,
             orderId: input.orderId,
+            status: input.status,
             courier: input.courier,
             trackingNumber: input.trackingNumber,
           },
@@ -110,14 +199,25 @@ export async function sendOrderDispatchNotification(input: OrderDispatchNotifica
     return {
       success: true,
       notificationId,
-      message: `Dispatch notification recorded for order ${input.orderId}`,
+      message: `Status notification recorded for order ${input.orderId} (${input.status})`,
     };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Unknown error";
-    console.error("[Push Engine] Failed to dispatch order notification:", errorMsg);
+    console.error("[Push Engine] Failed to dispatch order status notification:", errorMsg);
     return {
       success: false,
       message: errorMsg,
     };
   }
+}
+
+/**
+ * Records an in-app order dispatch notification in the database and triggers push dispatch.
+ */
+export async function sendOrderDispatchNotification(input: OrderDispatchNotificationInput): Promise<{
+  success: boolean;
+  notificationId?: string;
+  message: string;
+}> {
+  return sendOrderStatusPushNotification({ ...input, status: "shipped" });
 }

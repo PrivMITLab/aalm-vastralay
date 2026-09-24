@@ -106,6 +106,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "commerce.returnWindowDays", group: "commerce", label: "Return window", type: "number", default: "7", unit: "days" },
   { key: "commerce.gstPercent", group: "commerce", label: "GST rate", type: "number", default: "5", unit: "%" },
   { key: "commerce.gstInclusive", group: "commerce", label: "Prices include GST", type: "boolean", default: "true" },
+  { key: "commerce.gstin", group: "commerce", label: "Marketplace GSTIN", type: "text", default: "10AABFA8434Q1Z5", help: "15-digit statutory GSTIN printed on tax invoices (State Code: 10 - Bihar)." },
   { key: "commerce.minOrderValue", group: "commerce", label: "Minimum order value", type: "number", default: "0", unit: "₹" },
   { key: "commerce.allowGuestBrowsing", group: "commerce", label: "Allow browsing without signing in", type: "boolean", default: "true" },
   { key: "commerce.weightUnit", group: "commerce", label: "Shipping weight unit", type: "select", options: ["kg", "g"], default: "kg" },

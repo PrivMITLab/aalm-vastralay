@@ -20,6 +20,7 @@ import { runUgcReviewTests } from "./unit/ugc-review.test";
 import { testPushNotifications } from "./unit/push-notifications.test";
 import { testCourierIntegration } from "./unit/courier-integration.test";
 import { testBrandAssets } from "./unit/brand-assets.test";
+import { testGstInvoice } from "./gst-invoice.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -51,6 +52,7 @@ async function runAllTests() {
     { name: "Service Worker Push Notifications & Order Dispatch", fn: testPushNotifications },
     { name: "Shiprocket & Delhivery Direct Courier & AWB Generation", fn: testCourierIntegration },
     { name: "Brand Identity, 20 Logos & 53-Icon Matrix Integrity", fn: testBrandAssets },
+    { name: "Statutory GST Tax Invoice & Lifecycle Engine", fn: testGstInvoice },
   ];
 
   for (const suite of suites) {
