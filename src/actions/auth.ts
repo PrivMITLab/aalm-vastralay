@@ -1,12 +1,13 @@
 "use server";
 
-import { randomUUID } from "crypto";
+import { randomInt, randomUUID } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { notifications, users } from "@/db/schema";
+import { sendGasEmail } from "@/lib/gas-mailer";
 import {
   clearSessionCookie,
   getCurrentUser,
@@ -211,3 +212,108 @@ export async function markNotificationsRead() {
   revalidatePath("/notifications");
   revalidatePath("/", "layout");
 }
+
+/* ------------------------------- forgot & reset password ------------------------------- */
+
+export async function requestPasswordReset(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gateResult = await gate(formData, "auth:forgot-password", "security.authRateLimit");
+  if (!gateResult.ok) return { error: gateResult.error };
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) {
+    return { error: "कृपया एक वैध ईमेल दर्ज करें (Please enter a valid email)." };
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  if (user) {
+    // Generate secure 6-digit numeric OTP
+    const otp = randomInt(100000, 1000000).toString();
+    // 15-minute expiry window
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await db
+      .update(users)
+      .set({
+        resetOtp: otp,
+        resetOtpExpiresAt: expiresAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    // Send transactional OTP email via Google Apps Script (Gmail)
+    await sendGasEmail({
+      type: "FORGOT_PASSWORD",
+      to: user.email,
+      otp,
+      name: user.fullName,
+    });
+
+    await recordAudit({ actorEmail: email, action: "auth.password_reset_requested" });
+  }
+
+  return {
+    success: "यदि यह ईमेल हमारे रिकॉर्ड में है, तो 6-अंकों का OTP कोड भेज दिया गया है। (If an account exists, a 6-digit OTP has been sent).",
+  };
+}
+
+export async function verifyOtpAndResetPassword(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gateResult = await gate(formData, "auth:reset-password", "security.authRateLimit");
+  if (!gateResult.ok) return { error: gateResult.error };
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const otp = String(formData.get("otp") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (!email || !otp || !password) {
+    return { error: "सभी फ़ील्ड्स अनिवार्य हैं (All fields are required)." };
+  }
+
+  if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+    return { error: "कृपया सही 6-अंकों का OTP दर्ज करें (Invalid 6-digit OTP)." };
+  }
+
+  if (password !== confirm) {
+    return { error: "पासवर्ड मेल नहीं खा रहे हैं (Passwords do not match)." };
+  }
+
+  const policy = await passwordPolicy();
+  if (policy.strong && !isStrongPassword(password)) {
+    return { error: "Use at least 8 characters with upper case, lower case, and a number." };
+  } else if (password.length < 6) {
+    return { error: "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए (Password must be at least 6 characters)." };
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  if (!user || !user.resetOtp || !user.resetOtpExpiresAt) {
+    return { error: "अमान्य या पुराना अनुरोध। कृपया पुनः OTP भेजें (Invalid or expired request. Please request a new OTP)." };
+  }
+
+  if (new Date() > new Date(user.resetOtpExpiresAt)) {
+    return { error: "यह OTP समाप्त (Expired) हो चुका है। कृपया नया OTP प्राप्त करें (OTP has expired)." };
+  }
+
+  if (user.resetOtp !== otp) {
+    return { error: "गलत OTP कोड दर्ज किया गया है (Incorrect OTP code)." };
+  }
+
+  // Update password and clear OTP
+  await db
+    .update(users)
+    .set({
+      passwordHash: hashPassword(password),
+      resetOtp: null,
+      resetOtpExpiresAt: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+
+  await recordAudit({ actorId: user.id, actorEmail: email, action: "auth.password_reset_completed" });
+
+  // Auto-login the user with a fresh session
+  await setSessionCookie(user);
+  redirect("/dashboard?reset=success");
+}
+

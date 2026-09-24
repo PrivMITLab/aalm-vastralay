@@ -73,9 +73,19 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
         </div>
       )}
       <div>
-        <label className="label" htmlFor="password">
-          Password
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="label mb-0" htmlFor="password">
+            Password
+          </label>
+          {!isSignUp && (
+            <Link
+              href="/forgot-password"
+              className="text-xs font-semibold text-[color:var(--brand)] hover:underline"
+            >
+              Forgot password?
+            </Link>
+          )}
+        </div>
         <div className="relative">
           <input
             id="password"

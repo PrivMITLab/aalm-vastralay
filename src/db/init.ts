@@ -19,6 +19,8 @@ const TABLE_DDL_STATEMENTS = [
     "role" text DEFAULT 'customer' NOT NULL,
     "avatar_url" text,
     "password_hash" text,
+    "reset_otp" text,
+    "reset_otp_expires_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "users_role_check" CHECK ("role" IN ('customer','seller','admin'))
@@ -269,6 +271,14 @@ export async function autoEnsureTables() {
     } catch {
       // Non-fatal if index already exists or tsvector index differs
     }
+  }
+
+  // Safe zero-loss migration for password reset OTP fields
+  try {
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
+  } catch {
+    // Non-fatal if columns exist
   }
 }
 

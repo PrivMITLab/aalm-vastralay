@@ -33,6 +33,8 @@ export const users = pgTable(
     avatarUrl: text("avatar_url"),
     // Local credential fallback (Clerk handles this in production).
     passwordHash: text("password_hash"),
+    resetOtp: text("reset_otp"),
+    resetOtpExpiresAt: timestamp("reset_otp_expires_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
