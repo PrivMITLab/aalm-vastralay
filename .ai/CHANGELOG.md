@@ -3,6 +3,26 @@
 
 ---
 
+## [2026-09-24] — Production Bug Fixes, Serverless Storage Resilience & Admin Interactive Suite
+
+### Fixed
+- **Admin Theme SSR Event Crash (`/admin/theme`):**
+  - Resolved `ERROR 3000360342` caused by inline `onChange` event handlers inside an `async` Server Component.
+  - Built `src/components/admin/ThemeEditorForm.tsx` as a client component managing real-time color swatches, live branding typography preview, and form action with loading state.
+- **Forgot Password Form Field Name Mismatch (`/forgot-password`):**
+  - Resolved persistent `"पासवर्ड मेल नहीं खा रहे हैं (Passwords do not match)"` error.
+  - Reconciled `confirmPassword` from `ForgotPasswordForm.tsx` with backend `verifyOtpAndResetPassword` in `src/actions/auth.ts`.
+- **Seller Order Status Live Revalidation (`/seller/orders`):**
+  - Added `revalidatePath("/seller/orders")`, `revalidatePath("/admin/orders")`, and `revalidatePath("/orders/" + orderId)` inside `updateOrderStatus` in `src/actions/seller.ts` so order status updates instantly without requiring a page refresh.
+- **Multi-Account Google Drive Image URL Parsing:**
+  - Expanded `GDRIVE_URL_REGEX` in `src/lib/image-resolver.ts` to match multi-account URLs (`/file/u/0/d/...`, `/file/u/1/d/...`) and direct ID query params (`uc?id=...`).
+- **Serverless Image Upload Resilience & CSP:**
+  - Fixed `ENOENT: mkdir '/var/task/public/uploads'` on Vercel by integrating direct Backblaze B2 cloud storage upload via Cloudflare Worker proxy and safe serverless Data URI fallback in `src/lib/uploads.ts`.
+  - Added store auto-provisioning in `src/app/api/uploads/product/route.ts`.
+  - Added `"worker-src 'self' blob:"` and `"child-src 'self' blob:"` in `next.config.ts` Content Security Policy (CSP).
+
+---
+
 ## [2026-09-24] — Route Completion, Performance (Static/ISR) Optimization & Luxury UI/UX Revamp
 
 ### Added

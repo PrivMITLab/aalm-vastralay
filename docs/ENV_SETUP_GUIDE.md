@@ -166,15 +166,27 @@ BOOTSTRAP_TOKEN="aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c"
 SKIP_SEED="true"
 
 # ------------------------------------------------------------------------------
-# 5. इमेज होस्टिंग: ImageKit (वैकल्पिक - जब चाहें तब जोड़ें)
+# ------------------------------------------------------------------------------
+# 5. इमेज होस्टिंग: ImageKit (वैकल्पिक)
 # ------------------------------------------------------------------------------
 # NEXT_PUBLIC_IMAGEKIT_URL="https://ik.imagekit.io/your_id"
 # NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY="public_xxxxxx"
 # IMAGEKIT_PRIVATE_KEY="private_xxxxxx"
 
 # ------------------------------------------------------------------------------
-# 6. ईमेल सेवा: QuietMail / Resend (वैकल्पिक - जब चाहें तब जोड़ें)
+# 6. बैकब्लेज B2 + क्लाउडफ्लेयर वर्कर प्रॉक्सी (प्राइवेट क्लाउड स्टोरेज)
 # ------------------------------------------------------------------------------
+# B2_KEY_ID="005xxxxxxxxxxxx0000000001"
+# B2_APP_KEY="K005xxxxxxxxxxxxxxxxxxxx"
+# B2_BUCKET_NAME="aalm-vastralay-cold-storage"
+# B2_BUCKET_ID="xxxxxxxxxxxxxxxxxxxx"
+# NEXT_PUBLIC_B2_PUBLIC_URL="https://aalm-b2-proxy.alamwastraly.workers.dev"
+
+# ------------------------------------------------------------------------------
+# 7. ईमेल सेवा: Google Apps Script / QuietMail / Resend (वैकल्पिक)
+# ------------------------------------------------------------------------------
+# GAS_EMAIL_URL="https://script.google.com/macros/s/AKfycbx.../exec"
+# GAS_SECRET_TOKEN="aalm_gas_bridge_secret_998124"
 # QUIETMAIL_API_URL="https://api.quiet-mail.example/v1/send"
 # QUIETMAIL_API_KEY="qm_xxxxxx"
 # EMAIL_FROM="Aalm Vastralay <orders@aalmvastralay.in>"

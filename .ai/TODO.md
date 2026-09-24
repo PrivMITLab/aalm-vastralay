@@ -30,6 +30,11 @@
 - [x] Full Route Completion (Categories, Search, Help, FAQ, Shipping, Track Order, Size Guide, Blog, Policies, Admin Suite, APIs).
 - [x] Mobile Navigation Slide-Over Overhaul (full-height luxury drawer, category accordion, WhatsApp direct booking, persistent dual-mode logo).
 - [x] Performance (Static/ISR) Optimization (`revalidate` on Home, Categories, Blog, Legal, Sitemap, and Manifest).
+- [x] Admin Theme Editor Client Form (`ThemeEditorForm.tsx`) with real-time swatch sync & SSR safety.
+- [x] Forgot Password OTP & Confirm Password form field alignment with instant verification.
+- [x] Universal Google Drive link resolver supporting multi-account URLs (`/file/u/X/d/`) and direct queries.
+- [x] Serverless upload fallback resilience with Backblaze B2 & Data URI fallback on Vercel.
+- [x] Real-time order status revalidation on `/seller/orders`.
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.
