@@ -1,44 +1,15 @@
 import "server-only";
+import { getB2DirectUploadCredentials } from "@/lib/b2";
 
 export type UploadResult = { url: string; bytes: number; type: string };
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
-/**
- * persistUpload is only available in self-hosted (Node.js) deployments where
- * the filesystem is writable.  In Cloudflare Workers the `fs` module does not
- * exist, so callers must use ImageKit (or another CDN) for direct uploads.
- *
- * At runtime we lazy-require `fs/promises` and related modules so the Worker
- * bundle does not fail to compile on import.  If the modules are absent the
- * function throws a clear message instead of a cryptic Worker crash.
- */
 export async function persistUpload(input: {
   bucket: string;
   data: string;
   mime: string;
 }): Promise<UploadResult> {
-  // Lazy-load Node.js-only modules to avoid crashing the Cloudflare Worker
-  // bundle at import time.
-  let fs: typeof import("fs/promises");
-  let cryptoMod: typeof import("crypto");
-  let pathMod: typeof import("path");
-
-  try {
-    fs = await import("fs/promises");
-    cryptoMod = await import("crypto");
-    pathMod = await import("path");
-  } catch {
-    throw new Error(
-      "Local file uploads are not supported in this deployment. " +
-        "Please configure ImageKit for image uploads.",
-    );
-  }
-
-  const { mkdir, writeFile } = fs;
-  const { randomBytes } = cryptoMod;
-  const { join, normalize, resolve } = pathMod;
-
   const ALLOWED = new Set([
     "image/jpeg",
     "image/png",
@@ -49,30 +20,10 @@ export async function persistUpload(input: {
 
   if (!ALLOWED.has(input.mime))
     throw new Error(`Unsupported file type ${input.mime}`);
-  const ext = extFromMime(input.mime);
-  const hash = randomBytes(8).toString("hex");
-
-  const publicRoot = resolve(process.cwd(), "public");
-  const uploadsRoot = resolve(publicRoot, "uploads");
-  const segments = input.bucket
-    .split("/")
-    .map((seg) =>
-      seg
-        .replace(/[^a-z0-9_-]/gi, "")
-        .toLowerCase()
-        .slice(0, 40),
-    )
-    .filter(Boolean)
-    .slice(0, 4);
-  const dir = resolve(join(uploadsRoot, ...segments));
-  if (!dir.startsWith(uploadsRoot)) throw new Error("Upload path escape");
-  await mkdir(dir, { recursive: true });
-
-  const filename = `${hash}${ext}`;
-  const filepath = join(dir, filename);
 
   if (!input.data.startsWith("data:"))
     throw new Error("Unsupported upload format");
+
   const comma = input.data.indexOf(",");
   const raw = comma >= 0 ? input.data.slice(comma + 1) : input.data;
   const buffer = Buffer.from(raw, "base64");
@@ -81,12 +32,89 @@ export async function persistUpload(input: {
     throw new Error("File too large (max 5 MB)");
   if (!looksLikeImage(buffer, input.mime))
     throw new Error("File contents do not match an image");
-  await writeFile(filepath, buffer);
 
-  const relative = normalize(filepath)
-    .slice(publicRoot.length)
-    .replace(/\\/g, "/");
-  return { url: relative, bytes: buffer.length, type: input.mime };
+  const ext = extFromMime(input.mime);
+  const cryptoMod = await import("crypto");
+  const hash = cryptoMod.randomBytes(8).toString("hex");
+  const filename = `${hash}${ext}`;
+
+  // 1. If Backblaze B2 is configured, upload directly to B2
+  const hasB2 = Boolean(
+    process.env.B2_KEY_ID &&
+    process.env.B2_APP_KEY &&
+    process.env.B2_BUCKET_ID
+  );
+
+  if (hasB2) {
+    try {
+      const b2Key = `${input.bucket}/${filename}`;
+      const creds = await getB2DirectUploadCredentials(b2Key);
+      const isDirectB2 = creds.uploadUrl.includes("backblazeb2.com");
+      if (isDirectB2) {
+        const b2Res = await fetch(creds.uploadUrl, {
+          method: "POST",
+          headers: {
+            Authorization: creds.authorizationToken,
+            "X-Bz-File-Name": encodeURIComponent(b2Key),
+            "Content-Type": input.mime,
+            "Content-Length": String(buffer.length),
+            "X-Bz-Content-Sha1": "do_not_verify",
+          },
+          body: buffer,
+        });
+
+        if (b2Res.ok) {
+          return { url: `b2:${b2Key}`, bytes: buffer.length, type: input.mime };
+        }
+      }
+    } catch (err) {
+      console.warn("[Uploads] B2 upload failed, attempting fallback:", err);
+    }
+  }
+
+  // 2. Local disk fallback (for self-hosted or Node.js environments)
+  try {
+    const fs = await import("fs/promises");
+    const pathMod = await import("path");
+    const { mkdir, writeFile } = fs;
+    const { join, normalize, resolve } = pathMod;
+
+    const publicRoot = resolve(process.cwd(), "public");
+    const uploadsRoot = resolve(publicRoot, "uploads");
+    const segments = input.bucket
+      .split("/")
+      .map((seg) =>
+        seg
+          .replace(/[^a-z0-9_-]/gi, "")
+          .toLowerCase()
+          .slice(0, 40),
+      )
+      .filter(Boolean)
+      .slice(0, 4);
+    const dir = resolve(join(uploadsRoot, ...segments));
+    if (!dir.startsWith(uploadsRoot)) throw new Error("Upload path escape");
+    await mkdir(dir, { recursive: true });
+
+    const filepath = join(dir, filename);
+    await writeFile(filepath, buffer);
+
+    const relative = normalize(filepath)
+      .slice(publicRoot.length)
+      .replace(/\\/g, "/");
+    return { url: relative, bytes: buffer.length, type: input.mime };
+  } catch {
+    // If on read-only filesystem (e.g. Vercel) and buffer is reasonable size, fallback to data URL
+    if (buffer.length <= 2 * 1024 * 1024) {
+      return {
+        url: `data:${input.mime};base64,${raw}`,
+        bytes: buffer.length,
+        type: input.mime,
+      };
+    }
+    throw new Error(
+      "File storage is in read-only mode. Please configure Backblaze B2 or ImageKit in Vercel settings."
+    );
+  }
 }
 
 function looksLikeImage(buf: Buffer, mime: string) {

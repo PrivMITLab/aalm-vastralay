@@ -24,8 +24,23 @@ export async function POST(req: NextRequest) {
   const limit = await rateLimit({ key: `product-upload:${user.id}`, limit: 30, windowSeconds: 600 });
   if (!limit.ok) return NextResponse.json({ error: "Upload limit reached. Please try again shortly." }, { status: 429 });
 
-  const [store] = await db.select().from(stores).where(eq(stores.ownerId, user.id)).limit(1);
-  if (!store) return NextResponse.json({ error: "Create a store first" }, { status: 400 });
+  let [store] = await db.select().from(stores).where(eq(stores.ownerId, user.id)).limit(1);
+  if (!store) {
+    const storeName = user.fullName ? `${user.fullName}'s Collection` : "Artisan Store";
+    const slug = `store-${user.id.slice(0, 8)}`;
+    const [newStore] = await db
+      .insert(stores)
+      .values({
+        ownerId: user.id,
+        storeName,
+        slug,
+        city: "Kalyanipur",
+        state: "Bihar",
+        isActive: true,
+      })
+      .returning();
+    store = newStore;
+  }
 
   const body = (await req.json().catch(() => null)) as { data?: string; mime?: string; url?: string } | null;
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
