@@ -26,6 +26,7 @@
 - [x] Push notifications for order dispatch via Service Worker (`public/sw.js`, `src/lib/push.ts`, `PushNotificationPrompt.tsx`).
 - [x] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation (`src/lib/courier/`, `GenerateAwbButton.tsx`).
 - [x] Root directory cleanup & Master documentation index (`docs/README.md`, `README.md`).
+- [x] Brand Identity, 20 Multi-Format Logos & Complete 53-Icon System Matrix (`public/logos/`, `public/watermarks/`, `public/`, `docs/ICONS.md`, ADR 014).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

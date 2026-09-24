@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aalm Vastralay Dark Mode Icon">
+  <circle cx="256" cy="256" r="248" fill="#1A1A1A" />
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#D4AF37" stroke-width="12" />
+  <circle cx="256" cy="256" r="222" fill="none" stroke="#E6CA65" stroke-width="4" stroke-dasharray="8 6" />
+  <text x="256" y="340" font-family="Georgia, 'Playfair Display', serif" font-size="240" font-weight="bold" fill="#D4AF37" text-anchor="middle" letter-spacing="-8">AV</text>
+</svg>

@@ -27,15 +27,41 @@ export async function generateMetadata(): Promise<Metadata> {
       url: siteUrl,
       siteName: brand.name,
       locale: "en_IN",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: `${brand.name} – Luxury Wedding & Ethnic Wear`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: brand.name,
       description: brand.tagline,
+      images: ["/twitter-image.png"],
     },
     icons: {
-      icon: [{ url: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="48" font-size="48">${brand.faviconEmoji}</text></svg>`)}` }],
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="48" font-size="48">${brand.faviconEmoji}</text></svg>`)}` },
+      ],
+      apple: [
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+        { url: "/apple-touch-icon-152x152.png", sizes: "152x152", type: "image/png" },
+      ],
+      other: [
+        {
+          rel: "mask-icon",
+          url: "/safari-pinned-tab.svg",
+          color: "#4A148C",
+        },
+      ],
     },
+    manifest: "/manifest.json",
     robots: { index: true, follow: true },
   };
 }

@@ -3,6 +3,40 @@
 
 ---
 
+## [2026-09-24] — Brand Identity, 20 Multi-Format Logos & Complete 53-Icon System Matrix
+
+### Added
+- **Master Vector Artwork (`public/logo-source.svg`, `public/logo.svg`):**
+  - Designed 1024×1024 royal imperial medallion monogram featuring serif lettermark "AV", gold zari filigree circle, and inner micro-bead border.
+  - Preserved root `public/logo.svg` for backwards-compatible vector consumers.
+- **Complete 20-Logo Vector Suite (`public/logos/`):**
+  - **Primary Horizontal (800×200):** `primary.svg`, `primary-white.svg`, `primary-black.svg`, `primary-gray.svg`.
+  - **Secondary Stacked (400×500):** `secondary.svg`, `secondary-white.svg`, `secondary-black.svg`, `secondary-gray.svg`.
+  - **Icon-Only Monogram (512×512):** `icon-only.svg`, `icon-only-white.svg`, `icon-only-black.svg`, `icon-only-gray.svg`.
+  - **Wordmark Only (800×150):** `wordmark.svg`, `wordmark-white.svg`, `wordmark-black.svg`, `wordmark-gray.svg`.
+  - **Lettermark "AV" (512×512):** `lettermark.svg`, `lettermark-white.svg`, `lettermark-black.svg`, `lettermark-gray.svg`.
+  - High-res PNG exports: `primary.png`, `primary@2x.png`, `secondary.png`, `icon-only.png`, `wordmark.png`, `lettermark.png`.
+- **Watermark Protection Suite (`public/watermarks/`):**
+  - `full.svg`: 500×150 horizontal gold watermark (15% opacity) for high-res product detail views.
+  - `icon.svg`: 200×200 medallion watermark (20% opacity) for corner photo protection.
+  - `tiled.svg`: 1000×1000 45-degree diagonal pattern protecting catalog assets from scraping.
+- **53-Icon Multi-Platform Matrix (`public/`, `public/browserconfig.xml`, `public/manifest.json`):**
+  - **Favicons:** `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`, `favicon-96x96.png`, `favicon-dark.svg`.
+  - **Apple Touch Icons:** `apple-touch-icon.png`, `apple-touch-icon-76x76.png`, `apple-touch-icon-152x152.png`, `apple-touch-icon-167x167.png`, `apple-touch-icon-180x180.png`, `apple-touch-icon-precomposed.png`.
+  - **Android / PWA Icons:** `android-chrome-72x72.png`, `android-chrome-96x96.png`, `android-chrome-128x128.png`, `android-chrome-144x144.png`, `android-chrome-152x152.png`, `android-chrome-192x192.png`, `android-chrome-384x384.png`, `android-chrome-512x512.png`.
+  - **Maskable Icons (80% Safe Zone):** `maskable-192x192.png`, `maskable-512x512.png` with 10% outer safety margin.
+  - **Windows Metro Tiles:** `mstile-70x70.png`, `mstile-144x144.png`, `mstile-150x150.png`, `mstile-310x150.png`, `mstile-310x310.png`, `browserconfig.xml`.
+  - **Social & OpenGraph:** `og-image.png` (1200×630), `twitter-image.png` (1200×600), `og-image-square.png` (1200×1200), `linkedin-image.png` (1200×627).
+  - **Email & UI Assets:** `email-logo.png` (400×100), `safari-pinned-tab.svg` (monochrome silhouette), `loading-spinner.svg` (pure CSS animated gold loader).
+- **Metadata & PWA Synchronization (`src/app/layout.tsx`, `src/app/manifest.ts`):**
+  - Updated `generateMetadata()` with comprehensive icon tags, Safari mask-icon, og:image, and static `manifest.json` alongside dynamic routes.
+  - Zero regression: preserved existing `public/brand/` SVGs and dynamic Next.js App Router metadata generators.
+- **Architectural Documentation & Asset Catalog (`docs/ICONS.md`, `.ai/DECISIONS.md`):**
+  - Created ADR 014 detailing market research of Indian ethnic luxury competitors and color psychology.
+  - Authored comprehensive `docs/ICONS.md` asset catalog and developer usage runbook.
+
+---
+
 ## [2026-09-24] — Service Worker Push Notifications, Shiprocket/Delhivery AWB Generation & Master Docs Hub
 
 ### Added

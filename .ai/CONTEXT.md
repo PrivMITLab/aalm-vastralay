@@ -69,3 +69,12 @@
 14. `settings`: 93 zero-code admin settings for banners, theme, brand, pricing, and toggles.
 15. `audit_logs`: Administrative action audit trails with IP and user agent.
 16. `login_attempts` & `rate_limits`: Brute-force lockout and IP throttling.
+
+## 6. Brand Identity & Complete Asset Matrix (ADR 014)
+- **Master Vector Source:** `public/logo-source.svg` (1024×1024 master canvas) and `public/logo.svg`.
+- **Logo Suite (20 SVGs + 6 PNGs in `public/logos/`):**
+  - 5 Logo Styles: Primary Horizontal (800×200), Secondary Stacked (400×500), Icon-Only Monogram (512×512), Wordmark (800×150), Lettermark "AV" (512×512).
+  - 4 Colorways: Full Color (Royal Purple `#4A148C` + Imperial Gold `#D4AF37`), Reversed White, Monochrome Black, Neutral Grayscale.
+- **Watermark Suite (`public/watermarks/`):** Full horizontal (15% opacity), Icon corner (20% opacity), and 45-degree tiled repeat (8% opacity).
+- **Complete 53-Icon Suite (`public/`):** Browser favicons (`favicon.ico`, 16x16, 32x32, 96x96, `favicon-dark.svg`), Apple touch icons (76x76, 152x152, 167x167, 180x180, precomposed), Android PWA icons (72x72 to 512x512), Maskable adaptive icons (192x192, 512x512 with 80% safe zone), Windows tiles (70x70 to 310x310 with `browserconfig.xml`), OpenGraph social cards (1200x630, 1200x600, 1200x1200, 1200x627), transactional email logo (400x100), and animated gold loading spinner.
+- **PWA & Browser Fallbacks:** `public/manifest.json` static fallback alongside dynamic `src/app/manifest.ts`. Zero regression on existing `public/brand/` SVGs.

@@ -19,6 +19,7 @@ import { testPincodeEstimator } from "./unit/pincode-estimator.test";
 import { runUgcReviewTests } from "./unit/ugc-review.test";
 import { testPushNotifications } from "./unit/push-notifications.test";
 import { testCourierIntegration } from "./unit/courier-integration.test";
+import { testBrandAssets } from "./unit/brand-assets.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -49,6 +50,7 @@ async function runAllTests() {
     { name: "Customer UGC Review Photos & Image Sanitization", fn: runUgcReviewTests },
     { name: "Service Worker Push Notifications & Order Dispatch", fn: testPushNotifications },
     { name: "Shiprocket & Delhivery Direct Courier & AWB Generation", fn: testCourierIntegration },
+    { name: "Brand Identity, 20 Logos & 53-Icon Matrix Integrity", fn: testBrandAssets },
   ];
 
   for (const suite of suites) {

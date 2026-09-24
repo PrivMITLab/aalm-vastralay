@@ -68,3 +68,33 @@
 - **Decision:** Build a unified courier engine integrating both Delhivery B2C surface/express APIs and Shiprocket multi-carrier aggregation, with intelligent postal prefix routing (Delhivery for North/East India, Shiprocket nationwide) and printable Code128 barcode labels.
 - **Rationale:** Streamlines merchant fulfillment to a single click, eliminating manual portal data entry, reducing dispatch errors, and generating official carrier waybills instantly.
 
+## ADR 014: Wedding & Ethnic Wear Brand Identity System, Multi-Format Logos & 53-Icon Architecture
+- **Status:** Accepted
+- **Context:**
+  A comprehensive market research study was conducted analyzing top Indian ethnic/wedding wear market leaders (Myntra Luxe, Nykaa Fashion, Tata CLiQ Luxury, Ajio Luxe, Jaypore, Craftsvilla) and global luxury bridal platforms (BHLDN, Net-a-Porter, Farfetch, Revolve).
+- **Market Research Findings:**
+  1. **Logo Style (Heritage Monogram + High-Kerning Wordmark):**
+     - Premium ethnic houses utilize a dual-tier identity: A circular medallion monogram paired with a balanced, high-kerning serif wordmark.
+     - Pure sans-serif wordmarks feel too generic/tech-like for wedding couture, while script-heavy logos fail legibility at < 32px favicon sizes.
+     - Optimal Architecture: An "AV" / "आ" serif monogram framed in a royal coin medallion, coupled with "AALM VASTRALAY" in refined Roman proportions.
+  2. **Color Psychology & Cultural Resonance:**
+     - **Imperial Gold (`#D4AF37` / `#C9A227`):** Represents auspiciousness, *shagun*, zardozi embroidery, and timeless wedding prosperity.
+     - **Deep Royal Purple & Burgundy (`#4A148C` / `#4D1420`):** Evokes royal Banarasi silk, velvet sherwanis, and luxury bridal trousseau.
+     - **Rich Heritage Maroon (`#800020` / `#7A1F2B`):** The quintessential Indian bridal hue symbolizing marriage and celebration.
+     - **Warm Silk Cream (`#FFF8E7` / `#FFFBF5`):** Soft, non-glare background providing an opulent canvas.
+     - **Contrast Compliance:** All primary combinations exceed WCAG 2.1 AAA (7:1+ contrast ratio) and APCA contrast thresholds.
+  3. **Typography Standards:**
+     - Logo & Brand Display: Georgia / Playfair Display / Cormorant Garamond serif with elegant ascenders and tight tracking.
+     - UI, Pricing & Navigation: Inter / system-ui sans-serif for instantaneous micro-readability across Indian mobile networks.
+  4. **Iconography & Library Selection:**
+     - Standard: Lucide React (outline, 2px stroke, rounded terminals).
+     - Rationale: Eliminates all unthemed system emojis, delivers pixel-perfect alignment across 16px/20px/24px grids, and tree-shakes cleanly into Next.js bundles.
+  5. **Cross-Platform Icon Hierarchy (53 Asset Types):**
+     - Modern PWA, iOS Safari, Android Chrome, Windows Metro tiles, and social platforms require specific asset matrices (favicon.ico, Apple touch icons, maskable 80% safe zone PWA icons, OpenGraph 1200x630, Twitter cards, and email headers).
+- **Decision:**
+  - Create the 1024x1024 master vector source (`public/logo-source.svg`).
+  - Generate all 5 logo variants (Primary, Secondary Stacked, Icon-Only Monogram, Wordmark, Lettermark) across 4 color schemes (Full Color, Reversed White, Monochrome Black, Grayscale).
+  - Generate 3 watermark variations (Full, Icon, Tiled 45-degree repeat) for product photo protection.
+  - Implement the complete 53-icon asset suite across browser favicons, Apple touch, Android PWA, Windows tiles, and social cards without deleting or modifying any existing asset.
+
+

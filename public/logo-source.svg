@@ -1,0 +1,29 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aalm Vastralay Master Monogram">
+  <defs>
+    <linearGradient id="av-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="1" />
+      <stop offset="100%" stop-color="#4A148C" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12031a" />
+      <stop offset="100%" stop-color="#0a0a0a" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="url(#bg-grad)"/>
+  <!-- Royal Coin Medallion Outer & Inner Ring -->
+  <circle cx="512" cy="512" r="420" fill="none" stroke="#D4AF37" stroke-width="8" stroke-opacity="0.3"/>
+  <circle cx="512" cy="512" r="400" fill="none" stroke="#D4AF37" stroke-width="14" stroke-opacity="0.85"/>
+  <circle cx="512" cy="512" r="380" fill="none" stroke="#D4AF37" stroke-width="4" stroke-dasharray="16, 12" stroke-opacity="0.6"/>
+  <!-- Monogram AV -->
+  <text x="512" y="670"
+        font-family="Georgia, 'Playfair Display', 'Times New Roman', serif"
+        font-size="460"
+        font-weight="bold"
+        fill="url(#av-grad)"
+        text-anchor="middle"
+        letter-spacing="-16">
+    AV
+  </text>
+  <!-- Small Royal Star / Crown Accent at Top -->
+  <path d="M 512 180 L 522 210 L 552 210 L 528 228 L 537 258 L 512 240 L 487 258 L 496 228 L 472 210 L 502 210 Z" fill="#D4AF37" opacity="0.9"/>
+</svg>

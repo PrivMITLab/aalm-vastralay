@@ -13,7 +13,7 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 | **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** | Step-by-step `.env` configuration guide with Neon, ImageKit, Cloudflare Worker, and Clerk screenshots. |
 | **[SETUP.md](SETUP.md)** | Quick-start development setup, local database initialization, and port bindings. |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment manual for Vercel, Cloudflare Workers, and Neon PostgreSQL. |
-| **[ICONS.md](ICONS.md)** | Dynamic brand icon, favicon, Apple Touch icon, and OpenGraph social banner generation. |
+| **[ICONS.md](ICONS.md)** | Complete 53-icon matrix, 20 SVG logos (4 colorways), 3 watermarks, and PWA manifest system. |
 | **[architecture.md](architecture.md)** | Multi-tier architecture blueprint, edge routing, data flow, and external service topologies. |
 | **[runbook.md](runbook.md)** | Production maintenance, database backup, log auditing, and disaster recovery procedures. |
 | **[SECURITY.md](SECURITY.md)** | Public security policy, coordinated vulnerability disclosure, and cryptographic specs. |
