@@ -264,7 +264,7 @@ export async function verifyOtpAndResetPassword(_prev: ActionState, formData: Fo
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const otp = String(formData.get("otp") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const confirm = String(formData.get("confirm") ?? "");
+  const confirm = String(formData.get("confirmPassword") ?? formData.get("confirm") ?? "");
 
   if (!email || !otp || !password) {
     return { error: "सभी फ़ील्ड्स अनिवार्य हैं (All fields are required)." };

@@ -363,4 +363,8 @@ export async function updateOrderStatus(formData: FormData) {
     actorEmail: user.email,
     actorRole: user.role === "admin" ? "admin" : "seller",
   });
+
+  revalidatePath("/seller/orders");
+  revalidatePath("/admin/orders");
+  revalidatePath(`/orders/${orderId}`);
 }

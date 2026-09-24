@@ -23,7 +23,7 @@ const USE_WSRV = process.env.NEXT_PUBLIC_USE_WSRV !== "false";
 
 // Google Drive file ID pattern (typically 28 to 45 alphanumeric characters with underscores and dashes)
 const GDRIVE_ID_REGEX = /^[a-zA-Z0-9_-]{28,45}$/;
-const GDRIVE_URL_REGEX = /drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/i;
+const GDRIVE_URL_REGEX = /(?:drive|docs)\.google\.com\/(?:file\/(?:u\/\d+\/)?d\/|(?:open|uc)\?(?:.*&)?id=)([a-zA-Z0-9_-]+)/i;
 const YOUTUBE_REGEX = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,14})/i;
 const VIDEO_EXT_REGEX = /\.(mp4|webm|mov|ogg)(\?.*)?$/i;
 
