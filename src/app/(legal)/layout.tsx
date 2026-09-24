@@ -25,21 +25,65 @@ export const metadata = {
   about: { title: "About us" },
 };
 
-/** Re-usable legal / support / company page shell. */
+/** Re-usable legal / support / company page shell with quick navigation tabs. */
 export async function LegalLayout({ slug, children, updated }: { slug: LegalSlug; children: ReactNode; updated?: string }) {
   const brand = await getBrand();
   const page = PAGES[slug];
+
+  const legalNav = [
+    { slug: "privacy", label: "Privacy Policy", href: "/privacy" },
+    { slug: "terms", label: "Terms of Service", href: "/terms" },
+    { slug: "returns", label: "Shipping & Returns", href: "/returns" },
+    { slug: "cookies", label: "Cookie Policy", href: "/cookies" },
+  ];
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-      <Link href="/" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--brand)] hover:underline">
-        <ChevronLeft className="h-4 w-4" /> Back to {brand.name}
-      </Link>
-      <header className="mb-6">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <Link href="/" className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--brand)] hover:underline">
+          <ChevronLeft className="h-4 w-4" /> Back to {brand.name}
+        </Link>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Official Statutory Policy
+        </span>
+      </div>
+
+      <header className="mb-8">
         <p className="text-xs font-bold tracking-wider text-[color:var(--accent)] uppercase">{page.group}</p>
-        <h1 className="mt-1 font-display text-4xl font-semibold text-[color:var(--brand)]">{page.title}</h1>
-        {updated && <p className="mt-1 text-xs text-[color:var(--text-soft)]">Last updated {updated}</p>}
+        <h1 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-[color:var(--brand)] tracking-tight">{page.title}</h1>
+        {updated && (
+          <p className="mt-2 text-xs font-medium text-[color:var(--text-soft)]">
+            Effective Date & Last Updated: <time dateTime={updated}>{updated}</time> · Compliant with DPDP Act 2023 & Consumer Protection Rules
+          </p>
+        )}
+
+        {/* Quick Legal Switcher Tabs */}
+        {page.group === "legal" && (
+          <nav aria-label="Legal documents navigation" className="mt-6 flex flex-wrap gap-2 border-b border-[color:var(--border)] pb-3">
+            {legalNav.map((tab) => {
+              const active = tab.slug === slug;
+              return (
+                <Link
+                  key={tab.slug}
+                  href={tab.href}
+                  className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-[color:var(--brand)] text-[color:var(--surface)] shadow-xs"
+                      : "bg-[color:var(--surface-2)] text-[color:var(--text-muted)] hover:bg-[color:var(--surface)] hover:text-[color:var(--brand)] border border-[color:var(--border)]"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
       </header>
-      <div className="prose-desc card space-y-4 p-6 text-sm leading-relaxed text-[color:var(--text-muted)]">{children}</div>
+
+      <article className="prose-desc card space-y-6 p-6 sm:p-10 text-sm leading-relaxed text-[color:var(--text-muted)] shadow-xs rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)]">
+        {children}
+      </article>
     </div>
   );
 }

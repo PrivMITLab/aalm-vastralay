@@ -174,11 +174,17 @@ export function resolveHsnCode(
   if (cat.includes("sherwani") || cat.includes("kurta") || cat.includes("groom")) {
     return HSN_MAPPINGS.SHERWANIS_KURTAS;
   }
+  if (
+    cat.includes("dupatta") ||
+    cat.includes("shawl") ||
+    cat.includes("stole") ||
+    cat.includes("scarf") ||
+    (productTitle && /dupatta|shawl|stole|scarf|chunri|odhni/i.test(productTitle))
+  ) {
+    return HSN_MAPPINGS.DUPATTAS;
+  }
   if (cat.includes("jewel") || cat.includes("accessory") || cat.includes("accessories")) {
     return HSN_MAPPINGS.ACCESSORIES_JEWELLERY;
-  }
-  if (cat.includes("dupatta") || cat.includes("shawl") || cat.includes("stole") || cat.includes("scarf")) {
-    return HSN_MAPPINGS.DUPATTAS;
   }
 
   // 2. Primary Garment Checks in Text (Lehengas and Sarees prioritized before standalone dupattas)

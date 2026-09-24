@@ -10,17 +10,18 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 | Document | Purpose & Description |
 | :--- | :--- |
 | **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** | Complete end-to-end platform guide: features, architecture, stores, payment methods, and admin customization. |
-| **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** | Step-by-step `.env` configuration guide with Neon, ImageKit, Cloudflare Worker, and Clerk screenshots. |
+| **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** | Step-by-step `.env` configuration guide with Neon, ImageKit, Cloudflare, and Vercel setup. |
+| **[GAS_EMAIL_GUIDE.md](GAS_EMAIL_GUIDE.md)** | 100% Free zero-domain Google Apps Script OTP & email notification engine setup. |
 | **[SETUP.md](SETUP.md)** | Quick-start development setup, local database initialization, and port bindings. |
-| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment manual for Vercel, Cloudflare Workers, and Neon PostgreSQL. |
+| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment manual for Vercel, Cloudflare, and Neon PostgreSQL. |
 | **[ICONS.md](ICONS.md)** | Complete 53-icon matrix, 20 SVG logos (4 colorways), 3 watermarks, and PWA manifest system. |
 | **[BRAND.md](BRAND.md)** | Complete 12-section brand identity specification, typography, usage rules, and voice. |
 | **[architecture.md](architecture.md)** | Multi-tier architecture blueprint, edge routing, data flow, and external service topologies. |
 | **[runbook.md](runbook.md)** | Production maintenance, database backup, log auditing, and disaster recovery procedures. |
 | **[SECURITY.md](SECURITY.md)** | Public security policy, coordinated vulnerability disclosure, and cryptographic specs. |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | Code contribution guidelines, TypeScript strict mode, and pull request checklist. |
-| **[TERMS.md](TERMS.md)** | Customer, seller, and marketplace terms of service. |
-| **[PRIVACY.md](PRIVACY.md)** | Privacy policy, customer PII masking, cookie consent, and data retention rules. |
+| **[TERMS.md](TERMS.md)** | Indian Contract Act & IT Act compliant Terms of Service for buyers, sellers, and marketplace. |
+| **[PRIVACY.md](PRIVACY.md)** | DPDP Act 2023 compliant Privacy Policy, customer PII masking, cookie consent, and data retention rules. |
 
 ---
 
