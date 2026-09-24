@@ -57,3 +57,14 @@
 - **Status:** Accepted
 - **Decision:** Implement multi-dimensional visual filters on `/products` (Wedding/Festive occasions, visual color dots with selected ring state, and ethnic fabrics) and Indian postal circle lookup in `src/lib/pincode.ts`.
 - **Rationale:** Enhances ethnic discovery (shoppers search specifically by "Haldi", "Mehendi", or "Rani Pink") and provides immediate delivery confidence and Cash on Delivery reassurance to Indian shoppers.
+
+## ADR 012: Offline-Ready Service Worker Push Notifications for Order Dispatch
+- **Status:** Accepted
+- **Decision:** Implement browser Service Worker (`public/sw.js`) and React 19 `useSyncExternalStore` prompt for instant dispatch notifications with deep-link click routing to `/orders/[id]`.
+- **Rationale:** Traditional SMS/WhatsApp gateways incur per-message costs and rate limits. Browser Web Push notifications are 100% free, instantaneous, and provide rich tactile notifications even when the browser tab is closed.
+
+## ADR 013: Direct Shiprocket & Delhivery Logistics Engine with Multi-Carrier Auto-Routing
+- **Status:** Accepted
+- **Decision:** Build a unified courier engine integrating both Delhivery B2C surface/express APIs and Shiprocket multi-carrier aggregation, with intelligent postal prefix routing (Delhivery for North/East India, Shiprocket nationwide) and printable Code128 barcode labels.
+- **Rationale:** Streamlines merchant fulfillment to a single click, eliminating manual portal data entry, reducing dispatch errors, and generating official carrier waybills instantly.
+

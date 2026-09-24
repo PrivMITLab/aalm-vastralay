@@ -23,6 +23,11 @@
 - [x] GitHub Workflows Hardening (CI build fallback env, CodeQL, Semgrep SAST, NPM critical audit).
 - [x] Dependabot configuration optimization (grouped PRs, @types/node LTS constraints).
 
+- [x] Push notifications for order dispatch via Service Worker (`public/sw.js`, `src/lib/push.ts`, `PushNotificationPrompt.tsx`).
+- [x] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation (`src/lib/courier/`, `GenerateAwbButton.tsx`).
+- [x] Root directory cleanup & Master documentation index (`docs/README.md`, `README.md`).
+
 ## In-Progress / Next Enhancements
-- [ ] Push notifications for order dispatch via Service Worker.
-- [ ] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation.
+- [ ] Post-delivery automated review request reminders via Push/WhatsApp.
+- [ ] Geolocation auto-detection for Indian postal circles.
+

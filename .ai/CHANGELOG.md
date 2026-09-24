@@ -3,9 +3,25 @@
 
 ---
 
-## [2026-09-24] — Master Vibe Coding System, UGC Photo Reviews, GitHub Workflows & Motion Design
+## [2026-09-24] — Service Worker Push Notifications, Shiprocket/Delhivery AWB Generation & Master Docs Hub
 
 ### Added
+- **Service Worker Push Notifications for Order Dispatch (`public/sw.js`, `src/lib/push.ts`, `src/components/notifications/PushNotificationPrompt.tsx`):**
+  - Offline-ready Service Worker listening for Web Push events with deep-link navigation to `/orders/[id]`.
+  - Notification prompt with React 19 `useSyncExternalStore` for reactive browser permission synchronization.
+  - Automatic push notification trigger and persistent in-app record creation when order state changes to dispatched/shipped.
+- **Direct Shiprocket & Delhivery Courier API Integration (`src/lib/courier/`, `src/actions/courier.ts`, `src/components/admin/GenerateAwbButton.tsx`):**
+  - Unified logistics engine supporting Shiprocket multi-carrier aggregation and Delhivery express B2C network.
+  - Automatic Waybill (AWB) generation with intelligent postal circle routing (Delhivery for North/East India hubs, Shiprocket nationwide).
+  - Printable official shipping label with barcode, hub routing codes, and order breakdown (`/api/courier/label`).
+  - 1-Click "Generate AWB" and "Print Label" buttons directly inside Admin & Seller order views.
+- **Master Documentation Hub Consolidation (`docs/README.md`, `docs/COMPLETE_GUIDE.md`, `docs/ENV_SETUP_GUIDE.md`):**
+  - Cleaned root workspace by migrating standalone guides into `docs/`.
+  - Created master bi-directional documentation index linking all system manuals, AI agent rules, and API specifications.
+  - Cross-referenced all guides in `README.md`, `GEMINI.md`, and `CLAUDE.md`.
+- **Expanded Enterprise Test Suite (21/21 Suites Passing in 0.24s):**
+  - `tests/unit/push-notifications.test.ts`: Verified push payload creation, deep-link URL formatting, and subscription validation.
+  - `tests/unit/courier-integration.test.ts`: Verified Shiprocket numeric AWBs, Delhivery waybills, and destination hub routing.
 - **GitHub Workflows Hardening & CI/CD Normalization (`.github/workflows/`, `.github/dependabot.yml`):**
   - `ci.yml`: Comprehensive Next.js 16 Turbopack build, lint, typecheck, and test runner with safe fallback environment variables for pull requests.
   - `codeql.yml`: CodeQL analysis for JavaScript/TypeScript with non-blocking continuous integration fallback.

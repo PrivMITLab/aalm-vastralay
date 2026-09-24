@@ -4,6 +4,14 @@ A production-grade, multi-vendor e-commerce platform built with **Next.js 16 (Ap
 
 > **Live:** https://aalm-vastralay.pages.dev · **Operator console:** `/admin`
 > **Security Audit:** Audited & Hardened (Connection pooling, CSRF, PoW anti-bot, Open-redirect protection).
+> **Documentation Hub:** Explore the [Complete Documentation Index (docs/README.md)](docs/README.md) for architecture, guides, and runbooks.
+
+## 📚 Complete Guides & Documentation
+- 📖 [Complete Platform & Feature Guide](docs/COMPLETE_GUIDE.md) — Comprehensive architecture and features.
+- 🔐 [Environment Variables Guide (`.env`)](docs/ENV_SETUP_GUIDE.md) — Setup guide with Neon, ImageKit & Cloudflare screenshots.
+- 🚀 [Deployment Manual](docs/DEPLOYMENT.md) — Production deployment guidelines.
+- 🏗️ [System Architecture](docs/architecture.md) — Edge routing, data flow, and database models.
+- 🧠 [AI Agent Architecture & Rules](.ai/RULES.md) — Golden rules, zero data loss, and live context.
 
 ## 🚀 Quick start
 

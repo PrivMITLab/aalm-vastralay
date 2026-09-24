@@ -13,6 +13,8 @@ import SubmitButton from "@/components/SubmitButton";
 import OrderTimeline from "@/components/orders/OrderTimeline";
 import WhatsAppOrderButton from "@/components/orders/WhatsAppOrderButton";
 import WhatsAppDispatchButton from "@/components/admin/WhatsAppDispatchButton";
+import PushNotificationPrompt from "@/components/notifications/PushNotificationPrompt";
+import GenerateAwbButton from "@/components/admin/GenerateAwbButton";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Order details" };
@@ -77,7 +79,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Visual Order Timeline */}
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
+        {order.status !== "delivered" && order.status !== "cancelled" && (
+          <PushNotificationPrompt />
+        )}
         <OrderTimeline
           status={order.status}
           createdAt={order.createdAt}
@@ -163,16 +168,28 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
 
           {(user.role === "admin" || user.role === "seller") && (
-            <div className="card p-4 text-sm">
-              <p className="mb-2 font-semibold text-slate-800">Customer Communication</p>
-              <WhatsAppDispatchButton
-                customerName={addr.fullName}
-                customerPhone={addr.phone}
-                orderNumber={order.orderNumber}
-                courier={order.courier}
-                trackingNumber={order.trackingNumber}
-                className="w-full"
-              />
+            <div className="card p-4 text-sm space-y-3">
+              <div>
+                <p className="font-semibold text-slate-800">Logistics & AWB Generation</p>
+                <p className="text-xs text-slate-500">Generate Shiprocket / Delhivery shipping labels</p>
+              </div>
+              <div>
+                <GenerateAwbButton
+                  orderId={order.id}
+                  existingAwb={order.trackingNumber}
+                  existingCourier={order.courier}
+                />
+              </div>
+              <div className="pt-2 border-t border-slate-100">
+                <WhatsAppDispatchButton
+                  customerName={addr.fullName}
+                  customerPhone={addr.phone}
+                  orderNumber={order.orderNumber}
+                  courier={order.courier}
+                  trackingNumber={order.trackingNumber}
+                  className="w-full"
+                />
+              </div>
             </div>
           )}
 

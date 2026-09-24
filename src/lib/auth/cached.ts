@@ -15,6 +15,8 @@ export const getAuthUser = cache(async (): Promise<User | null> => {
   return getCurrentUser();
 });
 
+export const getCurrentUser = getAuthUser;
+
 /**
  * Request-deduped user profile retriever by id.
  */

@@ -17,6 +17,8 @@ import { testWhatsAppIntegration } from "./unit/whatsapp-integration.test";
 import { testCatalogFilters } from "./unit/catalog-filters.test";
 import { testPincodeEstimator } from "./unit/pincode-estimator.test";
 import { runUgcReviewTests } from "./unit/ugc-review.test";
+import { testPushNotifications } from "./unit/push-notifications.test";
+import { testCourierIntegration } from "./unit/courier-integration.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -45,6 +47,8 @@ async function runAllTests() {
     { name: "Catalog Visual Filters (Occasion, Color, Fabric)", fn: testCatalogFilters },
     { name: "Indian Pincode Circle Resolution & COD Serviceability", fn: testPincodeEstimator },
     { name: "Customer UGC Review Photos & Image Sanitization", fn: runUgcReviewTests },
+    { name: "Service Worker Push Notifications & Order Dispatch", fn: testPushNotifications },
+    { name: "Shiprocket & Delhivery Direct Courier & AWB Generation", fn: testCourierIntegration },
   ];
 
   for (const suite of suites) {
