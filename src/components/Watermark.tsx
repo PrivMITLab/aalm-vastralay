@@ -22,8 +22,8 @@ export async function Watermark({ variant = "card" }: { variant?: "card" | "gall
         className="pointer-events-none absolute inset-0 z-10"
         style={{
           opacity,
-          backgroundImage: "url(/brand/watermark.svg)",
-          backgroundSize: "300px 188px",
+          backgroundImage: "url(/watermarks/tiled.svg)",
+          backgroundSize: "320px 320px",
           backgroundRepeat: "repeat",
         }}
       />
@@ -32,13 +32,13 @@ export async function Watermark({ variant = "card" }: { variant?: "card" | "gall
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute right-1.5 bottom-1.5 z-10 flex items-center gap-1 rounded-full bg-black/35 px-2 py-0.5 text-[10px] font-semibold text-white/95 backdrop-blur-sm"
+      className="pointer-events-none absolute right-1.5 bottom-1.5 z-10 flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold text-white/95 backdrop-blur-sm"
       style={{ opacity: Math.max(0.7, opacity + 0.4) }}
     >
       <svg viewBox="0 0 64 64" className="h-3 w-3" aria-hidden>
-        <circle cx="32" cy="32" r="28" fill="none" stroke="#c9a227" strokeWidth="4" />
-        <text x="32" y="42" textAnchor="middle" fontSize="30" fontFamily="Georgia, serif" fill="#c9a227">
-          आ
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#D4AF37" strokeWidth="4" />
+        <text x="32" y="42" textAnchor="middle" fontSize="26" fontFamily="Georgia, serif" fontWeight="bold" fill="#D4AF37">
+          AV
         </text>
       </svg>
       {name}

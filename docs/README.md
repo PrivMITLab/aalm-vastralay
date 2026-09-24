@@ -14,6 +14,7 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 | **[SETUP.md](SETUP.md)** | Quick-start development setup, local database initialization, and port bindings. |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment manual for Vercel, Cloudflare Workers, and Neon PostgreSQL. |
 | **[ICONS.md](ICONS.md)** | Complete 53-icon matrix, 20 SVG logos (4 colorways), 3 watermarks, and PWA manifest system. |
+| **[BRAND.md](BRAND.md)** | Complete 12-section brand identity specification, typography, usage rules, and voice. |
 | **[architecture.md](architecture.md)** | Multi-tier architecture blueprint, edge routing, data flow, and external service topologies. |
 | **[runbook.md](runbook.md)** | Production maintenance, database backup, log auditing, and disaster recovery procedures. |
 | **[SECURITY.md](SECURITY.md)** | Public security policy, coordinated vulnerability disclosure, and cryptographic specs. |

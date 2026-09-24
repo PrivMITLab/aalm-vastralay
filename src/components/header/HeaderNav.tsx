@@ -129,20 +129,14 @@ export default function HeaderNav({
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={brandName} className="h-9 w-auto max-w-[9rem] object-contain" />
-          ) : logoSvg ? (
-            <>
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[color:var(--brand)] font-display text-lg text-[color:var(--accent)] shadow-inner sm:hidden">{logoText}</span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logo-full.svg" alt={brandName} className="hidden h-9 w-auto max-w-[11rem] dark:hidden sm:block" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logo-full-light.svg" alt={brandName} className="hidden h-9 w-auto max-w-[11rem] dark:sm:block" />
-            </>
           ) : (
             <>
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-[color:var(--brand)] font-display text-lg text-[color:var(--accent)] shadow-inner">{logoText}</span>
-              <span className="hidden font-display text-lg font-semibold leading-none text-[color:var(--brand)] sm:text-xl sm:block">
-                {brandName.split(" ")[0]} <span className="text-[color:var(--accent)]">{brandName.split(" ").slice(1).join(" ")}</span>
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logos/icon-only.svg" alt={brandName} className="h-9 w-9 shrink-0 object-contain sm:hidden" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logos/primary.svg" alt={brandName} className="hidden h-9 w-auto max-w-[12rem] object-contain dark:hidden sm:block" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logos/primary-white.svg" alt={brandName} className="hidden h-9 w-auto max-w-[12rem] object-contain dark:sm:block" />
             </>
           )}
         </Link>

@@ -11,6 +11,8 @@
     "test": "tsx tests/run-all-tests.ts",
     "db:bootstrap": "tsx scripts/seed-and-backfill.ts",
     "deploy:bootstrap": "tsx scripts/deploy-bootstrap.ts",
+    "icons:generate": "tsx scripts/generate-all-icons.ts",
+    "icons:verify": "node scripts/verify-icons.js",
     "prepare": "husky"
   },
   "dependencies": {

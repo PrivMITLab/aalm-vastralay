@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
 
-/** Favicon – maroon medallion with the gold Devanagari monogram “आ”. */
+/** Favicon – royal purple medallion with imperial gold "AV" monogram. */
 export default function Icon() {
   return new ImageResponse(
     (
@@ -12,17 +12,18 @@ export default function Icon() {
           width: 64,
           height: 64,
           borderRadius: 999,
-          background: "linear-gradient(135deg,#7a1f2b,#4d1420)",
+          background: "#4A148C",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#c9a227",
-          fontSize: 40,
+          color: "#D4AF37",
+          fontSize: 32,
+          fontWeight: 700,
           fontFamily: "Georgia, serif",
-          boxShadow: "inset 0 0 0 2px rgba(201,162,39,0.55)",
+          boxShadow: "inset 0 0 0 3px #D4AF37",
         }}
       >
-        आ
+        AV
       </div>
     ),
     { ...size },

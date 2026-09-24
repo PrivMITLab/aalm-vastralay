@@ -8,18 +8,18 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const title = (searchParams.get("title") ?? "Aalm Vastralay").slice(0, 80);
   const subtitle = (searchParams.get("subtitle") ?? "Wedding & ethnic wear marketplace · COD · 7-day returns").slice(0, 140);
-  const brand = searchParams.get("brand") ?? "आ";
+  const brand = searchParams.get("brand") ?? "AV";
   const theme = (searchParams.get("theme") ?? "light") === "dark" ? "dark" : "light";
-  const accent = searchParams.get("accent") ?? "#7a1f2b";
+  const accent = searchParams.get("accent") ?? "#4A148C";
   const fg = theme === "dark" ? "#f7f2ec" : "#1f1a17";
-  const bg = theme === "dark" ? "#12100f" : "#fffbf5";
+  const bg = theme === "dark" ? "#12100f" : "#FAF9F6";
   const accentSoft = theme === "dark" ? "#1c1917" : "#fdf6ea";
 
   return new ImageResponse(
     (
       <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: bg, color: fg, fontFamily: "Georgia, serif", position: "relative" }}>
         <div style={{ position: "absolute", top: 48, left: 64, display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 72, height: 72, borderRadius: 999, background: accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a227", fontSize: 40 }}>
+          <div style={{ width: 72, height: 72, borderRadius: 999, background: accent, border: "2px solid #D4AF37", display: "flex", alignItems: "center", justifyContent: "center", color: "#D4AF37", fontSize: 32, fontWeight: 700 }}>
             {brand}
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>

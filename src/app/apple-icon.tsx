@@ -12,16 +12,18 @@ export default function AppleIcon() {
           width: 180,
           height: 180,
           borderRadius: 40,
-          background: "linear-gradient(135deg,#7a1f2b,#4d1420)",
+          background: "#4A148C",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#c9a227",
-          fontSize: 108,
+          color: "#D4AF37",
+          fontSize: 88,
+          fontWeight: 700,
           fontFamily: "Georgia, serif",
+          boxShadow: "inset 0 0 0 6px #D4AF37",
         }}
       >
-        आ
+        AV
       </div>
     ),
     { ...size },

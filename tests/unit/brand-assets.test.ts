@@ -24,11 +24,13 @@ export async function testBrandAssets() {
     "logo-full-light.svg",
     "logo-mark.svg",
     "watermark.svg",
+    "poster.png",
   ];
   for (const file of existingFiles) {
     const fullPath = path.join(brandDir, file);
-    assert.ok(fs.existsSync(fullPath), `Existing brand asset public/brand/${file} must be preserved`);
+    assert.ok(fs.existsSync(fullPath), `Brand asset public/brand/${file} must exist`);
   }
+  assert.ok(fs.existsSync(path.join(publicDir, "images", "hero.jpg")), "public/images/hero.jpg must exist");
 
   // 3. Verify All 20 Logo SVGs (5 types x 4 colorways)
   const types = ["primary", "secondary", "icon-only", "wordmark", "lettermark"];
@@ -70,6 +72,7 @@ export async function testBrandAssets() {
     "favicon-16x16.png",
     "favicon-32x32.png",
     "favicon-96x96.png",
+    "favicon.svg",
     "favicon-dark.svg",
     "apple-touch-icon.png",
     "apple-touch-icon-76x76.png",

@@ -3,6 +3,23 @@
 
 ---
 
+## [2026-09-24] — Brand Identity Expansion: 7 Enterprise Sections Added (Typography, Rules, Icons, A11y, Naming, Roadmap, Voice)
+
+### Added
+- **docs/BRAND.md & docs/ICONS.md Expansion:**
+  - **Section 6: Typography:** Full font hierarchy specification (Playfair Display 700, Georgia Bold, Inter 400-600, JetBrains Mono 400), responsive web type scale (H1-H4, Body, Caption), print sizes, tracking/letter-spacing, and Next.js font loading strategy.
+  - **Section 7: Logo Usage Rules:** Clear space / safe zone formula (height of letter "A" on all sides), minimum print & digital reproduction sizes, priority placement zones, and explicit DO/DO NOT rules.
+  - **Section 8: Icon Generation:** Generation runbook, master artwork source specs, CLI commands (`npm run icons:generate`, `npm run icons:verify`), script architecture, 53-icon configuration catalog, and automated CI/CD verification workflows.
+  - **Section 9: Accessibility (WCAG 2.1 AA):** Comprehensive color contrast matrix (8.2:1 Gold on Purple, 15.8:1 Charcoal on Ivory, etc.), screen reader alt-text conventions for logos/icons, SVG `role="img"` standards, keyboard navigation rules, and `prefers-reduced-motion` CSS overrides.
+  - **Section 10: File Naming Convention:** Universal `{type}-{color}.{ext}` and `{platform}-{size}x{size}.{ext}` schema, directory tree blueprint, and file naming rules.
+  - **Section 11: Version History & Roadmap:** Version changelog tracking v1.0.0 through v2.0.0, and 3-phase strategic roadmap covering animated logos, 3D AR monograms, packaging collateral, and franchise architecture through 2028.
+  - **Section 12: Brand Voice & Messaging:** Ruler + Caregiver brand archetype, tone of voice rules, primary & alternative Hindi/English taglines, 5 core messaging pillars, and copy examples for home, product descriptions, emails, and packaging.
+- **Automated Verification Script (`scripts/verify-icons.js`, `package.json`):**
+  - Added `npm run icons:verify` script and updated test runner to guarantee all icon configurations and manifests remain present in CI.
+  - Added `public/favicon.svg` vector favicon alongside dark mode vector variant.
+
+---
+
 ## [2026-09-24] — Brand Identity, 20 Multi-Format Logos & Complete 53-Icon System Matrix
 
 ### Added

@@ -14,20 +14,20 @@ export default function OpenGraphImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "linear-gradient(135deg,#4d1420 0%,#7a1f2b 55%,#9a2a45 100%)",
-          color: "#fffbf5",
+          background: "linear-gradient(135deg,#310d61 0%,#4A148C 55%,#5e1baf 100%)",
+          color: "#FAF9F6",
           fontFamily: "Georgia, serif",
           position: "relative",
           padding: 72,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div style={{ width: 84, height: 84, borderRadius: 999, background: "#7a1f2b", border: "2px solid #c9a227", display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a227", fontSize: 48 }}>
-            आ
+          <div style={{ width: 84, height: 84, borderRadius: 999, background: "#4A148C", border: "3px solid #D4AF37", display: "flex", alignItems: "center", justifyContent: "center", color: "#D4AF37", fontSize: 40, fontWeight: 700 }}>
+            AV
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 36, fontWeight: 700 }}>Aalm Vastralay</span>
-            <span style={{ fontSize: 18, color: "#ead06f" }}>Wedding & ethnic wear marketplace</span>
+            <span style={{ fontSize: 18, color: "#D4AF37" }}>Wedding & ethnic wear marketplace</span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: "auto" }}>
