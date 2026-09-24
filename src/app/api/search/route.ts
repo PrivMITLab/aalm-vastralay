@@ -1,0 +1,78 @@
+import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
+import { NextResponse, type NextRequest } from "next/server";
+import { db } from "@/db";
+import { products, stores } from "@/db/schema";
+import { resolveImage } from "@/lib/media-resolver";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * Full Search API
+ * GET /api/search?q=...&limit=24
+ */
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const q = (searchParams.get("q") ?? "").trim();
+  const limit = Math.min(60, Math.max(1, Number(searchParams.get("limit")) || 24));
+
+  if (!q) {
+    return NextResponse.json({ query: "", count: 0, products: [] });
+  }
+
+  try {
+    const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
+
+    conditions.push(
+      or(
+        sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
+        ilike(products.title, `%${q}%`),
+        ilike(products.description, `%${q}%`),
+        sql`${q.toLowerCase()} = ANY(${products.tags})`
+      )!
+    );
+
+    const rows = await db
+      .select({
+        id: products.id,
+        title: products.title,
+        slug: products.slug,
+        price: products.price,
+        mrp: products.mrp,
+        discountPercent: products.discountPercent,
+        rating: products.rating,
+        totalReviews: products.totalReviews,
+        stock: products.stock,
+        images: products.images,
+        storeName: stores.storeName,
+        storeSlug: stores.slug,
+      })
+      .from(products)
+      .innerJoin(stores, eq(products.storeId, stores.id))
+      .where(and(...conditions))
+      .orderBy(desc(products.isFeatured), desc(products.rating), desc(products.createdAt))
+      .limit(limit);
+
+    return NextResponse.json(
+      {
+        query: q,
+        count: rows.length,
+        products: rows.map((r) => ({
+          ...r,
+          image: resolveImage(r.images[0], { width: 500 }),
+          url: `/products/${r.slug}`,
+        })),
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
+  } catch (err) {
+    console.error("[api/search] Error:", err);
+    return NextResponse.json(
+      { error: "Search query failed" },
+      { status: 500 }
+    );
+  }
+}

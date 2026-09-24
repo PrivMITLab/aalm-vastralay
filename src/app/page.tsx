@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
-import { ArrowRight, BadgePercent, RotateCcw, ShieldCheck, Sparkles, Store, Wallet } from "lucide-react";
+import { ArrowRight, BadgePercent, Phone, RotateCcw, ShieldCheck, Sparkles, Store, Wallet } from "lucide-react";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { getCategoryParents, getFeaturedProducts, getNavCategories, getNewProducts, getTopStores } from "@/lib/cache";
@@ -13,7 +13,7 @@ import { formatINR, gridClass } from "@/lib/utils";
 import FestiveOccasionsBar from "@/components/home/FestiveOccasionsBar";
 import IndiaTrustStrip from "@/components/home/IndiaTrustStrip";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 const DEFAULT_CATEGORY_ART: Record<string, string> = {
   women: "/images/bridal-lehenga.jpg",
@@ -51,47 +51,92 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ---------------- hero banner (fully admin-configurable) ---------------- */}
-      <section className="relative overflow-hidden bg-[color:var(--brand)] text-white">
+      {/* ---------------- hero banner (luxury royal purple & imperial gold) ---------------- */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#2a0845] via-[#4A148C] to-[#120024] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={resolveImage(banner.url)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 1 - banner.overlay / 100 + 0.25 }} />
-        <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, rgba(0,0,0,${banner.overlay / 100}) 0%, rgba(0,0,0,${banner.overlay / 140}) 55%, rgba(0,0,0,0.12) 100%)` }} />
+        <img
+          src={resolveImage(banner.url || "/brand/poster.png")}
+          alt="Aalm Vastralay Couture Showroom"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-45 mix-blend-luminosity transform scale-105 transition-transform duration-1000 ease-out"
+        />
+        {/* Multi-layered luxury gradient overlay for flawless readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-radial from-transparent via-transparent to-black/70" />
+
         <div
-          className="relative mx-auto flex max-w-7xl flex-col justify-center gap-4 px-4 py-12 sm:gap-6 sm:py-16 lg:w-3/5 lg:px-0 lg:py-20 xl:w-1/2"
-          style={{ minHeight: `min(${banner.height}px, calc(78vh - 140px))` }}
+          className="relative mx-auto flex max-w-7xl flex-col justify-center px-4 py-12 sm:py-16 lg:py-20"
+          style={{ minHeight: `min(${banner.height}px, calc(82vh - 120px))` }}
         >
-          {banner.badge && (
-            <span className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--accent)]/50 bg-black/25 px-3 py-1 text-[11px] font-semibold tracking-wide text-[color:var(--accent)] sm:text-xs">
-              <Sparkles className="h-3.5 w-3.5" /> {banner.badge}
-            </span>
-          )}
-          <h1 className="animate-fade-up font-display text-3xl leading-tight font-semibold sm:text-4xl md:text-5xl xl:text-6xl">{banner.title}</h1>
-          <p className="animate-fade-up max-w-xl text-sm text-white/90 sm:text-base md:text-lg">{banner.subtitle}</p>
-          <div className="flex flex-wrap gap-3">
-            {banner.ctaLabel && (
-              <Link href={banner.ctaHref} className="btn btn-gold px-5 sm:px-6">
-                {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
-              </Link>
+          <div className="max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-black/35 p-6 sm:p-10 backdrop-blur-md shadow-2xl">
+            {banner.badge && (
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D4AF37]/60 bg-[#D4AF37]/15 px-3.5 py-1 text-xs font-bold tracking-widest text-[#D4AF37] uppercase shadow-sm">
+                <Sparkles className="h-3.5 w-3.5 fill-[#D4AF37] animate-pulse" /> {banner.badge}
+              </span>
             )}
-            {banner.cta2Label && (
-              <Link href={banner.cta2Href} className="btn border border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20">
-                {banner.cta2Label}
-              </Link>
-            )}
-          </div>
-          <div className="mt-1 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/90 sm:text-sm">
-            <span className="inline-flex items-center gap-1.5">
-              <Wallet className="h-4 w-4 text-[color:var(--accent)]" /> Cash on Delivery
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <RotateCcw className="h-4 w-4 text-[color:var(--accent)]" /> {commerce.returnWindowDays}-day returns
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-[color:var(--accent)]" /> Verified sellers
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <BadgePercent className="h-4 w-4 text-[color:var(--accent)]" /> {freeShippingNote}
-            </span>
+
+            <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.18] tracking-tight drop-shadow-md">
+              <span className="block text-white font-serif">
+                {banner.title.includes("—") ? banner.title.split("—")[0]?.trim() : banner.title}
+              </span>
+              {banner.title.includes("—") && (
+                <span className="block bg-gradient-to-r from-[#FDE047] via-[#D4AF37] to-[#F59E0B] bg-clip-text text-transparent font-serif mt-1 text-2xl sm:text-4xl lg:text-5xl">
+                  — {banner.title.split("—")[1]?.trim()}
+                </span>
+              )}
+            </h1>
+
+            <p className="max-w-2xl text-sm sm:text-base text-slate-200/95 leading-relaxed font-sans">
+              {banner.subtitle}
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              {banner.ctaLabel && (
+                <Link
+                  href={banner.ctaHref || "/products"}
+                  className="btn btn-gold px-6 py-3 text-sm font-bold shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                >
+                  {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
+              {banner.cta2Label ? (
+                <Link
+                  href={banner.cta2Href || "tel:8434061342"}
+                  className="btn border border-[#D4AF37]/50 bg-black/40 text-amber-200 backdrop-blur hover:bg-[#D4AF37]/20 px-5 py-3 text-sm font-semibold inline-flex items-center gap-2"
+                >
+                  <Phone className="h-4 w-4 text-[#D4AF37]" /> {banner.cta2Label}
+                </Link>
+              ) : (
+                <a
+                  href="https://wa.me/918434061342?text=Namaste%20Aalm%20Vastralay,%20I%20am%20interested%20in%20your%20bridal/ethnic%20wear%20collection."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn border border-[#25D366]/60 bg-[#25D366]/20 text-white backdrop-blur hover:bg-[#25D366]/30 px-5 py-3 text-sm font-semibold inline-flex items-center gap-2"
+                >
+                  <span>WhatsApp: 8434061342</span>
+                </a>
+              )}
+            </div>
+
+            {/* Trust feature pills */}
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-white/10 text-xs text-slate-200 font-medium">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-[#D4AF37] shrink-0" />
+                <span>Cash on Delivery</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <RotateCcw className="h-4 w-4 text-[#D4AF37] shrink-0" />
+                <span>{commerce.returnWindowDays}-Day Returns</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#D4AF37] shrink-0" />
+                <span>Verified Artisans</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BadgePercent className="h-4 w-4 text-[#D4AF37] shrink-0" />
+                <span>{freeShippingNote}</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

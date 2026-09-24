@@ -27,6 +27,9 @@
 - [x] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation (`src/lib/courier/`, `GenerateAwbButton.tsx`).
 - [x] Root directory cleanup & Master documentation index (`docs/README.md`, `README.md`).
 - [x] Brand Identity, 20 Multi-Format Logos & Complete 53-Icon System Matrix (`public/logos/`, `public/watermarks/`, `public/`, `docs/ICONS.md`, ADR 014).
+- [x] Full Route Completion (Categories, Search, Help, FAQ, Shipping, Track Order, Size Guide, Blog, Policies, Admin Suite, APIs).
+- [x] Mobile Navigation Slide-Over Overhaul (full-height luxury drawer, category accordion, WhatsApp direct booking, persistent dual-mode logo).
+- [x] Performance (Static/ISR) Optimization (`revalidate` on Home, Categories, Blog, Legal, Sitemap, and Manifest).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

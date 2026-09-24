@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { getBrand } from "@/lib/settings";
 import { formatDate } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 const PAGES = {
   privacy: { title: "Privacy Policy", group: "legal" },

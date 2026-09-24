@@ -3,6 +3,35 @@
 
 ---
 
+## [2026-09-24] — Route Completion, Performance (Static/ISR) Optimization & Luxury UI/UX Revamp
+
+### Added
+- **Full Route Completion (Zero 404s Across Entire Platform):**
+  - **Category Sub-routes:** Created `src/app/categories/page.tsx`, `src/app/categories/[slug]/page.tsx` (ISR `revalidate = 300`) with dynamic subcategory chips and `loading.tsx`.
+  - **Dedicated Search Route:** Created `src/app/search/page.tsx` with full-text `tsvector` query matching, trending chips, and `loading.tsx`.
+  - **Help & Customer Care Hub:** Created `src/app/help/page.tsx`, `src/app/faq/page.tsx`, `src/app/shipping/page.tsx`, `src/app/track-order/page.tsx` (live parcel milestones), and `src/app/size-guide/page.tsx` (measurements & custom tailoring).
+  - **Editorial Journal & Blog:** Created `src/lib/blog.ts` (typed repository), `src/app/blog/page.tsx`, and `src/app/blog/[slug]/page.tsx` with SSG pre-rendering (`generateStaticParams`).
+  - **Legal Policies:** Created `src/app/refund-policy/page.tsx` and `src/app/shipping-policy/page.tsx`.
+  - **Admin Back-Office Suite:** Created `src/app/admin/users`, `src/app/admin/sellers`, `src/app/admin/products`, `src/app/admin/orders`, `src/app/admin/categories`, `src/app/admin/coupons`, `src/app/admin/banners`, `src/app/admin/theme`, and `src/app/admin/audit-logs`.
+  - **Public & Admin REST Endpoints:** Created `/api/categories`, `/api/search`, and admin API endpoints (`/api/admin/users`, `/api/admin/sellers`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/coupons`, `/api/admin/banners`, `/api/admin/settings`).
+  - **Digital Artisan Handbook:** Created `src/app/handbook/page.tsx`.
+- **High-Res Editorial Public Assets:**
+  - Placed 4 luxury ethnic assets in `public/images/`: `bridal-lehenga.jpg`, `sherwani.jpg`, `kids-lehenga.jpg`, and `dupatta-jewellery.jpg`.
+
+### Improved
+- **Header & Mobile Drawer Navigation Overhaul (`src/components/header/HeaderNav.tsx`):**
+  - **Persistent High-Contrast Logo:** Replaced brittle classes with dual-mode responsive brand mark pairing the royal gold medallion (`/logos/icon-only.svg`) with styled serif typography, guaranteeing high contrast in both Light and Dark modes.
+  - **Full-Height Luxury Mobile Slide-Over:** Transformed mobile drawer into full-height `z-[100]` slide-over with Royal Purple header, user status, quick links, category accordion, WhatsApp direct booking, and theme toggle.
+- **Hero Section Aesthetic & Visual Contrast (`src/app/page.tsx`):**
+  - Added gradient backdrop, Devanagari typography with Imperial Gold gradient split, `.btn-gold` metallic button, and trust badges.
+- **Performance & Static/ISR Optimizations:**
+  - Converted `src/app/(legal)/layout.tsx` to 24h ISR.
+  - Converted `src/app/page.tsx` to `revalidate = 120`.
+  - Updated `src/app/sitemap.ts` (`revalidate = 3600`) and `src/app/manifest.ts` (`revalidate = 86400`).
+  - Succeeded Next.js production build (`npm run build`) with 31/31 static/ISR pages compiled.
+
+---
+
 ## [2026-09-24] — Brand Identity Expansion: 7 Enterprise Sections Added (Typography, Rules, Icons, A11y, Naming, Roadmap, Voice)
 
 ### Added

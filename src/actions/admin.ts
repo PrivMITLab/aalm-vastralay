@@ -4,7 +4,7 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { categories, coupons, settings as settingsTable, stores, users } from "@/db/schema";
+import { categories, coupons, orders, products, settings as settingsTable, stores, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
@@ -218,9 +218,77 @@ export async function createCategory(_prev: ActionState, formData: FormData): Pr
   await db.insert(categories).values({ name: parsed.data.name, slug, parentId: parsed.data.parentId ?? null, sortOrder: 99 });
   await invalidateCatalog();
   await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "category.create", target: parsed.data.name });
-  revalidatePath("/admin");
-  revalidatePath("/", "layout");
   return { success: `Category "${parsed.data.name}" added.` };
+}
+
+export async function createCategoryDirect(formData: FormData): Promise<void> {
+  await createCategory(null, formData);
+}
+
+export async function createCouponDirect(formData: FormData): Promise<void> {
+  await createCoupon(null, formData);
+}
+
+export async function updateSettingsDirect(formData: FormData): Promise<void> {
+  await updateSettings(null, formData);
+}
+
+export async function toggleCategoryActive(formData: FormData) {
+  const admin = await assertAdmin();
+  if (!admin) return;
+  const id = String(formData.get("categoryId") ?? "");
+  const [c] = await db.select({ isActive: categories.isActive, name: categories.name }).from(categories).where(eq(categories.id, id)).limit(1);
+  if (!c) return;
+  await db.update(categories).set({ isActive: !c.isActive }).where(eq(categories.id, id));
+  await invalidateCatalog();
+  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "category.toggle", target: c.name, detail: c.isActive ? "Deactivated" : "Activated" });
+  revalidatePath("/admin/categories");
+  revalidatePath("/", "layout");
+}
+
+/* -------------------------------- products -------------------------------- */
+
+export async function toggleProductActive(formData: FormData) {
+  const admin = await assertAdmin();
+  if (!admin) return;
+  const id = String(formData.get("productId") ?? "");
+  const [p] = await db.select({ isActive: products.isActive, title: products.title }).from(products).where(eq(products.id, id)).limit(1);
+  if (!p) return;
+  await db.update(products).set({ isActive: !p.isActive, updatedAt: new Date() }).where(eq(products.id, id));
+  await invalidateCatalog();
+  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "product.toggle", target: p.title, detail: p.isActive ? "Deactivated" : "Activated" });
+  revalidatePath("/admin/products");
+  revalidatePath("/products");
+}
+
+export async function toggleProductFeatured(formData: FormData) {
+  const admin = await assertAdmin();
+  if (!admin) return;
+  const id = String(formData.get("productId") ?? "");
+  const [p] = await db.select({ isFeatured: products.isFeatured, title: products.title }).from(products).where(eq(products.id, id)).limit(1);
+  if (!p) return;
+  await db.update(products).set({ isFeatured: !p.isFeatured, updatedAt: new Date() }).where(eq(products.id, id));
+  await invalidateCatalog();
+  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "product.feature", target: p.title, detail: p.isFeatured ? "Unfeatured" : "Featured" });
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+}
+
+/* --------------------------------- orders --------------------------------- */
+
+export async function updateAdminOrderStatus(formData: FormData) {
+  const admin = await assertAdmin();
+  if (!admin) return;
+  const orderId = String(formData.get("orderId") ?? "");
+  const status = String(formData.get("status") ?? "");
+  const allowed = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"];
+  if (!allowed.includes(status)) return;
+  const [ord] = await db.select({ orderNumber: orders.orderNumber }).from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!ord) return;
+  await db.update(orders).set({ status, updatedAt: new Date() }).where(eq(orders.id, orderId));
+  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "order.status", target: ord.orderNumber, detail: `Status changed to ${status}` });
+  revalidatePath("/admin/orders");
+  revalidatePath(`/orders/${orderId}`);
 }
 
 /* --------------------------- maintenance tasks --------------------------- */

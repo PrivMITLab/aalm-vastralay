@@ -1,13 +1,37 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Activity, LayoutDashboard, PlugZap, Settings2, ShoppingBag, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  FileText,
+  FolderTree,
+  Image,
+  LayoutDashboard,
+  PackageCheck,
+  Palette,
+  PlugZap,
+  Settings2,
+  ShieldCheck,
+  ShoppingBag,
+  Store,
+  Tag,
+  Users,
+} from "lucide-react";
 import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/admin/orders", label: "Orders", icon: PackageCheck },
+  { href: "/admin/products", label: "Products", icon: ShoppingBag },
+  { href: "/admin/categories", label: "Categories", icon: FolderTree },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/sellers", label: "Sellers", icon: Store },
+  { href: "/admin/coupons", label: "Coupons", icon: Tag },
+  { href: "/admin/banners", label: "Banners", icon: Image },
+  { href: "/admin/theme", label: "Theme & Brand", icon: Palette },
   { href: "/admin/settings", label: "Site settings", icon: Settings2 },
+  { href: "/admin/audit-logs", label: "Audit logs", icon: FileText },
   { href: "/admin/security", label: "Security & logs", icon: ShieldCheck },
   { href: "/admin/integrations", label: "Integrations & scaling", icon: PlugZap },
 ];

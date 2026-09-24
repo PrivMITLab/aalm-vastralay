@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getBrand } from "@/lib/settings";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const brand = await getBrand();
@@ -12,8 +12,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     description: brand.tagline,
     start_url: "/",
     display: "standalone",
-    background_color: "#fffbf5",
-    theme_color: "#7a1f2b",
+    background_color: "#0f081d",
+    theme_color: "#4A148C",
     icons: [
       { src: `${base}/icon?`, sizes: "64x64", type: "image/png" },
       { src: `${base}/apple-icon?`, sizes: "180x180", type: "image/png" },

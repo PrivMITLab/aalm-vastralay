@@ -27,39 +27,39 @@
 
 /* ---------------- design tokens (admin-customisable) ---------------- */
 :root {
-  --brand: #7a1f2b;
-  --brand-hover: #641a26;
-  --brand-soft: #fdf2f4;
+  --brand: #4A148C;
+  --brand-hover: #38006b;
+  --brand-soft: #f3e5f5;
   --brand-fg: #ffffff;
-  --accent: #c9a227;
-  --accent-soft: #fbf3d5;
-  --accent-fg: #2f2405;
-  --bg: #fffbf5;
+  --accent: #D4AF37;
+  --accent-soft: #fef9c3;
+  --accent-fg: #1e1b4b;
+  --bg: #faf8f5;
   --surface: #ffffff;
-  --surface-2: #fdf6ea;
-  --surface-3: #f6e9d5;
-  --border: #f6e9d5;
-  --border-strong: #ead7b8;
-  --text: #1f1a17;
-  --text-muted: #6b5a4a;
-  --text-soft: #8a7a6b;
+  --surface-2: #fdfaf6;
+  --surface-3: #f5eedf;
+  --border: #f0e6d6;
+  --border-strong: #e2d2ba;
+  --text: #1a1614;
+  --text-muted: #5c4e43;
+  --text-soft: #857467;
   --radius: 1rem;
   --radius-sm: 0.75rem;
-  --font-display-stack: Georgia, "Times New Roman", serif;
+  --font-display-stack: Georgia, "Playfair Display", "Times New Roman", serif;
   --font-scale: 1;
   --density-gap: 1rem;
-  --shadow-card: 0 1px 2px rgba(31, 26, 23, 0.05);
-  --shadow-lift: 0 14px 34px rgba(122, 31, 43, 0.14);
+  --shadow-card: 0 1px 3px rgba(74, 20, 140, 0.06);
+  --shadow-lift: 0 14px 34px rgba(74, 20, 140, 0.16);
 }
 
 .dark {
-  --brand: #b4636f;
-  --brand-hover: #c07684;
-  --brand-soft: #2a1a1e;
+  --brand: #c084fc;
+  --brand-hover: #d8b4fe;
+  --brand-soft: #2e1065;
   --brand-fg: #ffffff;
-  --accent: #e6c65c;
-  --accent-soft: rgba(230, 198, 92, 0.18);
-  --accent-fg: #fef08a;
+  --accent: #FBBF24;
+  --accent-soft: rgba(251, 191, 36, 0.18);
+  --accent-fg: #18181b;
   --bg: #12100f;
   --surface: #1c1917;
   --surface-2: #211d1b;
@@ -164,10 +164,16 @@ body {
     box-shadow: var(--shadow-lift);
   }
   .btn-gold {
-    background: var(--accent);
-    color: var(--accent-fg);
+    background: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #b8860b 100%);
+    color: #1a0f00;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-gold:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.55);
     filter: brightness(1.08);
   }
   .btn-outline {
@@ -472,6 +478,20 @@ details > summary::-webkit-details-marker {
 }
 .animate-slide-in {
   animation: slide-in-right 0.28s ease both;
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slide-left {
+  animation: slide-in-left 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes gold-shimmer {
