@@ -79,32 +79,32 @@ export default function ProductCard({
         <Watermark variant="card" />
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-3.5">
+      <div className="flex flex-1 flex-col gap-1 p-2.5 sm:p-3.5">
         {product.storeName && (
           <p className="truncate text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-stone-400">
             {product.storeName}
           </p>
         )}
 
-        <h3 className="line-clamp-2 text-sm font-medium leading-snug text-slate-900 transition-colors group-hover:text-maroon-700 dark:text-stone-100 dark:group-hover:text-rose-400">
+        <h3 className="line-clamp-2 text-xs sm:text-sm font-medium leading-snug text-slate-900 transition-colors group-hover:text-maroon-700 dark:text-stone-100 dark:group-hover:text-rose-400">
           {product.title}
         </h3>
 
-        <div className="mt-auto flex items-baseline gap-2 pt-1.5">
-          <span className="text-base font-bold text-maroon-900 dark:text-rose-300">
+        <div className="mt-auto flex items-baseline gap-1.5 sm:gap-2 pt-1.5">
+          <span className="text-sm sm:text-base font-bold text-maroon-900 dark:text-rose-300">
             {formatINR(product.price)}
           </span>
           {mrp > product.price && (
-            <span className="text-xs text-slate-400 line-through dark:text-stone-500">
+            <span className="text-[11px] sm:text-xs text-slate-400 line-through dark:text-stone-500">
               {formatINR(mrp)}
             </span>
           )}
         </div>
 
-        <div className="mt-1 flex items-center justify-between border-t border-[color:var(--border)]/40 pt-2 text-xs">
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-1 border-t border-[color:var(--border)]/40 pt-2 text-xs">
           <RatingPill value={product.rating} count={product.totalReviews} />
           {product.price >= freeShippingThreshold() && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
               <Truck className="h-3 w-3" /> Free Delivery
             </span>
           )}

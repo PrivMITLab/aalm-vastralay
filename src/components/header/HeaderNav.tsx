@@ -144,8 +144,8 @@ export default function HeaderNav({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-3 sm:px-4">
-      <div className="flex h-16 items-center gap-2 sm:gap-4">
+    <div className="mx-auto max-w-7xl px-2.5 sm:px-4">
+      <div className="flex h-14 sm:h-16 items-center justify-between gap-1.5 sm:gap-4">
         {/* Mobile Hamburger Button */}
         <button
           type="button"
@@ -176,7 +176,7 @@ export default function HeaderNav({
                 <span className="font-display text-lg sm:text-xl font-bold tracking-wide leading-none text-[color:var(--brand)]">
                   AALM <span className="font-serif text-[#D4AF37] drop-shadow-xs">VASTRALAY</span>
                 </span>
-                <span className="text-[9px] font-semibold tracking-[0.22em] text-[color:var(--text-soft)] uppercase mt-0.5">
+                <span className="hidden sm:block text-[9px] font-semibold tracking-[0.22em] text-[color:var(--text-soft)] uppercase mt-0.5">
                   Wedding &amp; Ethnic Wear · Kalyanipur
                 </span>
               </div>
@@ -263,7 +263,7 @@ export default function HeaderNav({
             <button
               type="button"
               onClick={toggleMode}
-              className="btn btn-ghost btn-icon"
+              className="btn btn-ghost btn-icon hidden sm:inline-flex"
               aria-label="Toggle light or dark color mode"
             >
               <Sun className="hidden h-5 w-5 dark:block text-amber-400" />
@@ -358,12 +358,22 @@ export default function HeaderNav({
               </div>
             </details>
           ) : (
-            <Link
-              href="/sign-in"
-              className="btn btn-primary btn-sm ml-1 text-xs"
-            >
-              Sign in
-            </Link>
+            <>
+              <Link
+                href="/sign-in"
+                className="btn btn-primary btn-sm ml-1 text-xs hidden sm:inline-flex"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/sign-in"
+                className="btn btn-ghost btn-icon sm:hidden text-[color:var(--text-muted)]"
+                aria-label="Sign in"
+                title="Sign in"
+              >
+                <UserRound className="h-5 w-5" />
+              </Link>
+            </>
           )}
         </nav>
       </div>
@@ -372,23 +382,23 @@ export default function HeaderNav({
       <div className="pb-2 md:hidden">
         <form
           onSubmit={submit}
-          className="flex items-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-4 pr-1"
+          className="flex items-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-3.5 pr-1 focus-within:border-[color:var(--accent)]"
         >
-          <Search className="h-4 w-4 text-[color:var(--text-soft)]" />
+          <Search className="h-3.5 w-3.5 text-[color:var(--text-soft)] shrink-0" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             type="search"
-            placeholder="Search ethnic wear, lehengas, sarees…"
-            className="h-9 w-full bg-transparent px-2 text-sm text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-soft)]"
+            placeholder="Search sarees, lehengas, kurtas…"
+            className="h-8 sm:h-9 w-full bg-transparent px-2 text-xs sm:text-sm text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-soft)]"
             aria-label="Search products"
           />
           <button
             type="submit"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color:var(--brand)] text-white"
+            className="grid h-6.5 w-6.5 sm:h-7 sm:w-7 shrink-0 place-items-center rounded-full bg-[color:var(--brand)] text-white hover:opacity-90"
             aria-label="Search"
           >
-            <Search className="h-3.5 w-3.5" />
+            <Search className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </button>
         </form>
       </div>

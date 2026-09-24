@@ -64,37 +64,37 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-radial from-transparent via-transparent to-black/70" />
 
         <div
-          className="relative mx-auto flex max-w-7xl flex-col justify-center px-4 py-12 sm:py-16 lg:py-20"
+          className="relative mx-auto flex max-w-7xl flex-col justify-center px-2.5 sm:px-6 py-8 sm:py-16 lg:py-20"
           style={{ minHeight: `min(${banner.height}px, calc(82vh - 120px))` }}
         >
-          <div className="max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-black/35 p-6 sm:p-10 backdrop-blur-md shadow-2xl">
+          <div className="max-w-3xl space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border border-white/15 bg-black/45 p-4 sm:p-10 backdrop-blur-md shadow-2xl">
             {banner.badge && (
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D4AF37]/60 bg-[#D4AF37]/15 px-3.5 py-1 text-xs font-bold tracking-widest text-[#D4AF37] uppercase shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 fill-[#D4AF37] animate-pulse" /> {banner.badge}
+              <span className="inline-flex w-fit items-center gap-1.5 sm:gap-2 rounded-full border border-[#D4AF37]/60 bg-[#D4AF37]/15 px-3 py-1 text-[11px] sm:text-xs font-bold tracking-widest text-[#D4AF37] uppercase shadow-sm">
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-[#D4AF37] animate-pulse" /> {banner.badge}
               </span>
             )}
 
-            <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.18] tracking-tight drop-shadow-md">
+            <h1 className="font-display text-2xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.2] tracking-tight drop-shadow-md">
               <span className="block text-white font-serif">
                 {banner.title.includes("—") ? banner.title.split("—")[0]?.trim() : banner.title}
               </span>
               {banner.title.includes("—") && (
-                <span className="block bg-gradient-to-r from-[#FDE047] via-[#D4AF37] to-[#F59E0B] bg-clip-text text-transparent font-serif mt-1 text-2xl sm:text-4xl lg:text-5xl">
+                <span className="block bg-gradient-to-r from-[#FDE047] via-[#D4AF37] to-[#F59E0B] bg-clip-text text-transparent font-serif mt-1 text-xl sm:text-4xl lg:text-5xl">
                   — {banner.title.split("—")[1]?.trim()}
                 </span>
               )}
             </h1>
 
-            <p className="max-w-2xl text-sm sm:text-base text-slate-200/95 leading-relaxed font-sans">
+            <p className="max-w-2xl text-xs sm:text-base text-slate-200/95 leading-relaxed font-sans">
               {banner.subtitle}
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
               {banner.ctaLabel && (
                 <Link
                   href={banner.ctaHref || "/products"}
-                  className="btn btn-gold px-6 py-3 text-sm font-bold shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                  className="btn btn-gold w-full sm:w-auto justify-center px-5 py-2.5 sm:px-6 sm:py-3 text-sm font-bold shadow-lg hover:shadow-xl inline-flex items-center gap-2"
                 >
                   {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -102,7 +102,7 @@ export default async function HomePage() {
               {banner.cta2Label ? (
                 <Link
                   href={banner.cta2Href || "tel:8434061342"}
-                  className="btn border border-[#D4AF37]/50 bg-black/40 text-amber-200 backdrop-blur hover:bg-[#D4AF37]/20 px-5 py-3 text-sm font-semibold inline-flex items-center gap-2"
+                  className="btn w-full sm:w-auto justify-center border border-[#D4AF37]/50 bg-black/40 text-amber-200 backdrop-blur hover:bg-[#D4AF37]/20 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-semibold inline-flex items-center gap-2"
                 >
                   <Phone className="h-4 w-4 text-[#D4AF37]" /> {banner.cta2Label}
                 </Link>
@@ -111,7 +111,7 @@ export default async function HomePage() {
                   href="https://wa.me/918434061342?text=Namaste%20Aalm%20Vastralay,%20I%20am%20interested%20in%20your%20bridal/ethnic%20wear%20collection."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn border border-[#25D366]/60 bg-[#25D366]/20 text-white backdrop-blur hover:bg-[#25D366]/30 px-5 py-3 text-sm font-semibold inline-flex items-center gap-2"
+                  className="btn w-full sm:w-auto justify-center border border-[#25D366]/60 bg-[#25D366]/20 text-white backdrop-blur hover:bg-[#25D366]/30 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-semibold inline-flex items-center gap-2"
                 >
                   <span>WhatsApp: 8434061342</span>
                 </a>
@@ -119,22 +119,22 @@ export default async function HomePage() {
             </div>
 
             {/* Trust feature pills */}
-            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-white/10 text-xs text-slate-200 font-medium">
-              <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                <span>Cash on Delivery</span>
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-white/10 text-[11px] sm:text-xs text-slate-200 font-medium">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#D4AF37] shrink-0" />
+                <span className="truncate">Cash on Delivery</span>
               </div>
-              <div className="flex items-center gap-2">
-                <RotateCcw className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                <span>{commerce.returnWindowDays}-Day Returns</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#D4AF37] shrink-0" />
+                <span className="truncate">{commerce.returnWindowDays}-Day Returns</span>
               </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                <span>Verified Artisans</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#D4AF37] shrink-0" />
+                <span className="truncate">Verified Artisans</span>
               </div>
-              <div className="flex items-center gap-2">
-                <BadgePercent className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                <span>{freeShippingNote}</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <BadgePercent className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#D4AF37] shrink-0" />
+                <span className="truncate">{freeShippingNote}</span>
               </div>
             </div>
           </div>

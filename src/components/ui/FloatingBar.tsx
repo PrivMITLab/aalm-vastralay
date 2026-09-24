@@ -24,12 +24,12 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
 
   return (
     <>
-      <div className="no-print fixed right-3 bottom-24 z-50 flex flex-col items-end gap-2 sm:right-5 sm:bottom-6">
+      <div className="no-print fixed right-3 bottom-18 z-30 flex flex-col items-end gap-2 sm:right-5 sm:bottom-6">
         {visible && (
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="animate-fade-up grid h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-lg hover:text-[color:var(--brand)]"
+            className="animate-fade-up grid h-9 w-9 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-lg hover:text-[color:var(--brand)] sm:h-10 sm:w-10"
             aria-label="Back to top"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -42,7 +42,7 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
           <button
             type="button"
             onClick={toggleMode}
-            className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--brand)] shadow-md sm:hidden"
+            className="hidden h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--brand)] shadow-md sm:grid"
             aria-label="Toggle colour mode"
           >
             <Sun className="hidden h-4 w-4 dark:block" />
@@ -53,7 +53,7 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
-          className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-md hover:text-[color:var(--brand)]"
+          className="hidden h-10 w-10 place-items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-muted)] shadow-md hover:text-[color:var(--brand)] sm:grid"
           aria-label="Display settings"
           title="Display settings"
         >

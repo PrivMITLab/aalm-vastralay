@@ -69,11 +69,13 @@ export default function IndiaTrustStrip() {
                 key={i}
                 className="group relative flex flex-col items-center rounded-2xl border border-cream-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-md"
               >
-                <span className="absolute top-2 right-2 rounded-md border border-amber-200/60 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-950/70 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300">
-                  {item.badge}
-                </span>
-                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-maroon-50 dark:bg-maroon-950/60 text-maroon-700 dark:text-rose-300 transition-transform duration-300 group-hover:scale-110">
-                  <Icon className="h-5 w-5" />
+                <div className="mb-2 flex w-full justify-end sm:absolute sm:top-2 sm:right-2 sm:mb-0">
+                  <span className="rounded-md border border-amber-200/60 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-950/70 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300">
+                    {item.badge}
+                  </span>
+                </div>
+                <div className="grid h-10 w-10 sm:h-11 sm:w-11 place-items-center rounded-2xl bg-maroon-50 dark:bg-maroon-950/60 text-maroon-700 dark:text-rose-300 transition-transform duration-300 group-hover:scale-110">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <h3 className="mt-3 text-xs font-bold text-slate-800 dark:text-zinc-100 sm:text-sm">
                   {item.titleHindi}

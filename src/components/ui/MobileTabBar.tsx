@@ -31,7 +31,7 @@ export default async function MobileTabBar({
   ];
 
   return (
-    <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--border)] bg-[color:var(--surface)]/95 backdrop-blur lg:hidden">
+    <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--border)] bg-[color:var(--surface)]/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur lg:hidden">
       <ul className="mx-auto flex max-w-lg items-stretch justify-between px-1">
         {items.map((item) => (
           <li key={item.href} className="flex-1">
@@ -45,9 +45,6 @@ export default async function MobileTabBar({
           </li>
         ))}
       </ul>
-      {sellerFreeMonths > 0 && (
-        <p className="bg-[color:var(--brand-soft)] py-1 text-center text-[10px] text-[color:var(--brand)]">Sell with 0% commission for {sellerFreeMonths} months</p>
-      )}
     </nav>
   );
 }
