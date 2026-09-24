@@ -105,8 +105,88 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const alreadyReviewed = user ? reviewRows.some((r) => r.review.userId === user.id) : false;
   const breakdown = [5, 4, 3, 2, 1].map((star) => ({ star, n: reviewRows.filter((r) => r.review.rating === star).length }));
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aalmvastralay.com";
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description || undefined,
+    image: product.images.map((img) => resolveImage(img)),
+    sku: product.sku || product.id,
+    brand: {
+      "@type": "Brand",
+      name: store.storeName || "Aalm Vastralay",
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl}/products/${product.slug}`,
+      priceCurrency: "INR",
+      price: product.price,
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      seller: {
+        "@type": "Organization",
+        name: store.storeName || "Aalm Vastralay",
+      },
+    },
+    ...(Number(product.rating ?? 0) > 0 && product.totalReviews > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(product.rating),
+            reviewCount: product.totalReviews,
+          },
+        }
+      : {}),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      ...(category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: category.name,
+              item: `${siteUrl}/products?category=${category.slug}`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: product.title,
+              item: `${siteUrl}/products/${product.slug}`,
+            },
+          ]
+        : [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: product.title,
+              item: `${siteUrl}/products/${product.slug}`,
+            },
+          ]),
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       <nav className="mb-4 text-xs text-slate-500">
         <Link href="/" className="hover:text-maroon-700">
           Home
@@ -310,6 +390,28 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 )}
               </div>
               <p className="mt-2 text-sm leading-relaxed text-slate-700">{review.body}</p>
+              {review.images && review.images.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {review.images.map((img, idx) => (
+                    <a
+                      key={idx}
+                      href={resolveImage(img)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative block h-16 w-16 overflow-hidden rounded-xl border border-[color:var(--border)] bg-cream-50 transition hover:scale-105"
+                      title="View customer review photo"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={resolveImage(img, { width: 120, thumbnail: true })}
+                        alt={`Customer photo ${idx + 1}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition group-hover:opacity-90"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
               <p className="mt-3 text-xs text-slate-500">
                 {userName ?? "Customer"} · {formatDate(review.createdAt)}
               </p>

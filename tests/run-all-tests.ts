@@ -16,6 +16,7 @@ import { testUpiQrEngine } from "./unit/upi-qr.test";
 import { testWhatsAppIntegration } from "./unit/whatsapp-integration.test";
 import { testCatalogFilters } from "./unit/catalog-filters.test";
 import { testPincodeEstimator } from "./unit/pincode-estimator.test";
+import { runUgcReviewTests } from "./unit/ugc-review.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -43,6 +44,7 @@ async function runAllTests() {
     { name: "1-Click WhatsApp Order Confirm & Live Tracking", fn: testWhatsAppIntegration },
     { name: "Catalog Visual Filters (Occasion, Color, Fabric)", fn: testCatalogFilters },
     { name: "Indian Pincode Circle Resolution & COD Serviceability", fn: testPincodeEstimator },
+    { name: "Customer UGC Review Photos & Image Sanitization", fn: runUgcReviewTests },
   ];
 
   for (const suite of suites) {

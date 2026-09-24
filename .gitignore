@@ -53,3 +53,4 @@ next-env.d.ts
 
 # GitHub workflows (local unless PAT has workflow scope)
 .github/workflows/
+

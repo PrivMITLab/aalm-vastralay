@@ -377,6 +377,7 @@ const reviewSchema = z.object({
   rating: z.coerce.number().int().min(1, "Choose a star rating").max(5),
   title: z.string().trim().max(120).optional(),
   body: z.string().trim().min(10, "Tell us a bit more (at least 10 characters)").max(2000),
+  images: z.string().optional(),
 });
 
 export async function submitReview(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -387,9 +388,10 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     rating: formData.get("rating"),
     title: formData.get("title") || undefined,
     body: formData.get("body"),
+    images: formData.get("images") || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid review" };
-  const { productId, rating, title, body } = parsed.data;
+  const { productId, rating, title, body, images } = parsed.data;
 
   const rl = await rateLimit({ key: `review:${user.id}`, limit: 5, windowSeconds: 3600 });
   if (!rl.ok) return { error: "You have submitted several reviews already. Please try again later." };
@@ -412,6 +414,18 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     .where(and(eq(orders.customerId, user.id), eq(orderItems.productId, productId), inArray(orders.status, ["delivered", "returned"])))
     .limit(1);
 
+  let parsedImages: string[] = [];
+  if (images) {
+    try {
+      const decoded = JSON.parse(images);
+      if (Array.isArray(decoded)) {
+        parsedImages = decoded.filter((img): img is string => typeof img === "string" && img.startsWith("http")).slice(0, 4);
+      }
+    } catch {
+      // ignore malformed images safely
+    }
+  }
+
   await db.insert(reviews).values({
     productId,
     userId: user.id,
@@ -419,6 +433,7 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     rating,
     title: title ?? null,
     body,
+    images: parsedImages,
     isVerified: delivered.length > 0,
   });
 

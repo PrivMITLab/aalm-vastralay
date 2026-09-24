@@ -19,7 +19,10 @@
 - [x] Multi-vendor seller portal (`/seller`) with strict tenant boundary enforcement.
 - [x] Live zero-code site settings panel (`/admin/settings`) with 93 configurations.
 
+- [x] Customer photo review uploads (UGC photo reviews with direct client upload to B2 and XSS sanitization).
+- [x] GitHub Workflows Hardening (CI build fallback env, CodeQL, Semgrep SAST, NPM critical audit).
+- [x] Dependabot configuration optimization (grouped PRs, @types/node LTS constraints).
+
 ## In-Progress / Next Enhancements
-- [ ] Customer photo review uploads (UGC photo reviews via B2 / Cloudflare Worker).
 - [ ] Push notifications for order dispatch via Service Worker.
 - [ ] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation.

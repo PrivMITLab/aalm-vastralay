@@ -14,11 +14,25 @@ import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aalmvastralay.com";
   return {
+    metadataBase: new URL(siteUrl),
     title: { default: `${brand.name} – Wedding & Ethnic Wear Marketplace`, template: `%s | ${brand.name}` },
     description: brand.tagline,
-    keywords: ["bridal lehenga online", "banarasi saree", "sherwani", "ethnic wear", "wedding wear India", "cash on delivery"],
-    openGraph: { title: brand.name, description: brand.tagline, type: "website" },
+    keywords: ["bridal lehenga online", "banarasi saree", "sherwani", "ethnic wear", "wedding wear India", "cash on delivery", "Bihar ethnic boutique"],
+    openGraph: {
+      title: brand.name,
+      description: brand.tagline,
+      type: "website",
+      url: siteUrl,
+      siteName: brand.name,
+      locale: "en_IN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: brand.name,
+      description: brand.tagline,
+    },
     icons: {
       icon: [{ url: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="48" font-size="48">${brand.faviconEmoji}</text></svg>`)}` }],
     },
