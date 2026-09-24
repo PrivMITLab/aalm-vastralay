@@ -14,6 +14,8 @@ import { testUploadPresign } from "./unit/presign.test";
 import { testAuthCache } from "./unit/auth-cache.test";
 import { testUpiQrEngine } from "./unit/upi-qr.test";
 import { testWhatsAppIntegration } from "./unit/whatsapp-integration.test";
+import { testCatalogFilters } from "./unit/catalog-filters.test";
+import { testPincodeEstimator } from "./unit/pincode-estimator.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -25,7 +27,7 @@ async function runAllTests() {
   const suites = [
     { name: "Encryption & PII Security", fn: testEncryption },
     { name: "Indian Commerce & Currency", fn: testCommerce },
-    { name: "Ethnic Wear & Pincode Logic", fn: testEthnicFeatures },
+    { name: "Ethnic Wear & Sizing Logic", fn: testEthnicFeatures },
     { name: "Authentication & Role Security", fn: testAuthSecurity },
     { name: "Coupons & Category Tree Hierarchy", fn: testCouponsAndCategories },
     { name: "Seller Multi-Vendor Privacy & Isolation", fn: testSellerPrivacyIsolation },
@@ -39,6 +41,8 @@ async function runAllTests() {
     { name: "Server Component Request-Scoped Auth Caching", fn: testAuthCache },
     { name: "Dynamic UPI QR & 12-Digit UTR Verification", fn: testUpiQrEngine },
     { name: "1-Click WhatsApp Order Confirm & Live Tracking", fn: testWhatsAppIntegration },
+    { name: "Catalog Visual Filters (Occasion, Color, Fabric)", fn: testCatalogFilters },
+    { name: "Indian Pincode Circle Resolution & COD Serviceability", fn: testPincodeEstimator },
   ];
 
   for (const suite of suites) {
@@ -59,4 +63,7 @@ async function runAllTests() {
   process.exit(0);
 }
 
-runAllTests();
+runAllTests().catch((err) => {
+  console.error("Test execution failed:", err);
+  process.exit(1);
+});

@@ -1,17 +1,29 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { and, asc, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
-import { ChevronLeft, ChevronRight, SearchX, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, SearchX, SlidersHorizontal, X } from "lucide-react";
 import { db } from "@/db";
 import { categories, products, stores } from "@/db/schema";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/ui/Reveal";
 import { getHomeConfig, getSettingNumber } from "@/lib/settings";
 import { cn, gridClass } from "@/lib/utils";
+import { CATALOG_COLORS, CATALOG_OCCASIONS, CATALOG_FABRICS } from "@/lib/catalog-filters";
 
 export const dynamic = "force-dynamic";
 
-type SP = { q?: string; category?: string; sort?: string; min?: string; max?: string; page?: string; store?: string };
+type SP = {
+  q?: string;
+  category?: string;
+  sort?: string;
+  min?: string;
+  max?: string;
+  page?: string;
+  store?: string;
+  occasion?: string;
+  color?: string;
+  fabric?: string;
+};
 
 const SORTS: [string, string][] = [
   ["relevance", "Popular"],
@@ -21,6 +33,7 @@ const SORTS: [string, string][] = [
   ["discount", "Biggest Discount"],
   ["rating", "Top Rated"],
 ];
+
 const PRICE_BANDS: [string, string, string][] = [
   ["Under ₹2,000", "", "2000"],
   ["₹2,000 – ₹5,000", "2000", "5000"],
@@ -32,6 +45,18 @@ const PRICE_BANDS: [string, string, string][] = [
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
   const sp = await searchParams;
   if (sp.q) return { title: `"${sp.q}" – Search results` };
+  if (sp.occasion) {
+    const occ = CATALOG_OCCASIONS.find((o) => o.slug === sp.occasion);
+    return { title: `${occ?.name ?? sp.occasion} Wear – Aalm Vastralay` };
+  }
+  if (sp.color) {
+    const col = CATALOG_COLORS.find((c) => c.slug === sp.color);
+    return { title: `${col?.name ?? sp.color} Ethnic Wear – Aalm Vastralay` };
+  }
+  if (sp.fabric) {
+    const fab = CATALOG_FABRICS.find((f) => f.slug === sp.fabric);
+    return { title: `${fab?.name ?? sp.fabric} Sarees & Suits – Aalm Vastralay` };
+  }
   if (sp.category) return { title: `${sp.category.replace(/-/g, " ")} – Shop ethnic wear` };
   return { title: "All Products – Wedding & Ethnic Wear" };
 }
@@ -80,6 +105,43 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     if (sp.min && !Number.isNaN(Number(sp.min))) conditions.push(gte(products.price, Number(sp.min)));
     if (sp.max && !Number.isNaN(Number(sp.max))) conditions.push(lte(products.price, Number(sp.max)));
     if (sp.store) conditions.push(eq(stores.slug, sp.store));
+
+    // Smart Occasion Filter
+    if (sp.occasion) {
+      const occ = sp.occasion.toLowerCase();
+      conditions.push(
+        or(
+          sql`${occ} = ANY(${products.tags})`,
+          ilike(products.title, `%${occ}%`),
+          ilike(products.description, `%${occ}%`),
+        )!,
+      );
+    }
+
+    // Smart Color Dots Filter
+    if (sp.color) {
+      const col = sp.color.toLowerCase();
+      conditions.push(
+        or(
+          sql`${col} = ANY(${products.tags})`,
+          ilike(products.title, `%${col}%`),
+          sql`EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = ${products.id} AND LOWER(pv.color) LIKE ${`%${col}%`})`,
+        )!,
+      );
+    }
+
+    // Smart Fabric Filter
+    if (sp.fabric) {
+      const fab = sp.fabric.toLowerCase();
+      conditions.push(
+        or(
+          sql`${fab} = ANY(${products.tags})`,
+          ilike(products.title, `%${fab}%`),
+          ilike(products.description, `%${fab}%`),
+        )!,
+      );
+    }
+
     const where = and(...conditions);
 
     const orderBy =
@@ -116,6 +178,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   } catch (err) {
     console.warn("[ProductsPage] Database unavailable:", err instanceof Error ? err.message : err);
   }
+
   const PAGE_SIZE = Math.max(6, Math.min(60, Math.round(pageSize || 24)));
   const parents = allCats.filter((c) => !c.parentId);
   const childrenOf = (id: string) => allCats.filter((c) => c.parentId === id);
@@ -132,7 +195,27 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     return `/products${s ? `?${s}` : ""}`;
   };
 
-  const heading = q ? `Results for “${q}”` : selectedCat ? selectedCat.name : sp.store ? rows[0]?.storeName ?? "Store products" : "All Products";
+  const activeOccasion = CATALOG_OCCASIONS.find((o) => o.slug === sp.occasion);
+  const activeColor = CATALOG_COLORS.find((c) => c.slug === sp.color);
+  const activeFabric = CATALOG_FABRICS.find((f) => f.slug === sp.fabric);
+
+  const heading = q
+    ? `Results for “${q}”`
+    : activeOccasion
+      ? `${activeOccasion.name} Collection`
+      : activeColor
+        ? `${activeColor.name} Collection`
+        : activeFabric
+          ? `${activeFabric.name} Wear`
+          : selectedCat
+            ? selectedCat.name
+            : sp.store
+              ? rows[0]?.storeName ?? "Store products"
+              : "All Products";
+
+  const hasActiveFilters = Boolean(
+    q || sp.store || sp.min || sp.max || selectedCat || sp.occasion || sp.color || sp.fabric,
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -158,34 +241,136 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             <span className="text-slate-800">{selectedCat.name}</span>
           </>
         )}
+        {activeOccasion && (
+          <>
+            <span className="mx-1.5">/</span>
+            <span className="text-slate-800">{activeOccasion.name}</span>
+          </>
+        )}
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        {/* Filters */}
+        {/* Filters Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-40 lg:h-fit">
           <details className="card p-4 lg:[&>summary]:hidden" open>
             <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-maroon-900">
               <SlidersHorizontal className="h-4 w-4" /> Filters
             </summary>
             <div className="space-y-6 lg:mt-0">
+              {/* Wedding & Festive Occasions */}
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-maroon-800">Occasion</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {CATALOG_OCCASIONS.map((occ) => {
+                    const isSelected = sp.occasion === occ.slug;
+                    return (
+                      <Link
+                        key={occ.slug}
+                        href={buildUrl({ occasion: isSelected ? undefined : occ.slug })}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition",
+                          isSelected
+                            ? "border-maroon-700 bg-maroon-700 font-semibold text-white shadow-xs"
+                            : "border-cream-300 bg-white text-slate-700 hover:border-maroon-300 hover:bg-cream-50",
+                        )}
+                      >
+                        <span>{occ.emoji}</span>
+                        <span>{occ.name.split(" ")[0]}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Visual Color Dots / Swatches */}
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-maroon-800">Color</p>
+                  {activeColor && (
+                    <span className="text-[11px] font-medium text-slate-500">{activeColor.name}</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {CATALOG_COLORS.map((col) => {
+                    const isSelected = sp.color === col.slug;
+                    return (
+                      <Link
+                        key={col.slug}
+                        href={buildUrl({ color: isSelected ? undefined : col.slug })}
+                        title={col.name}
+                        className={cn(
+                          "relative h-7 w-7 rounded-full border border-black/10 transition hover:scale-110",
+                          col.bgClass,
+                          isSelected && "ring-2 ring-maroon-700 ring-offset-2 scale-110",
+                        )}
+                        aria-label={`Filter by ${col.name}`}
+                      >
+                        {isSelected && (
+                          <span className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold drop-shadow">
+                            ✓
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Fabric Filter */}
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-maroon-800">Fabric</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {CATALOG_FABRICS.map((fab) => {
+                    const isSelected = sp.fabric === fab.slug;
+                    return (
+                      <Link
+                        key={fab.slug}
+                        href={buildUrl({ fabric: isSelected ? undefined : fab.slug })}
+                        className={cn(
+                          "rounded-md border px-2 py-0.5 text-xs transition",
+                          isSelected
+                            ? "border-maroon-700 bg-cream-100 font-semibold text-maroon-900"
+                            : "border-cream-300 bg-white text-slate-600 hover:border-maroon-300",
+                        )}
+                      >
+                        {fab.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Categories */}
               <div>
                 <p className="mb-2 text-xs font-bold uppercase tracking-wider text-maroon-800">Categories</p>
                 <ul className="space-y-1 text-sm">
                   <li>
-                    <Link href={buildUrl({ category: undefined })} className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", !selectedCat && "bg-cream-100 font-semibold text-maroon-800")}>
+                    <Link
+                      href={buildUrl({ category: undefined })}
+                      className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", !selectedCat && "bg-cream-100 font-semibold text-maroon-800")}
+                    >
                       All
                     </Link>
                   </li>
                   {parents.map((p) => (
                     <li key={p.id}>
-                      <Link href={buildUrl({ category: p.slug })} className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", selectedCat?.id === p.id && "bg-cream-100 font-semibold text-maroon-800")}>
+                      <Link
+                        href={buildUrl({ category: p.slug })}
+                        className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", selectedCat?.id === p.id && "bg-cream-100 font-semibold text-maroon-800")}
+                      >
                         {p.name}
                       </Link>
                       {(selectedParent?.id === p.id || !selectedCat) && (
                         <ul className="ml-3 mt-0.5 space-y-0.5 border-l border-cream-200 pl-2">
                           {childrenOf(p.id).map((c) => (
                             <li key={c.id}>
-                              <Link href={buildUrl({ category: c.slug })} className={cn("block rounded-lg px-2 py-0.5 text-slate-600 hover:bg-cream-100 hover:text-maroon-800", selectedCat?.id === c.id && "bg-cream-100 font-semibold text-maroon-800")}>
+                              <Link
+                                href={buildUrl({ category: c.slug })}
+                                className={cn(
+                                  "block rounded-lg px-2 py-0.5 text-slate-600 hover:bg-cream-100 hover:text-maroon-800",
+                                  selectedCat?.id === c.id && "bg-cream-100 font-semibold text-maroon-800",
+                                )}
+                              >
                                 {c.name}
                               </Link>
                             </li>
@@ -197,17 +382,27 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                 </ul>
               </div>
 
+              {/* Price Filter */}
               <div>
                 <p className="mb-2 text-xs font-bold uppercase tracking-wider text-maroon-800">Price</p>
                 <ul className="space-y-1 text-sm">
                   <li>
-                    <Link href={buildUrl({ min: undefined, max: undefined })} className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", !sp.min && !sp.max && "bg-cream-100 font-semibold text-maroon-800")}>
+                    <Link
+                      href={buildUrl({ min: undefined, max: undefined })}
+                      className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", !sp.min && !sp.max && "bg-cream-100 font-semibold text-maroon-800")}
+                    >
                       Any price
                     </Link>
                   </li>
                   {PRICE_BANDS.map(([label, min, max]) => (
                     <li key={label}>
-                      <Link href={buildUrl({ min: min || undefined, max: max || undefined })} className={cn("block rounded-lg px-2 py-1 hover:bg-cream-100", (sp.min ?? "") === min && (sp.max ?? "") === max && "bg-cream-100 font-semibold text-maroon-800")}>
+                      <Link
+                        href={buildUrl({ min: min || undefined, max: max || undefined })}
+                        className={cn(
+                          "block rounded-lg px-2 py-1 hover:bg-cream-100",
+                          (sp.min ?? "") === min && (sp.max ?? "") === max && "bg-cream-100 font-semibold text-maroon-800",
+                        )}
+                      >
                         {label}
                       </Link>
                     </li>
@@ -215,7 +410,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                 </ul>
               </div>
 
-              {(q || sp.store || sp.min || sp.max || selectedCat) && (
+              {hasActiveFilters && (
                 <Link href="/products" className="btn btn-outline btn-sm w-full">
                   Clear all filters
                 </Link>
@@ -224,7 +419,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           </details>
         </aside>
 
-        {/* Results */}
+        {/* Results Section */}
         <section>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -234,18 +429,89 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             <div className="flex flex-wrap items-center gap-1 text-xs">
               <span className="mr-1 text-slate-500">Sort:</span>
               {SORTS.map(([key, label]) => (
-                <Link key={key} href={buildUrl({ sort: key === "relevance" ? undefined : key })} className={cn("rounded-full border px-3 py-1", sort === key ? "border-maroon-700 bg-maroon-700 text-white" : "border-cream-300 bg-white hover:border-maroon-400")}>
+                <Link
+                  key={key}
+                  href={buildUrl({ sort: key === "relevance" ? undefined : key })}
+                  className={cn(
+                    "rounded-full border px-3 py-1",
+                    sort === key ? "border-maroon-700 bg-maroon-700 text-white" : "border-cream-300 bg-white hover:border-maroon-400",
+                  )}
+                >
                   {label}
                 </Link>
               ))}
             </div>
           </div>
 
+          {/* Active Filter Chips */}
+          {hasActiveFilters && (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500">Active filters:</span>
+              {activeOccasion && (
+                <Link
+                  href={buildUrl({ occasion: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>{activeOccasion.emoji} {activeOccasion.name}</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              {activeColor && (
+                <Link
+                  href={buildUrl({ color: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>Color: {activeColor.name}</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              {activeFabric && (
+                <Link
+                  href={buildUrl({ fabric: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>Fabric: {activeFabric.name}</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              {selectedCat && (
+                <Link
+                  href={buildUrl({ category: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>Category: {selectedCat.name}</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              {(sp.min || sp.max) && (
+                <Link
+                  href={buildUrl({ min: undefined, max: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>Price filtered</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              {q && (
+                <Link
+                  href={buildUrl({ q: undefined })}
+                  className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-medium text-maroon-800 hover:bg-cream-200"
+                >
+                  <span>Search: &ldquo;{q}&rdquo;</span>
+                  <X className="h-3 w-3" />
+                </Link>
+              )}
+              <Link href="/products" className="text-xs text-maroon-700 underline hover:text-maroon-900 ml-1">
+                Clear all
+              </Link>
+            </div>
+          )}
+
           {rows.length === 0 ? (
             <div className="card flex flex-col items-center px-6 py-16 text-center">
               <SearchX className="h-10 w-10 text-maroon-300" />
               <p className="mt-3 font-display text-xl text-maroon-900">No products found</p>
-              <p className="mt-1 text-sm text-slate-500">Try a different search term or remove some filters.</p>
+              <p className="mt-1 text-sm text-slate-500">Try a different filter or search term.</p>
               <Link href="/products" className="btn btn-primary mt-5">
                 Browse all products
               </Link>

@@ -47,3 +47,13 @@
 - **Status:** Accepted
 - **Decision:** Add 1-click pre-filled WhatsApp links for customer order confirmations, custom bridal/stitching consultations, and admin/seller dispatch notifications.
 - **Rationale:** Over 90% of Indian ethnic wear customers use WhatsApp for sizing verification, blouse measurement consultation, and delivery coordination.
+
+## ADR 010: Master Vibe Coding System & Local Skill Ecosystem
+- **Status:** Accepted
+- **Decision:** Adopt the Master Vibe Coding System with specialized skills cataloged under `.agent/skills/` (`ui-ux-pro-max`, `motion-design`, `vibe-security`, `vibe-security-audit`, `agentic-seo`, `web-quality-skills`, `vibe-proof`) and reusable operational prompts under `.ai/PROMPTS/`.
+- **Rationale:** Standardizes cross-agent best practices for design intelligence, animation choreography, full-stack defensive security, and SEO while maintaining zero regression and strict TypeScript quality.
+
+## ADR 011: Smart Visual Catalog Filters & Indian Postal Circle Estimation
+- **Status:** Accepted
+- **Decision:** Implement multi-dimensional visual filters on `/products` (Wedding/Festive occasions, visual color dots with selected ring state, and ethnic fabrics) and Indian postal circle lookup in `src/lib/pincode.ts`.
+- **Rationale:** Enhances ethnic discovery (shoppers search specifically by "Haldi", "Mehendi", or "Rani Pink") and provides immediate delivery confidence and Cash on Delivery reassurance to Indian shoppers.

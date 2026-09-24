@@ -11,7 +11,7 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 16 Enterprise test suites in `tests/` passing in ~0.25s (`npm test`).
+- **Automated Tests:** 18 Enterprise test suites in `tests/` passing in ~0.24s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 
 ## 3. High-Value Indian Commerce Features
@@ -25,7 +25,15 @@
    - Pre-filled WhatsApp Order Confirmation message on checkout completion and order detail views.
    - Wedding / Bridal consultation & custom stitching measurement button on product detail pages.
    - 1-Click WhatsApp dispatch update button with tracking details for Admin & Sellers.
-3. **Universal Media Engine:**
+3. **Smart Catalog Visual Filters:**
+   - Occasion selector: Haldi (💛), Mehendi (🌿), Sangeet (✨), Wedding (👑), Reception (🥂), Festive (🪔).
+   - 9 Visual Color Swatches / Dots filter with active selection rings.
+   - Fabric filter: Pure Silk, Banarasi, Georgette, Velvet, Chiffon, Organza, Chanderi, Cotton.
+   - Active filter chips bar with 1-click removal.
+4. **Indian Pincode Circle Resolution & Delivery Estimator:**
+   - Instant prefix-based postal circle detection across India (Delhi NCR, UP, Bihar, West, South, North East).
+   - Expected delivery window calculation and zero-cost Cash on Delivery confirmation.
+5. **Universal Media Engine:**
    - 6-Stage priority auto-detection pipeline supporting ImageKit, Backblaze B2, Google Drive Direct IDs, Google Drive Share links, YouTube streaming videos, and direct web URLs via wsrv.nl WebP compression.
 
 ## 4. Infrastructure & Free-Tier Optimization
@@ -33,6 +41,7 @@
 - **Vercel Edge:** Lightweight middleware skipping static assets and public routes; zero database queries in middleware.
 - **Clerk Auth:** `useGuestOrAuth` React 19 hook for guest browsing/cart without burning 50,000 MRU quotas; React `cache()` request-scoped deduplication.
 - **Backblaze B2 Private Storage:** Cloudflare Worker proxy script (`cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; presigned direct client upload pipeline.
+- **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
 ## 5. Database Schema (16 Tables)
 1. `users`: Customers, Sellers, and Admins (`clerk_id`, `email`, `role`, `password_hash`).

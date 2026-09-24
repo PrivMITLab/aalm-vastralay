@@ -4,15 +4,22 @@
 ## Completed Tasks (Production Ready)
 - [x] Full responsive Indian & Bihar ethnic design with dark/light themes.
 - [x] WhatsApp direct inquiry integration on all product cards.
-- [x] 6-digit Indian PIN code delivery estimation widget.
+- [x] Dynamic UPI QR Code (₹0 gateway fee) with 5-minute security timer and 12-digit UTR verification.
+- [x] 1-Click WhatsApp Order Confirmation & Bridal Sizing Consultation.
+- [x] Master Vibe Coding System adopted in `.ai/PROMPTS/MASTER_SYSTEM.md`.
+- [x] Open-source specialized skill library loaded into `.agent/skills/`.
+- [x] Smart Catalog Visual Filters (Haldi, Mehendi, Sangeet, Wedding, Color Dots, Fabrics).
+- [x] Indian Pincode Circle Resolution & Zero-Cost COD delivery estimator.
+- [x] Automated CI/CD security workflows (CodeQL, Semgrep, Dependency Security, Dependabot).
+- [x] 18 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~0.24s).
+- [x] TypeScript Strict Mode (0 type errors, 0 `any` types).
+- [x] Next.js 16 Turbopack production build with all 55 routes verified.
 - [x] 16 relational database tables with Drizzle ORM and Neon Postgres.
 - [x] Safe clean reset script in `scripts/neon-reset.sql` preserving categories, coupons, settings, and admin.
 - [x] Multi-vendor seller portal (`/seller`) with strict tenant boundary enforcement.
 - [x] Live zero-code site settings panel (`/admin/settings`) with 93 configurations.
-- [x] Comprehensive 7-suite enterprise test system in `tests/` (`npm test`).
-- [x] Vibe coding master AI memory system in `.ai/`.
 
-## Future Enhancements
+## In-Progress / Next Enhancements
+- [ ] Customer photo review uploads (UGC photo reviews via B2 / Cloudflare Worker).
 - [ ] Push notifications for order dispatch via Service Worker.
-- [ ] AI-powered ethnic wear recommendation widget based on browsed occasions.
 - [ ] Direct Shiprocket / Delhivery courier API integration for automatic AWB label generation.
