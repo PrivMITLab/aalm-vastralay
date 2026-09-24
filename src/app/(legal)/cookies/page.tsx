@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "../layout";
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = { title: "Cookie Policy" };
 
 export default function CookiesPage() {

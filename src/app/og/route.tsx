@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
+export const revalidate = 86400;
 
 /** Brand-aware Open Graph image generator. Query params: title, subtitle, theme (light/dark), accent. */
 export async function GET(req: Request) {

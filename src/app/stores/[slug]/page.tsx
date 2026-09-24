@@ -12,7 +12,7 @@ import { resolveImage } from "@/lib/media-resolver";
 import { getHomeConfig } from "@/lib/settings";
 import { formatDay, gridClass } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

@@ -23,7 +23,7 @@ import WhatsAppShare from "@/components/product/WhatsAppShare";
 import WhatsAppConsultButton from "@/components/product/WhatsAppConsultButton";
 import MobileStickyBar from "@/components/product/MobileStickyBar";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Free Size"];
 const sizeRank = (s: string | null) => {

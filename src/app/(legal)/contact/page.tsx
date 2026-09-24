@@ -3,6 +3,8 @@ import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { LegalLayout } from "../layout";
 import { getBrand } from "@/lib/settings";
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = { title: "Contact us" };
 
 export default async function ContactPage() {

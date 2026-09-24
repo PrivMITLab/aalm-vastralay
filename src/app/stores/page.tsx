@@ -8,7 +8,7 @@ import { Rating } from "@/components/Rating";
 import { resolveImage } from "@/lib/media-resolver";
 import { getSettingNumber } from "@/lib/settings";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600;
 export const metadata: Metadata = {
   title: "Boutiques & Stores – Verified Artisan Collectives",
   description: "Explore curated boutiques, designer labels and textile weaver collectives selling directly on Aalm Vastralay.",

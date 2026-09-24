@@ -139,6 +139,7 @@ export default async function AdminProductsPage({
                     <tr key={product.id} className="hover:bg-[color:var(--surface-2)] transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={thumb}
                             alt=""

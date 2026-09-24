@@ -58,3 +58,27 @@
 ### `POST /api/webhooks/clerk`
 - **Purpose:** User synchronization webhook.
 - **Protection:** HMAC Svix signature verification.
+
+### `GET /api/categories`
+- **Purpose:** Hierarchical category tree with subcategories and live product counts.
+- **Access:** Public (Edge cached, `s-maxage=300`).
+- **Response:** `{ "count": 12, "categories": [{ "id": "...", "name": "...", "subcategories": [...] }] }`.
+
+### `GET /api/search`
+- **Purpose:** Full-text PostgreSQL search endpoint across titles, descriptions, and tags.
+- **Query Params:** `q`, `limit`.
+- **Access:** Public (Edge cached, `s-maxage=60`).
+- **Response:** `{ "query": "...", "count": 8, "products": [...] }`.
+
+### `GET /api/admin/*` (Users, Sellers, Products, Orders, Coupons, Banners, Settings)
+- **Purpose:** Headless administrative data extraction and dashboard feeds.
+- **Access:** Admin only (`role = 'admin'`).
+- **Endpoints:**
+  - `GET /api/admin/users`: List registered customers and sellers with role and timestamps.
+  - `GET /api/admin/sellers`: List store owners, locations, sales totals, and active statuses.
+  - `GET /api/admin/products`: List all catalog products with store names and inventory numbers.
+  - `GET /api/admin/orders`: List order items, payment status, totals, and customer references.
+  - `GET /api/admin/coupons`: List active coupon codes, discount types, and redemption metrics.
+  - `GET /api/admin/banners`: Retrieve active promotional hero banners and settings.
+  - `GET /api/admin/settings`: Retrieve all zero-code configuration settings map.
+

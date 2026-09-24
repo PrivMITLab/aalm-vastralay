@@ -10,7 +10,7 @@ import { getHomeConfig, getSettingNumber } from "@/lib/settings";
 import { cn, gridClass } from "@/lib/utils";
 import { CATALOG_COLORS, CATALOG_OCCASIONS, CATALOG_FABRICS } from "@/lib/catalog-filters";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type SP = {
   q?: string;

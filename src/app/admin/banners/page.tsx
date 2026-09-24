@@ -32,6 +32,7 @@ export default async function AdminBannersPage() {
           <Sparkles className="h-3.5 w-3.5" /> Live Hero Banner Preview
         </div>
         <div className="relative min-h-[220px] bg-slate-900 p-6 sm:p-10 flex flex-col justify-center overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={banner.url || "/brand/poster.png"}
             alt="Preview"
