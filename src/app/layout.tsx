@@ -14,14 +14,19 @@ import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aalmvastralay.com";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    "https://aalm-vastralay.vercel.app";
+
   return {
     metadataBase: new URL(siteUrl),
     title: { default: `${brand.name} – Wedding & Ethnic Wear Marketplace`, template: `%s | ${brand.name}` },
     description: brand.tagline,
     keywords: ["bridal lehenga online", "banarasi saree", "sherwani", "ethnic wear", "wedding wear India", "cash on delivery", "Bihar ethnic boutique"],
     openGraph: {
-      title: brand.name,
+      title: `${brand.name} – Wedding & Ethnic Wear Marketplace`,
       description: brand.tagline,
       type: "website",
       url: siteUrl,
@@ -29,35 +34,44 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "en_IN",
       images: [
         {
-          url: "/og-image.png",
+          url: `${siteUrl}/opengraph-image`,
           width: 1200,
           height: 630,
+          type: "image/png",
+          alt: `${brand.name} – Luxury Wedding & Ethnic Wear`,
+        },
+        {
+          url: `${siteUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          type: "image/png",
           alt: `${brand.name} – Luxury Wedding & Ethnic Wear`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: brand.name,
+      title: `${brand.name} – Wedding & Ethnic Wear Marketplace`,
       description: brand.tagline,
-      images: ["/twitter-image.png"],
+      images: [`${siteUrl}/twitter-image`],
     },
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/icon", sizes: "64x64", type: "image/png" },
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-        { url: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="48" font-size="48">${brand.faviconEmoji}</text></svg>`)}` },
       ],
       apple: [
+        { url: "/apple-icon", sizes: "180x180", type: "image/png" },
         { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-        { url: "/apple-touch-icon-152x152.png", sizes: "152x152", type: "image/png" },
       ],
       other: [
         {
           rel: "mask-icon",
           url: "/safari-pinned-tab.svg",
-          color: "#4A148C",
+          color: "#7a1f2b",
         },
       ],
     },
