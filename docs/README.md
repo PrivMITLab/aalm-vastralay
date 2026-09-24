@@ -9,6 +9,7 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 
 | Document | Purpose & Description |
 | :--- | :--- |
+| ⭐ **[MASTER_DEVELOPER_GUIDE.md](MASTER_DEVELOPER_GUIDE.md)** | **PRIMARY REFERENCE** — Full 2000+ word developer & operations manual: architecture diagram, complete `.env` blueprint, cryptographic key generation, step-by-step cloud deployment (Vercel, Neon, Cloudflare Worker, GAS Email, ImageKit), live route & UI catalog, 10-feature E2E test matrix, and troubleshooting runbook. |
 | **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** | Complete end-to-end platform guide: features, architecture, stores, payment methods, and admin customization. |
 | **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** | Step-by-step `.env` configuration guide with Neon, ImageKit, Cloudflare, and Vercel setup. |
 | **[GAS_EMAIL_GUIDE.md](GAS_EMAIL_GUIDE.md)** | 100% Free zero-domain Google Apps Script OTP & email notification engine setup. |
