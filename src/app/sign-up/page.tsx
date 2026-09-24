@@ -18,8 +18,8 @@ export default async function SignUpPage({ searchParams }: { searchParams: Promi
       <div className="hidden lg:block">
         <div className="relative overflow-hidden rounded-3xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={seller ? "/images/hero.jpg" : "/images/gown.jpg"} alt="" className="h-[520px] w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-maroon-900/90 to-transparent" />
+          <img src={seller ? "/images/hero.jpg" : "/images/bridal-lehenga.jpg"} alt="Aalm Vastralay Collection" className="h-[520px] w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-maroon-900/90 via-maroon-900/30 to-transparent" />
           <div className="absolute bottom-8 left-8 right-8 text-white">
             <p className="font-display text-3xl font-semibold">{seller ? "Open your store today" : "Join Aalm Vastralay"}</p>
             <ul className="mt-3 space-y-1.5 text-sm text-cream-100/90">

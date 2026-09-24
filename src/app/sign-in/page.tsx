@@ -16,8 +16,8 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       <div className="hidden lg:block">
         <div className="relative overflow-hidden rounded-3xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/anarkali.jpg" alt="" className="h-[520px] w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--brand)]/90 to-transparent" />
+          <img src="/images/bridal-lehenga.jpg" alt="Aalm Vastralay Bridal Collection" className="h-[520px] w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--brand)]/90 via-[color:var(--brand)]/30 to-transparent" />
           <div className="absolute bottom-8 left-8 right-8 text-white">
             <p className="font-display text-3xl font-semibold">Welcome back</p>
             <p className="mt-1 text-sm text-cream-100/90">Track orders, save favourites and check out faster.</p>
