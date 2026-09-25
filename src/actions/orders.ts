@@ -174,12 +174,31 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   try {
     await db.transaction(async (tx) => {
+      const storeIds = [...groups.keys()];
+      const shares: number[] = [];
+      // Coupon split with remainder reconciliation: last store absorbs rounding diff so sum == discount exactly.
+      for (let i = 0; i < storeIds.length; i++) {
+        const sid = storeIds[i];
+        const items = groups.get(sid)!;
+        const sub = round2(items.reduce((s, r) => s + unitPrice(r) * r.item.quantity, 0));
+        if (discount <= 0) {
+          shares.push(0);
+        } else if (i < storeIds.length - 1) {
+          shares.push(round2((discount * sub) / grandSubtotal));
+        } else {
+          const prevSum = round2(shares.reduce((a, b) => a + b, 0));
+          shares.push(round2(Math.max(0, discount - prevSum)));
+        }
+      }
+      let idx = 0;
       for (const [storeId, items] of groups) {
         const subtotal = round2(items.reduce((s, r) => s + unitPrice(r) * r.item.quantity, 0));
         const shipping = shippingFor(subtotal, data.paymentMethod);
-        const share = discount > 0 ? round2(discount * (subtotal / grandSubtotal)) : 0;
+        const share = shares[idx++];
         const total = round2(Math.max(0, subtotal + shipping - share));
         const orderNumber = generateOrderNumber();
+        const { randomUUID } = await import("node:crypto");
+        const idempotencyKey = randomUUID();
         const upiUtr = formData.get("upiUtr")?.toString().trim();
         const notes = [
           data.notes,
@@ -204,6 +223,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
             shippingAddress,
             notes: notes || null,
             upiUtr: data.upiUtr || upiUtr || null,
+            idempotencyKey,
           })
           .returning({ id: orders.id });
 
@@ -324,21 +344,33 @@ export async function restock(orderId: string) {
   }
 }
 
+/**
+ * Cancels a customer order atomically.
+ * Uses conditional UPDATE (status IN ...) so concurrent double-submit
+ * only succeeds once — second call gets 0 rows and skips restock.
+ * This prevents double-restock race without new DB columns.
+ */
 export async function cancelOrder(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) return;
   const orderId = String(formData.get("orderId") ?? "");
   const [order] = await db.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.customerId, user.id))).limit(1);
   if (!order || !["pending", "confirmed", "processing"].includes(order.status)) return;
-  await db.update(orders).set({ status: "cancelled", updatedAt: new Date() }).where(eq(orders.id, orderId));
+  const updated = await db
+    .update(orders)
+    .set({ status: "cancelled", updatedAt: new Date() })
+    .where(and(eq(orders.id, orderId), eq(orders.customerId, user.id), inArray(orders.status, ["pending", "confirmed", "processing"])))
+    .returning({ id: orders.id, orderNumber: orders.orderNumber, storeId: orders.storeId });
+  if (!updated.length) return; // already cancelled by concurrent request — skip restock
+  const done = updated[0];
   await restock(orderId);
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "order.cancel", target: order.orderNumber });
-  const [store] = await db.select({ ownerId: stores.ownerId }).from(stores).where(eq(stores.id, order.storeId!)).limit(1);
+  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "order.cancel", target: done.orderNumber });
+  const [store] = await db.select({ ownerId: stores.ownerId }).from(stores).where(eq(stores.id, done.storeId!)).limit(1);
   if (store?.ownerId)
     await db.insert(notifications).values({
       userId: store.ownerId,
       type: "order_cancelled",
-      title: `Order ${order.orderNumber} cancelled`,
+      title: `Order ${done.orderNumber} cancelled`,
       body: "The customer cancelled this order.",
       data: { orderId },
     });

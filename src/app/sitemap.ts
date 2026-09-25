@@ -47,8 +47,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const [catRows, prodRows, storeRows] = await Promise.all([
       db.select({ slug: categories.slug }).from(categories).where(eq(categories.isActive, true)),
-      db.select({ slug: products.slug, updatedAt: products.updatedAt }).from(products),
-      db.select({ slug: stores.slug }).from(stores),
+      db.select({ slug: products.slug, updatedAt: products.updatedAt }).from(products).where(eq(products.isActive, true)).limit(500),
+      db.select({ slug: stores.slug }).from(stores).where(eq(stores.isActive, true)),
     ]);
     staticUrls.push(
       ...catRows.map((c) => ({

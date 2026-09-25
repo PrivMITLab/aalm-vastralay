@@ -48,13 +48,15 @@ export default async function AdminPage() {
   const commissionRate = 0.025;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-gold-600">Admin</p>
-        <h1 className="font-display text-3xl font-semibold text-maroon-900">Marketplace control panel</h1>
+    <div className="mx-auto w-full max-w-7xl min-w-0 space-y-8 overflow-x-clip px-4 py-8 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+        <div className="min-w-0 flex-1">
+          <p className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600">Admin</p>
+          <h1 className="font-display min-w-0 flex-1 truncate text-xl font-semibold text-maroon-900 sm:text-2xl lg:text-3xl">Marketplace control panel</h1>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <Stat icon={<Users className="h-5 w-5" />} label="Users" value={String(stats.users)} sub={`${stats.sellers} sellers`} />
         <Stat icon={<Store className="h-5 w-5" />} label="Stores" value={String(stats.stores)} sub="registered" />
         <Stat icon={<Package className="h-5 w-5" />} label="Live products" value={String(stats.products)} sub="active listings" />
@@ -86,8 +88,8 @@ export default async function AdminPage() {
           <header className="border-b border-cream-200 px-5 py-3">
             <h2 className="font-semibold text-maroon-900">Users & roles</h2>
           </header>
-          <div className="max-h-[480px] overflow-auto">
-            <table className="w-full text-sm">
+          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="sticky top-0 bg-cream-50 text-left text-xs uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-4 py-2">User</th>

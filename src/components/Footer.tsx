@@ -29,14 +29,14 @@ export default async function Footer() {
   ];
 
   return (
-    <footer className="no-print mt-16 border-t border-[color:var(--border)] bg-[color:var(--surface)]">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-8 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="no-print mt-16 w-full max-w-full min-w-0 overflow-x-clip border-t border-[color:var(--border)] bg-[color:var(--surface)]">
+      <div className="mx-auto grid w-full max-w-7xl min-w-0 max-w-full grid-cols-1 gap-5 px-4 py-8 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         {perks.map((p) => (
-          <div key={p.title} className="flex gap-3">
+          <div key={p.title} className="flex min-w-0 gap-3">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[color:var(--brand-soft)] text-[color:var(--brand)]">{p.icon}</span>
-            <div>
-              <p className="text-sm font-semibold">{p.title}</p>
-              <p className="text-xs text-[color:var(--text-soft)]">{p.text}</p>
+            <div className="min-w-0 flex-1">
+              <p className="break-words text-sm font-semibold">{p.title}</p>
+              <p className="break-words text-xs text-[color:var(--text-soft)]">{p.text}</p>
             </div>
           </div>
         ))}

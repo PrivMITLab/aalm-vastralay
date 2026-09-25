@@ -137,6 +137,10 @@ export const orders = pgTable(
     courier: text("courier"),
     notes: text("notes"),
     upiUtr: text("upi_utr"),
+    /** Idempotency key to prevent double-submit / double-restock. Added safely, nullable for old rows. */
+    idempotencyKey: text("idempotency_key").unique(),
+    /** Timestamp when admin verifies UPI payment. Null until verified. */
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },

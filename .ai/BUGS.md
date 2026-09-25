@@ -73,10 +73,17 @@
 - **Root Cause:** Absence of HTML entity escaping and unfiltered catch block returning `err.stack`.
 - **Resolution:** Implemented `escapeHtml()` in `/api/courier/label/route.ts` to sanitize all dynamic HTML inputs. Suppressed client-side error details in `/api/health` while keeping robust server logging (`console.error`). Added `.replace(/</g, '\\u003c')` to JSON-LD `<Script>` tags in `layout.tsx` and `product/[slug]/page.tsx`.
 
-### Incident 014: Unprotected Public Endpoints & Brute-Force Risk on Bootstrap
-- **Symptom:** `/api/bootstrap` used `GET` with raw string equality for token check; `/api/bootstrap`, `/api/search`, and `/api/courier/label` had no rate limiting, leaving Neon connection pools vulnerable to quota exhaustion.
-- **Root Cause:** Relying only on DB-backed rate limiting, which burns Neon connection pooler quotas for public bot traffic.
-- **Resolution:** Created zero-cost `memoryRateLimit` in `src/lib/rate-limit.ts` with 5-minute memory sweep. Protected `/api/bootstrap` (5 req/min, `crypto.timingSafeEqual`, POST support, `confirm=yes` for demo wipes), `/api/search` (60 req/min), `/api/courier/label` (30 req/min), and `/api/health` (60 req/min).
+### Incident 015: Google Drive & External Image URLs Breaking in Admin Banner Preview
+- **Symptom:** Pasting a Google Drive sharing link (`drive.google.com/file/d/.../view?usp=sharing`) in `/admin/banners` rendered a blank / purple box with missing background banner image.
+- **Root Cause:**
+  1. `/admin/banners` was rendering raw `src={banner.url}` without passing it through `resolveImage()`. Because Google Drive sharing links point to an HTML webpage rather than a raw image stream, the browser `<img />` tag failed to render.
+  2. The page was a static Server Component without real-time client-side sync, leaving users with no visual feedback while typing or testing URLs.
+  3. `home.announcementText` and `home.marqueeText` were absent from `SETTINGS_FIELDS`, causing them to be ignored on submit.
+- **Resolution:**
+  1. Built `src/components/admin/BannerEditor.tsx` with live synchronized preview, instant `google-drive-cdn` / `dropbox-raw` indicator badges, and safe `onError` fallback to `/brand/poster.png`.
+  2. Implemented `canonicalizeImageUrl` in `src/lib/image-resolver.ts` to automatically convert Google Drive (`/view`, `/uc?id=`, `/file/d/`) into `https://lh3.googleusercontent.com/d/{id}` and normalize Dropbox, GitHub, and OneDrive links.
+  3. Built secure SSRF-protected `/api/admin/scrape-image` endpoint with 1-click "Auto-Detect / Scrape" button to extract OpenGraph banners from arbitrary web URLs.
+  4. Added `home.announcementText` and `home.marqueeText` to `SETTINGS_FIELDS` under `group: "home"` and enabled `revalidatePath("/admin/banners")`.
 
 
 

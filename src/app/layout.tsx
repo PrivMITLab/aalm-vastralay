@@ -124,12 +124,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="en" className={`${isDark ? "dark" : ""} ${prefs.density === "compact" ? "density-compact" : ""} ${prefs.motion ? "" : "reduce-motion"}`} style={{ ...cssVars, colorScheme: isDark ? "dark" : "light" }}>
-      <body className="flex min-h-screen flex-col antialiased">
+      <body className="flex min-h-dvh flex-col overflow-x-clip antialiased">
         <ThemeProvider initial={prefs}>
           <ToastProvider>
             <FormGuard />
             <Header />
-            <main className="flex-1 pb-16 lg:pb-0">{children}</main>
+            <main className="w-full max-w-full min-w-0 flex-1 pb-[96px] lg:pb-0">{children}</main>
             <Footer />
             <MobileTabBar
               showWishlist={showWishlist}

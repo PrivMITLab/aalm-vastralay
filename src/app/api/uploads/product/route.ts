@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { persistUpload } from "@/lib/uploads";
+import { isAllowedImageUrl, persistUpload } from "@/lib/uploads";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -54,7 +54,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed" }, { status: 400 });
     }
   } else if (body.url && /^https?:\/\//i.test(body.url)) {
-    url = body.url.slice(0, 600);
+    const candidate = body.url.slice(0, 600);
+    if (!isAllowedImageUrl(candidate)) {
+      return NextResponse.json({ error: "Image host not allowed. Use ImageKit, wsrv.nl, Backblaze, Google or Cloudinary URLs." }, { status: 400 });
+    }
+    url = candidate;
   } else {
     return NextResponse.json({ error: "Provide {data, mime} or {url}" }, { status: 400 });
   }

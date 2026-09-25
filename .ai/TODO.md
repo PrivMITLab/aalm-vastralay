@@ -43,6 +43,7 @@
 - [x] Public API XSS & Information Leak Hardening: escapeHtml on shipping labels, suppressed stack traces in /api/health, escaped JSON-LD scripts.
 - [x] Zero-Cost In-Memory Rate Limiting: memoryRateLimit protecting /api/bootstrap (5/min, crypto.timingSafeEqual, POST), /api/search, /api/courier/label, /api/health.
 - [x] 24 Automated Enterprise Test Suites in tests/ (npm test passing in ~0.36s).
+- [x] Universal Banner Media Resolver & Webpage Scraper: interactive BannerEditor, Google Drive auto-conversion to direct lh3 CDN, SSRF-safe /api/admin/scrape-image.
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
-import { persistUpload } from "@/lib/uploads";
+import { persistUpload, isAllowedImageUrl } from "@/lib/uploads";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
@@ -32,7 +32,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err instanceof Error ? err.message : "Could not save photo." }, { status: 400 });
     }
   } else if (body.url && /^https?:\/\//i.test(body.url)) {
-    savedUrl = body.url.slice(0, 600);
+    const candidate = body.url.slice(0, 600);
+    if (!isAllowedImageUrl(candidate)) {
+      return NextResponse.json({ error: "Image host not allowed" }, { status: 400 });
+    }
+    savedUrl = candidate;
   } else {
     return NextResponse.json({ error: "Provide {data, mime} or {url}" }, { status: 400 });
   }

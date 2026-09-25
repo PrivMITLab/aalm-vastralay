@@ -3,6 +3,34 @@
 
 ---
 
+## [2026-09-25] — Universal Banner Media Resolver, Google Drive Auto-Conversion & Webpage Image Scraper
+
+### Added & Improved
+- **Interactive Banner Editor (`src/components/admin/BannerEditor.tsx`, `src/app/admin/banners/page.tsx`):**
+  - Built real-time client-side Banner Editor replacing static server form.
+  - Live preview immediately reflects image, badge, headline, subtitle, and CTA changes as the admin types.
+  - Features graceful `onError` fallback to `/brand/poster.png` with clear warning if an image cannot be loaded.
+  - Live indicator pills showing `google-drive-cdn`, `dropbox-raw`, or `direct-image` detection.
+  - Instant transition states with pending spinner and success alert on save.
+- **Universal External Media Auto-Conversion (`src/lib/image-resolver.ts`):**
+  - Created `canonicalizeImageUrl` utility that automatically recognizes and converts:
+    - Google Drive links (`drive.google.com/file/d/...`, `/view`, `/uc?id=`, `/file/u/0/d/...`) into direct high-speed `https://lh3.googleusercontent.com/d/{id}` CDN streams.
+    - Dropbox sharing URLs (`dl=0` -> `raw=1` or `dl=1`).
+    - GitHub repository blob URLs (`github.com/.../blob/...` -> `raw.githubusercontent.com/...`).
+    - OneDrive sharing links (`download=1`).
+  - Passes all external links seamlessly through `wsrv.nl` WebP optimization without paid third-party tools.
+- **Server-Side Webpage Image Scraper API (`src/app/api/admin/scrape-image/route.ts`):**
+  - Secure admin API endpoint extracting hero / banner images from arbitrary web pages.
+  - SSRF protection: blocks private IP ranges (`localhost`, `127.0.0.1`, `10.*`, `192.168.*`, `172.16-31.*`, `169.254.169.254`).
+  - Extracts `<meta property="og:image">`, `<meta name="twitter:image">`, `<link rel="image_src">`, or first high-res `<img>`.
+  - Added "Auto-Detect / Scrape" 1-click button inside `/admin/banners`.
+- **Admin Settings Schema Expansion (`src/lib/settings-defs.ts`, `src/actions/admin.ts`):**
+  - Added `home.announcementText` and `home.marqueeText` to `SETTINGS_FIELDS` under `group: "home"` so promotional banners persist reliably.
+  - Added `revalidatePath("/admin/banners")` to `updateSettings` action.
+  - Enabled `resolveImage` on `/admin/settings` live preview in `src/components/admin/SettingsEditor.tsx`.
+
+---
+
 ## [2026-09-25] — UPI Fraud Defense, PII Masking, Free-Tier Image Compression, XSS Hardening & Zero-Cost Rate Limiting
 
 ### Added & Hardened

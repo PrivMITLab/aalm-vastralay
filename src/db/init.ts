@@ -279,7 +279,11 @@ export async function autoEnsureTables() {
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`));
+    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`));
+    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`));
     await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_orders_upi_utr" ON "orders" ("upi_utr");`));
+    await db.execute(sql.raw(`CREATE UNIQUE INDEX IF NOT EXISTS "idx_orders_idempotency" ON "orders" ("idempotency_key");`));
+    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "push_subscriptions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "endpoint" text UNIQUE NOT NULL, "keys_p256dh" text NOT NULL, "keys_auth" text NOT NULL, "created_at" timestamptz DEFAULT now());`));
   } catch {
     // Non-fatal if columns/indexes exist
   }

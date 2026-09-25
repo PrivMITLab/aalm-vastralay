@@ -6,6 +6,7 @@ import { resetSettingsGroup, updateSettings } from "@/actions/admin";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import SubmitButton from "@/components/SubmitButton";
 import { cn } from "@/lib/utils";
+import { resolveImage } from "@/lib/image-resolver";
 import type { SettingField } from "@/lib/settings";
 
 type Group = { id: string; label: string; icon: string };
@@ -127,7 +128,14 @@ export default function SettingsEditor({
               <div className="space-y-3 p-4">
                 <div className="relative overflow-hidden rounded-xl" style={{ height: 150 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={live["home.bannerUrl"]} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={resolveImage(live["home.bannerUrl"] || "/brand/poster.png")}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/brand/poster.png";
+                    }}
+                  />
                   <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${(Number(live["home.bannerOverlay"]) || 0) / 100})` }} />
                   <div className="absolute inset-0 flex flex-col justify-center gap-1 p-3 text-white">
                     <span className="w-fit rounded-full bg-black/40 px-2 py-0.5 text-[10px]">{live["home.bannerBadge"]}</span>

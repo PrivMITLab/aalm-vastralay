@@ -47,6 +47,13 @@ export async function testMediaResolver() {
     throw new Error(`Failed: Google Drive Share Link ID extraction failed! Got: ${resolvedShareLink}`);
   }
 
+  // 3b. User's specific production Google Drive Link
+  const userGdrive = "https://drive.google.com/file/d/1cCzmA3yLZgIAKzrGBOBv32ef4PZhScGQ/view?usp=sharing";
+  const resolvedUserGdrive = resolveImage(userGdrive);
+  if (!resolvedUserGdrive.includes("1cCzmA3yLZgIAKzrGBOBv32ef4PZhScGQ") || !resolvedUserGdrive.includes("lh3.googleusercontent.com")) {
+    throw new Error(`Failed: Production GDrive URL not resolved properly! Got: ${resolvedUserGdrive}`);
+  }
+
   // 4. External Direct URLs (Unsplash, ImgBB, etc.)
   const unsplashUrl = "https://images.unsplash.com/photo-1610030469983-98e550d6193c";
   const resolvedDirect = resolveImage(unsplashUrl, { width: 600, quality: 75 });

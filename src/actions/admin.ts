@@ -65,6 +65,9 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
 
   invalidateSettings();
   revalidatePath("/", "layout");
+  revalidatePath("/admin/banners");
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/theme");
   await recordAudit({
     actorId: admin.id,
     actorEmail: admin.email,

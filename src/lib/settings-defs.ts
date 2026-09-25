@@ -88,6 +88,8 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "home.bannerCtaHref", group: "home", label: "Primary button link", type: "text", default: "/products?category=women" },
   { key: "home.bannerCta2Label", group: "home", label: "Secondary button label", type: "text", default: "कॉल करें: 8434061342" },
   { key: "home.bannerCta2Href", group: "home", label: "Secondary button link", type: "text", default: "tel:+918434061342" },
+  { key: "home.announcementText", group: "home", label: "Top announcement bar text", type: "text", default: "Festive Wedding Season Sale – Up to 40% Off on Bridal Lehengas & Sherwanis" },
+  { key: "home.marqueeText", group: "home", label: "Scrolling marquee ticker text", type: "text", default: "✨ Free Nationwide Shipping on Orders Above ₹999 | Handcrafted Banarasi Silks & Bridal Couture ✨" },
   { key: "home.gridDesktop", group: "home", label: "Product grid – desktop columns", type: "select", options: ["2", "3", "4", "5", "6"], default: "4" },
   { key: "home.gridTablet", group: "home", label: "Product grid – tablet columns", type: "select", options: ["2", "3", "4"], default: "3" },
   { key: "home.gridMobile", group: "home", label: "Product grid – mobile columns", type: "select", options: ["1", "2"], default: "2" },

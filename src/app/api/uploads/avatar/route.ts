@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { getSetting, getSettingBool } from "@/lib/settings";
-import { persistUpload } from "@/lib/uploads";
+import { isAllowedImageUrl, persistUpload } from "@/lib/uploads";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
@@ -35,8 +35,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err instanceof Error ? err.message : "Could not save photo." }, { status: 400 });
     }
   } else if (body.url && /^https?:\/\//i.test(body.url)) {
+    const candidate = body.url.slice(0, 600);
+    if (!isAllowedImageUrl(candidate)) {
+      return NextResponse.json({ error: "Image host not allowed" }, { status: 400 });
+    }
     // Allow an external URL – used by sellers linking their existing CDN-hosted logo.
-    url = body.url.slice(0, 600);
+    url = candidate;
   } else {
     return NextResponse.json({ error: "Provide either {data, mime} (≤5 MB image) or {url}" }, { status: 400 });
   }

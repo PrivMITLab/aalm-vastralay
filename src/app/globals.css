@@ -738,3 +738,42 @@ details > summary::-webkit-details-marker {
   }
 }
 
+/* ---------------- Responsive overflow lock: zero horizontal scroll ---------------- */
+@layer base {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+  img,
+  svg,
+  video {
+    max-width: 100%;
+  }
+  img {
+    height: auto;
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Premium gold-glow card helper (additive, brand-locked) */
+@utility card-luxe {
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+  box-shadow: 0 8px 30px -12px rgb(0 0 0 / 0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgb(212 175 55 / 0.4);
+    box-shadow: 0 16px 50px -12px rgb(212 175 55 / 0.25);
+  }
+}
+

@@ -5,6 +5,35 @@ export type UploadResult = { url: string; bytes: number; type: string };
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
+/**
+ * Allowlisted external image hosts. Any product/avatar/logo URL
+ * outside this list is rejected with 400 to prevent stored XSS/phishing.
+ */
+export const ALLOWED_IMAGE_HOSTS = [
+  "ik.imagekit.io",
+  "wsrv.nl",
+  "lh3.googleusercontent.com",
+  "res.cloudinary.com",
+];
+
+/**
+ * Checks whether an external https URL belongs to an allowlisted host
+ * (supports leading *. backblaze pattern via suffix match).
+ */
+export function isAllowedImageUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    return ALLOWED_IMAGE_HOSTS.some((h) => {
+      if (h.startsWith("*.")) return host.endsWith(h.slice(1).toLowerCase());
+      return host === h || host.endsWith(`.${h}`);
+    });
+  } catch {
+    return false;
+  }
+}
+
 export async function persistUpload(input: {
   bucket: string;
   data: string;
@@ -51,6 +80,8 @@ export async function persistUpload(input: {
       const creds = await getB2DirectUploadCredentials(b2Key);
       const isDirectB2 = creds.uploadUrl.includes("backblazeb2.com");
       if (isDirectB2) {
+        const cryptoMod2 = await import("node:crypto");
+        const sha1 = cryptoMod2.createHash("sha1").update(buffer).digest("hex");
         const b2Res = await fetch(creds.uploadUrl, {
           method: "POST",
           headers: {
@@ -58,7 +89,7 @@ export async function persistUpload(input: {
             "X-Bz-File-Name": encodeURIComponent(b2Key),
             "Content-Type": input.mime,
             "Content-Length": String(buffer.length),
-            "X-Bz-Content-Sha1": "do_not_verify",
+            "X-Bz-Content-Sha1": sha1,
           },
           body: buffer,
         });
@@ -129,8 +160,12 @@ function looksLikeImage(buf: Buffer, mime: string) {
     if (/\bon[a-z]+\s*=/i.test(text)) return false;
     if (/javascript:/i.test(text)) return false;
     if (/<foreignObject[\s>]/i.test(text)) return false;
+    if (/<animate[\s>/]/i.test(text)) return false;
+    if (/data:text\/html/i.test(text)) return false;
+    if (/<!ENTITY/i.test(text)) return false;
     return true;
   }
+  if (mime === "image/gif") return buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46;
   if (mime === "image/png") return buf[0] === 0x89 && buf[1] === 0x50;
   if (mime === "image/jpeg") return buf[0] === 0xff && buf[1] === 0xd8;
   if (mime === "image/webp")

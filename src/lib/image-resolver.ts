@@ -28,6 +28,53 @@ const YOUTUBE_REGEX = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\
 const VIDEO_EXT_REGEX = /\.(mp4|webm|mov|ogg)(\?.*)?$/i;
 
 /**
+ * Canonicalizes external image sharing links into direct raw image stream URLs.
+ * Automatically transforms:
+ *  - Google Drive (drive.google.com/file/d/..., open?id=..., uc?id=..., /uc?export=view) -> lh3.googleusercontent.com/d/{id}
+ *  - Google Drive Direct ID -> lh3.googleusercontent.com/d/{id}
+ *  - Dropbox (dropbox.com/... -> raw=1)
+ *  - GitHub (github.com/.../blob/... -> raw.githubusercontent.com/...)
+ *  - OneDrive (onedrive.live.com/... -> download=1)
+ */
+export function canonicalizeImageUrl(src: string | null | undefined): string {
+  if (!src || typeof src !== "string") return "";
+  const s = src.trim();
+
+  // 1. Google Drive URLs
+  const gdriveMatch = s.match(GDRIVE_URL_REGEX);
+  if (gdriveMatch) {
+    const fileId = gdriveMatch[1];
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+  }
+
+  // 2. Google Drive Direct ID alone (33-char alphanumeric without slashes or dots)
+  if (GDRIVE_ID_REGEX.test(s) && !s.includes("/") && !s.includes(".")) {
+    return `https://lh3.googleusercontent.com/d/${s}`;
+  }
+
+  // 3. Dropbox links (replace dl=0 with raw=1)
+  if (s.includes("dropbox.com/")) {
+    if (s.includes("dl=0")) return s.replace("dl=0", "raw=1");
+    if (!s.includes("raw=1") && !s.includes("dl=1")) {
+      return s.includes("?") ? `${s}&raw=1` : `${s}?raw=1`;
+    }
+    return s;
+  }
+
+  // 4. GitHub repository image preview to raw
+  if (s.includes("github.com/") && s.includes("/blob/")) {
+    return s.replace("github.com/", "raw.githubusercontent.com/").replace("/blob/", "/");
+  }
+
+  // 5. OneDrive links
+  if (s.includes("onedrive.live.com/") && !s.includes("download=1")) {
+    return s.includes("?") ? `${s}&download=1` : `${s}?download=1`;
+  }
+
+  return s;
+}
+
+/**
  * Checks whether a given media source reference is a video format.
  */
 export function isVideoUrl(src: string | null | undefined): boolean {
@@ -56,7 +103,7 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
     return PLACEHOLDER_IMAGE;
   }
 
-  const raw = src.trim();
+  const raw = canonicalizeImageUrl(src);
   const { width = 800, quality = 70, thumbnail = false, version } = opts;
   const targetWidth = thumbnail ? 320 : width;
   const vParam = version ? `&v=${encodeURIComponent(String(version))}` : "";
@@ -85,23 +132,13 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
     return `https://wsrv.nl/?url=${encodeURIComponent(ytThumb)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
   }
 
-  // 4. Google Drive URL
-  const gdriveUrlMatch = raw.match(GDRIVE_URL_REGEX);
-  if (gdriveUrlMatch) {
-    const fileId = gdriveUrlMatch[1];
-    const directGdriveUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-    if (!USE_WSRV) return directGdriveUrl;
-    return `https://wsrv.nl/?url=${encodeURIComponent(directGdriveUrl)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
+  // 4. Direct Google User Content / Google Drive
+  if (raw.includes("lh3.googleusercontent.com/d/")) {
+    if (!USE_WSRV) return raw;
+    return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
   }
 
-  // 5. Google Drive Direct ID (33-char alphanumeric without slashes or dots)
-  if (GDRIVE_ID_REGEX.test(raw) && !raw.includes("/") && !raw.includes(".")) {
-    const directGdriveUrl = `https://lh3.googleusercontent.com/d/${raw}`;
-    if (!USE_WSRV) return directGdriveUrl;
-    return `https://wsrv.nl/?url=${encodeURIComponent(directGdriveUrl)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
-  }
-
-  // 6. External Direct URLs (http:// or https://)
+  // 5. External Direct URLs (http:// or https://)
   if (/^https?:\/\//i.test(raw)) {
     // If it's already an ImageKit URL, inject transformation params
     if (raw.includes("ik.imagekit.io") && !raw.includes("/tr:")) {
@@ -118,7 +155,7 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
     return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
   }
 
-  // 7. Local /public asset (or relative path)
+  // 6. Local /public asset (or relative path)
   return raw.startsWith("/") ? raw : `/${raw}`;
 }
 

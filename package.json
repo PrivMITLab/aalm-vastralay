@@ -21,6 +21,7 @@
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
     "lucide-react": "^1.47.0",
+    "zod": "^3.23.8",
     "next": "16.2.6",
     "pg": "8.20.0",
     "pg-cloudflare": "^1.4.0",

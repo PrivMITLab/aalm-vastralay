@@ -17,7 +17,12 @@
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 
 ## 3. High-Value Indian Commerce & Zero-Loss Security Features
-1. **Zero-Loss UPI Fraud Prevention & Admin 1-Click Verification:**
+1. **Universal Banner Media Resolver, Google Drive Auto-Conversion & Webpage Scraper:**
+   - Real-time interactive Banner Editor (`src/components/admin/BannerEditor.tsx`) with live preview, fallback protection, and tactile save state.
+   - `canonicalizeImageUrl` in `src/lib/image-resolver.ts` automatically converts Google Drive links (`drive.google.com/file/d/.../view`, etc.) to direct high-speed `https://lh3.googleusercontent.com/d/{id}` CDN streams and normalizes Dropbox, GitHub, and OneDrive links.
+   - Secure SSRF-protected `/api/admin/scrape-image` endpoint with 1-click "Auto-Detect / Scrape" to extract OpenGraph banners from arbitrary web URLs.
+   - Preserves announcement ticker and marquee settings in `SETTINGS_FIELDS` under `group: "home"`.
+2. **Zero-Loss UPI Fraud Prevention & Admin 1-Click Verification:**
    - Orders placed via UPI / Online payment default to `paymentStatus: "pending-verification"`.
    - Strict 12-digit numeric regex validation (`/^[0-9]{12}$/`) for Indian banking UPI UTR in checkout.
    - Stored in additive `orders.upi_utr` column with index `idx_orders_upi_utr`.

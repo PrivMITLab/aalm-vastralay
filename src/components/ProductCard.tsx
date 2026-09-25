@@ -38,14 +38,16 @@ export default function ProductCard({
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="card card-lift group flex flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg active:scale-[0.99]"
+      className="card card-lift card-luxe group flex w-full max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg active:scale-[0.99]"
       aria-label={`${product.title} - ${formatINR(product.price)}`}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-cream-100 dark:bg-stone-900">
+      <div className="relative aspect-[3/4] w-full max-w-full overflow-hidden bg-cream-100 dark:bg-stone-900">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={firstImage(product.images, { width: 600, thumbnail: false })}
           alt={product.title}
+          width={600}
+          height={800}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
