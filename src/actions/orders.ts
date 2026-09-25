@@ -19,8 +19,9 @@ import {
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
-import { verifyPayload } from "@/lib/pow";
+import { verifyPayloadAndConsume } from "@/lib/pow-store";
 import { rateLimit } from "@/lib/rate-limit";
+import { requestMeta } from "@/lib/request";
 import { getCommerce, getSetting, getSettingBool } from "@/lib/settings";
 import { orderConfirmationHtml, sendEmail } from "@/lib/email";
 import { formatINR, generateOrderNumber, round2, shippingFor } from "@/lib/utils";
@@ -92,11 +93,16 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const user = await getCurrentUser();
   if (!user) return { error: "Please sign in to continue." };
 
-  // Abuse protection: per-user throttle + proof-of-work verification
+  // Abuse protection: per-user throttle + single-use proof-of-work verification
   const rl = await rateLimit({ key: `order:${user.id}`, limit: 6, windowSeconds: 300 });
   if (!rl.ok) return { error: `Too many order attempts. Please try again in ${rl.retryAfterSeconds}s.` };
   if ((await getSetting("security.botProtection", "pow")) === "pow") {
-    const verdict = verifyPayload(String(formData.get("botPayload") ?? ""));
+    const meta = await requestMeta().catch(() => ({ ip: "unknown", userAgent: "", trustProxy: true }));
+    const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
+      action: "order",
+      ip: meta.ip,
+      strict: true,
+    });
     if (!verdict.ok) return { error: verdict.error ?? "Security check failed." };
   }
   const commerce = await getCommerce();
@@ -325,7 +331,8 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     detail: `${data.paymentMethod.toUpperCase()} · ${formatINR(grandTotal)}`,
   });
 
-  revalidatePath("/", "layout");
+  revalidatePath("/cart");
+  revalidatePath("/orders");
   redirect(`/orders?placed=${encodeURIComponent(orderNumbers.join(","))}`);
 }
 
@@ -438,6 +445,17 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
 
   const rl = await rateLimit({ key: `review:${user.id}`, limit: 5, windowSeconds: 3600 });
   if (!rl.ok) return { error: "You have submitted several reviews already. Please try again later." };
+
+  // Single-use proof-of-work (lenient: store outages log and pass to avoid blocking genuine reviewers).
+  if ((await getSetting("security.botProtection", "pow")) === "pow") {
+    const meta = await requestMeta().catch(() => ({ ip: "unknown", userAgent: "", trustProxy: true }));
+    const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
+      action: "review",
+      ip: meta.ip,
+      strict: false,
+    });
+    if (!verdict.ok) return { error: verdict.error ?? "Security check failed." };
+  }
 
   const [product] = await db.select({ slug: products.slug, storeId: products.storeId }).from(products).where(eq(products.id, productId)).limit(1);
   if (!product) return { error: "Product not found." };

@@ -4,6 +4,7 @@ import { useActionState, useState, useTransition } from "react";
 import { Star, Camera, X, Loader2 } from "lucide-react";
 import { submitReview } from "@/actions/orders";
 import SubmitButton from "@/components/SubmitButton";
+import ClickToSolve from "@/components/security/ClickToSolve";
 import { cn } from "@/lib/utils";
 import { uploadToB2 } from "@/lib/upload-client";
 
@@ -14,6 +15,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [verified, setVerified] = useState(false);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -143,7 +145,14 @@ export default function ReviewForm({ productId }: { productId: string }) {
       </div>
 
       {state?.error && <p className="text-sm text-rose-700">{state.error}</p>}
-      <SubmitButton pendingText="Publishing…">Publish review</SubmitButton>
+      <ClickToSolve action="review" label="Main robot nahi hoon — review verify karo" onVerified={setVerified} />
+      <SubmitButton
+        pendingText="Publishing…"
+        disabled={!verified}
+        lockHint="Pehle robot-check verify karo (Verify first)"
+      >
+        Publish review
+      </SubmitButton>
     </form>
   );
 }

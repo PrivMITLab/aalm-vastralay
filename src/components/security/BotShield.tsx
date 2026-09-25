@@ -15,7 +15,12 @@ type Challenge = {
   signature: string;
 };
 
-const WORKER_SOURCE = `
+/**
+ * Shared Web Worker source for brute-forcing the PoW puzzle off the main
+ * thread. Exported for reuse by ClickToSolve — keep parameters in sync with
+ * lib/pow.ts (PBKDF2/SHA-256, salt `${salt}?${n}`, 256-bit output).
+ */
+export const WORKER_SOURCE = `
 self.onmessage = async (e) => {
   const { challenge, salt, iterations, zeros, maxnumber } = e.data;
   const enc = new TextEncoder();
@@ -38,7 +43,8 @@ self.onmessage = async (e) => {
 };
 `;
 
-async function solveOnMainThread(c: Challenge) {
+/** Main-thread fallback solver used when Web Workers are unavailable. */
+export async function solveOnMainThread(c: Challenge) {
   const enc = new TextEncoder();
   const prefix = "0".repeat(c.zeros);
   const key = await crypto.subtle.importKey("raw", enc.encode(c.challenge), "PBKDF2", false, ["deriveBits"]);
@@ -56,8 +62,9 @@ async function solveOnMainThread(c: Challenge) {
  * Invisible proof-of-work shield.
  * Solves a signed hash puzzle issued by /api/security/challenge and submits the
  * solution with the form. Blocks scripted spam/replay without any third-party captcha.
+ * Pass `action` to bind the token to one form (server enforces the binding).
  */
-export default function BotShield({ label = "Spam & bot protection" }: { label?: string }) {
+export default function BotShield({ label = "Spam & bot protection", action }: { label?: string; action?: string }) {
   const [state, setState] = useState<"idle" | "solving" | "ready" | "disabled" | "failed">("idle");
   const [payload, setPayload] = useState("");
   const [startedAt] = useState(() => Date.now());
@@ -70,7 +77,8 @@ export default function BotShield({ label = "Spam & bot protection" }: { label?:
 
     async function run() {
       try {
-        const res = await fetch("/api/security/challenge", { cache: "no-store" });
+        const qs = action ? `?action=${encodeURIComponent(action)}` : "";
+        const res = await fetch(`/api/security/challenge${qs}`, { cache: "no-store" });
         if (!res.ok) throw new Error("challenge failed");
         const json = (await res.json()) as { enabled: boolean; challenge: Challenge };
         if (cancelled) return;
@@ -121,7 +129,7 @@ export default function BotShield({ label = "Spam & bot protection" }: { label?:
       cancelled = true;
       worker?.terminate();
     };
-  }, [startedAt]);
+  }, [startedAt, action]);
 
   if (state === "disabled") return null;
 

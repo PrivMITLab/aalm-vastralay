@@ -326,6 +326,15 @@ export const rateLimits = pgTable("rate_limits", {
   windowStart: timestamp("window_start", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const powUsed = pgTable(
+  "pow_used",
+  {
+    challengeHash: text("challenge_hash").primaryKey(),
+    usedAt: timestamp("used_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("idx_pow_used_at").on(t.usedAt)],
+);
+
 /* ---------------------------- relations ---------------------------- */
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -398,6 +407,7 @@ export type Notification = typeof notifications.$inferSelect;
 export type Address = typeof addresses.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
+export type PowUsed = typeof powUsed.$inferSelect;
 
 export const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];

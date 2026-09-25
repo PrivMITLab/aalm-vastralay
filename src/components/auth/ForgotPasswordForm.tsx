@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Mail, RefreshCw, Shield
 import { requestPasswordReset, verifyOtpAndResetPassword } from "@/actions/auth";
 import SubmitButton from "@/components/SubmitButton";
 import BotShield from "@/components/security/BotShield";
+import ClickToSolve from "@/components/security/ClickToSolve";
 import { cn } from "@/lib/utils";
 
 export default function ForgotPasswordForm() {
@@ -15,6 +16,8 @@ export default function ForgotPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  /** Click-to-solve gate for the OTP-request step (email-bombing vector). */
+  const [verified, setVerified] = useState(false);
 
   const [reqState, reqAction, reqPending] = useActionState(async (prev: unknown, fd: FormData) => {
     const res = await requestPasswordReset(null, fd);
@@ -80,7 +83,7 @@ export default function ForgotPasswordForm() {
             </p>
           </div>
 
-          <BotShield label="Security Check" />
+          <ClickToSolve action="auth" onVerified={setVerified} />
 
           {reqState?.error && (
             <div className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
@@ -88,7 +91,12 @@ export default function ForgotPasswordForm() {
             </div>
           )}
 
-          <SubmitButton className="btn btn-primary w-full py-2.5 text-sm font-bold shadow-md" pendingText="OTP भेजा जा रहा है…">
+          <SubmitButton
+            className="btn btn-primary w-full py-2.5 text-sm font-bold shadow-md"
+            pendingText="OTP भेजा जा रहा है…"
+            disabled={!verified}
+            lockHint="Pehle robot-check verify karo (Verify first)"
+          >
             6-अंकों का OTP प्राप्त करें →
           </SubmitButton>
 

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 /** Public JSON search API – GET /api/products?q=lehenga&category=women&limit=12 */
 export async function GET(req: NextRequest) {
   const ip = clientIp(req.headers);
-  const rate = memoryRateLimit(`products-api:${ip}`, 120, 60);
+  const rate = memoryRateLimit(`products-api:${ip}`, 60, 60);
   if (!rate.ok) {
     return rateLimitResponse(rate);
   }

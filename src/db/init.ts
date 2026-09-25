@@ -230,6 +230,11 @@ const TABLE_DDL_STATEMENTS = [
     "count" integer DEFAULT 0 NOT NULL,
     "window_start" timestamp with time zone DEFAULT now() NOT NULL
   )`,
+
+  `CREATE TABLE IF NOT EXISTS "pow_used" (
+    "challenge_hash" text PRIMARY KEY NOT NULL,
+    "used_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
 ];
 
 const INDEX_DDL_STATEMENTS = [
@@ -251,6 +256,7 @@ const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product" ON "reviews" ("product_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product_verified" ON "reviews" ("product_id", "is_verified")`,
   `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')))`,
+  `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at")`,
 ];
 
 /**
@@ -287,6 +293,8 @@ export async function autoEnsureTables() {
     await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_orders_upi_utr" ON "orders" ("upi_utr");`));
     await db.execute(sql.raw(`CREATE UNIQUE INDEX IF NOT EXISTS "idx_orders_idempotency" ON "orders" ("idempotency_key");`));
     await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "push_subscriptions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "endpoint" text UNIQUE NOT NULL, "keys_p256dh" text NOT NULL, "keys_auth" text NOT NULL, "created_at" timestamptz DEFAULT now());`));
+    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now());`));
+    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`));
   } catch {
     // Non-fatal if columns/indexes exist
   }

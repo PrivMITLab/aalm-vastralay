@@ -20,7 +20,7 @@ import {
 } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { isStrongPassword } from "@/lib/format";
-import { verifyPayload } from "@/lib/pow";
+import { verifyPayloadAndConsume } from "@/lib/pow-store";
 import { rateLimit } from "@/lib/rate-limit";
 import { requestMeta } from "@/lib/request";
 import { getSetting, getSettingBool, getSettingNumber } from "@/lib/settings";
@@ -36,7 +36,7 @@ function safeRedirect(target: FormDataEntryValue | null, fallback: string) {
   return value;
 }
 
-/** Shared gate for every public form: proof-of-work + per-IP rate limit. */
+/** Shared gate for every public form: proof-of-work (single-use) + per-IP rate limit. */
 async function gate(formData: FormData, bucket: string, limitKey = "security.formRateLimit") {
   const origin = await assertSameOrigin();
   if (!origin.ok) return { ok: false as const, error: origin.error, meta: { ip: "0.0.0.0", userAgent: "", trustProxy: true } };
@@ -53,7 +53,11 @@ async function gate(formData: FormData, bucket: string, limitKey = "security.for
 
   const botProtection = (await getSetting("security.botProtection", "pow")) === "pow";
   if (botProtection) {
-    const verdict = verifyPayload(String(formData.get("botPayload") ?? ""));
+    const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
+      action: "auth",
+      ip: meta.ip,
+      strict: true,
+    });
     if (!verdict.ok) return { ok: false as const, error: verdict.error ?? "Security check failed.", meta };
   }
   return { ok: true as const, meta };
@@ -203,7 +207,6 @@ export async function updateProfile(_prev: ActionState, formData: FormData): Pro
     .set({ fullName: parsed.data.fullName, phone: parsed.data.phone || null, updatedAt: new Date() })
     .where(eq(users.id, user.id));
   revalidatePath("/dashboard");
-  revalidatePath("/", "layout");
   return { success: "Profile updated." };
 }
 
@@ -215,7 +218,6 @@ export async function markNotificationsRead() {
     .set({ isRead: true })
     .where(and(eq(notifications.userId, user.id), eq(notifications.isRead, false)));
   revalidatePath("/notifications");
-  revalidatePath("/", "layout");
 }
 
 /* ------------------------------- forgot & reset password ------------------------------- */

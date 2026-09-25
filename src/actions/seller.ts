@@ -108,7 +108,7 @@ export async function saveStore(_prev: ActionState, formData: FormData): Promise
     title: "Your store is live!",
     body: "Add your first product to start selling. 0% commission for your first 6 months.",
   });
-  revalidatePath("/", "layout");
+  await invalidateCatalog();
   redirect("/seller?welcome=1");
 }
 

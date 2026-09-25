@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   const ip = clientIp(req.headers);
-  const rate = memoryRateLimit(`search:${ip}`, 120, 60);
+  const rate = memoryRateLimit(`search:${ip}`, 60, 60);
   if (!rate.ok) {
     return rateLimitResponse(rate, undefined, "Too many search queries. Please slow down.");
   }

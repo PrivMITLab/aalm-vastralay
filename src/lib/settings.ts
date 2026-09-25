@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { settings as settingsTable } from "@/db/schema";
@@ -31,12 +32,22 @@ export type { HomeSection, SettingField, SettingsMap } from "./settings-defs";
 /*  /admin/settings without touching code or redeploying.              */
 /* ------------------------------------------------------------------ */
 
+/** Tag for Vercel shared data cache — revalidated on every admin settings save. */
+export const SITE_SETTINGS_TAG = "site-settings";
+
 let snapshot: { values: SettingsMap; at: number } | null = null;
 const TTL_MS = 60_000;
 
-/** Called after settings writes so the change is visible immediately in this process. */
-export function invalidateSettings() {
+/**
+ * Called after settings writes so the change is visible immediately.
+ * Clears the in-process snapshot AND busts the Vercel shared data cache
+ * so all Lambda instances pick up the new values within seconds.
+ * Must be called from a Server Action context (same pattern as invalidateCatalog).
+ */
+export async function invalidateSettings() {
   snapshot = null;
+  const { updateTag } = await import("next/cache");
+  updateTag(SITE_SETTINGS_TAG);
 }
 
 async function readAll(): Promise<SettingsMap> {
@@ -61,10 +72,20 @@ async function readAll(): Promise<SettingsMap> {
   return values;
 }
 
-/** Request-deduped settings read. */
+/**
+ * Shared data cache — survives across Lambda cold starts on Vercel.
+ * TTL: 1 hour. Busted immediately by invalidateSettings() after admin saves.
+ * L1: in-process 60s snapshot (TTL_MS) avoids redundant unstable_cache calls.
+ */
+const getSettingsCached = unstable_cache(readAll, ["site-settings-v1"], {
+  revalidate: 3600,
+  tags: [SITE_SETTINGS_TAG],
+});
+
+/** Request-deduped settings read (L1: in-process, L2: shared data cache). */
 export const getSettings = cache(async (): Promise<SettingsMap> => {
   if (snapshot && Date.now() - snapshot.at < TTL_MS) return snapshot.values;
-  return readAll();
+  return getSettingsCached();
 });
 
 /** Values read synchronously by formatting helpers (display-only, never money calculations). */

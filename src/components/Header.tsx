@@ -1,6 +1,6 @@
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { cart, notifications, wishlist } from "@/db/schema";
+import { cart } from "@/db/schema";
 import { getNavCategories } from "@/lib/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { getBrand, getCommerce, getSettingBool, getSettings } from "@/lib/settings";
@@ -24,21 +24,29 @@ export default async function Header() {
   let unread = 0;
   if (user) {
     try {
-      const [[c], [w], [n]] = await Promise.all([
-        db.select({ n: sql<number>`coalesce(sum(${cart.quantity}), 0)::int` }).from(cart).where(eq(cart.userId, user.id)),
-        showWishlist ? db.select({ n: sql<number>`count(*)::int` }).from(wishlist).where(eq(wishlist.userId, user.id)) : Promise.resolve([{ n: 0 }]),
-        showNotifications
-          ? db
-              .select({ n: sql<number>`count(*)::int` })
-              .from(notifications)
-              .where(and(eq(notifications.userId, user.id), eq(notifications.isRead, false)))
-          : Promise.resolve([{ n: 0 }]),
-      ]);
-      cartCount = c?.n ?? 0;
-      wishCount = w?.n ?? 0;
-      unread = n?.n ?? 0;
+      /**
+       * Single Neon round-trip: cart sum + wishlist count + unread notifications.
+       * Correlated subqueries run inside Postgres — saves 2 WebSocket connections per auth page.
+       */
+      const [row] = await db
+        .select({
+          cartCount: sql<number>`coalesce(sum(${cart.quantity}), 0)::int`,
+          wishCount: sql<number>`(
+            select count(*)::int from wishlist w
+            where w.user_id = ${user.id}
+          )`,
+          unread: sql<number>`(
+            select count(*)::int from notifications n
+            where n.user_id = ${user.id} and n.is_read = false
+          )`,
+        })
+        .from(cart)
+        .where(eq(cart.userId, user.id));
+      cartCount = row?.cartCount ?? 0;
+      wishCount = showWishlist ? (row?.wishCount ?? 0) : 0;
+      unread = showNotifications ? (row?.unread ?? 0) : 0;
     } catch {
-      /* DB offline fallback */
+      /* DB offline fallback — counts stay 0 */
     }
   }
 

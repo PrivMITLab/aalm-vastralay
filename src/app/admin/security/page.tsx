@@ -44,6 +44,7 @@ export default async function AdminSecurityPage() {
 
   const controls = [
     ["Proof-of-work bot shield", settings["security.botProtection"] === "pow" ? `Active · ${settings["security.powDifficulty"]} zero weight · up to ${settings["security.powMaxIterations"]} iterations` : "Disabled"],
+    ["Bot shield presentation", `${settings["security.powDisplayMode"] || "standard"} layout · ${settings["security.powWidgetStyle"] || "checkbox"} control · ${settings["security.powTheme"] || "gold"} accent`],
     ["Form rate limit", `${settings["security.formRateLimit"]} submissions / minute / IP`],
     ["Sign-in throttle", `${settings["security.authRateLimit"]} attempts / 10 minutes / IP`],
     ["API throttle", `${settings["security.apiRateLimit"]} requests / minute / IP`],

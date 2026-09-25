@@ -63,8 +63,7 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
       .onConflictDoUpdate({ target: settingsTable.key, set: { value, updatedAt: new Date(), updatedBy: admin.id } });
   }
 
-  invalidateSettings();
-  revalidatePath("/", "layout");
+  await invalidateSettings();
   revalidatePath("/admin/banners");
   revalidatePath("/admin/settings");
   revalidatePath("/admin/theme");
@@ -76,7 +75,6 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
     detail: `${changes.length} value(s) changed: ${changes.slice(0, 25).join(", ")}`,
   });
 
-  revalidatePath("/", "layout");
   return { success: `Saved ${changes.length} change(s). They are live for every visitor now.` };
 }
 
@@ -92,9 +90,9 @@ export async function resetSettingsGroup(formData: FormData) {
       .values({ key: field.key, value: field.default, group: field.group, label: field.label, updatedBy: admin.id })
       .onConflictDoUpdate({ target: settingsTable.key, set: { value: field.default, updatedAt: new Date(), updatedBy: admin.id } });
   }
-  invalidateSettings();
+  await invalidateSettings();
   await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "settings.reset", target: group, detail: `Reset ${fields.length} key(s)` });
-  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
 }
 
 export async function backfillSettings() {
@@ -133,7 +131,6 @@ export async function toggleStoreActive(formData: FormData) {
   await invalidateCatalog();
   revalidatePath("/admin");
   revalidatePath(`/stores/${s.slug}`);
-  revalidatePath("/", "layout");
 }
 
 /* -------------------------------- coupons -------------------------------- */
@@ -247,7 +244,6 @@ export async function toggleCategoryActive(formData: FormData) {
   await invalidateCatalog();
   await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "category.toggle", target: c.name, detail: c.isActive ? "Deactivated" : "Activated" });
   revalidatePath("/admin/categories");
-  revalidatePath("/", "layout");
 }
 
 /* -------------------------------- products -------------------------------- */

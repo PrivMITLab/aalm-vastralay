@@ -7,6 +7,7 @@ import { preventDoubleSubmit } from "@/components/ui/Submit";
 import SubmitButton from "@/components/SubmitButton";
 import { cn } from "@/lib/utils";
 import { resolveImage } from "@/lib/image-resolver";
+import ClickToSolve, { type PowDisplayMode, type PowWidgetStyle, type PowTheme } from "@/components/security/ClickToSolve";
 import type { SettingField } from "@/lib/settings";
 
 type Group = { id: string; label: string; icon: string };
@@ -27,7 +28,7 @@ export default function SettingsEditor({
   const [state, action] = useActionState(updateSettings, null);
   const [live, setLive] = useState<Record<string, string>>(values);
   const groupFields = useMemo(() => fields.filter((f) => f.group === activeGroup), [fields, activeGroup]);
-  const isPreviewable = ["brand", "theme", "home"].includes(activeGroup);
+  const isPreviewable = ["brand", "theme", "home", "security"].includes(activeGroup);
 
   const setValue = (key: string, value: string) => setLive((prev) => ({ ...prev, [key]: value }));
 
@@ -145,6 +146,30 @@ export default function SettingsEditor({
                 </div>
                 <p className="text-xs text-[color:var(--text-soft)]">
                   Grid: {live["home.gridMobile"]} / {live["home.gridTablet"]} / {live["home.gridDesktop"]} columns (mobile / tablet / desktop) · height {live["home.bannerHeight"]}px
+                </p>
+              </div>
+            )}
+            {activeGroup === "security" && (
+              <div className="space-y-3 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
+                    Bot Shield Preview
+                  </span>
+                  <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-mono text-[color:var(--text-soft)]">
+                    {live["security.powDisplayMode"] || "standard"} · {live["security.powWidgetStyle"] || "checkbox"}
+                  </span>
+                </div>
+                <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-2">
+                  <ClickToSolve
+                    action="auth"
+                    label={live["security.powLabel"] || "Main robot nahi hoon"}
+                    displayMode={(live["security.powDisplayMode"] as PowDisplayMode) || "standard"}
+                    widgetStyle={(live["security.powWidgetStyle"] as PowWidgetStyle) || "checkbox"}
+                    accentTheme={(live["security.powTheme"] as PowTheme) || "gold"}
+                  />
+                </div>
+                <p className="text-[11px] text-[color:var(--text-soft)] leading-relaxed">
+                  Mode: <strong className="text-[color:var(--text)]">{live["security.powDisplayMode"] || "standard"}</strong> · Style: <strong className="text-[color:var(--text)]">{live["security.powWidgetStyle"] || "checkbox"}</strong> · Accent: <strong className="text-[color:var(--text)]">{live["security.powTheme"] || "gold"}</strong>.
                 </p>
               </div>
             )}

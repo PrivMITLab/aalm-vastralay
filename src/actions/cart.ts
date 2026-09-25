@@ -12,7 +12,6 @@ export type CartActionResult = { ok: boolean; error?: string; requiresAuth?: boo
 function revalidateShop() {
   revalidatePath("/cart");
   revalidatePath("/checkout");
-  revalidatePath("/", "layout");
 }
 
 export async function addToCart(productId: string, variantId: string | null, quantity = 1): Promise<CartActionResult> {

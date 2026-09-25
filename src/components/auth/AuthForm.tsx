@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { signIn, signUp } from "@/actions/auth";
 import SubmitButton from "@/components/SubmitButton";
-import BotShield from "@/components/security/BotShield";
+import ClickToSolve from "@/components/security/ClickToSolve";
 import { passwordScore } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
   const [form, setForm] = useState({ email: "", password: "", confirm: "", fullName: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [show, setShow] = useState(false);
+  const [verified, setVerified] = useState(false);
   const score = passwordScore(form.password);
 
   function set(k: keyof typeof form, v: string) {
@@ -125,11 +126,16 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
         </div>
       )}
 
-      <BotShield label={isSignUp ? "Sign-up protection" : "Sign-in protection"} />
+      <ClickToSolve action="auth" onVerified={setVerified} />
 
       {state?.error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">{state.error}</p>}
 
-      <SubmitButton className="w-full" pendingText={isSignUp ? "Creating account…" : "Signing in…"}>
+      <SubmitButton
+        className="w-full"
+        pendingText={isSignUp ? "Creating account…" : "Signing in…"}
+        disabled={!verified}
+        lockHint="Pehle robot-check verify karo (Verify first)"
+      >
         {isSignUp ? (intent === "seller" ? "Create seller account" : "Create account") : "Sign in"}
       </SubmitButton>
 

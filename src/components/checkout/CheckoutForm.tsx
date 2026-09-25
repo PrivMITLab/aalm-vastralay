@@ -4,7 +4,7 @@ import { useActionState, useState, useTransition } from "react";
 import { Banknote, CreditCard, Loader2, ShieldCheck, Smartphone, Tag } from "lucide-react";
 import { placeOrder, validateCoupon } from "@/actions/orders";
 import SubmitButton from "@/components/SubmitButton";
-import BotShield from "@/components/security/BotShield";
+import ClickToSolve from "@/components/security/ClickToSolve";
 import type { ShippingAddress } from "@/db/schema";
 import { cn, formatINR } from "@/lib/utils";
 import DynamicUpiQr from "./DynamicUpiQr";
@@ -30,6 +30,8 @@ const PAYMENTS = [
 export default function CheckoutForm({ defaults, savedAddress, subtotal, shipping, codFee, returnWindowDays, states, itemCount, savedAddresses }: Props) {
   const initialAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0] ?? null;
   const [chosen, setChosen] = useState<string | "new">(initialAddress?.id ?? "new");
+  /** Click-to-solve gate: order button stays locked until PoW verified. */
+  const [verified, setVerified] = useState(false);
   const [form, setForm] = useState({
     fullName: initialAddress?.fullName ?? savedAddress?.fullName ?? defaults.fullName,
     phone: initialAddress?.phone ?? savedAddress?.phone ?? defaults.phone,
@@ -240,11 +242,11 @@ export default function CheckoutForm({ defaults, savedAddress, subtotal, shippin
           </div>
         </dl>
 
-        <BotShield label="Order protection" />
+        <ClickToSolve action="order" label="Main robot nahi hoon — order verify karo" onVerified={setVerified} />
 
         {state?.error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">{state.error}</p>}
 
-        <SubmitButton className="w-full" pendingText="Placing order…">
+        <SubmitButton className="w-full" pendingText="Placing order…" disabled={!verified} lockHint="Pehle robot-check verify karo (Verify first)">
           {payment === "cod" ? "Place order (COD)" : `Pay ${formatINR(total)} & place order`}
         </SubmitButton>
 
