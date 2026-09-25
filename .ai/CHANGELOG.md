@@ -3,6 +3,35 @@
 
 ---
 
+## [2026-09-25] — Luxury Email Redesign, Subject Line Encoding Fix, Admin 1-Click Broadcast Center & Bento 2.0 Product Cards
+
+### Added & Hardened
+- **Subject Line Encoding Fix (`scripts/mailer/Code.gs`):**
+  - Resolved `??????` question marks in email subject lines by replacing vulnerable raw emojis in email headers with standard, clean UTF-8 bracket tags (`[OTP: 284476]`, `[त्योहार स्पेशल]`, `[विशेष कूपन]`, `[न्यू स्टॉक]`).
+- **Colorful Luxury Email Redesign (`scripts/mailer/Code.gs`, `src/lib/gas-mailer.ts`):**
+  - Upgraded email templates to Aalm Vastralay royal brand identity:
+    - Royal Purple (`#4A148C`) to Carmine Burgundy (`#7a1f2b`) gradient header with 4px gold (`#D4AF37`) embroidery border.
+    - Ornate golden crest: `👑 PURE BIHAR & INDIAN ETHNIC WEAR` with brand title and Kalyanipur tagline.
+    - Grand Gold-bordered OTP Ticket Box with 42px tracked digits (`letter-spacing: 14px`), 15-minute validity pill, and WhatsApp support direct connect.
+    - Added dedicated luxury templates for `FESTIVAL_OFFER`, `COUPON_OFFER`, and `STOCK_DELIVERY_ALERT`.
+- **Admin 1-Click Broadcast & Marketing Center (`/admin/marketing`, `src/actions/marketing.ts`, `src/components/admin/BroadcastManager.tsx`):**
+  - Built comprehensive broadcast dashboard allowing store admin to dispatch festival campaigns, coupon announcements, and stock alerts in 1 click.
+  - Features 6 ready-made 1-click campaign presets: Diwali Dhamaka, Royal Wedding Season, Eid Mubarak, Chhath Puja, Coupon Blast, and New Stock Alert.
+  - Multi-channel delivery support: Email (via free GAS Mailer), In-App Notifications (`notifications` table), and Web Push.
+  - Audience targeting: Test My Email mode, All Customers, or All Sellers.
+  - Live real-time interactive preview showing exactly how the email and notification will appear.
+  - Added "Marketing & Offers" to `AdminSidebarNav`.
+- **Bento 2.0 Product Card Luxury Upgrade (`src/components/ProductCard.tsx`):**
+  - Gold shimmer hover border (`hover:border-[#D4AF37]/50` and `hover:shadow-[0_12px_36px_-10px_rgba(212,175,55,0.25)]`).
+  - Added festive savings pill: `🔥 महाबचत {discount}% OFF` with shimmer gradient for high discounts.
+  - Dynamic rupee savings counter: `(बचत ₹{mrp - price})`.
+  - Urgency stock indicator: `⚡ केवल {stock} शेष!`.
+  - Smooth active tactile response (`active:scale-[0.97]`).
+- **Enterprise Test Suite Expansion (`tests/unit/marketing.test.ts`, `tests/run-all-tests.ts`):**
+  - Added 26th enterprise test suite verifying subject UTF-8 integrity and campaign validation. 26/26 suites passing in 0.39s.
+
+---
+
 ## [2026-09-25] — Button Double-Click Chaos Defense, Universal Tactile Click Feedback, Production GAS Mailer & PWA Offline Resiliency
 
 ### Added & Hardened

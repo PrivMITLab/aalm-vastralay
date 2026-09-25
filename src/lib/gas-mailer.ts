@@ -51,6 +51,35 @@ export type GasEmailPayload =
       subject?: string;
     }
   | {
+      type: "FESTIVAL_OFFER";
+      to: string;
+      festivalName: string;
+      discountText: string;
+      headline: string;
+      message?: string;
+      ctaUrl?: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
+      type: "COUPON_OFFER";
+      to: string;
+      couponCode: string;
+      discountText: string;
+      ctaUrl?: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
+      type: "STOCK_DELIVERY_ALERT";
+      to: string;
+      headline: string;
+      message?: string;
+      ctaUrl?: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
       type: "GENERAL";
       to: string;
       subject: string;

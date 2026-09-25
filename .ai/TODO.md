@@ -47,7 +47,10 @@
 - [x] Universal Tactile Press & Click Feedback: global active scale, brightness dimming, and inset shadow across all buttons, inputs, links, and cards.
 - [x] Hardened Google Apps Script Transactional Mailer: 100% free Gmail mailer in `scripts/mailer/Code.gs` with constant-time token verification, 450/day quota guard, HTML sanitization, and 7 bilingual templates.
 - [x] SEO & PWA Offline Resiliency: `sitemap.ts` filtered to active in-stock products (`stock > 0`), dual-cache strategy in `public/sw.js`, and `push_subscriptions` Drizzle schema.
-- [x] 25 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~0.41s).
+- [x] Luxury Email Template Redesign: Royal purple and gold gradient layout, 42px tracked OTP ticket box, clean UTF-8 headers (zero `??????` subject corruption).
+- [x] Admin 1-Click Marketing Broadcast Center (`/admin/marketing`): presets for Diwali, Eid, Chhath, Wedding Season, Coupon Blasts, and Stock Alerts with live interactive preview.
+- [x] Bento 2.0 Product Card Upgrade: Gold shimmer hover border, `🔥 महाबचत` savings badge, rupee savings calculation `(बचत ₹...)`, and tactile press feedback.
+- [x] 26 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~0.39s).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

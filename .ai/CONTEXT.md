@@ -11,13 +11,20 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 25 Enterprise test suites in `tests/` passing in ~0.41s (`npm test`).
+- **Automated Tests:** 26 Enterprise test suites in `tests/` passing in ~0.39s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 
 ## 3. High-Value Indian Commerce & Zero-Loss Security Features
-1. **Button Double-Click Chaos Defense & Universal Tactile Feedback:**
+1. **Admin 1-Click Marketing Broadcast Center & Luxury Email Engine:**
+   - Dedicated marketing dashboard at `/admin/marketing` supporting 1-click campaign presets for Diwali, Eid, Chhath, Wedding Season, Coupon Blasts, and Stock Alerts.
+   - Multi-channel delivery across Email, In-App Notifications, and Web Push.
+   - Live interactive email & notification preview.
+   - Upgraded Google Apps Script mailer with clean UTF-8 headers (eliminates `??????` subject corruption) and royal gold & purple luxury responsive templates.
+2. **Bento 2.0 Product Card Luxury Upgrade:**
+   - Gold shimmer hover border, `🔥 महाबचत` savings badge, rupee savings calculator `(बचत ₹...)`, urgency stock badges, and smooth tactile tap scaling.
+3. **Button Double-Click Chaos Defense & Universal Tactile Feedback:**
    - Atomic re-entry guard hook `useFormLock()` in `src/lib/use-form-lock.ts` prevents rapid double-clicks and order race conditions.
    - Enhanced `<SubmitButton />` with `aria-disabled`, `min-h-[44px] min-w-[44px]` touch target, `Loader2` spin indicator, and `pointer-events-none` when pending.
    - Global tactile click feedback in `src/app/globals.css` (`scale(0.97)`, brightness shift, inset shadow, distinct card press state).
