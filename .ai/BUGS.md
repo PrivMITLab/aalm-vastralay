@@ -103,11 +103,13 @@
   2. Added strict payload binding in `verifySolution` checking action name, challenge age, and IP prefix.
   3. Form actions fail-closed if PoW payload is missing, expired, or invalid.
 
-### Incident 018: Cellular Tower IP Drift Causing False Bot Blocks on Roaming Devices
-- **Symptom:** Legitimate mobile shoppers travelling across cellular towers (Jio, Airtel) had their solved PoW challenges rejected with "network changed" errors.
-- **Root Cause:** Mobile network carriers allocate dynamic IP addresses where the last octet changes upon tower handoff, breaking exact IP equality hashes.
-- **Resolution:** Extracted IPv4 `/24` subnet prefix (first 3 octets `a.b.c`) and IPv6 `/64` prefix in `getIpSubnetPrefix()`, hashing `pow-ip|${prefix}`. This maintains cellular roaming resilience while blocking cross-network token theft.
-
-
-
-
+### Incident 019: Native `<details>` Disclosure Glitch & Mobile Drawer Scroll Lock
+- **Symptom:** In desktop header navigation, clicking category tabs rendered an empty/stuck floating box over the hero banner; categories with zero children opened empty focus rings; mobile drawer had nested scroll stutter and touch target issues.
+- **Root Cause:**
+  1. Desktop categories and account menu used native HTML `<details>`/`<summary>` elements without outside-click dismissal or link-click dismissal handlers.
+  2. Categories lacking subcategories rendered as empty `<details>` elements instead of direct navigation links.
+  3. Mobile drawer `<aside>` had `overflow-y-auto` while its inner container also had `overflow-y-auto`, creating dual scroll container lockups.
+- **Resolution:**
+  1. Replaced native `<details>` in `HeaderNav.tsx` with semantic `<Link>` elements for leaf categories and smooth CSS hover/focus dropdowns with outside-click dismissal.
+  2. Refactored mobile drawer to `overflow-hidden` on parent `<aside>` and kinetic `overscroll-contain` on the single scrollable view container.
+  3. Single-level categories in mobile drawer now render direct navigation links with `ChevronRight`, eliminating dead accordion clicks.

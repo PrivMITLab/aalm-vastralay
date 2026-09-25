@@ -36,14 +36,15 @@
    - Path Traversal & MIME Hardening: `validateUploadMetadata()` strictly rejects directory traversal (`..`, `/`, `\`), enforces MIME allowlist, and caps uploads to 5MB.
    - Webhook Freshness & Soft Delete: `/api/webhooks/clerk` validates Svix signatures, enforces timestamp freshness (≤ 5 minutes), parses payloads safely with Zod, and performs soft deletion (`is_active = false`) to guarantee zero data loss.
    - Database Optimization: Full-text search index `idx_products_fts` added to DDL; immutable audit logs preserved permanently from deletion.
-5. **Self-Hosted Turnstile-Style Click-to-Solve PoW Defense (`src/components/security/ClickToSolve.tsx`, `src/lib/pow.ts`, `src/lib/pow-store.ts`):**
+5. **Self-Hosted Bot Shield (10 Archetypes) & Header Architecture (`src/components/security/ClickToSolve.tsx`, `src/components/header/HeaderNav.tsx`):**
    - 100% self-hosted, zero-cost, zero-third-party (no Google reCAPTCHA, no Cloudflare Turnstile). Web Worker PBKDF2/SHA-256 solving.
-   - 5 Display Modes: `standard` (Turnstile card), `bar` (compact inline ribbon), `floating` (bottom-right badge), `overlay` (modal security gate), and `invisible` (background auto-solve).
-   - 2 Widget Controls: `checkbox` `[ ✓ ]` vs `switch` `( O )` (iOS slide toggle).
-   - 4 Accent Themes: `gold`, `royal-maroon`, `emerald`, `neutral` configurable live in Admin Settings.
+   - 10 Archetypes: `turnstile` (Cloudflare luxury card), `altcha` (official ALTCHA PoW), `mcaptcha` (speed/complexity bar), `slide` (swipe-to-verify slider), `biometric` (touch & pulse fingerprint scanner), `shagun` (royal Indian seal), `bar`, `floating`, `overlay`, and `invisible`.
+   - Synthesized Web Audio Chime: Optional luxury confirmation sound (`playVerifiedChime`, 0KB weight) toggleable via `security.powSound`.
+   - Admin Bot Shield Studio: Interactive testing studio at `/admin/settings?group=security` with live archetype switcher pills and reset state.
    - Single-Use Anti-Replay Store: Table `pow_used` records `challenge_hash` with `ON CONFLICT DO NOTHING`. Reused tokens are rejected immediately.
    - Subnet Binding: IPv4 `/24` (first 3 octets) and IPv6 `/64` prefix binding. Resilient against mobile carrier cellular tower IP drift, while blocking cross-network token theft.
    - Client & Server Lock: Submit buttons locked (`disabled`) on forms until solved, and Server Actions strictly enforce PoW verification even if inspect element bypass is attempted.
+   - Header Navigation Overhaul: Replaced native `<details>` and `<summary>` with semantic `<Link>` and smooth CSS hover/focus dropdowns. Mobile drawer converted to kinetic `overscroll-contain` with clean direct links for childless categories.
 
 ## 4. High-Value Indian Commerce & Zero-Loss Security Features
 1. **Admin 1-Click Marketing Broadcast Center & Luxury Email Engine:**

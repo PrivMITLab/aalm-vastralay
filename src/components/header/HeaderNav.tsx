@@ -82,7 +82,9 @@ export default function HeaderNav({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [openCat, setOpenCat] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Debounced live search suggestions
   useEffect(() => {
@@ -120,6 +122,7 @@ export default function HeaderNav({
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (boxRef.current && !boxRef.current.contains(e.target as Node)) setSuggestions([]);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -317,46 +320,58 @@ export default function HeaderNav({
           </Link>
 
           {user ? (
-            <details className="relative">
-              <summary className="flex cursor-pointer items-center gap-2 rounded-full border border-[color:var(--border-strong)] py-1 pl-1 pr-3 hover:bg-[color:var(--surface-2)]">
+            <div ref={userMenuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="menu"
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-[color:var(--border-strong)] py-1 pl-1 pr-2.5 hover:bg-[color:var(--surface-2)] transition focus:outline-none focus:ring-2 focus:ring-[color:var(--brand)]/40"
+              >
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-[color:var(--accent)] text-xs font-bold text-[color:var(--accent-fg)]">
                   {(user.fullName ?? user.email).slice(0, 1).toUpperCase()}
                 </span>
                 <span className="hidden max-w-[7rem] truncate text-sm font-medium sm:block text-[color:var(--text)]">
                   {user.fullName?.split(" ")[0] ?? "Account"}
                 </span>
-              </summary>
-              <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl">
-                <div className="border-b border-[color:var(--border)] px-3 py-2">
-                  <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
-                  <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
-                  <span className="badge mt-1 capitalize">{user.role}</span>
+                <ChevronDown className={cn("hidden sm:block h-3.5 w-3.5 text-[color:var(--text-soft)] transition-transform duration-200", userMenuOpen && "rotate-180")} />
+              </button>
+              {userMenuOpen && (
+                <div
+                  className="animate-fade-in absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+                  onClick={() => setUserMenuOpen(false)}
+                >
+                  <div className="border-b border-[color:var(--border)] px-3 py-2">
+                    <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
+                    <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
+                    <span className="badge mt-1 capitalize">{user.role}</span>
+                  </div>
+                  <div className="py-1">
+                    <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" />
+                    <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" />
+                    {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" />}
+                    {isSeller ? (
+                      <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" />
+                    ) : (
+                      <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" />
+                    )}
+                    {user.role === "admin" && (
+                      <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" />
+                    )}
+                  </div>
+                  <div className="border-t border-[color:var(--border)] pt-1">
+                    <form action={signOut}>
+                      <button
+                        type="submit"
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-[color:var(--surface-2)]"
+                      >
+                        <LogOut className="h-4 w-4" /> Sign out
+                      </button>
+                    </form>
+                  </div>
                 </div>
-                <div className="py-1">
-                  <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" />
-                  <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" />
-                  {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" />}
-                  {isSeller ? (
-                    <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" />
-                  ) : (
-                    <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" />
-                  )}
-                  {user.role === "admin" && (
-                    <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" />
-                  )}
-                </div>
-                <div className="border-t border-[color:var(--border)] pt-1">
-                  <form action={signOut}>
-                    <button
-                      type="submit"
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-[color:var(--surface-2)]"
-                    >
-                      <LogOut className="h-4 w-4" /> Sign out
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </details>
+              )}
+            </div>
           ) : (
             <>
               <Link
@@ -412,26 +427,58 @@ export default function HeaderNav({
           >
             All Products
           </Link>
-          {groups.map((c) => (
-            <details key={c.slug} className="group relative shrink-0 snap-start">
-              <summary className="shrink-0 cursor-pointer list-none rounded-full px-3 py-1 min-h-[44px] inline-flex items-center font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
-                {c.name}
-              </summary>
-              {c.children.length > 0 && (
-                <div className="absolute top-8 left-0 z-50 w-56 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl">
-                  {c.children.map((child) => (
-                    <Link
-                      key={child.slug}
-                      href={`/products?category=${child.slug}`}
-                      className="block rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]"
-                    >
-                      {child.name}
-                    </Link>
-                  ))}
+          {groups.map((c) => {
+            const hasChildren = c.children && c.children.length > 0;
+            if (!hasChildren) {
+              return (
+                <Link
+                  key={c.slug}
+                  href={`/products?category=${c.slug}`}
+                  className="shrink-0 snap-start min-h-[44px] inline-flex items-center rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)] transition-colors"
+                >
+                  {c.name}
+                </Link>
+              );
+            }
+
+            return (
+              <div key={c.slug} className="group relative shrink-0 snap-start">
+                <Link
+                  href={`/products?category=${c.slug}`}
+                  className="shrink-0 min-h-[44px] inline-flex items-center gap-1 rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)] group-hover:bg-[color:var(--surface-2)] group-hover:text-[color:var(--brand)] transition-colors"
+                >
+                  <span>{c.name}</span>
+                  <ChevronDown className="h-3 w-3 opacity-60 transition-transform duration-200 group-hover:rotate-180 group-hover:opacity-100" />
+                </Link>
+
+                {/* Dropdown Menu (smooth hover & focus transition, cannot get stuck open) */}
+                <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 -translate-y-1 group-hover:translate-y-0 transition-all duration-150 ease-out absolute top-full left-0 z-50 pt-1.5 w-60 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+                  <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2 text-[color:var(--text)] shadow-2xl backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10">
+                    <div className="px-3 py-1.5 mb-1 border-b border-[color:var(--border)]/60 flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--accent)]">{c.name}</span>
+                      <Link
+                        href={`/products?category=${c.slug}`}
+                        className="text-[11px] font-semibold text-[color:var(--brand)] hover:underline"
+                      >
+                        All →
+                      </Link>
+                    </div>
+                    <div className="space-y-0.5 max-h-72 overflow-y-auto">
+                      {c.children.map((child) => (
+                        <Link
+                          key={child.slug}
+                          href={`/products?category=${child.slug}`}
+                          className="block rounded-xl px-3 py-2 text-xs font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)] transition-colors"
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </details>
-          ))}
+              </div>
+            );
+          })}
           <Link
             href="/products?sort=discount"
             className="shrink-0 rounded-full px-3 py-1 font-semibold text-amber-600 dark:text-amber-400 hover:bg-[color:var(--surface-2)] flex items-center gap-1"
@@ -458,9 +505,9 @@ export default function HeaderNav({
           />
 
           {/* Sliding Panel */}
-          <aside className="animate-slide-left fixed inset-y-0 left-0 flex h-full w-[min(88vw,360px)] flex-col bg-[color:var(--surface)] text-[color:var(--text)] shadow-2xl border-r border-[color:var(--border)] z-[101] overflow-y-auto">
+          <aside className="animate-slide-left fixed inset-y-0 left-0 flex h-full w-[min(88vw,360px)] flex-col bg-[color:var(--surface)] text-[color:var(--text)] shadow-2xl border-r border-[color:var(--border)] z-[101] overflow-hidden">
             {/* Royal Header */}
-            <div className="relative bg-gradient-to-br from-[#4A148C] via-[#38006b] to-[#1a0033] p-5 text-white">
+            <div className="relative shrink-0 bg-gradient-to-br from-[#4A148C] via-[#38006b] to-[#1a0033] p-5 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#38006b] border border-[#D4AF37] shadow-md">
@@ -521,7 +568,7 @@ export default function HeaderNav({
             </div>
 
             {/* Quick Action Navigation Grid */}
-            <div className="grid grid-cols-3 gap-2 p-3 border-b border-[color:var(--border)] bg-[color:var(--surface-2)] text-center text-xs">
+            <div className="grid grid-cols-3 gap-2 p-3 shrink-0 border-b border-[color:var(--border)] bg-[color:var(--surface-2)] text-center text-xs">
               <Link
                 href="/products?sort=discount"
                 onClick={() => setDrawer(false)}
@@ -549,7 +596,7 @@ export default function HeaderNav({
             </div>
 
             {/* Main Menu Links & Categories */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-4">
               {/* Category Taxonomies */}
               <div>
                 <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-[color:var(--accent)] mb-1">
@@ -567,39 +614,57 @@ export default function HeaderNav({
 
                   {categories.map((c) => (
                     <div key={c.slug}>
-                      <button
-                        type="button"
-                        onClick={() => setOpenCat(openCat === c.slug ? null : c.slug)}
-                        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-[color:var(--text)] hover:bg-[color:var(--surface-2)]"
-                      >
-                        <span>{c.name}</span>
-                        <ChevronDown
-                          className={cn(
-                            "h-4 w-4 text-[color:var(--text-soft)] transition-transform duration-200",
-                            openCat === c.slug && "rotate-180 text-[color:var(--brand)]",
-                          )}
-                        />
-                      </button>
-
-                      {openCat === c.slug && (
-                        <div className="ml-3 my-1 space-y-1 border-l-2 border-[color:var(--accent)]/40 pl-3">
-                          <Link
-                            href={`/products?category=${c.slug}`}
-                            onClick={() => setDrawer(false)}
-                            className="block rounded-lg px-2 py-1.5 text-xs font-semibold text-[color:var(--brand)] hover:bg-[color:var(--surface-2)]"
+                      {c.children.length === 0 ? (
+                        <Link
+                          href={`/products?category=${c.slug}`}
+                          onClick={() => setDrawer(false)}
+                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-[color:var(--text)] hover:bg-[color:var(--surface-2)] transition-colors"
+                        >
+                          <span>{c.name}</span>
+                          <ChevronRight className="h-4 w-4 text-[color:var(--text-soft)]" />
+                        </Link>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => setOpenCat(openCat === c.slug ? null : c.slug)}
+                            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-[color:var(--text)] hover:bg-[color:var(--surface-2)] transition-colors"
                           >
-                            All {c.name} →
-                          </Link>
-                          {c.children.map((child) => (
-                            <Link
-                              key={child.slug}
-                              href={`/products?category=${child.slug}`}
-                              onClick={() => setDrawer(false)}
-                              className="block rounded-lg px-2 py-1.5 text-xs text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]"
-                            >
-                              {child.name}
-                            </Link>
-                          ))}
+                            <span>{c.name}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] rounded-full bg-[color:var(--surface-2)] px-2 py-0.5 text-[color:var(--text-soft)] font-semibold">
+                                {c.children.length}
+                              </span>
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 text-[color:var(--text-soft)] transition-transform duration-200",
+                                  openCat === c.slug && "rotate-180 text-[color:var(--brand)]",
+                                )}
+                              />
+                            </div>
+                          </button>
+
+                          {openCat === c.slug && (
+                            <div className="ml-3 my-1 space-y-1 border-l-2 border-[color:var(--accent)]/40 pl-3">
+                              <Link
+                                href={`/products?category=${c.slug}`}
+                                onClick={() => setDrawer(false)}
+                                className="block rounded-lg px-2 py-1.5 text-xs font-semibold text-[color:var(--brand)] hover:bg-[color:var(--surface-2)]"
+                              >
+                                All {c.name} →
+                              </Link>
+                              {c.children.map((child) => (
+                                <Link
+                                  key={child.slug}
+                                  href={`/products?category=${child.slug}`}
+                                  onClick={() => setDrawer(false)}
+                                  className="block rounded-lg px-2 py-1.5 text-xs text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]"
+                                >
+                                  {child.name}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

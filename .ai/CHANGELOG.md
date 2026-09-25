@@ -3,6 +3,28 @@
 
 ---
 
+## [2026-09-25] — Header Category Nav Refactor, Smooth Mobile Drawer & 10 Bot Shield Archetypes Studio
+
+### Added & Hardened
+- **Header Navigation Architecture Overhaul (`src/components/header/HeaderNav.tsx`):**
+  - Eliminated native HTML `<details>` and `<summary>` tags across desktop category navigation strip, eradicating unwanted focus outlines, persistent opened boxes, and Chromium disclosure artifacts.
+  - Leaf categories (zero children) now render direct semantic `<Link href={"/products?category=" + c.slug}>` without empty accordions.
+  - Multi-level categories render smooth CSS hover/focus dropdown menus with animated chevrons, direct parent view-all links, and automatic disappearance on mouse exit or navigation.
+  - Replaced account menu native `<details>` with a controlled dropdown utilizing `useRef` and `mousedown` outside-click listener.
+  - Mobile sliding drawer optimized: set parent `<aside>` to `overflow-hidden` and inner container to `overscroll-contain`, resolving dual-scrollbar stutter on mobile browsers.
+  - Single-level categories in mobile drawer now render direct navigation links with `ChevronRight`, taking users directly to products without empty drawers.
+- **10 Bot Shield Archetypes & Studio (`src/components/security/ClickToSolve.tsx`, `src/lib/settings-defs.ts`, `src/components/admin/SettingsEditor.tsx`):**
+  - Expanded Bot Shield display archetypes to 10 distinct options: `turnstile`, `altcha`, `mcaptcha`, `slide` (swipe-to-verify slider), `biometric` (touch & pulse fingerprint scanner), `shagun` (royal Indian seal), `bar`, `floating`, `overlay`, and `invisible`.
+  - Added synthesized Web Audio verification chime (`playVerifiedChime`, 0KB external weight) with admin toggle `security.powSound`.
+  - Added interactive **Bot Shield Studio** inside Admin Security Settings (`/admin/settings?group=security`) with 1-click archetype switcher pills, live interactive test widget, and reset state.
+- **Strict Verification & Zero Regression:**
+  - TypeScript strict mode: 0 `any` types.
+  - `npm run typecheck`: 0 errors.
+  - `npm run lint`: 0 errors.
+  - `npm test`: All 28/28 enterprise test suites passing in ~1.5s.
+
+---
+
 ## [2026-09-25] — Turnstile-Style Click-to-Solve PoW Defense, Vercel Invocation Diet, Server-Side Security Hardening & Zero-Loss Schema
 
 ### Added & Hardened

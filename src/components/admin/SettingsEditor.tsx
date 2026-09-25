@@ -150,26 +150,66 @@ export default function SettingsEditor({
               </div>
             )}
             {activeGroup === "security" && (
-              <div className="space-y-3 p-4">
+              <div className="space-y-3.5 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
-                    Bot Shield Preview
+                    Bot Shield Studio
                   </span>
-                  <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-mono text-[color:var(--text-soft)]">
-                    {live["security.powDisplayMode"] || "standard"} · {live["security.powWidgetStyle"] || "checkbox"}
+                  <span className="rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 px-2 py-0.5 text-[10px] font-mono text-[#D4AF37]">
+                    {live["security.powDisplayMode"] || "turnstile"}
                   </span>
                 </div>
+
+                {/* 1-Click Archetype Switcher */}
+                <div>
+                  <p className="text-[11px] font-semibold text-[color:var(--text-soft)] mb-1.5">Archetype Quick-Select (6+ styles):</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px]">
+                    {[
+                      { id: "turnstile", label: "Turnstile Card" },
+                      { id: "altcha", label: "ALTCHA PoW" },
+                      { id: "mcaptcha", label: "mCaptcha Box" },
+                      { id: "slide", label: "Slide to Verify" },
+                      { id: "biometric", label: "Touch Sensor" },
+                      { id: "shagun", label: "शाही मुहर (Seal)" },
+                      { id: "bar", label: "Slim Ribbon" },
+                      { id: "floating", label: "Floating" },
+                      { id: "overlay", label: "Modal Gate" },
+                      { id: "invisible", label: "Invisible" },
+                    ].map((m) => {
+                      const active = (live["security.powDisplayMode"] || "turnstile") === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => setValue("security.powDisplayMode", m.id)}
+                          className={cn(
+                            "rounded-lg px-2 py-1.5 font-medium transition text-left border",
+                            active
+                              ? "border-[#D4AF37] bg-[#D4AF37]/15 text-[#D4AF37] font-bold"
+                              : "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] hover:border-[#D4AF37]/50",
+                          )}
+                        >
+                          {m.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Live Interactive Test Widget */}
                 <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-2">
                   <ClickToSolve
+                    key={`${live["security.powDisplayMode"] || "turnstile"}-${live["security.powWidgetStyle"] || "checkbox"}-${live["security.powTheme"] || "gold"}`}
                     action="auth"
                     label={live["security.powLabel"] || "Main robot nahi hoon"}
-                    displayMode={(live["security.powDisplayMode"] as PowDisplayMode) || "standard"}
+                    displayMode={(live["security.powDisplayMode"] as PowDisplayMode) || "turnstile"}
                     widgetStyle={(live["security.powWidgetStyle"] as PowWidgetStyle) || "checkbox"}
                     accentTheme={(live["security.powTheme"] as PowTheme) || "gold"}
                   />
                 </div>
+
                 <p className="text-[11px] text-[color:var(--text-soft)] leading-relaxed">
-                  Mode: <strong className="text-[color:var(--text)]">{live["security.powDisplayMode"] || "standard"}</strong> · Style: <strong className="text-[color:var(--text)]">{live["security.powWidgetStyle"] || "checkbox"}</strong> · Accent: <strong className="text-[color:var(--text)]">{live["security.powTheme"] || "gold"}</strong>.
+                  Mode: <strong className="text-[color:var(--text)]">{live["security.powDisplayMode"] || "turnstile"}</strong> · Style: <strong className="text-[color:var(--text)]">{live["security.powWidgetStyle"] || "checkbox"}</strong> · Accent: <strong className="text-[color:var(--text)]">{live["security.powTheme"] || "gold"}</strong>.
                 </p>
               </div>
             )}
