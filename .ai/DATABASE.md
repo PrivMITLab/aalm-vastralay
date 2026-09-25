@@ -78,4 +78,7 @@ Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean 
 8. `CREATE TABLE IF NOT EXISTS "push_subscriptions" (...);`
 9. `CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now() NOT NULL);`
 10. `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`
+11. `settings` key `home.slides`: JSON array of max 5 slides (`[{ image, title, subtitle, badge, ctaLabel, ctaHref, strategy, mirroredUrl, active, order }]`), validated via Zod `heroSlidesArraySchema`.
+12. `settings` key `stats.mirroredBytes`: Cumulative mirrored storage counter (integer byte tally) for Backblaze B2 usage tracking against the 10GB free tier.
+*Note: Existing `home.banner` settings key is 100% preserved as automatic zero-cost fallback.*
 

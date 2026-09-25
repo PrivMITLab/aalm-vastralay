@@ -18,7 +18,7 @@ import type { ResolveOptions, VideoResolveResult } from "@/types/media";
 
 export const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
-const B2_WORKER_URL = (process.env.NEXT_PUBLIC_B2_WORKER_URL ?? "").replace(/\/$/, "");
+const B2_WORKER_URL = (process.env.NEXT_PUBLIC_B2_WORKER_URL || "https://aalm-b2-proxy.workers.dev").replace(/\/$/, "");
 const USE_WSRV = process.env.NEXT_PUBLIC_USE_WSRV !== "false";
 
 // Google Drive file ID pattern (typically 28 to 45 alphanumeric characters with underscores and dashes)
@@ -98,16 +98,49 @@ export function extractYouTubeId(src: string): string | null {
 /**
  * Resolves any stored media reference into a high-performance, servable image URL.
  */
+/**
+ * Resolves any stored media reference into a high-performance, servable image URL
+ * according to delivery strategy (wsrv, direct, b2, auto).
+ */
 export function resolveImage(src: string | null | undefined, opts: ResolveOptions = {}): string {
   if (!src || typeof src !== "string" || !src.trim()) {
     return PLACEHOLDER_IMAGE;
   }
 
-  const raw = canonicalizeImageUrl(src);
-  const { width = 800, quality = 70, thumbnail = false, version } = opts;
+  const { strategy = "wsrv", mirroredUrl, width = 800, quality = 70, thumbnail = false, version } = opts;
   const targetWidth = thumbnail ? 320 : width;
   const vParam = version ? `&v=${encodeURIComponent(String(version))}` : "";
 
+  // Strategy: "b2" (Persistent Backblaze B2 Mirror)
+  if (strategy === "b2") {
+    const candidate = mirroredUrl || src;
+    if (candidate.startsWith("b2:")) {
+      const key = candidate.slice(3).replace(/^\//, "");
+      if (!B2_WORKER_URL) return PLACEHOLDER_IMAGE;
+      return `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
+    }
+  }
+
+  // Strategy: "auto" (Hybrid — prefers mirrored B2 if available, else wsrv)
+  if (strategy === "auto" && mirroredUrl && mirroredUrl.startsWith("b2:")) {
+    const key = mirroredUrl.slice(3).replace(/^\//, "");
+    if (B2_WORKER_URL) {
+      return `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
+    }
+  }
+
+  const raw = canonicalizeImageUrl(src);
+
+  // Strategy: "direct" (Direct canonical link, e.g. raw Google Drive, Dropbox, or external URL without wsrv)
+  if (strategy === "direct") {
+    if (raw.startsWith("b2:")) {
+      const key = raw.slice(3).replace(/^\//, "");
+      return B2_WORKER_URL ? `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}` : PLACEHOLDER_IMAGE;
+    }
+    return raw.startsWith("/") || /^https?:\/\//i.test(raw) ? raw : `/${raw}`;
+  }
+
+  // Default & Strategy: "wsrv" (Fast WebP Cache Pipeline)
   // 1. ImageKit (ik: path)
   if (raw.startsWith("ik:")) {
     if (!isImageKitConfigured()) {
@@ -157,6 +190,45 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
 
   // 6. Local /public asset (or relative path)
   return raw.startsWith("/") ? raw : `/${raw}`;
+}
+
+/**
+ * Builds an ordered list of fallback image URLs for SmartImage.
+ * Order: primary (by strategy) -> mirrored B2 -> wsrv -> raw direct canonical -> placeholder
+ */
+export function getImageFallbackList(src: string | null | undefined, opts: ResolveOptions = {}): string[] {
+  if (!src || typeof src !== "string" || !src.trim()) {
+    return [PLACEHOLDER_IMAGE];
+  }
+
+  const list: string[] = [];
+  const primary = resolveImage(src, opts);
+  if (primary && primary !== PLACEHOLDER_IMAGE) {
+    list.push(primary);
+  }
+
+  if (opts.mirroredUrl && opts.mirroredUrl.startsWith("b2:")) {
+    const b2Url = resolveImage(opts.mirroredUrl, { ...opts, strategy: "b2" });
+    if (b2Url && b2Url !== PLACEHOLDER_IMAGE && !list.includes(b2Url)) {
+      list.push(b2Url);
+    }
+  }
+
+  const wsrvUrl = resolveImage(src, { ...opts, strategy: "wsrv" });
+  if (wsrvUrl && wsrvUrl !== PLACEHOLDER_IMAGE && !list.includes(wsrvUrl)) {
+    list.push(wsrvUrl);
+  }
+
+  const directUrl = resolveImage(src, { ...opts, strategy: "direct" });
+  if (directUrl && directUrl !== PLACEHOLDER_IMAGE && !list.includes(directUrl)) {
+    list.push(directUrl);
+  }
+
+  if (!list.includes(PLACEHOLDER_IMAGE)) {
+    list.push(PLACEHOLDER_IMAGE);
+  }
+
+  return list;
 }
 
 /**

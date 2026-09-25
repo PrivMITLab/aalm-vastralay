@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { getHomeConfig, getSetting } from "@/lib/settings";
+import { getHomeConfig, getSetting, getSettingNumber } from "@/lib/settings";
 import BannerEditor from "@/components/admin/BannerEditor";
 
 export const metadata: Metadata = { title: "Promotional Banners – Admin Console" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminBannersPage() {
-  const [home, marquee, announcement] = await Promise.all([
+  const [home, marquee, announcement, mirroredBytes] = await Promise.all([
     getHomeConfig(),
     getSetting(
       "home.marqueeText",
@@ -16,6 +16,7 @@ export default async function AdminBannersPage() {
       "home.announcementText",
       "Festive Wedding Season Sale – Up to 40% Off on Bridal Lehengas & Sherwanis"
     ),
+    getSettingNumber("stats.mirroredBytes", 0),
   ]);
 
   return (
@@ -23,16 +24,18 @@ export default async function AdminBannersPage() {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-[color:var(--brand)]">
-            Promotional Banners & Marquee
+            Promotional Banners, Hero Carousel &amp; Delivery Engine
           </h1>
           <p className="mt-1 text-sm text-[color:var(--text-soft)]">
-            Configure homepage hero banners, announcement tickers, and seasonal wedding promotions with real-time preview and universal URL scraping.
+            Configure homepage 5-slide auto-rotating carousel, Backblaze B2 persistent mirrors, 4 delivery strategies, and bulk image link imports.
           </p>
         </div>
       </header>
 
       <BannerEditor
         initialBanner={home.banner}
+        initialSlides={home.slides}
+        initialMirroredBytes={mirroredBytes}
         initialAnnouncement={announcement}
         initialMarquee={marquee}
       />

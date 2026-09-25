@@ -1,53 +1,19 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { getSetting, getSettingBool } from "@/lib/settings";
-import { isAllowedImageUrl, persistUpload } from "@/lib/uploads";
-import { getCurrentUser } from "@/lib/auth";
-import { recordAudit } from "@/lib/audit";
-import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { requestMeta } from "@/lib/request";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-/** Persist a profile avatar to local disk and update the user's avatarUrl. */
-export async function POST(req: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Sign in first" }, { status: 401 });
-  const meta = await requestMeta();
-  const limit = await rateLimit({ key: `avatar:${user.id}`, limit: 5, windowSeconds: 600, failClosed: true });
-  if (!limit.ok) return rateLimitResponse(limit, undefined, "Too many uploads. Please wait.");
-
-  let body: { data?: string; mime?: string; url?: string };
-  try {
-    body = (await req.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  let url: string | null = null;
-  if (body.data && body.mime) {
-    try {
-      const result = await persistUpload({ bucket: `avatars/${user.id}`, data: body.data, mime: body.mime });
-      url = result.url;
-    } catch (err) {
-      const reqId = crypto.randomUUID();
-      console.error(`[Upload:Avatar] [${reqId}] Error:`, err);
-      return NextResponse.json({ error: "Could not save photo. Please try again." }, { status: 400, headers: { "X-Request-Id": reqId } });
-    }
-  } else if (body.url && /^https?:\/\//i.test(body.url)) {
-    const candidate = body.url.slice(0, 600);
-    if (!isAllowedImageUrl(candidate)) {
-      return NextResponse.json({ error: "Image host not allowed" }, { status: 400 });
-    }
-    // Allow an external URL – used by sellers linking their existing CDN-hosted logo.
-    url = candidate;
-  } else {
-    return NextResponse.json({ error: "Provide either {data, mime} (≤5 MB image) or {url}" }, { status: 400 });
-  }
-
-  await db.update(users).set({ avatarUrl: url, updatedAt: new Date() }).where(eq(users.id, user.id));
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "user.avatar", detail: url.length > 80 ? url.slice(0, 80) + "…" : url });
-  return NextResponse.json({ ok: true, url });
+/**
+ * RETIRED: user profile-photo uploads were removed in favour of
+ * auto-generated privacy-first avatars (GET /api/avatar?seed=...).
+ *
+ * The file is kept as an explicit 410 Gone stub (instead of deleting the
+ * route) so old clients get a clear answer instead of a mysterious 404,
+ * and the decision stays visible in code review. Seller logo/banner
+ * uploads live separately under /api/uploads/logo and are unaffected.
+ */
+export async function POST() {
+  return NextResponse.json(
+    { success: false, error: "Profile photo uploads are retired. Avatars are auto-generated now." },
+    { status: 410 },
+  );
 }

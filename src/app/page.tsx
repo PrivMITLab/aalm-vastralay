@@ -12,6 +12,7 @@ import { getCommerce, getHomeConfig, getSettingBool, getSettingNumber, getSettin
 import { formatINR, gridClass } from "@/lib/utils";
 import FestiveOccasionsBar from "@/components/home/FestiveOccasionsBar";
 import IndiaTrustStrip from "@/components/home/IndiaTrustStrip";
+import HeroCarousel from "@/components/home/HeroCarousel";
 
 export const revalidate = 120;
 
@@ -51,8 +52,11 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ---------------- hero banner (luxury royal purple & imperial gold) ---------------- */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#2a0845] via-[#4A148C] to-[#120024] text-white">
+      {/* ---------------- hero banner / carousel (Flipkart/Myntra style or legacy fallback) ---------------- */}
+      {home.slides && home.slides.length > 0 ? (
+        <HeroCarousel slides={home.slides} />
+      ) : (
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#2a0845] via-[#4A148C] to-[#120024] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={resolveImage(banner.url || "/brand/poster.png")}
@@ -141,6 +145,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ---------------- Indian & Bihar festive occasions bar ---------------- */}
       <FestiveOccasionsBar />

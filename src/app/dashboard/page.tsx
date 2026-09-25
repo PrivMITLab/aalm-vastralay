@@ -7,7 +7,7 @@ import { addresses, notifications, orders, stores, wishlist } from "@/db/schema"
 import { requireUser } from "@/lib/auth";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
 import ProfileForm from "@/components/account/ProfileForm";
-import PhotoUploader from "@/components/account/PhotoUploader";
+import UserAvatar from "@/components/UserAvatar";
 import AddressBook from "@/components/account/AddressBook";
 import SecurityForm from "@/components/account/SecurityForm";
 
@@ -52,8 +52,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="space-y-6">
           <section className="card p-5">
             <h2 className="font-display text-lg font-semibold text-maroon-900">Profile</h2>
-            <div className="mt-4">
-              <PhotoUploader endpoint="/api/uploads/avatar" initialUrl={user.avatarUrl} name="Profile photo" alt={user.fullName ?? "Profile photo"} />
+            <div className="mt-4 flex items-center gap-4">
+              <UserAvatar seed={user.id} name={user.fullName ?? user.email} size={112} />
+              <p className="text-xs text-slate-500">
+                Apka avatar automatic banta hai — photo upload ka jhanjhat khatam, privacy full.
+                <br />
+                (Your avatar is auto-generated. No upload needed.)
+              </p>
             </div>
             <div className="mt-4">
               <ProfileForm fullName={user.fullName ?? ""} phone={user.phone ?? ""} email={user.email} />

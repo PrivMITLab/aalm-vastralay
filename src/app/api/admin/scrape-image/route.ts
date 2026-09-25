@@ -5,17 +5,7 @@ import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-/** Block private/internal IP ranges to prevent SSRF */
-function isBlockedHostname(hostname: string): boolean {
-  const h = hostname.toLowerCase().trim();
-  if (h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "0.0.0.0") return true;
-  if (h === "169.254.169.254" || h.includes("metadata.google.internal")) return true;
-  if (/^10\.\d+\.\d+\.\d+$/.test(h)) return true;
-  if (/^192\.168\.\d+\.\d+$/.test(h)) return true;
-  if (/^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/.test(h)) return true;
-  if (h.endsWith(".local") || h.endsWith(".internal")) return true;
-  return false;
-}
+import { isBlockedHostname } from "@/lib/security/ssrf";
 
 /**
  * GET/POST /api/admin/scrape-image

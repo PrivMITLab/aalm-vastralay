@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { settings as settingsTable } from "@/db/schema";
+import type { DeliveryStrategy, HeroSlide } from "@/types/media";
 import { refreshDisplayConfig, type DisplayConfig } from "./format";
 import { writeSettingsSnapshot } from "./settings-snapshot";
 import {
@@ -108,6 +109,20 @@ export async function getSettingBool(key: string, fallback = false) {
   const raw = await getSetting(key);
   if (raw === "") return fallback;
   return raw === "true" || raw === "1" || raw === "on";
+}
+
+/**
+ * Programmatic single-key writer (used by server flows like the B2 mirror
+ * stats counter). Same upsert + cache-bust contract as updateSettings.
+ */
+export async function setSetting(key: string, value: string, updatedBy?: string | null): Promise<void> {
+  const cleanKey = key.trim().slice(0, 120);
+  if (!cleanKey) throw new Error("Setting key is required");
+  await db
+    .insert(settingsTable)
+    .values({ key: cleanKey, value: value.slice(0, 20000), group: "stats", label: cleanKey, updatedBy: updatedBy ?? null, updatedAt: new Date() })
+    .onConflictDoUpdate({ target: settingsTable.key, set: { value: value.slice(0, 20000), updatedAt: new Date(), updatedBy: updatedBy ?? null } });
+  await invalidateSettings();
 }
 
 export type BrandConfig = {
@@ -225,7 +240,10 @@ export type HomeConfig = {
     ctaHref: string;
     cta2Label: string;
     cta2Href: string;
+    strategy?: DeliveryStrategy;
+    mirroredUrl?: string;
   };
+  slides: HeroSlide[];
   grid: { desktop: number; tablet: number; mobile: number };
   sections: HomeSection[];
   occasions: string[];
@@ -234,19 +252,124 @@ export type HomeConfig = {
 
 export async function getHomeConfig(): Promise<HomeConfig> {
   const s = await getSettings();
+
+  const bannerUrl = (!s["home.bannerUrl"] || s["home.bannerUrl"] === "/brand/poster.jpg") ? "/brand/poster.png" : s["home.bannerUrl"];
+  const bannerBadge = s["home.bannerBadge"] || "Aalm Vastralay · Wedding & Ethnic Wear";
+  const bannerTitle = s["home.bannerTitle"] || "Royal Indian Wedding & Luxury Ethnic Wear";
+  const bannerSubtitle = s["home.bannerSubtitle"] || "Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis handcrafted by master artisans. Cash on delivery & nationwide delivery.";
+  const bannerCtaLabel = s["home.bannerCtaLabel"] || "Explore Collections";
+  const bannerCtaHref = s["home.bannerCtaHref"] || "/products?category=women";
+  const bannerCta2Label = s["home.bannerCta2Label"] || "कॉल करें: 8434061342";
+  const bannerCta2Href = s["home.bannerCta2Href"] || "tel:+918434061342";
+
+  // Parse slides from home.slides setting
+  const rawSlides = parseJson<HeroSlide[]>(s["home.slides"], []);
+  let activeSlides: HeroSlide[] = [];
+  if (Array.isArray(rawSlides) && rawSlides.length > 0) {
+    activeSlides = rawSlides
+      .filter((sl) => sl && sl.active && sl.image)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .slice(0, 5);
+  }
+
+  // Fallback defaults: derive 5 slides from existing banner + top categories when setting absent/empty
+  if (activeSlides.length === 0) {
+    activeSlides = [
+      {
+        id: "default-slide-1",
+        image: bannerUrl,
+        title: bannerTitle,
+        subtitle: bannerSubtitle,
+        badge: bannerBadge,
+        ctaLabel: bannerCtaLabel,
+        ctaHref: bannerCtaHref,
+        cta2Label: bannerCta2Label,
+        cta2Href: bannerCta2Href,
+        alt: bannerTitle,
+        active: true,
+        order: 0,
+        strategy: (s["home.bannerStrategy"] as DeliveryStrategy) || "wsrv",
+        mirroredUrl: s["home.bannerMirroredUrl"] || undefined,
+      },
+      {
+        id: "default-slide-2",
+        image: "/brand/poster.png",
+        title: "Pure Banarasi & Heritage Handloom Sarees",
+        subtitle: "Woven by Varanasi master artisans with authentic gold zari motifs and lustrous silk borders.",
+        badge: "Varanasi Heritage",
+        ctaLabel: "Shop Silk Sarees",
+        ctaHref: "/products",
+        cta2Label: "WhatsApp Consult",
+        cta2Href: "https://wa.me/918434061342",
+        alt: "Pure Banarasi & Heritage Handloom Sarees",
+        active: true,
+        order: 1,
+        strategy: "wsrv",
+      },
+      {
+        id: "default-slide-3",
+        image: "/brand/poster.png",
+        title: "Royal Bridal Lehengas & Wedding Ensembles",
+        subtitle: "Opulent velvet, silk, and organza bridal lehengas featuring handcrafted zardozi embroidery.",
+        badge: "Bridal Couture",
+        ctaLabel: "View Bridal Wear",
+        ctaHref: "/products",
+        cta2Label: "Call Stylist",
+        cta2Href: "tel:+918434061342",
+        alt: "Royal Bridal Lehengas & Wedding Ensembles",
+        active: true,
+        order: 2,
+        strategy: "wsrv",
+      },
+      {
+        id: "default-slide-4",
+        image: "/brand/poster.png",
+        title: "Regal Groom Sherwanis & Kurta Sets",
+        subtitle: "Distinguished groom couture tailored with royal silhouettes, pearl brooches, and stoles.",
+        badge: "Groom's Collection",
+        ctaLabel: "Explore Groom Wear",
+        ctaHref: "/products",
+        cta2Label: "Boutique Visit",
+        cta2Href: "tel:+918434061342",
+        alt: "Regal Groom Sherwanis & Kurta Sets",
+        active: true,
+        order: 3,
+        strategy: "wsrv",
+      },
+      {
+        id: "default-slide-5",
+        image: "/brand/poster.png",
+        title: "Festive Family & Celebratory Wear",
+        subtitle: "Complete celebratory wardrobe for the entire family. Fast dispatch & cash on delivery across India.",
+        badge: "Festive Celebrations",
+        ctaLabel: "All Collections",
+        ctaHref: "/products",
+        cta2Label: "Track Order",
+        cta2Href: "/track-order",
+        alt: "Festive Family & Celebratory Wear",
+        active: true,
+        order: 4,
+        strategy: "wsrv",
+      },
+    ];
+  }
+
   return {
     banner: {
-      url: (!s["home.bannerUrl"] || s["home.bannerUrl"] === "/brand/poster.jpg") ? "/brand/poster.png" : s["home.bannerUrl"],
+      url: bannerUrl,
       height: Number(s["home.bannerHeight"]) || 520,
       overlay: Number(s["home.bannerOverlay"]) ?? 62,
-      badge: s["home.bannerBadge"],
-      title: s["home.bannerTitle"],
-      subtitle: s["home.bannerSubtitle"],
-      ctaLabel: s["home.bannerCtaLabel"],
-      ctaHref: s["home.bannerCtaHref"],
-      cta2Label: s["home.bannerCta2Label"],
-      cta2Href: s["home.bannerCta2Href"],
+      badge: bannerBadge,
+      title: bannerTitle,
+      subtitle: bannerSubtitle,
+      ctaLabel: bannerCtaLabel,
+      ctaHref: bannerCtaHref,
+      cta2Label: bannerCta2Label,
+      cta2Href: bannerCta2Href,
+      strategy: (s["home.bannerStrategy"] as DeliveryStrategy) || "wsrv",
+      mirroredUrl: s["home.bannerMirroredUrl"] || undefined,
     },
+    slides: activeSlides,
     grid: {
       desktop: Number(s["home.gridDesktop"]) || 4,
       tablet: Number(s["home.gridTablet"]) || 3,

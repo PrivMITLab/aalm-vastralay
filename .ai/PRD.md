@@ -11,6 +11,8 @@
 ## 2. Core Functional Requirements
 
 ### 🛍️ Shopper Experience:
+- **Flipkart/Myntra-Style Hero Carousel:** 5-slide auto-rotating showcase (5s interval, pause on hover/touch, touch swipe >40px, keyboard control, zero CLS via aspect-[16/10] sm:aspect-[21/9]).
+- **Universal Image Delivery & Resilient Fallbacks:** 4 delivery strategies (`wsrv`, `direct`, `b2`, `auto`) and `<SmartImage>` cascading fallback chain (`Primary -> B2 -> wsrv -> Direct -> Placeholder`).
 - **Instant Search & Autocomplete:** Real-time search with occasion and category filtering.
 - **Bihar & Indian Festive Hub:** Dedicated occasion curation (Chhath, Diwali, Eid, Wedding, Sangeet).
 - **Product Details & Sizing:** Rich image gallery, color swatches, size ranking (XS to XXL, Free Size), fabric care, and weight.

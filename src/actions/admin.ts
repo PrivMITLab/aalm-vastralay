@@ -19,6 +19,8 @@ async function assertAdmin() {
   return user?.role === "admin" ? user : null;
 }
 
+import { heroSlidesArraySchema } from "@/lib/hero-slide-schema";
+
 /* ------------------------------- settings ------------------------------- */
 
 export async function updateSettings(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -59,7 +61,13 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
         if (field.type === "color" && !/^#[0-9a-f]{3,8}$/i.test(value)) return { error: `${field.label} must be a hex colour like #7a1f2b.` };
         if (field.type === "json") {
           try {
-            JSON.parse(value);
+            const parsed = JSON.parse(value);
+            if (field.key === "home.slides") {
+              const res = heroSlidesArraySchema.safeParse(parsed);
+              if (!res.success) {
+                return { error: `Hero slides error: ${res.error.issues[0]?.message}` };
+              }
+            }
           } catch {
             return { error: `${field.label} must be valid JSON.` };
           }

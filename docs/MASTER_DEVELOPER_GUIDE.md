@@ -306,7 +306,13 @@ Har route ka live look, UI elements, aur expected behavior neeche list kiya gaya
      - 🌸 Sangeet & Tilak (Rani Pink & Pastel)
      - 👑 Royal Bridal Dulhan (Deep Maroon & Crimson)
      - 🪔 Chhath & Traditional Pooja (Vermilion & Saffron)
-  4. **Dynamic Hero Showcase:** Luxury bridal banner with direct CTA buttons *"Shop Bridal Collection"* and *"Explore Artisans"*.
+  4. **5-Slide Auto-Rotating Hero Carousel (Flipkart/Myntra Style):**
+     - 5-slide high-impact showcase with 5s auto-rotation, pause on hover/focus/touch-drag, and kinetic touch swipe ($\Delta x > 40\text{px}$).
+     - Zero CLS layout (`aspect-[16/10] sm:aspect-[21/9]`), 44px tap targets, and WCAG AA `aria-live="polite"` live announcements.
+     - **4 Delivery Strategies:** `wsrv` (Fast WebP cache), `direct` (Direct canonical link), `b2` (Backblaze B2 cold mirror), `auto` (Hybrid resilient).
+     - **Bulk Link Import:** Paste comma- or newline-separated URLs in `/admin/banners` to auto-distribute across 5 slide slots.
+     - **1-Click B2 Mirroring (`POST /api/admin/mirror-image`):** Single-click download & mirror to Backblaze B2 with SSRF guard and storage usage gauge.
+     - Resilient `<SmartImage>` cascading fallback chain (`Primary -> Mirrored B2 -> wsrv -> Direct -> /images/placeholder.svg`).
   5. **Indian Trust Matrix:** Four interactive badges:
      - 🇮🇳 *Direct from Weavers (Varanasi, Surat, Bhagalpur)*
      - 💵 *100% Cash on Delivery Supported*

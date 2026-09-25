@@ -11,7 +11,7 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 28 Enterprise test suites in `tests/` passing in ~1.93s (`npm test`).
+- **Automated Tests:** 30 Enterprise test suites in `tests/` passing in ~1.30s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
@@ -144,3 +144,31 @@
 - **Watermark Suite (`public/watermarks/`):** Full horizontal (15% opacity), Icon corner (20% opacity), and 45-degree tiled repeat (8% opacity).
 - **Complete 53-Icon Suite (`public/`):** Browser favicons (`favicon.ico`, 16x16, 32x32, 96x96, `favicon-dark.svg`), Apple touch icons (76x76, 152x152, 167x167, 180x180, precomposed), Android PWA icons (72x72 to 512x512), Maskable adaptive icons (192x192, 512x512 with 80% safe zone), Windows tiles (70x70 to 310x310 with `browserconfig.xml`), OpenGraph social cards (1200x630, 1200x600, 1200x1200, 1200x627), transactional email logo (400x100), and animated gold loading spinner.
 - **PWA & Browser Fallbacks:** `public/manifest.json` static fallback alongside dynamic `src/app/manifest.ts`. Zero regression on existing `public/brand/` SVGs.
+
+## 7. Hero Carousel, Multi-Strategy Image Delivery & B2 Mirroring Engine
+1. **Flipkart/Myntra-Style 5-Slide Auto-Rotating Carousel (`src/components/home/HeroCarousel.tsx`):**
+   - Zero-dependency implementation (Next.js 16 + Tailwind CSS 4 + Lucide React only).
+   - Auto-rotation every 5000ms with pause on hover, keyboard focus, and touch-drag.
+   - GPU-accelerated horizontal track translation (`translateX(-${idx * 100}%)`) with spring physics.
+   - Kinetic touch swipe detection ($\Delta x > 40\text{px}$) and keyboard navigation (Left/Right Arrow, Home/End, Space/Pause).
+   - Zero Cumulative Layout Shift ($\text{CLS} = 0$) using CSS aspect ratio (`aspect-[16/10] sm:aspect-[21/9]`) and min-h constraints.
+   - Strict A11y & WCAG: 44px tap targets for navigation dots & chevrons, live region announcements (`aria-live="polite"`), and `prefers-reduced-motion` static display.
+   - First slide eager rendering (`priority` + `fetchPriority="high"`), slides 2-5 lazy-loaded with async decoding.
+2. **Multi-Link & Bulk URL Import Studio (`src/components/admin/BannerEditor.tsx`):**
+   - Direct bulk-pasting of comma-separated or newline-separated image links (e.g. Google Drive Direct `lh3.googleusercontent.com/d/{id}`, Dropbox, Unsplash).
+   - Automatic URL canonicalization, splitting, and distribution across the 5 slide slots in admin editor.
+3. **4 Delivery Strategies & Resilient `<SmartImage>` Fallback (`src/lib/image-resolver.ts`, `src/components/media/SmartImage.tsx`):**
+   - `wsrv`: Fast WebP compression cache via `wsrv.nl` (ideal for remote Google Drive / external links).
+   - `direct`: Raw canonical stream link without CDN proxying.
+   - `b2`: Persistent cold storage mirror on Backblaze B2 (Cloudflare Worker proxy).
+   - `auto`: Hybrid resilient mode — serves Backblaze B2 mirrored asset if available, falling back gracefully to `wsrv` or direct URL.
+   - Resilient Multi-Tier Fallback: If primary image fails to load, `<SmartImage>` seamlessly cascades down the chain: `Primary -> Mirrored B2 -> wsrv -> Direct Canonical -> /images/placeholder.svg`.
+4. **1-Click Backblaze B2 Mirroring API (`POST /api/admin/mirror-image`):**
+   - Admin authentication & role enforcement (`requireRole(["admin"])`).
+   - Strict Rate Limiting: 10 mirrors per minute per admin IP.
+   - SSRF Defense Firewall (`src/lib/security/ssrf.ts`): Blocks localhost, `127.0.0.1`, `169.254.169.254`, RFC 1918 private ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), and internal domains.
+   - Magic Byte Validation (`src/lib/image-inspector.ts`): Strict binary inspection for JPEG (`FF D8 FF`), PNG (`89 50 4E 47`), WebP (`RIFF...WEBP`), AVIF (`ftypavif`), GIF (`GIF87a/89a`), and SVG. Rejects forged extensions or non-image payloads.
+   - Storage Meter Tally: Automatically tracks cumulative mirrored bytes in `stats.mirroredBytes` setting with visual gauge against the 10GB free tier.
+5. **Zero Data Loss Guarantee (`src/lib/settings.ts`, `src/actions/admin.ts`):**
+   - Additive database key `home.slides` (JSON array, max 5 slides, validated via Zod `heroSlidesArraySchema`).
+   - Legacy single banner `home.banner` remains 100% intact with zero destructive drops or deletions, serving as instant automatic fallback whenever slides array is empty.
