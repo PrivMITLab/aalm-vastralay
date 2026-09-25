@@ -26,6 +26,7 @@ import { testFormLockDefense } from "./unit/form-lock.test";
 import { testMarketingAndTemplates } from "./unit/marketing.test";
 import { testPowClickDefense } from "./unit/pow-click.test";
 import { testSecurityHardening } from "./unit/security-hardening.test";
+import { runHeaderScrollAndA11yTests } from "./unit/header-scroll-lock.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -63,6 +64,7 @@ async function runAllTests() {
     { name: "Click-to-Solve PoW Single-Use & Action Binding", fn: testPowClickDefense },
     { name: "Marketing Broadcasts & Luxury Email Template Engine", fn: testMarketingAndTemplates },
     { name: "Server-Side Hardening & Anti-Spoof Defense", fn: testSecurityHardening },
+    { name: "Header Dropdown Scroll-Lock, Clip Fix & A11Y", fn: runHeaderScrollAndA11yTests },
   ];
 
   for (const suite of suites) {

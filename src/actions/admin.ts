@@ -31,51 +31,70 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
   const fields = SETTINGS_FIELDS.filter((f) => f.group === group);
   if (fields.length === 0) return { error: "Unknown settings group." };
 
-  const changes: string[] = [];
-  for (const field of fields) {
-    let value: string | null = null;
-    if (field.type === "boolean") {
-      value = formData.get(`${field.key}__present`) === "1" ? (formData.get(field.key) === "on" ? "true" : "false") : "false";
-    } else {
-      const raw = formData.get(field.key);
-      if (raw === null) continue;
-      value = String(raw).slice(0, field.type === "json" || field.type === "textarea" ? 20000 : 1000);
-      if (field.type === "number") {
-        const n = Number(value);
-        if (!Number.isFinite(n)) return { error: `${field.label} must be a number.` };
-        if (field.min !== undefined && n < field.min) return { error: `${field.label} must be at least ${field.min}.` };
-        if (field.max !== undefined && n > field.max) return { error: `${field.label} must be at most ${field.max}.` };
-      }
-      if (field.type === "color" && !/^#[0-9a-f]{3,8}$/i.test(value)) return { error: `${field.label} must be a hex colour like #7a1f2b.` };
-      if (field.type === "json") {
-        try {
-          JSON.parse(value);
-        } catch {
-          return { error: `${field.label} must be valid JSON.` };
-        }
-      }
-    }
-    const current = SETTINGS_DEFAULTS[field.key];
-    if (value !== current) changes.push(field.key);
-    await db
-      .insert(settingsTable)
-      .values({ key: field.key, value, group: field.group, label: field.label, updatedBy: admin.id, updatedAt: new Date() })
-      .onConflictDoUpdate({ target: settingsTable.key, set: { value, updatedAt: new Date(), updatedBy: admin.id } });
+  // Validate if admin.id is present in users table to prevent FK constraint failures
+  let validUpdatedBy: string | null = null;
+  try {
+    const userRow = await db.select({ id: users.id }).from(users).where(eq(users.id, admin.id)).limit(1);
+    if (userRow.length > 0) validUpdatedBy = admin.id;
+  } catch {
+    validUpdatedBy = null;
   }
 
-  await invalidateSettings();
-  revalidatePath("/admin/banners");
-  revalidatePath("/admin/settings");
-  revalidatePath("/admin/theme");
-  await recordAudit({
-    actorId: admin.id,
-    actorEmail: admin.email,
-    action: "settings.update",
-    target: group,
-    detail: `${changes.length} value(s) changed: ${changes.slice(0, 25).join(", ")}`,
-  });
+  const changes: string[] = [];
+  try {
+    for (const field of fields) {
+      let value: string | null = null;
+      if (field.type === "boolean") {
+        value = formData.get(`${field.key}__present`) === "1" ? (formData.get(field.key) === "on" ? "true" : "false") : "false";
+      } else {
+        const raw = formData.get(field.key);
+        if (raw === null) continue;
+        value = String(raw).slice(0, field.type === "json" || field.type === "textarea" ? 20000 : 1000);
+        if (field.type === "number") {
+          const n = Number(value);
+          if (!Number.isFinite(n)) return { error: `${field.label} must be a number.` };
+          if (field.min !== undefined && n < field.min) return { error: `${field.label} must be at least ${field.min}.` };
+          if (field.max !== undefined && n > field.max) return { error: `${field.label} must be at most ${field.max}.` };
+        }
+        if (field.type === "color" && !/^#[0-9a-f]{3,8}$/i.test(value)) return { error: `${field.label} must be a hex colour like #7a1f2b.` };
+        if (field.type === "json") {
+          try {
+            JSON.parse(value);
+          } catch {
+            return { error: `${field.label} must be valid JSON.` };
+          }
+        }
+      }
+      const current = SETTINGS_DEFAULTS[field.key];
+      if (value !== current) changes.push(field.key);
+      await db
+        .insert(settingsTable)
+        .values({ key: field.key, value, group: field.group, label: field.label, updatedBy: validUpdatedBy, updatedAt: new Date() })
+        .onConflictDoUpdate({ target: settingsTable.key, set: { value, updatedAt: new Date(), updatedBy: validUpdatedBy } });
+    }
 
-  return { success: `Saved ${changes.length} change(s). They are live for every visitor now.` };
+    await invalidateSettings();
+    revalidatePath("/admin/banners");
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/theme");
+
+    try {
+      await recordAudit({
+        actorId: validUpdatedBy,
+        actorEmail: admin.email,
+        action: "settings.update",
+        target: group,
+        detail: `${changes.length} value(s) changed: ${changes.slice(0, 25).join(", ")}`,
+      });
+    } catch {
+      /* audit logging non-blocking */
+    }
+
+    return { success: `Saved ${changes.length} change(s). They are live for every visitor now.` };
+  } catch (err: unknown) {
+    console.error("[updateSettings] Error writing settings to database:", err);
+    return { error: "Failed to save settings. Please verify input values and try again." };
+  }
 }
 
 export async function resetSettingsGroup(formData: FormData) {
@@ -84,14 +103,27 @@ export async function resetSettingsGroup(formData: FormData) {
   const group = String(formData.get("__group") ?? "");
   const fields = SETTINGS_FIELDS.filter((f) => f.group === group);
   if (!fields.length) return;
+
+  let validUpdatedBy: string | null = null;
+  try {
+    const userRow = await db.select({ id: users.id }).from(users).where(eq(users.id, admin.id)).limit(1);
+    if (userRow.length > 0) validUpdatedBy = admin.id;
+  } catch {
+    validUpdatedBy = null;
+  }
+
   for (const field of fields) {
     await db
       .insert(settingsTable)
-      .values({ key: field.key, value: field.default, group: field.group, label: field.label, updatedBy: admin.id })
-      .onConflictDoUpdate({ target: settingsTable.key, set: { value: field.default, updatedAt: new Date(), updatedBy: admin.id } });
+      .values({ key: field.key, value: field.default, group: field.group, label: field.label, updatedBy: validUpdatedBy })
+      .onConflictDoUpdate({ target: settingsTable.key, set: { value: field.default, updatedAt: new Date(), updatedBy: validUpdatedBy } });
   }
   await invalidateSettings();
-  await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "settings.reset", target: group, detail: `Reset ${fields.length} key(s)` });
+  try {
+    await recordAudit({ actorId: validUpdatedBy, actorEmail: admin.email, action: "settings.reset", target: group, detail: `Reset ${fields.length} key(s)` });
+  } catch {
+    /* audit non-blocking */
+  }
   revalidatePath("/admin/settings");
 }
 

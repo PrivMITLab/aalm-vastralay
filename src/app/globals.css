@@ -50,6 +50,7 @@
   --density-gap: 1rem;
   --shadow-card: 0 1px 3px rgba(122, 31, 43, 0.08);
   --shadow-lift: 0 14px 34px rgba(122, 31, 43, 0.18);
+  --header-h: 112px;
 }
 
 .dark {
@@ -74,9 +75,26 @@
   color-scheme: dark;
 }
 
+/* Guarded smooth scrolling respecting prefers-reduced-motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
 html {
-  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Section and anchor targets honor sticky header height */
+[id], section, footer {
+  scroll-margin-top: var(--header-h, 112px);
 }
 
 body {
