@@ -21,6 +21,36 @@ export type GasEmailPayload =
       subject?: string;
     }
   | {
+      type: "ORDER_DISPATCHED";
+      to: string;
+      orderId: string;
+      courier: string;
+      awb: string;
+      trackingUrl?: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
+      type: "UPI_VERIFIED";
+      to: string;
+      orderId: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
+      type: "SELLER_WELCOME";
+      to: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
+      type: "RETURN_REQUESTED";
+      to: string;
+      orderId: string;
+      name?: string | null;
+      subject?: string;
+    }
+  | {
       type: "GENERAL";
       to: string;
       subject: string;

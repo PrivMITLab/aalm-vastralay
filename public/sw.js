@@ -3,12 +3,92 @@
  * Handles Web Push notifications for order dispatch, shipment tracking & delivery alerts.
  */
 
+const CACHE_NAME = "av-static-v1";
+const STATIC_ASSETS = [
+  "/",
+  "/favicon.ico",
+  "/icon",
+  "/manifest.json",
+];
+
 self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS).catch(() => {
+        // Soft fail if offline during install
+      });
+    })
+  );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Cache-first for static images/fonts, network-first for HTML and APIs
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests and external origins
+  if (request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Network-first for API and server mutations
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin/") || url.pathname.startsWith("/seller/")) {
+    return;
+  }
+
+  // Cache-first for static assets
+  if (
+    url.pathname.startsWith("/_next/static/") ||
+    url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".jpg") ||
+    url.pathname.endsWith(".webp") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".ico")
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate / network-first for pages
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(request).then((cached) => cached || caches.match("/"));
+      })
+  );
 });
 
 // Listen for incoming Web Push events from the server

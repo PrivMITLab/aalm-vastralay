@@ -8,16 +8,23 @@
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
 ## 2. Current Verified Status (Production Ready)
-- **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all 55 routes compiled).
+- **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 24 Enterprise test suites in `tests/` passing in ~0.36s (`npm test`).
+- **Automated Tests:** 25 Enterprise test suites in `tests/` passing in ~0.41s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 
 ## 3. High-Value Indian Commerce & Zero-Loss Security Features
-1. **Universal Banner Media Resolver, Google Drive Auto-Conversion & Webpage Scraper:**
+1. **Button Double-Click Chaos Defense & Universal Tactile Feedback:**
+   - Atomic re-entry guard hook `useFormLock()` in `src/lib/use-form-lock.ts` prevents rapid double-clicks and order race conditions.
+   - Enhanced `<SubmitButton />` with `aria-disabled`, `min-h-[44px] min-w-[44px]` touch target, `Loader2` spin indicator, and `pointer-events-none` when pending.
+   - Global tactile click feedback in `src/app/globals.css` (`scale(0.97)`, brightness shift, inset shadow, distinct card press state).
+2. **Hardened Google Apps Script (GAS) Mailer (`scripts/mailer/Code.gs`):**
+   - 100% free transactional email service for Gmail without requiring custom domain DNS verification.
+   - Constant-time secret token check, 450/day quota safety guard, dynamic HTML escaping, and 7 bilingual email templates.
+3. **Universal Banner Media Resolver, Google Drive Auto-Conversion & Webpage Scraper:**
    - Real-time interactive Banner Editor (`src/components/admin/BannerEditor.tsx`) with live preview, fallback protection, and tactile save state.
    - `canonicalizeImageUrl` in `src/lib/image-resolver.ts` automatically converts Google Drive links (`drive.google.com/file/d/.../view`, etc.) to direct high-speed `https://lh3.googleusercontent.com/d/{id}` CDN streams and normalizes Dropbox, GitHub, and OneDrive links.
    - Secure SSRF-protected `/api/admin/scrape-image` endpoint with 1-click "Auto-Detect / Scrape" to extract OpenGraph banners from arbitrary web URLs.

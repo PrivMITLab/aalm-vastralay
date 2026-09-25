@@ -24,7 +24,7 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
 
   return (
     <>
-      <div className="no-print fixed right-3 bottom-18 z-30 flex flex-col items-end gap-2 sm:right-5 sm:bottom-6">
+      <div className="no-print fixed right-3 bottom-[84px] z-40 flex flex-col items-end gap-2 sm:right-5 sm:bottom-6">
         {visible && (
           <button
             type="button"

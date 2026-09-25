@@ -1,25 +1,38 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 
-/** Returns an `onSubmit` guard and a `locked` flag for the submit button. */
-export function useFormLock2() {
-  const [locked, setLocked] = useState(false);
-  const ref = useRef(false);
-  useEffect(() => () => setLocked(false), []);
-  const onSubmit = (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
-    if (ref.current) {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      return false;
+import { useState, useCallback, useRef } from "react";
+
+export interface FormLockResult {
+  /** True while an asynchronous operation is in flight. */
+  isLocked: boolean;
+  /**
+   * Executes an async operation with strict re-entry prevention.
+   * If invoked while a prior operation is still in flight, execution is silently skipped.
+   */
+  run: <T>(fn: () => Promise<T>) => Promise<T | undefined>;
+}
+
+/**
+ * Re-entry guard hook designed to protect client buttons and forms
+ * against rapid double-clicks, duplicate API requests, and race conditions.
+ */
+export function useFormLock(): FormLockResult {
+  const [isLocked, setIsLocked] = useState(false);
+  const lockRef = useRef(false);
+
+  const run = useCallback(async <T>(fn: () => Promise<T>): Promise<T | undefined> => {
+    if (lockRef.current) {
+      return undefined;
     }
-    ref.current = true;
-    setLocked(true);
-    // Safety valve – if the action throws or never redirects, allow a retry after 30 s
-    setTimeout(() => {
-      ref.current = false;
-      setLocked(false);
-    }, 30_000);
-    return true;
-  };
-  return { locked, onSubmit };
+    lockRef.current = true;
+    setIsLocked(true);
+    try {
+      return await fn();
+    } finally {
+      lockRef.current = false;
+      setIsLocked(false);
+    }
+  }, []);
+
+  return { isLocked, run };
 }

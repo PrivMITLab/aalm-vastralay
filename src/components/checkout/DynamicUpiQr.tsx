@@ -28,6 +28,12 @@ interface Props {
   initialSeconds?: number;
 }
 
+/**
+ * ARCHITECTURAL NOTICE — UI-ONLY COUNTDOWN TIMER:
+ * The 5-minute countdown timer on DynamicUpiQr is an interactive client-side urgency and freshness display.
+ * It DOES NOT represent server-side payment confirmation or automatic order cancellation. Actual banking
+ * settlement and order status are verified asynchronously via Admin verification (verifyUpiPayment) against bank statements.
+ */
 export default function DynamicUpiQr({
   amount,
   orderReference = "AV-CHECKOUT",

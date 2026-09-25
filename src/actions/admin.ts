@@ -350,6 +350,7 @@ export async function verifyUpiPayment(orderId: string, action: "verify" | "reje
       .set({
         paymentStatus: "paid",
         status: order.status === "pending" ? "confirmed" : order.status,
+        verifiedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
@@ -367,6 +368,7 @@ export async function verifyUpiPayment(orderId: string, action: "verify" | "reje
       .set({
         paymentStatus: "failed",
         notes: [order.notes, "UPI Payment Rejected by Admin (Invalid / Unmatched UTR)"].filter(Boolean).join(" | "),
+        verifiedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
@@ -384,4 +386,14 @@ export async function verifyUpiPayment(orderId: string, action: "verify" | "reje
   revalidatePath(`/orders/${orderId}`);
   return { ok: true, message: action === "verify" ? "Payment verified successfully" : "Payment rejected" };
 }
+
+/**
+ * Programmatic alias for verifying UPI orders.
+ * @param orderId The UUID of the order
+ * @param approve True to verify/accept payment, false to reject
+ */
+export async function verifyUpiOrder(orderId: string, approve: boolean): Promise<{ ok: boolean; message: string }> {
+  return verifyUpiPayment(orderId, approve ? "verify" : "reject");
+}
+
 

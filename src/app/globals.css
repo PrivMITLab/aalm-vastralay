@@ -690,6 +690,24 @@ details > summary::-webkit-details-marker {
   50% { transform: translateY(-4px); }
 }
 
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
 .animate-shimmer {
   position: relative;
   overflow: hidden;
@@ -720,10 +738,12 @@ details > summary::-webkit-details-marker {
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .animate-float,
+  .animate-float-slow,
   .animate-float-gentle,
   .animate-pulse-subtle,
   .animate-shimmer::after,
-  .animate-pulse-ring {
+  .animate-pulse-ring,
+  .animate-fade-up {
     animation: none !important;
   }
   .reveal {
@@ -738,7 +758,7 @@ details > summary::-webkit-details-marker {
   }
 }
 
-/* ---------------- Responsive overflow lock: zero horizontal scroll ---------------- */
+/* ---------------- Responsive overflow lock: zero horizontal scroll & tactile feedback ---------------- */
 @layer base {
   html,
   body {
@@ -752,6 +772,42 @@ details > summary::-webkit-details-marker {
   }
   img {
     height: auto;
+  }
+
+  /* Universal interactive tactile click feedback */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    touch-action: manipulation;
+    cursor: pointer;
+    transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), filter 0.12s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  button:active:not(:disabled),
+  [role="button"]:active:not([aria-disabled="true"]),
+  input[type="button"]:active:not(:disabled),
+  input[type="submit"]:active:not(:disabled),
+  input[type="reset"]:active:not(:disabled) {
+    transform: scale(0.97) translateY(1px);
+    filter: brightness(0.92);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(212, 175, 55, 0.35) !important;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  /* Interactive cards and links distinct press state */
+  a.card:active,
+  .card-clickable:active,
+  .card-luxe:active {
+    transform: scale(0.985) translateY(1px);
+    filter: brightness(0.96);
   }
 }
 

@@ -245,6 +245,18 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  endpoint: text("endpoint").notNull().unique(),
+  keysP256dh: text("keys_p256dh").notNull(),
+  keysAuth: text("keys_auth").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type PushSubscriptionRow = typeof pushSubscriptions.$inferSelect;
+export type NewPushSubscriptionRow = typeof pushSubscriptions.$inferInsert;
+
 export const addresses = pgTable(
   "addresses",
   {

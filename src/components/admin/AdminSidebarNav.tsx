@@ -39,7 +39,7 @@ export default function AdminSidebarNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="card flex gap-1 overflow-x-auto p-2 lg:flex-col shadow-sm" aria-label="Admin Navigation">
+    <nav className="card flex gap-1 overflow-x-auto no-scrollbar p-2 lg:flex-col shadow-sm" aria-label="Admin Navigation">
       {NAV.map((n) => {
         const isActive = n.href === "/admin" ? pathname === "/admin" : pathname?.startsWith(n.href);
 

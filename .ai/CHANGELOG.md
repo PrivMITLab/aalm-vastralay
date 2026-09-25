@@ -3,6 +3,39 @@
 
 ---
 
+## [2026-09-25] — Button Double-Click Chaos Defense, Universal Tactile Click Feedback, Production GAS Mailer & PWA Offline Resiliency
+
+### Added & Hardened
+- **Button Double-Click Chaos Defense (`src/lib/use-form-lock.ts`, `src/components/SubmitButton.tsx`, `tests/unit/form-lock.test.ts`):**
+  - Created atomic re-entry guard hook `useFormLock()` protecting interactive client buttons and forms against rapid duplicate submissions and order race conditions.
+  - Enhanced `<SubmitButton />` with `aria-disabled`, `min-h-[44px] min-w-[44px]` touch target, `Loader2` spin indicator, and `pointer-events-none` when pending.
+  - Added dedicated unit test suite verifying single execution on concurrent clicks and clean lock release.
+- **Universal Tactile Click Feedback (`src/app/globals.css`):**
+  - Added global tactile click feedback across all buttons, inputs, links, and cards via `@layer base`:
+    - `transform: scale(0.97) translateY(1px)`
+    - Brightness dimming `filter: brightness(0.92)`
+    - Tactile inset shadow: `box-shadow: inset 0 2px 4px rgba(0,0,0,0.25), 0 0 0 2px rgba(212,175,55,0.35)`
+    - Smooth `0.12s cubic-bezier` transition
+    - Distinct `a.card:active` / `.card-luxe:active` press state (`scale(0.985)`).
+  - Added CSS keyframes `fade-up` and `float-slow` with complete `@media (prefers-reduced-motion: reduce)` accessibility support.
+- **Mobile Responsiveness & Layout Overlap Defense (`src/components/ui/FloatingBar.tsx`, `src/components/admin/AdminSidebarNav.tsx`):**
+  - Adjusted floating WhatsApp / back-to-top buttons to `bottom-[84px] sm:bottom-6` to guarantee zero overlap with the sticky mobile bottom navigation tab bar.
+  - Added `no-scrollbar` to `AdminSidebarNav` for clean horizontal swiping on mobile devices.
+- **Hardened Google Apps Script Transactional Mailer (`scripts/mailer/Code.gs`, `src/lib/gas-mailer.ts`):**
+  - Developed self-contained, 100% free Google Apps Script mailer for Gmail accounts.
+  - Includes constant-time token validation against timing attacks.
+  - Anti-relay whitelist supporting 7 bilingual email templates: `FORGOT_PASSWORD`, `ORDER_CONFIRMATION`, `ORDER_DISPATCHED`, `UPI_VERIFIED`, `SELLER_WELCOME`, `RETURN_REQUESTED`, `GENERAL`.
+  - Built-in 450 emails/day circuit breaker (`CacheService`) to safely protect free Gmail daily quotas.
+  - HTML escaping (`escapeHtml`) on all dynamic customer parameters to prevent email client XSS.
+- **SEO & PWA Offline Resiliency (`src/app/sitemap.ts`, `public/sw.js`, `src/db/schema.ts`):**
+  - Updated `sitemap.ts` to index only active products with `stock > 0` (`and(eq(products.isActive, true), gt(products.stock, 0))`), preventing Google from indexing out-of-stock listings.
+  - Enhanced Service Worker `sw.js` with dual cache strategy: cache-first for static brand assets/fonts/images and network-first/stale-while-revalidate for pages and APIs.
+  - Registered `pushSubscriptions` table in `src/db/schema.ts` matching DDL in `src/db/init.ts`.
+- **Enterprise Test Suite Expansion (`tests/run-all-tests.ts`):**
+  - All 25/25 automated test suites passing with 100% success in 0.41s.
+
+---
+
 ## [2026-09-25] — Universal Banner Media Resolver, Google Drive Auto-Conversion & Webpage Image Scraper
 
 ### Added & Improved

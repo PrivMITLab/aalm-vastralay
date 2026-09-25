@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/db";
 import { categories, products, stores } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { getAllPosts } from "@/lib/blog";
 
 export const revalidate = 3600;
@@ -47,7 +47,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const [catRows, prodRows, storeRows] = await Promise.all([
       db.select({ slug: categories.slug }).from(categories).where(eq(categories.isActive, true)),
-      db.select({ slug: products.slug, updatedAt: products.updatedAt }).from(products).where(eq(products.isActive, true)).limit(500),
+      db
+        .select({ slug: products.slug, updatedAt: products.updatedAt })
+        .from(products)
+        .where(and(eq(products.isActive, true), gt(products.stock, 0)))
+        .limit(500),
       db.select({ slug: stores.slug }).from(stores).where(eq(stores.isActive, true)),
     ]);
     staticUrls.push(

@@ -22,6 +22,7 @@ import { testCourierIntegration } from "./unit/courier-integration.test";
 import { testBrandAssets } from "./unit/brand-assets.test";
 import { testGstInvoice } from "./gst-invoice.test";
 import { testMaskingAndHardening } from "./unit/masking-and-hardening.test";
+import { testFormLockDefense } from "./unit/form-lock.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -55,6 +56,7 @@ async function runAllTests() {
     { name: "Brand Identity, 20 Logos & 53-Icon Matrix Integrity", fn: testBrandAssets },
     { name: "Statutory GST Tax Invoice & Lifecycle Engine", fn: testGstInvoice },
     { name: "PII Masking, Zero-Cost Rate Limiting & XSS Defense", fn: testMaskingAndHardening },
+    { name: "Button Double-Click Chaos Defense & Re-entry Guard", fn: testFormLockDefense },
   ];
 
   for (const suite of suites) {

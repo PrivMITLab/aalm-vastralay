@@ -42,8 +42,12 @@
 - [x] Free-Tier Image Optimization & Caching: wsrv.nl default quality=70 WebP conversion and 7-day immutable Cache-Control headers.
 - [x] Public API XSS & Information Leak Hardening: escapeHtml on shipping labels, suppressed stack traces in /api/health, escaped JSON-LD scripts.
 - [x] Zero-Cost In-Memory Rate Limiting: memoryRateLimit protecting /api/bootstrap (5/min, crypto.timingSafeEqual, POST), /api/search, /api/courier/label, /api/health.
-- [x] 24 Automated Enterprise Test Suites in tests/ (npm test passing in ~0.36s).
 - [x] Universal Banner Media Resolver & Webpage Scraper: interactive BannerEditor, Google Drive auto-conversion to direct lh3 CDN, SSRF-safe /api/admin/scrape-image.
+- [x] Button Double-Click Chaos Defense: atomic re-entry guard hook `useFormLock()` preventing duplicate form submissions and order double-charges.
+- [x] Universal Tactile Press & Click Feedback: global active scale, brightness dimming, and inset shadow across all buttons, inputs, links, and cards.
+- [x] Hardened Google Apps Script Transactional Mailer: 100% free Gmail mailer in `scripts/mailer/Code.gs` with constant-time token verification, 450/day quota guard, HTML sanitization, and 7 bilingual templates.
+- [x] SEO & PWA Offline Resiliency: `sitemap.ts` filtered to active in-stock products (`stock > 0`), dual-cache strategy in `public/sw.js`, and `push_subscriptions` Drizzle schema.
+- [x] 25 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~0.41s).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.
