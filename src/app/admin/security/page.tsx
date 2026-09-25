@@ -82,6 +82,24 @@ export default async function AdminSecurityPage() {
           Security headers (CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy) are applied to every response by the edge middleware, and all
           server actions re-verify authentication + ownership server-side — the client is never trusted.
         </p>
+
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-4">
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-[#D4AF37] flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              Turnstile-Style Bot Shield Customization
+            </p>
+            <p className="text-xs text-[color:var(--text-soft)]">
+              Change display modes (standard card, slim bar, floating, modal overlay, invisible), toggle styles (checkbox vs switch), luxury color themes & label text live.
+            </p>
+          </div>
+          <a
+            href="/admin/settings?group=security"
+            className="btn btn-primary btn-sm shrink-0 text-xs font-semibold"
+          >
+            Customize Bot Shield →
+          </a>
+        </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <form action={pruneRateLimits}>
             <SubmitButton variant="outline" className="btn-sm" pendingText="Cleaning…">

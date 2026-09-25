@@ -406,33 +406,33 @@ export default function ClickToSolve({
 
   // 5. STANDARD MODE (Default Turnstile-style card)
   return (
-    <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2.5 shadow-xs transition-all hover:border-[color:var(--border-strong)]">
+    <div className="w-full max-w-full overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2 sm:p-2.5 shadow-2xs transition-all hover:border-[color:var(--border-strong)]">
       <input type="hidden" name={name} value={payload} />
       {phase === "ready" ? (
-        <div className="flex min-h-[48px] items-center justify-between gap-3 px-1.5" role="status" aria-live="polite">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-600 text-white shadow-xs">
-              <CheckCircle2 className="h-5 w-5" />
+        <div className="flex min-h-[44px] items-center justify-between gap-2 px-1" role="status" aria-live="polite">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <span className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-lg bg-emerald-600 text-white shadow-2xs">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
             </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                 सत्यापित (Verified)
               </p>
-              <p className="truncate text-[11px] text-[color:var(--text-soft)]">
+              <p className="truncate text-[10px] sm:text-[11px] text-[color:var(--text-soft)]">
                 वैधता: <span className="font-mono font-medium text-emerald-700 dark:text-emerald-400">{mm}:{ss}</span> · {Math.max(1, Math.round(elapsedMs))}ms
               </p>
             </div>
           </div>
-          <div className="flex flex-col items-end shrink-0 pl-2 select-none border-l border-[color:var(--border)]/60">
-            <div className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#D4AF37] uppercase">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#D4AF37]" />
-              <span>Aalm Shield</span>
+          <div className="hidden min-[340px]:flex flex-col items-end shrink-0 pl-2 select-none border-l border-[color:var(--border)]/60">
+            <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold tracking-wider text-[#D4AF37] uppercase whitespace-nowrap">
+              <ShieldCheck className="h-3 w-3 text-[#D4AF37] shrink-0" />
+              <span>Aalm</span>
             </div>
-            <span className="text-[9px] text-[color:var(--text-soft)] font-mono">100% Private</span>
+            <span className="text-[8px] sm:text-[9px] text-[color:var(--text-soft)] font-mono whitespace-nowrap">100% Private</span>
           </div>
         </div>
       ) : (
-        <div className="flex min-h-[48px] items-center justify-between gap-3">
+        <div className="flex min-h-[44px] items-center justify-between gap-2">
           <button
             type="button"
             role="checkbox"
@@ -442,33 +442,33 @@ export default function ClickToSolve({
             aria-disabled={phase === "solving"}
             aria-live="polite"
             className={cn(
-              "flex flex-1 items-center gap-3 rounded-xl px-1.5 py-1 text-left transition",
+              "flex flex-1 items-center gap-2.5 rounded-xl px-1 py-1 text-left transition min-w-0",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37]",
               phase === "solving" ? "cursor-wait opacity-80" : "hover:bg-[color:var(--surface-2)]/60 active:scale-[0.99]",
             )}
           >
             {renderControl()}
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-[color:var(--text)]">
+              <span className="block truncate text-xs sm:text-sm font-semibold text-[color:var(--text)]">
                 {resolvedLabel}
               </span>
-              <span className="block truncate text-[11px] text-[color:var(--text-soft)]">
+              <span className="block truncate text-[10px] sm:text-[11px] text-[color:var(--text-soft)]">
                 {phase === "solving"
-                  ? "जांच हो रही है… कृपया प्रतीक्षा करें (Verifying…)"
+                  ? "जांच हो रही है… (Verifying…)"
                   : phase === "failed"
                     ? "पुनः प्रयास करें (Click to retry)"
                     : phase === "expired"
-                      ? "समय समाप्त — फिर से क्लिक करें (Expired — click to retry)"
-                      : "क्लिक करके सत्यापित करें (Click to verify)"}
+                      ? "समय समाप्त (Expired — retry)"
+                      : "क्लिक करके सत्यापित करें"}
               </span>
             </span>
           </button>
-          <div className="flex flex-col items-end shrink-0 pr-1 pl-2 select-none border-l border-[color:var(--border)]/60">
-            <div className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#D4AF37] uppercase">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#D4AF37]" />
-              <span>Aalm Shield</span>
+          <div className="hidden min-[340px]:flex flex-col items-end shrink-0 pr-1 pl-2 select-none border-l border-[color:var(--border)]/60">
+            <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold tracking-wider text-[#D4AF37] uppercase whitespace-nowrap">
+              <ShieldCheck className="h-3 w-3 text-[#D4AF37] shrink-0" />
+              <span>Aalm</span>
             </div>
-            <span className="text-[9px] text-[color:var(--text-soft)] font-mono">Altcha PoW</span>
+            <span className="text-[8px] sm:text-[9px] text-[color:var(--text-soft)] font-mono whitespace-nowrap">Shield</span>
           </div>
         </div>
       )}

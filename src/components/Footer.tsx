@@ -43,7 +43,7 @@ export default async function Footer() {
       </div>
 
       <div className="border-t border-[color:var(--border)] bg-[color:var(--surface-2)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:px-8 py-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-[color:var(--brand)] font-display text-lg text-[color:var(--accent)]">{brand.logoText}</span>
@@ -90,7 +90,7 @@ export default async function Footer() {
               ["Seller handbook", "/handbook"],
             ]}
           />
-          <div>
+          <div className="lg:pr-6">
             <p className="mb-3 text-xs font-bold tracking-wider text-[color:var(--brand)] uppercase">Account</p>
             <ul className="space-y-2 text-sm text-[color:var(--text-muted)]">
               <li><Link href="/orders" className="hover:text-[color:var(--brand)]">My Orders</Link></li>
