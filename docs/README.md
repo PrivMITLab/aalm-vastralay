@@ -21,6 +21,8 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 | **[runbook.md](runbook.md)** | Production maintenance, database backup, log auditing, and disaster recovery procedures. |
 | **[SECURITY.md](SECURITY.md)** | Public security policy, coordinated vulnerability disclosure, and cryptographic specs. |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | Code contribution guidelines, TypeScript strict mode, and pull request checklist. |
+| **[B2_CORS.md](B2_CORS.md)** | Backblaze B2 bucket CORS setup runbook (Hindi): exact JSON rules, CLI commands, and browser console symptom-fix table. |
+| **[cloudflare-worker/README_DEPLOY.md](../cloudflare-worker/README_DEPLOY.md)** | 8-Step Cloudflare Worker deployment runbook (Hindi + English) with KV binding and secrets setup. |
 | **[TERMS.md](TERMS.md)** | Indian Contract Act & IT Act compliant Terms of Service for buyers, sellers, and marketplace. |
 | **[PRIVACY.md](PRIVACY.md)** | DPDP Act 2023 compliant Privacy Policy, customer PII masking, cookie consent, and data retention rules. |
 

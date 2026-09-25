@@ -18,7 +18,20 @@ import type { ResolveOptions, VideoResolveResult } from "@/types/media";
 
 export const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
-const B2_WORKER_URL = (process.env.NEXT_PUBLIC_B2_WORKER_URL || "https://aalm-b2-proxy.workers.dev").replace(/\/$/, "");
+export const B2_DEFAULT_WORKER_URL = "https://aalm-b2-proxy.alamwastraly.workers.dev";
+export const B2_DEFAULT_BUCKET_NAME = "aalm-vastralay-media";
+export const B2_DEFAULT_DIRECT_URL = "https://f000.backblazeb2.com";
+
+const B2_WORKER_URL = (process.env.NEXT_PUBLIC_B2_WORKER_URL || B2_DEFAULT_WORKER_URL).replace(/\/$/, "");
+const B2_BUCKET_NAME = process.env.NEXT_PUBLIC_B2_BUCKET_NAME || process.env.B2_BUCKET_NAME || B2_DEFAULT_BUCKET_NAME;
+const B2_DIRECT_URL = (process.env.NEXT_PUBLIC_B2_DIRECT_URL || B2_DEFAULT_DIRECT_URL).replace(/\/$/, "");
+
+if (typeof window === "undefined" && !process.env.NEXT_PUBLIC_B2_WORKER_URL && process.env.NODE_ENV !== "test") {
+  console.warn(
+    `[Aalm Media] NEXT_PUBLIC_B2_WORKER_URL is unset. Defaulting to '${B2_DEFAULT_WORKER_URL}'. Configure NEXT_PUBLIC_B2_WORKER_URL in Vercel Project Settings -> Environment Variables.`
+  );
+}
+
 const USE_WSRV = process.env.NEXT_PUBLIC_USE_WSRV !== "false";
 
 // Google Drive file ID pattern (typically 28 to 45 alphanumeric characters with underscores and dashes)
@@ -116,6 +129,10 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
     const candidate = mirroredUrl || src;
     if (candidate.startsWith("b2:")) {
       const key = candidate.slice(3).replace(/^\//, "");
+      // Media Split: Images -> Worker Proxy ($0 Egress), Videos -> B2 Direct (Byte-Range Streaming)
+      if (isVideoUrl(key)) {
+        return `${B2_DIRECT_URL}/file/${B2_BUCKET_NAME}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
+      }
       if (!B2_WORKER_URL) return PLACEHOLDER_IMAGE;
       return `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
     }
@@ -124,6 +141,9 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
   // Strategy: "auto" (Hybrid — prefers mirrored B2 if available, else wsrv)
   if (strategy === "auto" && mirroredUrl && mirroredUrl.startsWith("b2:")) {
     const key = mirroredUrl.slice(3).replace(/^\//, "");
+    if (isVideoUrl(key)) {
+      return `${B2_DIRECT_URL}/file/${B2_BUCKET_NAME}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
+    }
     if (B2_WORKER_URL) {
       return `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
     }
@@ -135,7 +155,7 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
   if (strategy === "direct") {
     if (raw.startsWith("b2:")) {
       const key = raw.slice(3).replace(/^\//, "");
-      return B2_WORKER_URL ? `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}` : PLACEHOLDER_IMAGE;
+      return `${B2_DIRECT_URL}/file/${B2_BUCKET_NAME}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
     }
     return raw.startsWith("/") || /^https?:\/\//i.test(raw) ? raw : `/${raw}`;
   }
@@ -153,6 +173,10 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
   // 2. Backblaze B2 (b2: key)
   if (raw.startsWith("b2:")) {
     const key = raw.slice(3).replace(/^\//, "");
+    // Media Split: Videos bypass worker to preserve Cloudflare limits and support byte-range seeking
+    if (isVideoUrl(key)) {
+      return `${B2_DIRECT_URL}/file/${B2_BUCKET_NAME}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
+    }
     if (!B2_WORKER_URL) return PLACEHOLDER_IMAGE;
     return `${B2_WORKER_URL}/${key}${version ? `?v=${encodeURIComponent(String(version))}` : ""}`;
   }
@@ -194,7 +218,7 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
 
 /**
  * Builds an ordered list of fallback image URLs for SmartImage.
- * Order: primary (by strategy) -> mirrored B2 -> wsrv -> raw direct canonical -> placeholder
+ * Order: primary (by strategy) -> wsrv fallback for worker -> mirrored B2 -> wsrv -> raw direct canonical -> placeholder
  */
 export function getImageFallbackList(src: string | null | undefined, opts: ResolveOptions = {}): string[] {
   if (!src || typeof src !== "string" || !src.trim()) {
@@ -205,12 +229,27 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
   const primary = resolveImage(src, opts);
   if (primary && primary !== PLACEHOLDER_IMAGE) {
     list.push(primary);
+
+    // If primary is served via Cloudflare Worker proxy, add immediate wsrv fallback
+    // so a dead or cold-starting worker never leaves broken image icons.
+    if (primary.includes("workers.dev")) {
+      const wsrvWorkerFallback = `https://wsrv.nl/?url=${encodeURIComponent(primary)}&output=webp`;
+      if (!list.includes(wsrvWorkerFallback)) {
+        list.push(wsrvWorkerFallback);
+      }
+    }
   }
 
   if (opts.mirroredUrl && opts.mirroredUrl.startsWith("b2:")) {
     const b2Url = resolveImage(opts.mirroredUrl, { ...opts, strategy: "b2" });
     if (b2Url && b2Url !== PLACEHOLDER_IMAGE && !list.includes(b2Url)) {
       list.push(b2Url);
+      if (b2Url.includes("workers.dev")) {
+        const wsrvMirrorFallback = `https://wsrv.nl/?url=${encodeURIComponent(b2Url)}&output=webp`;
+        if (!list.includes(wsrvMirrorFallback)) {
+          list.push(wsrvMirrorFallback);
+        }
+      }
     }
   }
 
@@ -269,6 +308,15 @@ export function resolveVideo(src: string | null | undefined): VideoResolveResult
     return {
       type: "file",
       url: `https://drive.google.com/uc?export=download&id=${fileId}`,
+    };
+  }
+
+  // Backblaze B2 Video (Always route video keys to direct B2 download endpoint, never worker)
+  if (s.startsWith("b2:")) {
+    const key = s.slice(3).replace(/^\//, "");
+    return {
+      type: "file",
+      url: `${B2_DIRECT_URL}/file/${B2_BUCKET_NAME}/${key}`,
     };
   }
 

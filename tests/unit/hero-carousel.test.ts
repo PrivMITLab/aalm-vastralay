@@ -1,4 +1,5 @@
-import { canonicalizeImageUrl, getImageFallbackList, resolveImage } from "@/lib/image-resolver";
+import { B2_DEFAULT_WORKER_URL, canonicalizeImageUrl, getImageFallbackList, resolveImage, resolveVideo } from "@/lib/image-resolver";
+import { validateUploadMetadata } from "@/lib/b2";
 import { isBlockedHostname, validateSafeExternalUrl } from "@/lib/security/ssrf";
 import { extFromMime, looksLikeImage } from "@/lib/image-inspector";
 import { heroSlideSchema, heroSlidesArraySchema } from "@/lib/hero-slide-schema";
@@ -111,6 +112,44 @@ export async function runHeroCarouselTests(): Promise<void> {
     throw new Error(`Terminal fallback must be placeholder.svg: got ${fallbacks[fallbacks.length - 1]}`);
   }
 
+  // --- 3b. Backblaze B2 Fallback Chain Order (worker -> wsrv -> placeholder) ---
+  if (B2_DEFAULT_WORKER_URL !== "https://aalm-b2-proxy.alamwastraly.workers.dev") {
+    throw new Error(`Default B2 worker domain must be 'https://aalm-b2-proxy.alamwastraly.workers.dev', got: ${B2_DEFAULT_WORKER_URL}`);
+  }
+
+  const b2ImageFallbacks = getImageFallbackList("b2:products/test-saree.webp");
+  if (!b2ImageFallbacks[0].includes("aalm-b2-proxy.alamwastraly.workers.dev/products/test-saree.webp")) {
+    throw new Error(`B2 fallback #1 must be Cloudflare Worker URL, got: ${b2ImageFallbacks[0]}`);
+  }
+  if (!b2ImageFallbacks[1].includes("wsrv.nl/?url=") || !b2ImageFallbacks[1].includes("test-saree.webp")) {
+    throw new Error(`B2 fallback #2 must be wsrv.nl proxying the worker URL, got: ${b2ImageFallbacks[1]}`);
+  }
+  if (b2ImageFallbacks[b2ImageFallbacks.length - 1] !== "/images/placeholder.svg") {
+    throw new Error(`B2 terminal fallback must be placeholder: got ${b2ImageFallbacks[b2ImageFallbacks.length - 1]}`);
+  }
+
+  // --- 3c. Key Sanitizer Path Traversal Protection ---
+  const traversalCheck1 = validateUploadMetadata("../secrets.png", "image/png", 1024);
+  if (traversalCheck1.isValid) {
+    throw new Error("Key sanitizer must strictly reject '../' path traversal attempts");
+  }
+  const traversalCheck2 = validateUploadMetadata("folder/../../etc/passwd.jpg", "image/jpeg", 1024);
+  if (traversalCheck2.isValid) {
+    throw new Error("Key sanitizer must strictly reject nested '../' path traversal attempts");
+  }
+
+  // --- 3d. Video Split: Images to Worker Proxy, Videos to B2 Direct Stream ---
+  const videoResolved = resolveVideo("b2:videos/festive-reel.mp4");
+  if (!videoResolved || videoResolved.type !== "file") {
+    throw new Error(`B2 video must resolve to file stream, got: ${JSON.stringify(videoResolved)}`);
+  }
+  if (videoResolved.url.includes("workers.dev")) {
+    throw new Error(`B2 video must NEVER route to Cloudflare Worker proxy: ${videoResolved.url}`);
+  }
+  if (!videoResolved.url.includes("backblazeb2.com/file/")) {
+    throw new Error(`B2 video must route to direct B2 download endpoint: ${videoResolved.url}`);
+  }
+
   // --- 4. SSRF Defense Validation ---
   const forbiddenHosts = [
     "localhost",
@@ -198,6 +237,10 @@ export async function runHeroCarouselTests(): Promise<void> {
   console.log("  ✔ Hero carousel 5-slide maximum, order & active filter verified!");
   console.log("  ✔ 4 delivery strategies (wsrv, direct, b2, auto) & fallback verified!");
   console.log("  ✔ SmartImage multi-tier fallback chain verified!");
+  console.log("  ✔ Backblaze B2 default domain (alamwastraly.workers.dev) verified!");
+  console.log("  ✔ Backblaze B2 fallback chain order (worker -> wsrv -> placeholder) verified!");
+  console.log("  ✔ Key sanitizer path traversal (../) block verified!");
+  console.log("  ✔ Media split: images to worker, videos to direct B2 stream verified!");
   console.log("  ✔ SSRF defense (localhost, 169.254, RFC1918) verified!");
   console.log("  ✔ Magic bytes validation & tamper defense verified!");
   console.log("  ✔ Storage meter cumulative math verified!");

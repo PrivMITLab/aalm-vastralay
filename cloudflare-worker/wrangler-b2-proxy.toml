@@ -1,0 +1,31 @@
+# ==============================================================================
+# 👑 AALM VASTRALAY — BACKBLAZE B2 PROXY CLOUDFLARE WORKER CONFIGURATION
+# Location: cloudflare-worker/wrangler-b2-proxy.toml
+# Note: Do NOT touch root wrangler.toml (reserved for OpenNext Next.js Pages)
+# ==============================================================================
+
+name = "aalm-b2-proxy"
+main = "b2-proxy.js"
+compatibility_date = "2026-09-20"
+compatibility_flags = ["nodejs_compat"]
+
+# Public Non-Secret Environment Variables
+[vars]
+# Replace with your actual Backblaze B2 bucket name (e.g. "aalm-vastralay-media")
+B2_BUCKET_NAME = "aalm-vastralay-media"
+
+# Cloudflare KV Namespace Binding for B2 Auth Token Caching (23 Hours)
+[[kv_namespaces]]
+binding = "B2_TOKEN_KV"
+# Step 1: Run `npx wrangler kv namespace create B2_TOKEN_KV`
+# Step 2: Paste the returned namespace ID below
+id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
+
+# ==============================================================================
+# 🔒 SECRETS (KABHI BHI IS FILE MEIN NA LIKHEIN / NEVER COMMIT TO GIT)
+# Configure secrets via the Cloudflare CLI:
+#
+#   npx wrangler secret put B2_KEY_ID --config wrangler-b2-proxy.toml
+#   npx wrangler secret put B2_APP_KEY --config wrangler-b2-proxy.toml
+#
+# ==============================================================================
