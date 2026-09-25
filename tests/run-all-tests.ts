@@ -29,6 +29,7 @@ import { testSecurityHardening } from "./unit/security-hardening.test";
 import { runHeaderScrollAndA11yTests } from "./unit/header-scroll-lock.test";
 import { runHeroCarouselTests } from "./unit/hero-carousel.test";
 import { testFailClosedSecrets } from "./unit/fail-closed-secrets.test";
+import { testSaveChangesAndSecurityFix } from "./unit/save-changes-and-security-fix.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -69,6 +70,7 @@ async function runAllTests() {
     { name: "Header Dropdown Scroll-Lock, Clip Fix & A11Y", fn: runHeaderScrollAndA11yTests },
     { name: "Hero Carousel, Multi-Strategy & B2 Mirror Engine", fn: runHeroCarouselTests },
     { name: "Fail-Closed Secrets, Presign 503 & Courier Label 400", fn: testFailClosedSecrets },
+    { name: "DB Transient Retry Armor, PoW Agreement & Anti-Enumeration", fn: testSaveChangesAndSecurityFix },
   ];
 
   for (const suite of suites) {

@@ -20,11 +20,13 @@ import {
 } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { isStrongPassword } from "@/lib/format";
+import { shouldEnforcePow } from "@/lib/pow";
 import { verifyPayloadAndConsume } from "@/lib/pow-store";
 import { rateLimit } from "@/lib/rate-limit";
 import { requestMeta } from "@/lib/request";
 import { getSetting, getSettingBool, getSettingNumber } from "@/lib/settings";
 import { assertSameOrigin, honeypotFilled } from "@/lib/csrf";
+import { withDbRetry } from "@/lib/db-retry";
 
 export type ActionState = { error?: string; success?: string } | null;
 
@@ -51,7 +53,7 @@ async function gate(formData: FormData, bucket: string, limitKey = "security.for
   });
   if (!rl.ok) return { ok: false as const, error: `Too many attempts. Please try again in ${rl.retryAfterSeconds} seconds.`, meta };
 
-  const botProtection = (await getSetting("security.botProtection", "pow")) === "pow";
+  const botProtection = await shouldEnforcePow();
   if (botProtection) {
     const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
       action: "auth",
@@ -148,7 +150,9 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   }
 
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  // Constant-ish work either way + one generic message so accounts can't be enumerated.
+  // Anti-enumeration posture:
+  // Constant-ish work either way + identical generic error string for unknown email vs wrong password.
+  // We execute verifyPassword even if user doesn't exist (using dummy hash) to defend against timing attacks.
   const ok = user ? verifyPassword(password, user.passwordHash) : verifyPassword(password, "deadbeef:deadbeef");
   if (!user || !ok) {
     await recordAttempt(email, meta.ip, false);
@@ -156,8 +160,8 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
     await recordAudit({ actorEmail: email, action: "auth.sign_in_failed", detail: `failures=${after.failures}` });
     return {
       error: after.locked
-        ? `Incorrect credentials. Too many attempts – locked for ${after.minutes} minutes.`
-        : `Incorrect email or password. ${Math.max(0, after.threshold - after.failures)} attempt(s) left before lockout.`,
+        ? `Too many failed attempts. Your account is locked for ${after.minutes} minutes.`
+        : "Incorrect email or password.",
     };
   }
 
@@ -202,12 +206,23 @@ export async function updateProfile(_prev: ActionState, formData: FormData): Pro
 
   const parsed = profileSchema.safeParse({ fullName: formData.get("fullName"), phone: (formData.get("phone") as string) || undefined });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
-  await db
-    .update(users)
-    .set({ fullName: parsed.data.fullName, phone: parsed.data.phone || null, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  revalidatePath("/dashboard");
-  return { success: "Profile updated." };
+
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      () =>
+        db
+          .update(users)
+          .set({ fullName: parsed.data.fullName, phone: parsed.data.phone || null, updatedAt: new Date() })
+          .where(eq(users.id, user.id)),
+      { label: "updateProfile", requestId }
+    );
+    revalidatePath("/dashboard");
+    return { success: "Profile updated." };
+  } catch (err) {
+    console.error(`[updateProfile] [${requestId}] DB operation failed:`, err);
+    return { error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" };
+  }
 }
 
 export async function markNotificationsRead() {

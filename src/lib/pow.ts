@@ -1,4 +1,5 @@
 import { createHash, createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
+import { cache } from "react";
 
 /**
  * Altcha-style proof-of-work bot protection – self-hosted, no API keys, no third party.
@@ -17,6 +18,24 @@ const SECRET = process.env.POW_SECRET ?? process.env.AUTH_SECRET ?? "aalm-vastra
 const ITERATIONS = 1000;
 const KEY_LEN = 32;
 const DEFAULT_CHALLENGE_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * Single source of truth for proof-of-work enforcement.
+ * Reads security.botProtection once per request (cached per-request via React cache()).
+ * Guaranteed fail-CLOSED: if settings read fails or DB is down, defaults to true ("pow").
+ * Uses dynamic import so unit tests can import this module under tsx without server-only error.
+ */
+export const shouldEnforcePow = cache(async (): Promise<boolean> => {
+  try {
+    const { getSetting } = await import("@/lib/settings");
+    const mode = await getSetting("security.botProtection", "pow");
+    return mode === "pow";
+  } catch {
+    return true; // Fail-closed
+  }
+});
+
+
 
 /**
  * Actions a challenge can be bound to. Binding stops a token solved for one

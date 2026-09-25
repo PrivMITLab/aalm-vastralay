@@ -116,9 +116,15 @@ export default async function Footer() {
 
         <div className="border-t border-[color:var(--border)] px-4 py-4">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
-            <p className="text-center text-xs text-[color:var(--text-soft)]">
-              © {new Date().getFullYear()} {brand.name}. {brand.copyright}
-            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <p className="text-center text-xs text-[color:var(--text-soft)]">
+                © {new Date().getFullYear()} {brand.name}. {brand.copyright}
+              </p>
+              <span className="hidden sm:inline text-xs text-[color:var(--text-soft)]/50">·</span>
+              <span className="text-[10px] font-mono text-[color:var(--text-soft)]/60" title="Deploy build version. Hard reload: Ctrl+Shift+R">
+                Build: {process.env.NEXT_PUBLIC_BUILD_ID || "v2.6-prod"}
+              </span>
+            </div>
             <p className="text-center text-xs text-[color:var(--text-soft)]">UPI · Cards · Net banking · Cash on Delivery · Prices {commerce.gstInclusive ? "incl." : "excl."} GST</p>
           </div>
         </div>

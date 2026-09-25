@@ -141,7 +141,20 @@ export default function BotShield({ label = "Spam & bot protection", action }: {
         {state === "ready" && `${label} verified in ${Math.max(1, Math.round(elapsed))} ms · proof-of-work solved`}
         {state === "solving" && `${label}: solving a small hash puzzle (no captcha needed)…`}
         {state === "idle" && `${label}: preparing…`}
-        {state === "failed" && "Protection check could not run – you can still submit."}
+        {state === "failed" && (
+          <span className="flex items-center justify-between w-full">
+            <span>Suraksha load nahi hui, net check karke dobara dabao.</span>
+            <button
+              type="button"
+              onClick={() => {
+                setState("idle");
+              }}
+              className="ml-2 font-bold underline hover:text-amber-800"
+            >
+              Retry
+            </button>
+          </span>
+        )}
       </span>
       <span className="hidden font-mono text-[10px] opacity-70 sm:inline">{state === "ready" ? payload.length > 0 && "PBKDF2/SHA-256" : ""}</span>
     </div>

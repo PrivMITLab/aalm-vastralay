@@ -155,6 +155,9 @@ export default function ClickToSolve({
     return () => clearInterval(id);
   }, [phase, expiresAt, notify]);
 
+  const [retryCount, setRetryCount] = useState(0);
+  const [failureMsg, setFailureMsg] = useState("");
+
   const solve = useCallback(async () => {
     if (phase === "solving" || phase === "ready") return;
     setPhase("solving");
@@ -162,18 +165,44 @@ export default function ClickToSolve({
     const started = Date.now();
 
     try {
+      // Exponential backoff if retrying
+      if (retryCount > 0) {
+        const delay = Math.min(1000 * Math.pow(1.5, retryCount - 1), 3000);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+
       const res = await fetch(`/api/security/challenge?action=${encodeURIComponent(action)}&ttl=${CLICK_TTL_SECONDS}`, {
         cache: "no-store",
       });
+
       if (!res.ok) {
+        // Network or server error (e.g. 429, 500) — do NOT disable protection, prompt retry
+        stopWorker();
+        setSliderPos(0);
+        setRetryCount((c) => Math.min(c + 1, 3));
+        setFailureMsg("Suraksha load nahi hui, net check karke dobara dabao (Retry)");
+        setPhase("failed");
+        notify(false);
+        return;
+      }
+
+      const data = await res.json();
+      const isRequired = Boolean(data.required ?? data.enabled);
+
+      if (!isRequired) {
+        // Bot protection is explicitly disabled by admin
         setPhase("disabled");
         notify(true);
         return;
       }
-      const data = await res.json();
-      if (!data.required || !data.challenge) {
-        setPhase("disabled");
-        notify(true);
+
+      if (!data.challenge) {
+        stopWorker();
+        setSliderPos(0);
+        setRetryCount((c) => Math.min(c + 1, 3));
+        setFailureMsg("Suraksha load nahi hui, net check karke dobara dabao (Retry)");
+        setPhase("failed");
+        notify(false);
         return;
       }
 
@@ -231,13 +260,19 @@ export default function ClickToSolve({
       setElapsedMs(Date.now() - started);
       setSliderPos(100);
       setPhase("ready");
+      setRetryCount(0);
+      setFailureMsg("");
       notify(true);
     } catch {
       stopWorker();
       setSliderPos(0);
+      setRetryCount((c) => Math.min(c + 1, 3));
+      setFailureMsg("Suraksha load nahi hui, net check karke dobara dabao (Retry)");
       setPhase("failed");
+      notify(false);
     }
-  }, [action, phase, notify, stopWorker]);
+  }, [action, phase, notify, stopWorker, retryCount]);
+
 
   // Auto-solve if configured as invisible
   useEffect(() => {
@@ -805,7 +840,7 @@ export default function ClickToSolve({
                 {phase === "solving"
                   ? "जांच हो रही है… (Verifying…)"
                   : phase === "failed"
-                    ? "पुनः प्रयास करें (Click to retry)"
+                    ? failureMsg || "सुरक्षा लोड नहीं हुई, नेट चेक करके दोबारा दबाओ (Click to retry)"
                     : phase === "expired"
                       ? "समय समाप्त (Expired — retry)"
                       : "क्लिक करके सत्यापित करें"}

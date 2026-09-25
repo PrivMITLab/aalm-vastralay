@@ -10,6 +10,7 @@ import { assertSameOrigin, honeypotFilled } from "@/lib/csrf";
 import { recordAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
 import { isStrongPassword } from "@/lib/format";
+import { withDbRetry } from "@/lib/db-retry";
 import type { ActionState } from "./auth";
 
 export const addressSchema = z.object({
@@ -50,41 +51,58 @@ export async function saveAddress(_prev: ActionState, formData: FormData): Promi
   const id = String(formData.get("id") ?? "");
   const validId = /^[0-9a-f-]{36}$/i.test(id) ? id : null;
 
-  if (d.isDefault) await db.update(addresses).set({ isDefault: false }).where(eq(addresses.userId, user.id));
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      async () => {
+        if (d.isDefault) await db.update(addresses).set({ isDefault: false }).where(eq(addresses.userId, user.id));
 
-  if (validId) {
-    const [existing] = await db.select().from(addresses).where(and(eq(addresses.id, validId), eq(addresses.userId, user.id))).limit(1);
-    if (!existing) return { error: "Address not found." };
-    await db
-      .update(addresses)
-      .set({ ...d, isDefault: d.isDefault ?? existing.isDefault, updatedAt: new Date() })
-      .where(eq(addresses.id, validId));
-  } else {
-    const [{ count }] = await db.select({ count: sqlCount() }).from(addresses).where(eq(addresses.userId, user.id));
-    if (Number(count) >= 10) return { error: "You can save up to 10 addresses." };
-    const [created] = await db
-      .insert(addresses)
-      .values({
-        userId: user.id,
-        label: d.label,
-        fullName: d.fullName,
-        phone: d.phone,
-        addressLine: d.addressLine,
-        landmark: d.landmark || null,
-        city: d.city,
-        state: d.state,
-        pincode: d.pincode,
-        isDefault: d.isDefault ?? Number(count) === 0,
-      })
-      .returning();
-    if (Number(count) === 0 && !d.isDefault) {
-      await db.update(addresses).set({ isDefault: true }).where(eq(addresses.id, created.id));
+        if (validId) {
+          const [existing] = await db.select().from(addresses).where(and(eq(addresses.id, validId), eq(addresses.userId, user.id))).limit(1);
+          if (!existing) throw new Error("Address not found.");
+          await db
+            .update(addresses)
+            .set({ ...d, isDefault: d.isDefault ?? existing.isDefault, updatedAt: new Date() })
+            .where(eq(addresses.id, validId));
+        } else {
+          const [{ count }] = await db.select({ count: sqlCount() }).from(addresses).where(eq(addresses.userId, user.id));
+          if (Number(count) >= 10) throw new Error("LIMIT_10");
+          const [created] = await db
+            .insert(addresses)
+            .values({
+              userId: user.id,
+              label: d.label,
+              fullName: d.fullName,
+              phone: d.phone,
+              addressLine: d.addressLine,
+              landmark: d.landmark || null,
+              city: d.city,
+              state: d.state,
+              pincode: d.pincode,
+              isDefault: d.isDefault ?? Number(count) === 0,
+            })
+            .returning();
+          if (Number(count) === 0 && !d.isDefault) {
+            await db.update(addresses).set({ isDefault: true }).where(eq(addresses.id, created.id));
+          }
+        }
+      },
+      { label: "saveAddress", requestId }
+    );
+    await recordAudit({ actorId: user.id, actorEmail: user.email, action: "address.save", target: d.label });
+    revalidatePath("/dashboard");
+    revalidatePath("/checkout");
+    return { success: "Address saved." };
+  } catch (err) {
+    if (err instanceof Error && err.message === "LIMIT_10") {
+      return { error: "You can save up to 10 addresses." };
     }
+    if (err instanceof Error && err.message === "Address not found.") {
+      return { error: "Address not found." };
+    }
+    console.error(`[saveAddress] [${requestId}] DB operation failed:`, err);
+    return { error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" };
   }
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "address.save", target: d.label });
-  revalidatePath("/dashboard");
-  revalidatePath("/checkout");
-  return { success: "Address saved." };
 }
 
 export async function deleteAddress(formData: FormData) {
@@ -94,10 +112,19 @@ export async function deleteAddress(formData: FormData) {
   if (!origin.ok) return;
   const id = String(formData.get("id") ?? "");
   if (!/^[0-9a-f-]{36}$/i.test(id)) return;
-  await db.delete(addresses).where(and(eq(addresses.id, id), eq(addresses.userId, user.id)));
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "address.delete" });
-  revalidatePath("/dashboard");
-  revalidatePath("/checkout");
+
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      () => db.delete(addresses).where(and(eq(addresses.id, id), eq(addresses.userId, user.id))),
+      { label: "deleteAddress", requestId }
+    );
+    await recordAudit({ actorId: user.id, actorEmail: user.email, action: "address.delete" });
+    revalidatePath("/dashboard");
+    revalidatePath("/checkout");
+  } catch (err) {
+    console.error(`[deleteAddress] [${requestId}] DB operation failed:`, err);
+  }
 }
 
 export async function setDefaultAddress(formData: FormData) {
@@ -107,12 +134,23 @@ export async function setDefaultAddress(formData: FormData) {
   if (!origin.ok) return;
   const id = String(formData.get("id") ?? "");
   if (!/^[0-9a-f-]{36}$/i.test(id)) return;
-  const [own] = await db.select().from(addresses).where(and(eq(addresses.id, id), eq(addresses.userId, user.id))).limit(1);
-  if (!own) return;
-  await db.update(addresses).set({ isDefault: false }).where(eq(addresses.userId, user.id));
-  await db.update(addresses).set({ isDefault: true, updatedAt: new Date() }).where(eq(addresses.id, id));
-  revalidatePath("/dashboard");
-  revalidatePath("/checkout");
+
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      async () => {
+        const [own] = await db.select().from(addresses).where(and(eq(addresses.id, id), eq(addresses.userId, user.id))).limit(1);
+        if (!own) return;
+        await db.update(addresses).set({ isDefault: false }).where(eq(addresses.userId, user.id));
+        await db.update(addresses).set({ isDefault: true, updatedAt: new Date() }).where(eq(addresses.id, id));
+      },
+      { label: "setDefaultAddress", requestId }
+    );
+    revalidatePath("/dashboard");
+    revalidatePath("/checkout");
+  } catch (err) {
+    console.error(`[setDefaultAddress] [${requestId}] DB operation failed:`, err);
+  }
 }
 
 /* ----------------------------- password change ----------------------------- */
@@ -143,13 +181,23 @@ export async function changePassword(_prev: ActionState, formData: FormData): Pr
   if (next !== confirm) return { error: "The new passwords do not match." };
   if (!isStrongPassword(next)) return { error: "Use 8+ characters with upper case, lower case and a number." };
 
-  await db.update(users).set({ passwordHash: hashPassword(next), updatedAt: new Date() }).where(eq(users.id, user.id));
-
-  // Re-read the rotated user so the new session token is bound to the new password hash
-  const [fresh] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  await setSessionCookie(fresh);
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "user.password" });
-  return { success: "Password changed. All other sessions were signed out." };
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      async () => {
+        await db.update(users).set({ passwordHash: hashPassword(next), updatedAt: new Date() }).where(eq(users.id, user.id));
+        // Re-read the rotated user so the new session token is bound to the new password hash
+        const [fresh] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+        if (fresh) await setSessionCookie(fresh);
+      },
+      { label: "changePassword", requestId }
+    );
+    await recordAudit({ actorId: user.id, actorEmail: user.email, action: "user.password" });
+    return { success: "Password changed. All other sessions were signed out." };
+  } catch (err) {
+    console.error(`[changePassword] [${requestId}] DB operation failed:`, err);
+    return { error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" };
+  }
 }
 
 function sqlCount() {

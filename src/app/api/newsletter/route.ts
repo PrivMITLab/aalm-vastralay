@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requestMeta } from "@/lib/request";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { verifyPayloadAndConsume } from "@/lib/pow-store";
-import { getSetting } from "@/lib/settings";
+import { shouldEnforcePow } from "@/lib/pow";
 import { sendEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Single-use proof-of-work (lenient: outages log and pass to avoid losing genuine subscribers).
-    if ((await getSetting("security.botProtection", "pow")) === "pow") {
+    if (await shouldEnforcePow()) {
       const verdict = await verifyPayloadAndConsume(botPayload ?? "", {
         action: "newsletter",
         ip: meta.ip,

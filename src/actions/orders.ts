@@ -19,10 +19,12 @@ import {
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import { shouldEnforcePow } from "@/lib/pow";
 import { verifyPayloadAndConsume } from "@/lib/pow-store";
 import { rateLimit } from "@/lib/rate-limit";
 import { requestMeta } from "@/lib/request";
 import { getCommerce, getSetting, getSettingBool } from "@/lib/settings";
+import { withDbRetry } from "@/lib/db-retry";
 import { orderConfirmationHtml, sendEmail } from "@/lib/email";
 import { formatINR, generateOrderNumber, round2, shippingFor } from "@/lib/utils";
 import type { ActionState } from "./auth";
@@ -96,7 +98,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   // Abuse protection: per-user throttle + single-use proof-of-work verification
   const rl = await rateLimit({ key: `order:${user.id}`, limit: 6, windowSeconds: 300 });
   if (!rl.ok) return { error: `Too many order attempts. Please try again in ${rl.retryAfterSeconds}s.` };
-  if ((await getSetting("security.botProtection", "pow")) === "pow") {
+  if (await shouldEnforcePow()) {
     const meta = await requestMeta().catch(() => ({ ip: "unknown", userAgent: "", trustProxy: true }));
     const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
       action: "order",
@@ -361,29 +363,39 @@ export async function cancelOrder(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) return;
   const orderId = String(formData.get("orderId") ?? "");
-  const [order] = await db.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.customerId, user.id))).limit(1);
-  if (!order || !["pending", "confirmed", "processing"].includes(order.status)) return;
-  const updated = await db
-    .update(orders)
-    .set({ status: "cancelled", updatedAt: new Date() })
-    .where(and(eq(orders.id, orderId), eq(orders.customerId, user.id), inArray(orders.status, ["pending", "confirmed", "processing"])))
-    .returning({ id: orders.id, orderNumber: orders.orderNumber, storeId: orders.storeId });
-  if (!updated.length) return; // already cancelled by concurrent request — skip restock
-  const done = updated[0];
-  await restock(orderId);
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "order.cancel", target: done.orderNumber });
-  const [store] = await db.select({ ownerId: stores.ownerId }).from(stores).where(eq(stores.id, done.storeId!)).limit(1);
-  if (store?.ownerId)
-    await db.insert(notifications).values({
-      userId: store.ownerId,
-      type: "order_cancelled",
-      title: `Order ${done.orderNumber} cancelled`,
-      body: "The customer cancelled this order.",
-      data: { orderId },
-    });
-  revalidatePath("/orders");
-  revalidatePath(`/orders/${orderId}`);
-  revalidatePath("/seller/orders");
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    await withDbRetry(
+      async () => {
+        const [order] = await db.select().from(orders).where(and(eq(orders.id, orderId), eq(orders.customerId, user.id))).limit(1);
+        if (!order || !["pending", "confirmed", "processing"].includes(order.status)) return;
+        const updated = await db
+          .update(orders)
+          .set({ status: "cancelled", updatedAt: new Date() })
+          .where(and(eq(orders.id, orderId), eq(orders.customerId, user.id), inArray(orders.status, ["pending", "confirmed", "processing"])))
+          .returning({ id: orders.id, orderNumber: orders.orderNumber, storeId: orders.storeId });
+        if (!updated.length) return; // already cancelled by concurrent request — skip restock
+        const done = updated[0];
+        await restock(orderId);
+        await recordAudit({ actorId: user.id, actorEmail: user.email, action: "order.cancel", target: done.orderNumber });
+        const [store] = await db.select({ ownerId: stores.ownerId }).from(stores).where(eq(stores.id, done.storeId!)).limit(1);
+        if (store?.ownerId)
+          await db.insert(notifications).values({
+            userId: store.ownerId,
+            type: "order_cancelled",
+            title: `Order ${done.orderNumber} cancelled`,
+            body: "The customer cancelled this order.",
+            data: { orderId },
+          });
+      },
+      { label: "cancelOrder", requestId }
+    );
+    revalidatePath("/orders");
+    revalidatePath(`/orders/${orderId}`);
+    revalidatePath("/seller/orders");
+  } catch (err) {
+    console.error(`[cancelOrder] [${requestId}] DB operation failed:`, err);
+  }
 }
 
 export async function requestReturn(formData: FormData) {
@@ -447,7 +459,7 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
   if (!rl.ok) return { error: "You have submitted several reviews already. Please try again later." };
 
   // Single-use proof-of-work (lenient: store outages log and pass to avoid blocking genuine reviewers).
-  if ((await getSetting("security.botProtection", "pow")) === "pow") {
+  if (await shouldEnforcePow()) {
     const meta = await requestMeta().catch(() => ({ ip: "unknown", userAgent: "", trustProxy: true }));
     const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
       action: "review",
@@ -457,59 +469,70 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     if (!verdict.ok) return { error: verdict.error ?? "Security check failed." };
   }
 
-  const [product] = await db.select({ slug: products.slug, storeId: products.storeId }).from(products).where(eq(products.id, productId)).limit(1);
-  if (!product) return { error: "Product not found." };
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    const [product] = await db.select({ slug: products.slug, storeId: products.storeId }).from(products).where(eq(products.id, productId)).limit(1);
+    if (!product) return { error: "Product not found." };
 
-  const existing = await db
-    .select({ id: reviews.id })
-    .from(reviews)
-    .where(and(eq(reviews.productId, productId), eq(reviews.userId, user.id)))
-    .limit(1);
-  if (existing.length) return { error: "You have already reviewed this product." };
+    const existing = await db
+      .select({ id: reviews.id })
+      .from(reviews)
+      .where(and(eq(reviews.productId, productId), eq(reviews.userId, user.id)))
+      .limit(1);
+    if (existing.length) return { error: "You have already reviewed this product." };
 
-  // Verified purchase: a delivered order by this user containing the product
-  const delivered = await db
-    .select({ id: orders.id })
-    .from(orders)
-    .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
-    .where(and(eq(orders.customerId, user.id), eq(orderItems.productId, productId), inArray(orders.status, ["delivered", "returned"])))
-    .limit(1);
+    // Verified purchase: a delivered order by this user containing the product
+    const delivered = await db
+      .select({ id: orders.id })
+      .from(orders)
+      .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
+      .where(and(eq(orders.customerId, user.id), eq(orderItems.productId, productId), inArray(orders.status, ["delivered", "returned"])))
+      .limit(1);
 
-  let parsedImages: string[] = [];
-  if (images) {
-    try {
-      const decoded = JSON.parse(images);
-      if (Array.isArray(decoded)) {
-        parsedImages = decoded.filter((img): img is string => typeof img === "string" && img.startsWith("http")).slice(0, 4);
+    let parsedImages: string[] = [];
+    if (images) {
+      try {
+        const decoded = JSON.parse(images);
+        if (Array.isArray(decoded)) {
+          parsedImages = decoded.filter((img): img is string => typeof img === "string" && img.startsWith("http")).slice(0, 4);
+        }
+      } catch {
+        // ignore malformed images safely
       }
-    } catch {
-      // ignore malformed images safely
     }
+
+    await withDbRetry(
+      async () => {
+        await db.insert(reviews).values({
+          productId,
+          userId: user.id,
+          orderId: delivered[0]?.id ?? null,
+          rating,
+          title: title ?? null,
+          body,
+          images: parsedImages,
+          isVerified: delivered.length > 0,
+        });
+
+        await db.execute(sql`
+          UPDATE products SET
+            rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}),
+            total_reviews = (SELECT COUNT(*) FROM reviews WHERE product_id = ${productId})
+          WHERE id = ${productId}`);
+        if (product.storeId) {
+          await db.execute(sql`
+            UPDATE stores SET rating = COALESCE((SELECT ROUND(AVG(rating)::numeric, 2) FROM products WHERE store_id = ${product.storeId} AND total_reviews > 0), 0)
+            WHERE id = ${product.storeId}`);
+        }
+      },
+      { label: "submitReview", requestId }
+    );
+
+    await recordAudit({ actorId: user.id, actorEmail: user.email, action: "review.create", target: productId, detail: `${rating}★` });
+    revalidatePath(`/products/${product.slug}`);
+    return { success: "Thank you! Your review has been published." };
+  } catch (err) {
+    console.error(`[submitReview] [${requestId}] DB operation failed:`, err);
+    return { error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" };
   }
-
-  await db.insert(reviews).values({
-    productId,
-    userId: user.id,
-    orderId: delivered[0]?.id ?? null,
-    rating,
-    title: title ?? null,
-    body,
-    images: parsedImages,
-    isVerified: delivered.length > 0,
-  });
-
-  await db.execute(sql`
-    UPDATE products SET
-      rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}),
-      total_reviews = (SELECT COUNT(*) FROM reviews WHERE product_id = ${productId})
-    WHERE id = ${productId}`);
-  if (product.storeId) {
-    await db.execute(sql`
-      UPDATE stores SET rating = COALESCE((SELECT ROUND(AVG(rating)::numeric, 2) FROM products WHERE store_id = ${product.storeId} AND total_reviews > 0), 0)
-      WHERE id = ${product.storeId}`);
-  }
-
-  await recordAudit({ actorId: user.id, actorEmail: user.email, action: "review.create", target: productId, detail: `${rating}★` });
-  revalidatePath(`/products/${product.slug}`);
-  return { success: "Thank you! Your review has been published." };
 }
