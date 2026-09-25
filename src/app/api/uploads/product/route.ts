@@ -5,7 +5,7 @@ import { stores } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { isAllowedImageUrl, persistUpload } from "@/lib/uploads";
 import { recordAudit } from "@/lib/audit";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
   if (!user || (user.role !== "seller" && user.role !== "admin")) {
     return NextResponse.json({ error: "Only sellers can upload product images" }, { status: 401 });
   }
-  const limit = await rateLimit({ key: `product-upload:${user.id}`, limit: 30, windowSeconds: 600 });
-  if (!limit.ok) return NextResponse.json({ error: "Upload limit reached. Please try again shortly." }, { status: 429 });
+  const limit = await rateLimit({ key: `product-upload:${user.id}`, limit: 30, windowSeconds: 600, failClosed: true });
+  if (!limit.ok) return rateLimitResponse(limit, undefined, "Upload limit reached. Please try again shortly.");
 
   let [store] = await db.select().from(stores).where(eq(stores.ownerId, user.id)).limit(1);
   if (!store) {
@@ -51,7 +51,9 @@ export async function POST(req: NextRequest) {
       const result = await persistUpload({ bucket: `products/${store.id}`, data: body.data, mime: body.mime });
       url = result.url;
     } catch (err) {
-      return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed" }, { status: 400 });
+      const reqId = crypto.randomUUID();
+      console.error(`[Upload:Product] [${reqId}] Failed:`, err);
+      return NextResponse.json({ error: "Upload failed. Please check file format and try again." }, { status: 400, headers: { "X-Request-Id": reqId } });
     }
   } else if (body.url && /^https?:\/\//i.test(body.url)) {
     const candidate = body.url.slice(0, 600);

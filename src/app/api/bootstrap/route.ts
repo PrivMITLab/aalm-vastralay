@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { initCleanBaseData, wipeDemoData } from "@/db/init";
-import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +19,7 @@ async function handleBootstrap(req: Request) {
   const ip = clientIp(req.headers);
   const rateCheck = memoryRateLimit(`bootstrap:${ip}`, 5, 60);
   if (!rateCheck.ok) {
-    return NextResponse.json(
-      { error: "Too many bootstrap attempts. Please retry later." },
-      { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds) } }
-    );
+    return rateLimitResponse(rateCheck, undefined, "Too many bootstrap attempts. Please retry later.");
   }
 
   const url = new URL(req.url);
@@ -95,7 +92,6 @@ async function handleBootstrap(req: Request) {
     report.tables = rows.rows?.[0];
   } catch (err) {
     console.error("[Bootstrap] Table query error:", err);
-    report.tablesError = "Database table introspection encountered an error.";
   }
 
   report.timestamp = new Date().toISOString();
@@ -110,9 +106,12 @@ export async function POST(req: Request) {
 }
 
 /**
- * GET /api/bootstrap – Backwards-compatible bootstrap.
+ * GET /api/bootstrap – Explicitly rejected with 405.
  */
-export async function GET(req: Request) {
-  return handleBootstrap(req);
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Bootstrap requires POST with authorization token." },
+    { status: 405, headers: { Allow: "POST" } }
+  );
 }
 

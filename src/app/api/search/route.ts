@@ -3,32 +3,32 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { products, stores } from "@/db/schema";
 import { resolveImage } from "@/lib/media-resolver";
-import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Full Search API
  * GET /api/search?q=...&limit=24
+ * Rate limited to 120/min, max query length 60, escapes SQL wildcards.
  */
 export async function GET(req: NextRequest) {
   const ip = clientIp(req.headers);
-  const rate = memoryRateLimit(`search:${ip}`, 60, 60);
+  const rate = memoryRateLimit(`search:${ip}`, 120, 60);
   if (!rate.ok) {
-    return NextResponse.json(
-      { error: "Too many search queries. Please slow down." },
-      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
-    );
+    return rateLimitResponse(rate, undefined, "Too many search queries. Please slow down.");
   }
 
   const { searchParams } = req.nextUrl;
-  const q = (searchParams.get("q") ?? "").trim();
+  const rawQ = (searchParams.get("q") ?? "").trim();
+  const q = rawQ.slice(0, 60);
   const limit = Math.min(60, Math.max(1, Number(searchParams.get("limit")) || 24));
 
   if (!q) {
     return NextResponse.json({ query: "", count: 0, products: [] });
   }
 
+  const escapedQ = q.replace(/[%_\\]/g, "\\$&");
 
   try {
     const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
@@ -36,8 +36,8 @@ export async function GET(req: NextRequest) {
     conditions.push(
       or(
         sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
-        ilike(products.title, `%${q}%`),
-        ilike(products.description, `%${q}%`),
+        ilike(products.title, `%${escapedQ}%`),
+        ilike(products.description, `%${escapedQ}%`),
         sql`${q.toLowerCase()} = ANY(${products.tags})`
       )!
     );

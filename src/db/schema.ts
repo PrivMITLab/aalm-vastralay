@@ -35,6 +35,7 @@ export const users = pgTable(
     passwordHash: text("password_hash"),
     resetOtp: text("reset_otp"),
     resetOtpExpiresAt: timestamp("reset_otp_expires_at", { withTimezone: true }),
+    isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },

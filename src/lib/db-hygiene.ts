@@ -30,12 +30,7 @@ export async function autoPruneOldData() {
     );
     report.prunedNotifications = resNotif.rowCount ?? 0;
 
-    // 4. Audit logs older than 180 days
-    const resAudit = await db.execute(
-      sql`DELETE FROM audit_logs WHERE created_at < NOW() - INTERVAL '180 days'`
-    );
-    report.prunedAuditLogs = resAudit.rowCount ?? 0;
-
+    // Note: audit_logs, orders, users, and transactions are NEVER pruned (zero data loss policy)
     return { ok: true, ...report };
   } catch (err) {
     console.error("[db-hygiene] Pruning error (non-fatal):", err);

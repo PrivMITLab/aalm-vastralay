@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createChallenge } from "@/lib/pow";
 import { getSetting, getSettingNumber } from "@/lib/settings";
-import { rateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
  * Self-hosted: no captcha vendor, no API key, no tracking, works fully offline.
  */
 export async function GET(req: Request) {
-  const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
-  const limit = await rateLimit({ key: `challenge:${ip}`, limit: 40, windowSeconds: 60 });
+  const ip = clientIp(req.headers);
+  const limit = memoryRateLimit(`challenge:${ip}`, 40, 60);
   if (!limit.ok) {
-    return NextResponse.json({ error: "Too many challenge requests." }, { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } });
+    return rateLimitResponse(limit, undefined, "Too many challenge requests.");
   }
 
   const mode = await getSetting("security.botProtection", "pow");

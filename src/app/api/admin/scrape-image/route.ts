@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { canonicalizeImageUrl, resolveImage } from "@/lib/image-resolver";
-import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,7 @@ async function handleScrape(req: NextRequest) {
   const ip = clientIp(req.headers);
   const rate = memoryRateLimit(`scrape:${ip}`, 30, 60);
   if (!rate.ok) {
-    return NextResponse.json({ ok: false, error: "Rate limit exceeded. Please wait." }, { status: 429 });
+    return rateLimitResponse(rate, undefined, "Rate limit exceeded. Please wait.");
   }
 
   let targetUrl = "";

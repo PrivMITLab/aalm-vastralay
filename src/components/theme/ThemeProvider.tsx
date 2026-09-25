@@ -13,6 +13,25 @@ export type Prefs = {
 
 export const DEFAULT_PREFS: Prefs = { mode: "light", scale: 1, motion: true, density: "comfortable" };
 
+/**
+ * Clamps text scale to 0.9–1.25 and guards NaN/undefined from
+ * corrupted localStorage, preventing the "NaN% text size" display bug.
+ */
+export function sanitizeScale(raw: unknown): number {
+  const n = typeof raw === "string" ? Number(raw) : (raw as number);
+  if (typeof n !== "number" || Number.isNaN(n) || !Number.isFinite(n)) return 1;
+  return Math.min(1.25, Math.max(0.9, Math.round(n * 100) / 100));
+}
+
+function sanitizePrefs(parsed: Partial<Prefs>): Partial<Prefs> {
+  const clean: Partial<Prefs> = {};
+  if (parsed.mode === "light" || parsed.mode === "dark" || parsed.mode === "system") clean.mode = parsed.mode;
+  if (parsed.scale !== undefined) clean.scale = sanitizeScale(parsed.scale);
+  if (typeof parsed.motion === "boolean") clean.motion = parsed.motion;
+  if (parsed.density === "comfortable" || parsed.density === "compact") clean.density = parsed.density;
+  return clean;
+}
+
 type Ctx = {
   prefs: Prefs;
   setPrefs: (patch: Partial<Prefs>) => void;
@@ -49,7 +68,7 @@ export function ThemeProvider({ children, initial }: { children: React.ReactNode
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<Prefs>;
         queueMicrotask(() => {
-          setPrefsState((prev) => ({ ...prev, ...parsed }));
+          setPrefsState((prev) => ({ ...prev, ...sanitizePrefs(parsed) }));
         });
       }
     } catch {
@@ -86,7 +105,9 @@ export function ThemeProvider({ children, initial }: { children: React.ReactNode
 
   const setPrefs = useCallback((patch: Partial<Prefs>) => {
     setPrefsState((prev) => {
-      const next = { ...prev, ...patch };
+      const sanitized = { ...patch };
+      if (sanitized.scale !== undefined) sanitized.scale = sanitizeScale(sanitized.scale);
+      const next = { ...prev, ...sanitized };
       try {
         window.localStorage.setItem(COOKIE, JSON.stringify(next));
       } catch {

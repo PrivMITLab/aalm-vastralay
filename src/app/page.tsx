@@ -57,10 +57,11 @@ export default async function HomePage() {
         <img
           src={resolveImage(banner.url || "/brand/poster.png")}
           alt="Aalm Vastralay Couture Showroom"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-45 mix-blend-luminosity transform scale-105 transition-transform duration-1000 ease-out"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full scale-105 object-cover object-top opacity-60 brightness-90 contrast-105 transition-transform duration-1000 ease-out"
         />
         {/* Multi-layered luxury gradient overlay for flawless readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/10" />
         <div className="absolute inset-0 bg-radial from-transparent via-transparent to-black/70" />
 
         <div

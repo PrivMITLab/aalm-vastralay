@@ -11,12 +11,33 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 26 Enterprise test suites in `tests/` passing in ~0.39s (`npm test`).
+- **Automated Tests:** 27 Enterprise test suites in `tests/` passing in ~0.39s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 
-## 3. High-Value Indian Commerce & Zero-Loss Security Features
+## 3. Production Server-Side Security Hardening (All 26 API Routes)
+1. **Rate-Limit Bypass & Anti-Spoof Defense (`src/lib/rate-limit.ts`, `src/lib/request.ts`):**
+   - Strict IPv4 and IPv6 format regex validation (`isValidIp`). Malformed and spoofed IPs are trapped into an `"unknown"` bucket with strict limits.
+   - Verified proxy header priority: `cf-connecting-ip` (when behind CF or `TRUST_PROXY === "1"`), `x-vercel-forwarded-for` / `x-real-ip`, leftmost validated IP of `x-forwarded-for`.
+   - Fail-Closed Defense: Sensitive routes (auth, OTP, uploads, admin) fail-closed (`ok: false`) if the database rate-limit check throws, blocking brute-force attacks during database degradation.
+   - RFC-Compliant 429 Responses: Standard response helper `rateLimitResponse` returns `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-Request-Id`.
+2. **Zero-Information Leakage Guarantee:**
+   - 100% elimination of `err.message`, `err.stack`, `tablesError`, and secret environment variable names from client responses across all 26 endpoints.
+   - Standardized generic user-facing error messages paired with detailed server-side `console.error` tagged with unique `X-Request-Id` (`crypto.randomUUID()`).
+   - `/api/diagnostic`: Restricted to admin role (`requireRole(["admin"])`) and stripped of `hasDbUrl` and `nodeEnv` exposures.
+   - `/api/health`: Stripped to `{ ok: true/false }` with standard 429 headers and zero internal error traces.
+   - `/api/bootstrap`: Enforced POST-only (GET returns 405 Method Not Allowed), timingSafeEqual verification, and complete elimination of `tablesError`.
+3. **Edge Middleware & Anti-Bypass Protection (`src/middleware.ts`):**
+   - Static-Asset Bypass Prevention: Protected routes (`/admin`, `/seller`, `/account`, `/checkout`, `/api/admin`) are guaranteed to never be bypassed by static extension trickery (e.g. `/admin/users.png`).
+   - Session Token Verification: Validates 3-part structure, UUIDv4 user ID, signature format, and non-expired timestamp at the edge prior to downstream execution.
+   - API 401 JSON Response: Direct API calls without valid authentication receive `{ success: false, error: "Unauthorized access" }` (401) instead of HTML redirects.
+4. **Upload, Webhook & Database Hygiene:**
+   - Path Traversal & MIME Hardening: `validateUploadMetadata()` strictly rejects directory traversal (`..`, `/`, `\`), enforces MIME allowlist, and caps uploads to 5MB.
+   - Webhook Freshness & Soft Delete: `/api/webhooks/clerk` validates Svix signatures, enforces timestamp freshness (≤ 5 minutes), parses payloads safely with Zod, and performs soft deletion (`is_active = false`) to guarantee zero data loss.
+   - Database Optimization: Full-text search index `idx_products_fts` added to DDL; immutable audit logs preserved permanently from deletion.
+
+## 4. High-Value Indian Commerce & Zero-Loss Security Features
 1. **Admin 1-Click Marketing Broadcast Center & Luxury Email Engine:**
    - Dedicated marketing dashboard at `/admin/marketing` supporting 1-click campaign presets for Diwali, Eid, Chhath, Wedding Season, Coupon Blasts, and Stock Alerts.
    - Multi-channel delivery across Email, In-App Notifications, and Web Push.

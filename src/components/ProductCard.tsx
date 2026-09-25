@@ -88,7 +88,7 @@ export default function ProductCard({
           </p>
         )}
 
-        <h3 className="line-clamp-2 text-xs sm:text-sm font-medium leading-snug text-slate-900 transition-colors group-hover:text-maroon-700 dark:text-stone-100 dark:group-hover:text-rose-400">
+        <h3 className="line-clamp-2 min-h-[2.5em] text-xs sm:text-sm font-medium capitalize leading-snug text-slate-900 transition-colors group-hover:text-maroon-700 dark:text-stone-100 dark:group-hover:text-rose-400">
           {product.title}
         </h3>
 

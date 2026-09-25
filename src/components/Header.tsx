@@ -53,18 +53,18 @@ export default async function Header() {
 
   return (
     <header className="no-print sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:var(--surface)]/95 shadow-sm backdrop-blur">
-      <div className="marquee-wrap overflow-hidden bg-[color:var(--brand)] py-1.5 text-[color:var(--brand-fg)]">
+      <div className="marquee-wrap group overflow-hidden bg-gradient-to-r from-[#7a1f2b] via-[#9a2a45] to-[#7a1f2b] py-1.5">
         {announcements.length > 0 ? (
           <div className="marquee-track" style={{ "--marquee-duration": `${brand.announcementSpeed}s` } as React.CSSProperties}>
             {marqueeItems.map((a, i) => (
-              <span key={`${a}-${i}`} className="text-[11px] tracking-wide sm:text-xs">
+              <span key={`${a}-${i}`} title={a} className="max-w-[80vw] truncate text-[12px] font-medium tracking-wide text-[#f4e2a3] sm:text-[13px]">
                 {a}
-                <span className="mx-6 text-[color:var(--accent)]">◆</span>
+                <span className="mx-6 text-[#D4AF37]">◆</span>
               </span>
             ))}
           </div>
         ) : (
-          <p className="text-center text-[11px] sm:text-xs">{trustLine.join(" · ")}</p>
+          <p className="truncate px-4 text-center text-[12px] font-medium tracking-wide text-[#f4e2a3] sm:text-[13px]">{trustLine.join(" · ")}</p>
         )}
       </div>
 

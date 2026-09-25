@@ -32,7 +32,7 @@ export async function Watermark({ variant = "card" }: { variant?: "card" | "gall
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute right-1.5 bottom-1.5 z-10 flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold text-white/95 backdrop-blur-sm"
+      className="pointer-events-none absolute right-1.5 bottom-1.5 z-10 flex max-w-[60%] items-center gap-1 truncate rounded-full bg-black/40 px-2 py-0.5 text-[9px] font-semibold text-white/95 backdrop-blur-sm"
       style={{ opacity: Math.max(0.7, opacity + 0.4) }}
     >
       <svg viewBox="0 0 64 64" className="h-3 w-3" aria-hidden>

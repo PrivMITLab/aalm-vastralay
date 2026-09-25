@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/db";
 
 /**
@@ -15,9 +16,63 @@ export type RateLimitResult = {
   resetAt: Date;
 };
 
-type Bucket = { key: string; limit: number; windowSeconds: number };
+type Bucket = { key: string; limit: number; windowSeconds: number; failClosed?: boolean };
 
-export async function rateLimit({ key, limit, windowSeconds }: Bucket): Promise<RateLimitResult> {
+/**
+ * Strict IPv4 and IPv6 format validator.
+ * Rejects invalid, malformed, or injected strings.
+ */
+export function isValidIp(ip: string): boolean {
+  if (!ip || typeof ip !== "string") return false;
+  const trimmed = ip.trim();
+  if (trimmed.length === 0 || trimmed.length > 45) return false;
+
+  // IPv4 check: 4 octets, 0-255 each
+  const ipv4Regex = /^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$/;
+  if (ipv4Regex.test(trimmed)) return true;
+
+  // IPv6 check: standard hex groups and compressed :: notation
+  const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+  return ipv6Regex.test(trimmed);
+}
+
+/**
+ * Safely resolves caller IP address.
+ * Validates against strict IPv4/IPv6 regex.
+ * Routes invalid/spoofed IPs to "unknown" bucket.
+ */
+export function clientIp(headers: Headers, trustProxy = true): string {
+  const trustEnv = process.env.TRUST_PROXY === "1" || process.env.TRUST_PROXY === "true" || trustProxy;
+
+  if (trustEnv) {
+    // 1. Cloudflare connecting IP
+    const cf = headers.get("cf-connecting-ip")?.trim();
+    if (cf && isValidIp(cf)) return cf;
+
+    // 2. Vercel real IP / Forwarded IP
+    const vercel = headers.get("x-vercel-forwarded-for")?.trim() || headers.get("x-real-ip")?.trim();
+    if (vercel && isValidIp(vercel)) return vercel;
+
+    // 3. Leftmost valid IP from x-forwarded-for
+    const xff = headers.get("x-forwarded-for");
+    if (xff) {
+      const candidates = xff.split(",").map((s) => s.trim());
+      for (const candidate of candidates) {
+        if (isValidIp(candidate)) {
+          return candidate;
+        }
+      }
+    }
+  }
+
+  // 4. Direct socket / fallback header
+  const client = headers.get("x-client-ip")?.trim();
+  if (client && isValidIp(client)) return client;
+
+  return "unknown";
+}
+
+export async function rateLimit({ key, limit, windowSeconds, failClosed }: Bucket): Promise<RateLimitResult> {
   const now = Date.now();
   try {
     const rows = await db.execute<{ count: number; window_start: Date }>(sql`
@@ -46,27 +101,60 @@ export async function rateLimit({ key, limit, windowSeconds }: Bucket): Promise<
       retryAfterSeconds: Math.max(1, Math.ceil((resetAt.getTime() - now) / 1000)),
       resetAt,
     };
-  } catch {
-    // Never block traffic because the limiter itself failed.
-    return { ok: true, limit, remaining: limit, retryAfterSeconds: 0, resetAt: new Date(now) };
+  } catch (err) {
+    console.error(`[RateLimit] DB rate limit check failed for key "${key}":`, err);
+    if (failClosed) {
+      // Sensitive routes fail closed to prevent brute-force attacks during database saturation
+      return {
+        ok: false,
+        limit,
+        remaining: 0,
+        retryAfterSeconds: 60,
+        resetAt: new Date(now + 60000),
+      };
+    }
+    // Public routes fallback to memory rate limiting
+    const mem = memoryRateLimit(key, limit, windowSeconds);
+    return {
+      ok: mem.ok,
+      limit,
+      remaining: mem.remaining,
+      retryAfterSeconds: mem.retryAfterSeconds,
+      resetAt: new Date(now + (mem.retryAfterSeconds || windowSeconds) * 1000),
+    };
   }
-}
-
-/** Best-effort client IP, trusting Cloudflare / proxy headers when enabled. */
-export function clientIp(headers: Headers, trustProxy = true) {
-  if (trustProxy) {
-    const cf = headers.get("cf-connecting-ip");
-    if (cf) return cf.trim();
-    const xff = headers.get("x-forwarded-for");
-    if (xff) return xff.split(",")[0]!.trim();
-    const real = headers.get("x-real-ip");
-    if (real) return real.trim();
-  }
-  return headers.get("x-client-ip")?.trim() ?? "0.0.0.0";
 }
 
 export function describeLimit(result: RateLimitResult) {
   return `Too many requests. Please try again in ${result.retryAfterSeconds} seconds.`;
+}
+
+/** Returns standard 429 response with RFC-compliant headers */
+export function rateLimitResponse(
+  result: { retryAfterSeconds?: number; limit?: number; remaining?: number },
+  requestId?: string,
+  message?: string
+): NextResponse {
+  const reqId = requestId ?? crypto.randomUUID();
+  const retrySec = String(result.retryAfterSeconds ?? 60);
+  const limit = String(result.limit ?? 0);
+  const remaining = String(result.remaining ?? 0);
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: message ?? `Too many requests. Please try again in ${retrySec} seconds.`,
+    },
+    {
+      status: 429,
+      headers: {
+        "Retry-After": retrySec,
+        "X-RateLimit-Limit": limit,
+        "X-RateLimit-Remaining": remaining,
+        "X-Request-Id": reqId,
+      },
+    }
+  );
 }
 
 /** Convenience wrapper returning a friendly error string when the limit is exceeded. */
@@ -108,14 +196,14 @@ export function memoryRateLimit(
   key: string,
   limit: number,
   windowSeconds: number
-): { ok: boolean; remaining: number; retryAfterSeconds: number } {
+): { ok: boolean; remaining: number; retryAfterSeconds: number; limit: number } {
   pruneMemoryLimitStore();
   const now = Date.now();
   const existing = memoryLimitStore.get(key);
 
   if (!existing || existing.resetAt <= now) {
     memoryLimitStore.set(key, { count: 1, resetAt: now + windowSeconds * 1000 });
-    return { ok: true, remaining: limit - 1, retryAfterSeconds: 0 };
+    return { ok: true, remaining: limit - 1, retryAfterSeconds: 0, limit };
   }
 
   existing.count += 1;
@@ -123,9 +211,9 @@ export function memoryRateLimit(
   const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
 
   if (existing.count > limit) {
-    return { ok: false, remaining: 0, retryAfterSeconds };
+    return { ok: false, remaining: 0, retryAfterSeconds, limit };
   }
 
-  return { ok: true, remaining, retryAfterSeconds: 0 };
+  return { ok: true, remaining, retryAfterSeconds: 0, limit };
 }
 

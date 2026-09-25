@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { products, stores } from "@/db/schema";
 import { resolveThumbnail } from "@/lib/media-resolver";
 import { getSettingNumber } from "@/lib/settings";
-import { rateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,10 @@ export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 60);
   if (q.length < 2) return NextResponse.json({ products: [] });
 
-  const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+  const ip = clientIp(req.headers);
   const limitPerMin = (await getSettingNumber("security.apiRateLimit", 120)) * 2;
-  const limit = await rateLimit({ key: `suggest:${ip}`, limit: Math.max(30, limitPerMin), windowSeconds: 60 });
-  if (!limit.ok) return NextResponse.json({ products: [] }, { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } });
+  const limit = memoryRateLimit(`suggest:${ip}`, Math.max(30, limitPerMin), 60);
+  if (!limit.ok) return rateLimitResponse(limit, undefined, "Too many suggestions requested.");
 
   const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
   const escaped = q.replace(/[%_\\]/g, "\\$&");

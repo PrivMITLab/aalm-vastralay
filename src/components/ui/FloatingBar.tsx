@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { HelpCircle, MessageCircle, Moon, Settings2, Sun, Type, Zap } from "lucide-react";
-import { useTheme } from "@/components/theme/ThemeProvider";
+import { useTheme, sanitizeScale } from "@/components/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 /** Floating helper bar: theme switch, personalisation, WhatsApp support, back-to-top. */
@@ -105,7 +105,7 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
 
             <Section title="Text size" icon={<Type className="h-4 w-4" />}>
               <div className="flex items-center gap-3">
-                <button type="button" className="chip" onClick={() => setPrefs({ scale: Math.max(0.9, Number((prefs.scale - 0.05).toFixed(2))) })} aria-label="Smaller text">
+                <button type="button" className="chip min-h-[44px] min-w-[44px] justify-center" onClick={() => setPrefs({ scale: sanitizeScale(prefs.scale - 0.05) })} aria-label="Smaller text">
                   A−
                 </button>
                 <input
@@ -113,16 +113,16 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
                   min={0.9}
                   max={1.25}
                   step={0.05}
-                  value={prefs.scale}
-                  onChange={(e) => setPrefs({ scale: Number(e.target.value) })}
-                  className="h-1.5 flex-1 accent-[color:var(--brand)]"
+                  value={sanitizeScale(prefs.scale)}
+                  onChange={(e) => setPrefs({ scale: sanitizeScale(e.target.value) })}
+                  className="h-1.5 flex-1 accent-[#D4AF37]"
                   aria-label="Text size"
                 />
-                <button type="button" className="chip" onClick={() => setPrefs({ scale: Math.min(1.25, Number((prefs.scale + 0.05).toFixed(2))) })} aria-label="Larger text">
+                <button type="button" className="chip min-h-[44px] min-w-[44px] justify-center" onClick={() => setPrefs({ scale: sanitizeScale(prefs.scale + 0.05) })} aria-label="Larger text">
                   A+
                 </button>
               </div>
-              <p className="text-xs text-[color:var(--text-soft)]">{Math.round(prefs.scale * 100)}% text size</p>
+              <p className="text-xs text-[color:var(--text-soft)]">{Math.round(sanitizeScale(prefs.scale) * 100)}% text size</p>
             </Section>
 
             <Section title="Layout density">
@@ -136,10 +136,34 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
             </Section>
 
             <Section title="Motion" icon={<Zap className="h-4 w-4" />}>
-              <label className="flex items-center justify-between text-sm">
-                Animations & transitions
-                <input type="checkbox" checked={prefs.motion} onChange={(e) => setPrefs({ motion: e.target.checked })} className="h-4 w-4 accent-[color:var(--brand)]" />
-              </label>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs.motion}
+                aria-label="Animations and transitions"
+                onClick={() => setPrefs({ motion: !prefs.motion })}
+                className={cn(
+                  "flex w-full min-h-[44px] items-center justify-between rounded-xl border px-3 text-sm transition-colors",
+                  prefs.motion
+                    ? "border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[color:var(--text)]"
+                    : "border-[color:var(--border)] text-[color:var(--text-muted)]",
+                )}
+              >
+                <span>Animations & transitions</span>
+                <span
+                  className={cn(
+                    "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+                    prefs.motion ? "bg-[#D4AF37]" : "bg-[color:var(--border-strong)]",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+                      prefs.motion ? "left-[22px]" : "left-0.5",
+                    )}
+                  />
+                </span>
+              </button>
             </Section>
 
             <Section title="Need help?" icon={<HelpCircle className="h-4 w-4" />}>

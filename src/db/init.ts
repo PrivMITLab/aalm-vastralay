@@ -21,6 +21,7 @@ const TABLE_DDL_STATEMENTS = [
     "password_hash" text,
     "reset_otp" text,
     "reset_otp_expires_at" timestamp with time zone,
+    "is_active" boolean DEFAULT true NOT NULL,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "users_role_check" CHECK ("role" IN ('customer','seller','admin'))
@@ -249,6 +250,7 @@ const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_products_category_active" ON "products" ("category_id", "is_active")`,
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product" ON "reviews" ("product_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product_verified" ON "reviews" ("product_id", "is_verified")`,
+  `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')))`,
 ];
 
 /**
@@ -274,10 +276,11 @@ export async function autoEnsureTables() {
     }
   }
 
-  // Safe zero-loss migration for password reset OTP and UPI UTR fields
+  // Safe zero-loss migration for password reset OTP, users is_active, and UPI UTR fields
   try {
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "is_active" boolean DEFAULT true NOT NULL;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`));

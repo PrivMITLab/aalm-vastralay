@@ -405,16 +405,16 @@ export default function HeaderNav({
 
       {/* Desktop Category Navigation Strip */}
       <div className="hidden border-t border-[color:var(--border)] md:block">
-        <div className="flex items-center gap-1 overflow-x-auto py-1.5 text-sm scrollbar-none">
+        <div className="no-scrollbar flex snap-x items-center gap-1 overflow-x-auto py-1.5 text-[13px]">
           <Link
             href="/products"
-            className="shrink-0 rounded-full px-3 py-1 font-semibold text-[color:var(--brand)] hover:bg-[color:var(--surface-2)]"
+            className="shrink-0 snap-start min-h-[44px] inline-flex items-center rounded-full px-3 py-1 font-semibold text-[color:var(--brand)] underline decoration-[#D4AF37] decoration-2 underline-offset-4 hover:bg-[color:var(--surface-2)]"
           >
             All Products
           </Link>
           {groups.map((c) => (
-            <details key={c.slug} className="group relative">
-              <summary className="shrink-0 cursor-pointer list-none rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
+            <details key={c.slug} className="group relative shrink-0 snap-start">
+              <summary className="shrink-0 cursor-pointer list-none rounded-full px-3 py-1 min-h-[44px] inline-flex items-center font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)]">
                 {c.name}
               </summary>
               {c.children.length > 0 && (

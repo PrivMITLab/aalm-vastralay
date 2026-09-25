@@ -5,18 +5,19 @@ import { stores } from "@/db/schema";
 import { persistUpload, isAllowedImageUrl } from "@/lib/uploads";
 import { getCurrentUser } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 /** Persist a store logo or banner. Only the store owner can upload. */
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Sign in first" }, { status: 401 });
-  const limit = await rateLimit({ key: `logo:${user.id}`, limit: 8, windowSeconds: 600 });
-  if (!limit.ok) return NextResponse.json({ error: "Too many uploads. Please wait." }, { status: 429 });
+  if (!user || (user.role !== "seller" && user.role !== "admin")) {
+    return NextResponse.json({ success: false, error: "Unauthorized: Seller or Admin access required." }, { status: 401 });
+  }
+  const limit = await rateLimit({ key: `logo:${user.id}`, limit: 8, windowSeconds: 600, failClosed: true });
+  if (!limit.ok) return rateLimitResponse(limit, undefined, "Too many uploads. Please wait.");
 
-  const url = new URL(req.url);
   const body = (await req.json().catch(() => null)) as { data?: string; mime?: string; url?: string; kind?: "logo" | "banner" } | null;
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
 
@@ -29,7 +30,9 @@ export async function POST(req: NextRequest) {
       const result = await persistUpload({ bucket: `stores/${store.id}`, data: body.data, mime: body.mime });
       savedUrl = result.url;
     } catch (err) {
-      return NextResponse.json({ error: err instanceof Error ? err.message : "Could not save photo." }, { status: 400 });
+      const reqId = crypto.randomUUID();
+      console.error(`[Upload:Logo] [${reqId}] Error:`, err);
+      return NextResponse.json({ error: "Could not save photo. Please try again." }, { status: 400, headers: { "X-Request-Id": reqId } });
     }
   } else if (body.url && /^https?:\/\//i.test(body.url)) {
     const candidate = body.url.slice(0, 600);

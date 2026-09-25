@@ -43,7 +43,12 @@ async function gate(formData: FormData, bucket: string, limitKey = "security.for
   if (honeypotFilled(formData)) return { ok: false as const, error: "Submission rejected.", meta: { ip: "0.0.0.0", userAgent: "", trustProxy: true } };
   const meta = await requestMeta();
   const limit = await getSettingNumber(limitKey, 8);
-  const rl = await rateLimit({ key: `${bucket}:${meta.ip}`, limit, windowSeconds: bucket.startsWith("auth") ? 600 : 60 });
+  const rl = await rateLimit({
+    key: `${bucket}:${meta.ip}`,
+    limit,
+    windowSeconds: bucket.startsWith("auth") ? 600 : 60,
+    failClosed: true,
+  });
   if (!rl.ok) return { ok: false as const, error: `Too many attempts. Please try again in ${rl.retryAfterSeconds} seconds.`, meta };
 
   const botProtection = (await getSetting("security.botProtection", "pow")) === "pow";

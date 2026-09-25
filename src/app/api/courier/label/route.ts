@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+import { getCurrentUser } from "@/lib/auth";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 function escapeHtml(str: string): string {
   return str
@@ -11,13 +12,15 @@ function escapeHtml(str: string): string {
 }
 
 export async function GET(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user || (user.role !== "seller" && user.role !== "admin")) {
+    return NextResponse.json({ success: false, error: "Unauthorized: Seller or Admin access required." }, { status: 401 });
+  }
+
   const ip = clientIp(req.headers);
   const rate = memoryRateLimit(`label:${ip}`, 30, 60);
   if (!rate.ok) {
-    return new NextResponse("Rate limit exceeded. Try again in a minute.", {
-      status: 429,
-      headers: { "Retry-After": String(rate.retryAfterSeconds) },
-    });
+    return rateLimitResponse(rate);
   }
 
   const { searchParams } = new URL(req.url);
@@ -126,6 +129,9 @@ export async function GET(req: NextRequest) {
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:; script-src 'unsafe-inline';",
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

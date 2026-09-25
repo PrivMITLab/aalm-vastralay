@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { getCurrentUser } from "@/lib/auth/cached";
 import { isValidPushSubscription } from "@/lib/push";
-import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const pushSchema = z.object({
   endpoint: z.string().url().max(2000),
@@ -16,13 +16,13 @@ const pushSchema = z.object({
 
 /**
  * POST /api/notifications/push-subscribe — real production subscription store.
- * Rate-limited, zod-validated, persists to push_subscriptions table (auto-migrated).
+ * Rate-limited 10/min, zod-validated, persists to push_subscriptions table.
  */
 export async function POST(req: NextRequest) {
   const ip = clientIp(req.headers);
   const rate = memoryRateLimit(`push-sub:${ip}`, 10, 60);
   if (!rate.ok) {
-    return NextResponse.json({ success: false, error: "Too many requests" }, { status: 429 });
+    return rateLimitResponse(rate, undefined, "Too many subscription requests. Please try again later.");
   }
   try {
     const user = await getCurrentUser();

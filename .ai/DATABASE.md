@@ -63,3 +63,16 @@ Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean 
   - `settings` (Banners, UPI, Phone, Theme, Colors)
   - `audit_logs` (Security & admin audit trail)
   - `users WHERE role = 'admin'` (Super Admin account)
+
+---
+
+## 4. Recent Zero-Loss Additive Migrations
+1. `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "is_active" boolean DEFAULT true NOT NULL;` (Webhook soft-delete support)
+2. `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`
+3. `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`
+4. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`
+5. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`
+6. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`
+7. `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')));` (Full-text search)
+8. `CREATE TABLE IF NOT EXISTS "push_subscriptions" (...);`
+

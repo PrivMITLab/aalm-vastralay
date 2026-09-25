@@ -24,6 +24,7 @@ import { testGstInvoice } from "./gst-invoice.test";
 import { testMaskingAndHardening } from "./unit/masking-and-hardening.test";
 import { testFormLockDefense } from "./unit/form-lock.test";
 import { testMarketingAndTemplates } from "./unit/marketing.test";
+import { testSecurityHardening } from "./unit/security-hardening.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -59,6 +60,7 @@ async function runAllTests() {
     { name: "PII Masking, Zero-Cost Rate Limiting & XSS Defense", fn: testMaskingAndHardening },
     { name: "Button Double-Click Chaos Defense & Re-entry Guard", fn: testFormLockDefense },
     { name: "Marketing Broadcasts & Luxury Email Template Engine", fn: testMarketingAndTemplates },
+    { name: "Server-Side Hardening & Anti-Spoof Defense", fn: testSecurityHardening },
   ];
 
   for (const suite of suites) {

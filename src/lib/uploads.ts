@@ -34,20 +34,67 @@ export function isAllowedImageUrl(raw: string): boolean {
   }
 }
 
+export const ALLOWED_UPLOAD_MIMES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/svg+xml",
+  "image/gif",
+]);
+
+/**
+ * Single authoritative upload metadata validator.
+ * Enforces MIME allowlist, 5MB cap, and strict path traversal protection.
+ */
+export function validateUploadMetadata(
+  filename: string,
+  contentType: string,
+  sizeBytes: number,
+  folder: "products" | "brand" | "avatars" = "products"
+): { isValid: boolean; error?: string; key?: string } {
+  if (!filename || typeof filename !== "string") {
+    return { isValid: false, error: "Filename is required." };
+  }
+
+  // Prevent path traversal attempts
+  if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    return { isValid: false, error: "Invalid filename: path traversal not allowed." };
+  }
+
+  const cleanMime = contentType.toLowerCase().trim();
+  if (!ALLOWED_UPLOAD_MIMES.has(cleanMime)) {
+    return {
+      isValid: false,
+      error: `Unsupported file type: ${contentType}. Allowed types: JPEG, PNG, WebP, AVIF, SVG, GIF.`,
+    };
+  }
+
+  if (sizeBytes <= 0) {
+    return { isValid: false, error: "File cannot be empty." };
+  }
+
+  if (sizeBytes > MAX_UPLOAD_BYTES) {
+    return {
+      isValid: false,
+      error: "File size exceeds 5MB limit.",
+    };
+  }
+
+  const ext = extFromMime(cleanMime) || ".webp";
+  const randomSuffix = Math.random().toString(36).slice(2, 10);
+  const safeFolder = ["products", "brand", "avatars"].includes(folder) ? folder : "products";
+  const key = `${safeFolder}/${Date.now()}-${randomSuffix}${ext}`;
+
+  return { isValid: true, key };
+}
+
 export async function persistUpload(input: {
   bucket: string;
   data: string;
   mime: string;
 }): Promise<UploadResult> {
-  const ALLOWED = new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/avif",
-    "image/svg+xml",
-  ]);
-
-  if (!ALLOWED.has(input.mime))
+  if (!ALLOWED_UPLOAD_MIMES.has(input.mime))
     throw new Error(`Unsupported file type ${input.mime}`);
 
   if (!input.data.startsWith("data:"))

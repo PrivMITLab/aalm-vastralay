@@ -3,25 +3,35 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { categories, products, stores } from "@/db/schema";
 import { resolveImage } from "@/lib/media-resolver";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 /** Public JSON search API – GET /api/products?q=lehenga&category=women&limit=12 */
 export async function GET(req: NextRequest) {
+  const ip = clientIp(req.headers);
+  const rate = memoryRateLimit(`products-api:${ip}`, 120, 60);
+  if (!rate.ok) {
+    return rateLimitResponse(rate);
+  }
+
   const { searchParams } = req.nextUrl;
-  const q = (searchParams.get("q") ?? "").trim();
+  const rawQ = (searchParams.get("q") ?? "").trim();
+  const q = rawQ.slice(0, 60);
+  const escapedQ = q.replace(/[%_\\]/g, "\\$&");
   const category = searchParams.get("category");
   const limit = Math.min(48, Math.max(1, Number(searchParams.get("limit")) || 12));
 
-  const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
-  if (q) {
-    conditions.push(
-      or(
-        sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
-        ilike(products.title, `%${q}%`),
-      )!,
-    );
-  }
+  try {
+    const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
+    if (q) {
+      conditions.push(
+        or(
+          sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
+          ilike(products.title, `%${escapedQ}%`),
+        )!,
+      );
+    }
   if (category) {
     const cats = await db.select({ id: categories.id, parentId: categories.parentId, slug: categories.slug }).from(categories);
     const root = cats.find((c) => c.slug === category);
@@ -53,11 +63,16 @@ export async function GET(req: NextRequest) {
     .orderBy(desc(products.isFeatured), desc(products.totalReviews))
     .limit(limit);
 
-  return NextResponse.json(
-    {
-      count: rows.length,
-      products: rows.map((r) => ({ ...r, image: resolveImage(r.images[0], { width: 600 }), url: `/products/${r.slug}` })),
-    },
-    { headers: { "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600" } },
-  );
+    return NextResponse.json(
+      {
+        count: rows.length,
+        products: rows.map((r) => ({ ...r, image: resolveImage(r.images[0], { width: 600 }), url: `/products/${r.slug}` })),
+      },
+      { headers: { "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600" } },
+    );
+  } catch (err) {
+    const reqId = crypto.randomUUID();
+    console.error(`[api/products] [${reqId}] Error:`, err);
+    return NextResponse.json({ success: false, error: "Failed to fetch products" }, { status: 500, headers: { "X-Request-Id": reqId } });
+  }
 }

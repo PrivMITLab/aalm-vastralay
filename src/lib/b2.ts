@@ -28,6 +28,7 @@ export interface PresignResult {
 
 /**
  * Validates upload metadata against strict safety rules before generating presigned URLs.
+ * Rejects path traversal and disallowed MIME types.
  */
 export function validateUploadMetadata(
   filename: string,
@@ -37,6 +38,11 @@ export function validateUploadMetadata(
 ): { isValid: boolean; error?: string; key?: string } {
   if (!filename || typeof filename !== "string") {
     return { isValid: false, error: "Filename is required." };
+  }
+
+  // Prevent path traversal
+  if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    return { isValid: false, error: "Invalid filename: path traversal not allowed." };
   }
 
   const cleanMime = contentType.toLowerCase().trim();
@@ -60,7 +66,8 @@ export function validateUploadMetadata(
   // Sanitize filename and extract extension
   const ext = filename.split(".").pop()?.toLowerCase() || (isVideo ? "mp4" : "webp");
   const randomSuffix = Math.random().toString(36).slice(2, 10);
-  const key = `${folder}/${Date.now()}-${randomSuffix}.${ext}`;
+  const safeFolder = ["products", "brand", "avatars"].includes(folder) ? folder : "products";
+  const key = `${safeFolder}/${Date.now()}-${randomSuffix}.${ext}`;
 
   return { isValid: true, key };
 }

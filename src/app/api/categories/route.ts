@@ -1,7 +1,8 @@
 import { asc, eq, sql } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
+import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,13 @@ export const dynamic = "force-dynamic";
  * Public JSON Categories API
  * GET /api/categories
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const ip = clientIp(req.headers);
+  const rate = memoryRateLimit(`categories:${ip}`, 120, 60);
+  if (!rate.ok) {
+    return rateLimitResponse(rate);
+  }
+
   try {
     const allCats = await db
       .select()
