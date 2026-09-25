@@ -208,40 +208,40 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <span className="mx-1.5">/</span>
           </>
         )}
-        <span className="text-slate-800">{product.title}</span>
+        <span className="text-slate-900 dark:text-stone-100 font-medium">{product.title}</span>
       </nav>
 
-      {!product.isActive && <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-800">This product is currently hidden from customers (inactive). Only you can see this preview.</p>}
+      {!product.isActive && <p className="mb-4 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">This product is currently hidden from customers (inactive). Only you can see this preview.</p>}
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <div className="relative">
-            <ImageGallery images={images} title={product.title} video={video} />
-            <Watermark variant="gallery" />
-          </div>
+        <div className="relative rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/60 p-2 shadow-xs dark:shadow-stone-950/60">
+          <ImageGallery images={images} title={product.title} video={video} />
+          <Watermark variant="gallery" />
+        </div>
 
         <div>
-          <Link href={`/stores/${store.slug}`} className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-maroon-700 hover:underline">
+          <Link href={`/stores/${store.slug}`} className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-maroon-700 dark:text-gold-400 hover:text-maroon-900 dark:hover:text-gold-300 hover:underline">
             {store.storeName} <BadgeCheck className="h-3.5 w-3.5" />
           </Link>
-          <h1 className="mt-1 font-display text-2xl font-semibold leading-snug text-slate-900 md:text-3xl">{product.title}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold leading-snug text-slate-900 dark:text-stone-50 md:text-3xl">{product.title}</h1>
           <div className="mt-2">
             <RatingPill value={product.rating} count={product.totalReviews} />
           </div>
 
           <div className="mt-4 flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-bold text-maroon-900">{formatINR(product.price)}</span>
+            <span className="text-3xl font-extrabold text-maroon-900 dark:text-rose-300">{formatINR(product.price)}</span>
             {mrp > product.price && (
               <>
-                <span className="text-lg text-slate-400 line-through">{formatINR(mrp)}</span>
-                <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-sm font-bold text-emerald-700">{discount}% off</span>
+                <span className="text-lg text-slate-400 dark:text-stone-500 line-through">{formatINR(mrp)}</span>
+                <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-sm font-bold text-emerald-700 dark:text-emerald-300">{discount}% off</span>
               </>
             )}
           </div>
-          <p className="mt-1 text-xs text-slate-500">Inclusive of all taxes · {product.price >= freeShippingThreshold() ? "Free delivery" : `${formatINR(49)} delivery, free above ${formatINR(freeShippingThreshold())}`}</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-stone-400 font-medium">Inclusive of all taxes · {product.price >= freeShippingThreshold() ? "Free delivery" : `${formatINR(49)} delivery, free above ${formatINR(freeShippingThreshold())}`}</p>
 
           <div id="purchase-panel" className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[color:var(--text-muted)]">Select Size & Variant</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-stone-300">Select Size & Variant</span>
               <SizeGuideModal categoryName={category?.name} />
             </div>
             <PurchasePanel
@@ -267,7 +267,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <PincodeEstimator />
           </div>
 
-          <ul className="mt-6 grid grid-cols-2 gap-3 text-xs text-slate-700 sm:grid-cols-4">
+          <ul className="mt-6 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
             {[
               [Wallet, "Cash on Delivery"],
               [RotateCcw, "7-day easy returns"],
@@ -276,16 +276,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             ].map(([Icon, label]) => {
               const I = Icon as typeof Wallet;
               return (
-                <li key={label as string} className="flex flex-col items-center gap-1 rounded-xl border border-cream-200 bg-white p-3 text-center">
-                  <I className="h-5 w-5 text-maroon-700" /> {label as string}
+                <li key={label as string} className="flex flex-col items-center gap-1.5 rounded-xl border border-cream-200 dark:border-stone-700 bg-white dark:bg-stone-800/90 p-3 text-center shadow-xs transition-colors">
+                  <I className="h-5 w-5 text-maroon-700 dark:text-gold-400" />
+                  <span className="font-medium text-slate-800 dark:text-stone-200">{label as string}</span>
                 </li>
               );
             })}
           </ul>
 
           <div className="mt-8">
-            <h2 className="font-display text-lg font-semibold text-maroon-900">Product details</h2>
-            <div className="prose-desc mt-2 text-sm leading-relaxed text-slate-700">
+            <h2 className="font-display text-lg font-bold text-maroon-900 dark:text-stone-100">Product details</h2>
+            <div className="prose-desc mt-2 text-sm leading-relaxed text-slate-700 dark:text-stone-300">
               {(product.description ?? "No description provided.").split(/\n{2,}/).map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
@@ -293,28 +294,28 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {product.sku && (
                 <>
-                  <dt className="text-slate-500">SKU</dt>
-                  <dd className="font-medium">{product.sku}</dd>
+                  <dt className="text-slate-600 dark:text-stone-400">SKU</dt>
+                  <dd className="font-semibold text-slate-900 dark:text-stone-100">{product.sku}</dd>
                 </>
               )}
               {category && (
                 <>
-                  <dt className="text-slate-500">Category</dt>
-                  <dd className="font-medium">{category.name}</dd>
+                  <dt className="text-slate-600 dark:text-stone-400">Category</dt>
+                  <dd className="font-semibold text-slate-900 dark:text-stone-100">{category.name}</dd>
                 </>
               )}
               {commerce.showWeight && product.shippingWeightGrams > 0 && (
                 <>
-                  <dt className="text-slate-500">Shipping weight</dt>
-                  <dd className="font-medium">{formatWeight(product.shippingWeightGrams)}</dd>
+                  <dt className="text-slate-600 dark:text-stone-400">Shipping weight</dt>
+                  <dd className="font-semibold text-slate-900 dark:text-stone-100">{formatWeight(product.shippingWeightGrams)}</dd>
                 </>
               )}
-              <dt className="text-slate-500">Returns</dt>
-              <dd className="font-medium">{commerce.returnWindowDays}-day easy return window</dd>
-              <dt className="text-slate-500">Sold by</dt>
-              <dd className="font-medium">
+              <dt className="text-slate-600 dark:text-stone-400">Returns</dt>
+              <dd className="font-semibold text-slate-900 dark:text-stone-100">{commerce.returnWindowDays}-day easy return window</dd>
+              <dt className="text-slate-600 dark:text-stone-400">Sold by</dt>
+              <dd className="font-semibold text-slate-900 dark:text-stone-100">
                 {store.storeName}
-                <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-slate-500">
+                <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-slate-500 dark:text-stone-400">
                   <MapPin className="h-3 w-3" />
                   {store.city}
                 </span>

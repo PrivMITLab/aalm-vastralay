@@ -35,7 +35,7 @@ export default function SizeGuideModal({ categoryName }: { categoryName?: string
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--brand)] hover:underline"
+        className="inline-flex items-center gap-1.5 text-xs font-bold text-maroon-700 dark:text-gold-400 hover:text-maroon-900 dark:hover:text-gold-300 hover:underline transition-colors"
       >
         <Ruler className="h-3.5 w-3.5" />
         Size Guide & Measurements

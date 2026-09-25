@@ -11,21 +11,21 @@ export function Rating({ value, count, size = "sm", showValue = true }: { value:
           <Star key={i} className={cn(px, i <= Math.round(v) ? "fill-gold-500 text-gold-500" : "fill-slate-200 text-slate-200")} />
         ))}
       </span>
-      {showValue && v > 0 && <span className={cn("font-semibold text-slate-700", size === "md" ? "text-sm" : "text-xs")}>{v.toFixed(1)}</span>}
-      {count !== undefined && <span className={cn("text-slate-500", size === "md" ? "text-sm" : "text-xs")}>({count})</span>}
+      {showValue && v > 0 && <span className={cn("font-semibold text-slate-800 dark:text-stone-100", size === "md" ? "text-sm" : "text-xs")}>{v.toFixed(1)}</span>}
+      {count !== undefined && <span className={cn("text-slate-600 dark:text-stone-400", size === "md" ? "text-sm" : "text-xs")}>({count})</span>}
     </span>
   );
 }
 
 export function RatingPill({ value, count }: { value: number | null | undefined; count?: number }) {
   const v = Number(value ?? 0);
-  if (!v) return <span className="text-xs text-slate-400">No reviews yet</span>;
+  if (!v) return <span className="text-xs text-slate-500 dark:text-stone-400">No reviews yet</span>;
   return (
-    <span className="inline-flex items-center gap-1 text-xs">
-      <span className="inline-flex items-center gap-0.5 rounded bg-emerald-600 px-1.5 py-0.5 font-bold text-white">
+    <span className="inline-flex items-center gap-1.5 text-xs">
+      <span className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-1.5 py-0.5 font-bold text-white shadow-2xs">
         {v.toFixed(1)} <Star className="h-3 w-3 fill-white" />
       </span>
-      {count !== undefined && <span className="text-slate-500">({count})</span>}
+      {count !== undefined && <span className="text-slate-600 dark:text-stone-400 font-medium">({count})</span>}
     </span>
   );
 }

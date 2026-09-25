@@ -115,9 +115,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const isDark = prefs.mode === "dark";
 
   const cssVars = {
-    "--brand": isDark ? theme.primaryLight : theme.primary,
-    "--brand-hover": isDark ? theme.primaryLight : theme.primary,
-    "--accent": isDark ? theme.accentLight : theme.accent,
+    "--theme-primary": theme.primary || "#7a1f2b",
+    "--theme-primary-dark": theme.primaryLight || "#fb7185",
+    "--theme-accent": theme.accent || "#D4AF37",
+    "--theme-accent-dark": theme.accentLight || "#FBBF24",
     "--radius": theme.radius,
     "--font-display-stack": theme.fontDisplay,
   } as React.CSSProperties;

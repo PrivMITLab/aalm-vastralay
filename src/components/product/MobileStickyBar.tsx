@@ -31,14 +31,14 @@ export default function MobileStickyBar({ title, price, mrp, slug }: MobileStick
         {/* Price & Discount */}
         <div className="min-w-0">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold text-[color:var(--brand)]">{formatINR(price)}</span>
+            <span className="text-base font-extrabold text-maroon-900 dark:text-rose-300">{formatINR(price)}</span>
             {discount > 0 && (
-              <span className="rounded bg-emerald-50 px-1 py-0.2 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+              <span className="rounded bg-emerald-50 px-1 py-0.2 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                 {discount}% OFF
               </span>
             )}
           </div>
-          <p className="line-clamp-1 text-[10px] text-[color:var(--text-muted)]">COD Available · Free Delivery</p>
+          <p className="line-clamp-1 text-[10px] text-slate-600 dark:text-stone-400 font-medium">COD Available · Free Delivery</p>
         </div>
 
         {/* Action buttons */}

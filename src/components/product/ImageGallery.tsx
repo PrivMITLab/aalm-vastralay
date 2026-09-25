@@ -26,7 +26,12 @@ export default function ImageGallery({
               type="button"
               onMouseEnter={() => setActive(i)}
               onClick={() => setActive(i)}
-              className={cn("h-20 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-cream-100", active === i ? "border-maroon-700" : "border-transparent")}
+              className={cn(
+                "h-20 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-150 active:scale-95 shadow-2xs",
+                active === i
+                  ? "border-maroon-700 dark:border-gold-400 ring-2 ring-maroon-700/25 dark:ring-gold-400/40"
+                  : "border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 hover:border-maroon-400 dark:hover:border-gold-400/50",
+              )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt={`${title} ${i + 1}`} className="h-full w-full object-cover" />
@@ -37,8 +42,8 @@ export default function ImageGallery({
               type="button"
               onClick={() => setActive(images.length)}
               className={cn(
-                "grid h-20 w-16 shrink-0 place-items-center rounded-lg border-2 bg-maroon-900 text-white",
-                showVideo ? "border-gold-500" : "border-transparent",
+                "grid h-20 w-16 shrink-0 place-items-center rounded-xl border-2 bg-maroon-900 text-white transition-all active:scale-95 shadow-2xs",
+                showVideo ? "border-gold-400 ring-2 ring-gold-400/40" : "border-stone-700 hover:border-gold-400/60",
               )}
               aria-label="Play video"
             >
@@ -48,7 +53,7 @@ export default function ImageGallery({
         </div>
       )}
 
-      <div className="relative aspect-[3/4] flex-1 overflow-hidden rounded-2xl border border-cream-200 bg-cream-100">
+      <div className="relative aspect-[3/4] flex-1 overflow-hidden rounded-2xl border border-cream-200 dark:border-stone-700/80 bg-cream-50 dark:bg-stone-900/80 shadow-xs">
         {showVideo ? (
           video.type === "youtube" ? (
             <iframe src={video.url} title={`${title} video`} className="h-full w-full" allow="autoplay; encrypted-media" allowFullScreen />

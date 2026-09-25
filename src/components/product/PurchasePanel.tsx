@@ -92,15 +92,15 @@ export default function PurchasePanel({
   return (
     <div className="space-y-5">
       {selected && selected.priceAdjustment !== 0 && (
-        <p className="text-sm text-slate-600">
-          Price for this option: <span className="font-semibold text-maroon-900">{formatINR(effectivePrice)}</span>
+        <p className="text-sm text-slate-700 dark:text-stone-300">
+          Price for this option: <span className="font-bold text-maroon-900 dark:text-rose-300">{formatINR(effectivePrice)}</span>
         </p>
       )}
 
       {sizes.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-semibold text-slate-800">
-            Select Size {size && <span className="font-normal text-slate-500">· {size}</span>}
+          <p className="mb-2 text-sm font-bold text-slate-900 dark:text-stone-100">
+            Select Size {size && <span className="font-medium text-slate-600 dark:text-gold-400">· {size}</span>}
           </p>
           <div className="flex flex-wrap gap-2">
             {sizes.map((s) => {
@@ -111,8 +111,10 @@ export default function PurchasePanel({
                   type="button"
                   onClick={() => setSize(s)}
                   className={cn(
-                    "min-w-11 rounded-full border px-3 py-1.5 text-sm transition",
-                    size === s ? "border-maroon-700 bg-maroon-700 text-white" : "border-cream-300 bg-white hover:border-maroon-400",
+                    "min-w-11 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition active:scale-95 shadow-2xs",
+                    size === s
+                      ? "border-maroon-800 bg-maroon-700 text-white shadow-sm ring-2 ring-maroon-700/25 dark:border-gold-400 dark:bg-maroon-700 dark:text-white dark:ring-2 dark:ring-gold-400/40"
+                      : "border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 hover:border-maroon-600 dark:hover:border-gold-400 hover:bg-stone-50 dark:hover:bg-stone-700",
                     !ok && "opacity-40 line-through",
                   )}
                 >
@@ -126,8 +128,8 @@ export default function PurchasePanel({
 
       {colors.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-semibold text-slate-800">
-            Select Colour {color && <span className="font-normal text-slate-500">· {color}</span>}
+          <p className="mb-2 text-sm font-bold text-slate-900 dark:text-stone-100">
+            Select Colour {color && <span className="font-medium text-slate-600 dark:text-gold-400">· {color}</span>}
           </p>
           <div className="flex flex-wrap gap-2">
             {colors.map((c) => {
@@ -138,8 +140,10 @@ export default function PurchasePanel({
                   type="button"
                   onClick={() => setColor(c)}
                   className={cn(
-                    "rounded-full border px-3 py-1.5 text-sm transition",
-                    color === c ? "border-maroon-700 bg-maroon-700 text-white" : "border-cream-300 bg-white hover:border-maroon-400",
+                    "rounded-full border px-3.5 py-1.5 text-sm font-semibold transition active:scale-95 shadow-2xs",
+                    color === c
+                      ? "border-maroon-800 bg-maroon-700 text-white shadow-sm ring-2 ring-maroon-700/25 dark:border-gold-400 dark:bg-maroon-700 dark:text-white dark:ring-2 dark:ring-gold-400/40"
+                      : "border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 hover:border-maroon-600 dark:hover:border-gold-400 hover:bg-stone-50 dark:hover:bg-stone-700",
                     !ok && "opacity-40 line-through",
                   )}
                 >
@@ -151,31 +155,63 @@ export default function PurchasePanel({
         </div>
       )}
 
-      <div className="flex items-center gap-4">
-        <div className="inline-flex items-center rounded-full border border-cream-300 bg-white">
-          <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2 text-slate-600 hover:text-maroon-700" aria-label="Decrease">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex items-center rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 shadow-xs">
+          <button
+            type="button"
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            className="p-2 text-stone-700 dark:text-stone-200 hover:text-maroon-700 dark:hover:text-gold-300 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-l-full transition-colors"
+            aria-label="Decrease"
+          >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="w-8 text-center text-sm font-semibold">{qty}</span>
+          <span className="w-8 text-center text-sm font-bold text-stone-900 dark:text-stone-50">{qty}</span>
           <button
             type="button"
             onClick={() => setQty((q) => Math.min(10, Math.max(1, Math.min(available || 10, q + 1))))}
-            className="p-2 text-slate-600 hover:text-maroon-700"
+            className="p-2 text-stone-700 dark:text-stone-200 hover:text-maroon-700 dark:hover:text-gold-300 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-r-full transition-colors"
             aria-label="Increase"
           >
             <Plus className="h-4 w-4" />
           </button>
         </div>
-        <p className={cn("text-xs font-medium", available > 0 ? (available <= 5 ? "text-amber-700" : "text-emerald-700") : "text-rose-700")}>
-          {needsSelection ? "Select options to see availability" : available > 0 ? (available <= 5 ? `Hurry! Only ${available} left` : "In stock") : "Out of stock"}
-        </p>
+        <span
+          className={cn(
+            "text-xs font-semibold px-3 py-1 rounded-full border inline-flex items-center gap-1.5 shadow-2xs",
+            needsSelection
+              ? "border-amber-300/80 bg-amber-50 text-amber-800 dark:border-amber-700/70 dark:bg-amber-950/50 dark:text-amber-300"
+              : available > 0
+                ? available <= 5
+                  ? "border-amber-300/80 bg-amber-50 text-amber-800 dark:border-amber-700/70 dark:bg-amber-950/50 dark:text-amber-300 font-bold"
+                  : "border-emerald-300/80 bg-emerald-50 text-emerald-800 dark:border-emerald-700/70 dark:bg-emerald-950/50 dark:text-emerald-300"
+                : "border-rose-300/80 bg-rose-50 text-rose-800 dark:border-rose-700/70 dark:bg-rose-950/50 dark:text-rose-300",
+          )}
+        >
+          {needsSelection
+            ? "⚠️ Select size/options for availability"
+            : available > 0
+              ? available <= 5
+                ? `⚡ Hurry! Only ${available} left in stock`
+                : "✓ In stock · Ready for dispatch"
+              : "✕ Currently out of stock"}
+        </span>
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => run("cart")} disabled={pending} className="btn btn-outline flex-1 sm:flex-none sm:px-8">
+        <button
+          type="button"
+          onClick={() => run("cart")}
+          disabled={pending}
+          className="btn flex-1 sm:flex-none sm:px-8 border-2 border-maroon-700 dark:border-gold-400 text-maroon-800 dark:text-gold-200 bg-white dark:bg-stone-900 hover:bg-maroon-50 dark:hover:bg-gold-500/10 active:scale-95 font-bold shadow-xs transition-all"
+        >
           {busy === "cart" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingBag className="h-4 w-4" />} Add to Bag
         </button>
-        <button type="button" onClick={() => run("buy")} disabled={pending} className="btn btn-primary flex-1 sm:flex-none sm:px-8">
+        <button
+          type="button"
+          onClick={() => run("buy")}
+          disabled={pending}
+          className="btn flex-1 sm:flex-none sm:px-8 bg-gradient-to-r from-maroon-700 via-maroon-800 to-rose-900 dark:from-maroon-600 dark:via-rose-700 dark:to-amber-600 text-white border border-transparent dark:border-gold-400/40 hover:brightness-110 active:scale-95 font-bold shadow-md hover:shadow-lg transition-all"
+        >
           {busy === "buy" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />} Buy Now
         </button>
         <button
@@ -183,9 +219,14 @@ export default function PurchasePanel({
           onClick={wish}
           disabled={pending}
           aria-label="Wishlist"
-          className={cn("grid h-11 w-11 place-items-center rounded-full border transition", wishlisted ? "border-maroon-700 bg-maroon-50 text-maroon-700" : "border-cream-300 bg-white text-slate-600 hover:text-maroon-700")}
+          className={cn(
+            "grid h-11 w-11 place-items-center rounded-full border transition-all active:scale-95 shadow-xs",
+            wishlisted
+              ? "border-maroon-700 bg-maroon-50 text-maroon-700 dark:border-rose-400 dark:bg-rose-950/60 dark:text-rose-300"
+              : "border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:text-maroon-700 dark:hover:text-gold-300 hover:border-maroon-400",
+          )}
         >
-          {busy === "wish" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={cn("h-5 w-5", wishlisted && "fill-maroon-700")} />}
+          {busy === "wish" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className={cn("h-5 w-5", wishlisted && "fill-maroon-700 dark:fill-rose-400")} />}
         </button>
       </div>
 
