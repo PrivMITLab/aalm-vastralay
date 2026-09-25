@@ -176,11 +176,11 @@ SKIP_SEED="true"
 # ------------------------------------------------------------------------------
 # 6. बैकब्लेज B2 + क्लाउडफ्लेयर वर्कर प्रॉक्सी (प्राइवेट क्लाउड स्टोरेज)
 # ------------------------------------------------------------------------------
-# B2_KEY_ID="005xxxxxxxxxxxx0000000001"
-# B2_APP_KEY="K005xxxxxxxxxxxxxxxxxxxx"
-# B2_BUCKET_NAME="aalm-vastralay-cold-storage"
+# B2_APPLICATION_KEY_ID="005xxxxxxxxxxxx0000000001"
+# B2_APPLICATION_KEY="K005xxxxxxxxxxxxxxxxxxxx"
+# B2_BUCKET_NAME="aalm-vastralay-media"
 # B2_BUCKET_ID="xxxxxxxxxxxxxxxxxxxx"
-# NEXT_PUBLIC_B2_PUBLIC_URL="https://aalm-b2-proxy.alamwastraly.workers.dev"
+# NEXT_PUBLIC_B2_WORKER_URL="https://aalm-b2-proxy.alamwastraly.workers.dev"
 
 # ------------------------------------------------------------------------------
 # 7. ईमेल सेवा: Google Apps Script / QuietMail / Resend (वैकल्पिक)

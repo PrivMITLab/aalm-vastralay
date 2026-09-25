@@ -208,25 +208,33 @@ export default function ClickToSolve({
 
       const c: PowChallenge = data.challenge;
 
-      // Solve via inline Web Worker or fallback to main thread
-      const solutionNumber = await new Promise<number>((resolve, reject) => {
-        try {
-          const blob = new Blob([WORKER_SOURCE], { type: "application/javascript" });
-          const url = URL.createObjectURL(blob);
-          const w = new Worker(url);
-          workerRef.current = w;
+      // Solve via inline Web Worker with reliable fallback to main thread
+      let solutionNumber = -1;
+      try {
+        const blob = new Blob([WORKER_SOURCE], { type: "application/javascript" });
+        const url = URL.createObjectURL(blob);
+        const w = new Worker(url);
+        workerRef.current = w;
 
-          w.onmessage = (ev) => {
+        solutionNumber = await new Promise<number>((resolve) => {
+          const timeout = setTimeout(() => {
             URL.revokeObjectURL(url);
-            if (ev.data?.type === "solved" && typeof ev.data.number === "number") {
+            resolve(-1);
+          }, 15000);
+
+          w.onmessage = (ev: MessageEvent<{ number?: number }>) => {
+            clearTimeout(timeout);
+            URL.revokeObjectURL(url);
+            if (typeof ev.data?.number === "number") {
               resolve(ev.data.number);
             } else {
-              reject(new Error("Worker failed"));
+              resolve(-1);
             }
           };
-          w.onerror = (err) => {
+          w.onerror = () => {
+            clearTimeout(timeout);
             URL.revokeObjectURL(url);
-            reject(err);
+            resolve(-1);
           };
           w.postMessage({
             challenge: c.challenge,
@@ -236,11 +244,18 @@ export default function ClickToSolve({
             zeros: c.zeros,
             iterations: c.iterations,
           });
-        } catch {
-          // Fallback to cooperative main thread
-          solveOnMainThread(c).then(resolve).catch(reject);
-        }
-      });
+        });
+      } catch {
+        solutionNumber = -1;
+      }
+
+      if (solutionNumber < 0) {
+        solutionNumber = await solveOnMainThread(c);
+      }
+
+      if (solutionNumber < 0) {
+        throw new Error("Unable to solve proof-of-work challenge");
+      }
 
       const packed = JSON.stringify({
         challenge: c,
