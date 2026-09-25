@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { updateUserRole } from "@/actions/admin";
 import { formatDate } from "@/lib/utils";
+import { maskEmail, maskPhone } from "@/lib/masking";
 
 export const metadata: Metadata = { title: "User Management – Admin Console" };
 export const dynamic = "force-dynamic";
@@ -122,19 +123,13 @@ export default async function AdminUsersPage({
               </thead>
               <tbody className="divide-y divide-[color:var(--border)]">
                 {userList.map((u) => {
-                  const maskedPhone = u.phone
-                    ? u.phone.length > 4
-                      ? `${"*".repeat(Math.max(0, u.phone.length - 4))}${u.phone.slice(-4)}`
-                      : u.phone
-                    : "—";
-
                   return (
                     <tr key={u.id} className="hover:bg-[color:var(--surface-2)] transition-colors">
                       <td className="px-4 py-3">
                         <div className="font-semibold text-[color:var(--text)]">{u.fullName ?? "Anonymous User"}</div>
-                        <div className="text-xs text-[color:var(--text-soft)]">{u.email}</div>
+                        <div className="text-xs text-[color:var(--text-soft)]">{maskEmail(u.email)}</div>
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-[color:var(--text-soft)]">{maskedPhone}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-[color:var(--text-soft)]">{maskPhone(u.phone)}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${

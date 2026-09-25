@@ -80,3 +80,52 @@ export async function guard(
   if (result.ok) return { ok: true };
   return { ok: false, error: message ?? describeLimit(result) };
 }
+
+/**
+ * In-memory fixed-window rate limiter for high-frequency or public endpoints (e.g. bootstrap, courier, health, search).
+ * Operates at zero financial cost, avoiding Neon connection pooler slots and compute minutes on free tier.
+ */
+interface MemoryWindow {
+  count: number;
+  resetAt: number;
+}
+
+const memoryLimitStore = new Map<string, MemoryWindow>();
+let lastPrune = Date.now();
+
+function pruneMemoryLimitStore() {
+  const now = Date.now();
+  if (now - lastPrune < 300_000) return; // Prune at most every 5 minutes
+  lastPrune = now;
+  for (const [k, v] of memoryLimitStore.entries()) {
+    if (v.resetAt <= now) {
+      memoryLimitStore.delete(k);
+    }
+  }
+}
+
+export function memoryRateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number
+): { ok: boolean; remaining: number; retryAfterSeconds: number } {
+  pruneMemoryLimitStore();
+  const now = Date.now();
+  const existing = memoryLimitStore.get(key);
+
+  if (!existing || existing.resetAt <= now) {
+    memoryLimitStore.set(key, { count: 1, resetAt: now + windowSeconds * 1000 });
+    return { ok: true, remaining: limit - 1, retryAfterSeconds: 0 };
+  }
+
+  existing.count += 1;
+  const remaining = Math.max(0, limit - existing.count);
+  const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+
+  if (existing.count > limit) {
+    return { ok: false, remaining: 0, retryAfterSeconds };
+  }
+
+  return { ok: true, remaining, retryAfterSeconds: 0 };
+}
+

@@ -6,6 +6,8 @@ import { db } from "@/db";
 import { orders, stores, users } from "@/db/schema";
 import { updateAdminOrderStatus } from "@/actions/admin";
 import { formatDate, formatINR } from "@/lib/utils";
+import { maskEmail } from "@/lib/masking";
+import VerifyUpiButton from "@/components/admin/VerifyUpiButton";
 
 export const metadata: Metadata = { title: "Order Management – Admin Console" };
 export const dynamic = "force-dynamic";
@@ -184,14 +186,26 @@ export default async function AdminOrdersPage({
                       <td className="px-4 py-3">
                         <div className="font-mono font-semibold text-[color:var(--brand)]">{order.orderNumber}</div>
                         <div className="flex items-center gap-1.5 text-xs text-[color:var(--text-soft)]">
-                          <span className="uppercase">{order.paymentMethod}</span>
+                          <span className="uppercase font-semibold">{order.paymentMethod}</span>
                           <span>•</span>
-                          <span className="capitalize">{order.paymentStatus}</span>
+                          <span className={`capitalize ${order.paymentStatus === "paid" ? "text-emerald-700 font-semibold" : order.paymentStatus === "pending-verification" ? "text-amber-700 font-semibold" : ""}`}>
+                            {order.paymentStatus === "pending-verification" ? "Pending Verify" : order.paymentStatus}
+                          </span>
                         </div>
+                        {order.upiUtr && (
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                            <span className="font-mono text-[11px] bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.2 rounded font-semibold">
+                              UTR: {order.upiUtr}
+                            </span>
+                            {order.paymentStatus === "pending-verification" && (
+                              <VerifyUpiButton orderId={order.id} orderNumber={order.orderNumber} />
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium text-[color:var(--text)]">{customerName ?? "Customer"}</div>
-                        <div className="text-xs text-[color:var(--text-soft)]">{customerEmail ?? "—"}</div>
+                        <div className="text-xs text-[color:var(--text-soft)]">{maskEmail(customerEmail)}</div>
                       </td>
                       <td className="px-4 py-3 text-xs text-[color:var(--text-soft)]">
                         {storeName ?? "Direct"}

@@ -1,17 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 export async function GET(req: NextRequest) {
+  const ip = clientIp(req.headers);
+  const rate = memoryRateLimit(`label:${ip}`, 30, 60);
+  if (!rate.ok) {
+    return new NextResponse("Rate limit exceeded. Try again in a minute.", {
+      status: 429,
+      headers: { "Retry-After": String(rate.retryAfterSeconds) },
+    });
+  }
+
   const { searchParams } = new URL(req.url);
-  const awb = searchParams.get("awb") || "AWB-SAMPLE";
-  const courier = searchParams.get("courier") || "Delhivery";
-  const order = searchParams.get("order") || "AV-SAMPLE";
-  const pin = searchParams.get("pin") || "848302";
+  const rawAwb = (searchParams.get("awb") || "AWB-SAMPLE").trim();
+  const rawCourier = (searchParams.get("courier") || "Delhivery").trim();
+  const rawOrder = (searchParams.get("order") || "AV-SAMPLE").trim();
+  const rawPin = (searchParams.get("pin") || "848302").trim();
+
+  const awb = escapeHtml(rawAwb);
+  const courier = escapeHtml(rawCourier);
+  const order = escapeHtml(rawOrder);
+  const pin = escapeHtml(rawPin.replace(/[^0-9]/g, "").slice(0, 6) || "848302");
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Shipping Label — ${awb}</title>
+
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 20px; background: #f8fafc; color: #0f172a; }
     .label-box { width: 380px; margin: auto; background: white; border: 2px solid #000; border-radius: 6px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }

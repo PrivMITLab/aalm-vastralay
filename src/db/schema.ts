@@ -136,6 +136,7 @@ export const orders = pgTable(
     trackingNumber: text("tracking_number"),
     courier: text("courier"),
     notes: text("notes"),
+    upiUtr: text("upi_utr"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },

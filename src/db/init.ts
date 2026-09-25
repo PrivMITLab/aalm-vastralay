@@ -104,6 +104,7 @@ const TABLE_DDL_STATEMENTS = [
     "tracking_number" text,
     "courier" text,
     "notes" text,
+    "upi_utr" text,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "orders_status_check" CHECK ("status" IN ('pending','confirmed','processing','shipped','delivered','cancelled','returned')),
@@ -273,12 +274,14 @@ export async function autoEnsureTables() {
     }
   }
 
-  // Safe zero-loss migration for password reset OTP fields
+  // Safe zero-loss migration for password reset OTP and UPI UTR fields
   try {
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
+    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`));
+    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_orders_upi_utr" ON "orders" ("upi_utr");`));
   } catch {
-    // Non-fatal if columns exist
+    // Non-fatal if columns/indexes exist
   }
 }
 

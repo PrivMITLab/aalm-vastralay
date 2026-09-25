@@ -52,10 +52,17 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        // Cache static assets aggressively
+        // Cache static Next.js assets aggressively (1 year)
         source: "/_next/static/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Cache images, brand icons, and static public media assets (7 days)
+        source: "/:path*\\.(svg|jpg|jpeg|png|webp|avif|ico|woff2)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
         ],
       },
     ];

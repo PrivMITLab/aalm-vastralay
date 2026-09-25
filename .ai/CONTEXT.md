@@ -11,20 +11,31 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all 55 routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 23 Enterprise test suites in `tests/` passing in ~0.34s (`npm test`).
+- **Automated Tests:** 24 Enterprise test suites in `tests/` passing in ~0.36s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 
-## 3. High-Value Indian Commerce Features
-1. **Shiprocket & Delhivery Direct Logistics & AWB Generation:**
+## 3. High-Value Indian Commerce & Zero-Loss Security Features
+1. **Zero-Loss UPI Fraud Prevention & Admin 1-Click Verification:**
+   - Orders placed via UPI / Online payment default to `paymentStatus: "pending-verification"`.
+   - Strict 12-digit numeric regex validation (`/^[0-9]{12}$/`) for Indian banking UPI UTR in checkout.
+   - Stored in additive `orders.upi_utr` column with index `idx_orders_upi_utr`.
+   - Admin 1-Click Verify (`verifyUpiPayment`) or Reject button with full audit log trails.
+2. **Zero-Cost PII Data Masking (`src/lib/masking.ts`):**
+   - Automatically sanitizes and masks customer phone numbers (`8434061342` -> `8434****42`) and emails (`ram@gmail.com` -> `r**@gmail.com`) across Admin Users, Admin Orders, and Seller Orders.
+   - Shields customer privacy and defends against shoulder surfing and bulk scrapers.
+3. **Zero-Cost In-Memory Rate Limiting (`src/lib/rate-limit.ts`):**
+   - In-memory fixed-window rate limiter with automatic 5-minute memory sweep.
+   - Defends public endpoints (`/api/bootstrap`, `/api/courier/label`, `/api/health`, `/api/search`) against brute force and DDoS without burning Neon connection slots or compute hours.
+4. **Shiprocket & Delhivery Direct Logistics & AWB Generation:**
    - Multi-carrier auto-routing: Delhivery Express for North/East India (Bihar/UP/Delhi hubs), Shiprocket nationwide.
    - 1-Click AWB generation and printable packing slip with Code128 barcodes (`/api/courier/label`).
-2. **Service Worker Push Notifications for Order Dispatch:**
+5. **Service Worker Push Notifications for Order Dispatch:**
    - Offline-ready `public/sw.js` with deep-link click routing to `/orders/[id]`.
    - Customer opt-in prompt with React 19 `useSyncExternalStore` permission synchronization.
    - Automatic dispatch push and in-app alerts on courier dispatch.
-3. **Dynamic UPI QR Code (Zero Payment Gateway Fee):**
+6. **Dynamic UPI QR Code (Zero Payment Gateway Fee):**
    - Real-time NPCI UPI QR code generator (`upi://pay?pa=8434061342@upi&pn=Aalm+Vastralay&am=...`) with exact order amount.
    - 5-Minute countdown security timer with progress bar and auto-expiration state.
    - 12-Digit Indian banking UTR / UPI Reference Number verification input with Web Audio API celebratory chime.

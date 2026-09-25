@@ -146,7 +146,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 email: brand.email,
                 telephone: brand.phone,
                 address: { "@type": "PostalAddress", streetAddress: brand.address, addressCountry: "IN" },
-              }),
+              }).replace(/</g, "\\u003c"),
             }} />
             {showAnalytics && analyticsSrc && analyticsDomain && (
               <Script defer data-domain={analyticsDomain} src={analyticsSrc} strategy="afterInteractive" />

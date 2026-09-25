@@ -57,7 +57,7 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
   }
 
   const raw = src.trim();
-  const { width = 800, quality = 80, thumbnail = false, version } = opts;
+  const { width = 800, quality = 70, thumbnail = false, version } = opts;
   const targetWidth = thumbnail ? 320 : width;
   const vParam = version ? `&v=${encodeURIComponent(String(version))}` : "";
 

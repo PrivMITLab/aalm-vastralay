@@ -1,27 +1,83 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { initCleanBaseData, wipeDemoData } from "@/db/init";
+import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-/**
- * GET /api/bootstrap – idempotent production bootstrap.
- *
- *   1. Initializes clean categories, settings, and default admin.
- *   2. If ?clean=true is passed, it wipes all demo/fake products, stores, reviews, and test users!
- *   3. Refuses to run unless an explicit `?token=` matches BOOTSTRAP_TOKEN.
- */
-export async function GET(req: Request) {
+/** Constant-time string comparison via SHA-256 digests to prevent timing attacks */
+function timingSafeTokenCompare(provided: string, expected: string): boolean {
+  if (!provided || !expected) return false;
+  const hashProvided = crypto.createHash("sha256").update(provided).digest();
+  const hashExpected = crypto.createHash("sha256").update(expected).digest();
+  return crypto.timingSafeEqual(hashProvided, hashExpected);
+}
+
+async function handleBootstrap(req: Request) {
+  const ip = clientIp(req.headers);
+  const rateCheck = memoryRateLimit(`bootstrap:${ip}`, 5, 60);
+  if (!rateCheck.ok) {
+    return NextResponse.json(
+      { error: "Too many bootstrap attempts. Please retry later." },
+      { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds) } }
+    );
+  }
+
   const url = new URL(req.url);
-  const token = process.env.BOOTSTRAP_TOKEN ?? "";
-  if (!token || url.searchParams.get("token") !== token) {
+  const authHeader = req.headers.get("authorization") || "";
+  const customHeader = req.headers.get("x-bootstrap-token") || "";
+
+  let providedToken = url.searchParams.get("token") || customHeader;
+  if (!providedToken && authHeader.toLowerCase().startsWith("bearer ")) {
+    providedToken = authHeader.slice(7).trim();
+  }
+
+  let bodyClean = false;
+  let bodyWipe = false;
+  let bodyConfirm = false;
+
+  if (req.method === "POST") {
+    try {
+      const contentType = req.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const body = await req.json().catch(() => ({}));
+        if (body && typeof body === "object") {
+          if (!providedToken && typeof body.token === "string") {
+            providedToken = body.token;
+          }
+          bodyClean = Boolean(body.clean);
+          bodyWipe = Boolean(body.wipe);
+          bodyConfirm = body.confirm === "yes" || body.confirm === true;
+        }
+      }
+    } catch {
+      // Non-JSON body or empty body, ignore
+    }
+  }
+
+  const expectedToken = process.env.BOOTSTRAP_TOKEN ?? "";
+  if (!expectedToken || !timingSafeTokenCompare(providedToken, expectedToken)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const shouldWipe = url.searchParams.get("clean") === "true" || url.searchParams.get("wipe") === "true";
+  const queryClean = url.searchParams.get("clean") === "true" || url.searchParams.get("wipe") === "true";
+  const queryConfirm = url.searchParams.get("confirm") === "yes" || url.searchParams.get("confirm") === "true";
+
+  const isWipeRequested = queryClean || bodyClean || bodyWipe;
+  const isConfirmed = queryConfirm || bodyConfirm;
+
   let wipeResult: Record<string, unknown> | null = null;
-  if (shouldWipe) {
+  if (isWipeRequested) {
+    if (!isConfirmed) {
+      return NextResponse.json(
+        {
+          error: "Wipe requested without confirmation. Append confirm=yes or { confirm: 'yes' } to confirm wiping demo data.",
+        },
+        { status: 400 }
+      );
+    }
     wipeResult = await wipeDemoData();
   }
 
@@ -29,7 +85,7 @@ export async function GET(req: Request) {
 
   const report: Record<string, unknown> = {
     ...initResult,
-    wipedDemoData: shouldWipe ? wipeResult : false,
+    wipedDemoData: isWipeRequested ? wipeResult : false,
   };
 
   try {
@@ -38,9 +94,25 @@ export async function GET(req: Request) {
     );
     report.tables = rows.rows?.[0];
   } catch (err) {
-    report.tablesError = err instanceof Error ? err.message : String(err);
+    console.error("[Bootstrap] Table query error:", err);
+    report.tablesError = "Database table introspection encountered an error.";
   }
 
   report.timestamp = new Date().toISOString();
   return NextResponse.json({ ok: true, ...report });
 }
+
+/**
+ * POST /api/bootstrap – Preferred idempotent production bootstrap.
+ */
+export async function POST(req: Request) {
+  return handleBootstrap(req);
+}
+
+/**
+ * GET /api/bootstrap – Backwards-compatible bootstrap.
+ */
+export async function GET(req: Request) {
+  return handleBootstrap(req);
+}
+

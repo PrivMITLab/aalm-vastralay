@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { products, stores } from "@/db/schema";
 import { resolveImage } from "@/lib/media-resolver";
+import { clientIp, memoryRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,15 @@ export const dynamic = "force-dynamic";
  * GET /api/search?q=...&limit=24
  */
 export async function GET(req: NextRequest) {
+  const ip = clientIp(req.headers);
+  const rate = memoryRateLimit(`search:${ip}`, 60, 60);
+  if (!rate.ok) {
+    return NextResponse.json(
+      { error: "Too many search queries. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
+    );
+  }
+
   const { searchParams } = req.nextUrl;
   const q = (searchParams.get("q") ?? "").trim();
   const limit = Math.min(60, Math.max(1, Number(searchParams.get("limit")) || 24));
@@ -18,6 +28,7 @@ export async function GET(req: NextRequest) {
   if (!q) {
     return NextResponse.json({ query: "", count: 0, products: [] });
   }
+
 
   try {
     const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];

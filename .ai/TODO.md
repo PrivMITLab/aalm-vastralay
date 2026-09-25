@@ -37,9 +37,15 @@
 - [x] Real-time order status revalidation on `/seller/orders`.
 - [x] Mobile Bottom Navigation Dynamic Active Highlighting (`MobileTabBarClient.tsx`) with royal/gold active pill & tactile tap scale.
 - [x] Admin & Seller Sidebar Active Route Highlighting (`AdminSidebarNav.tsx`, `SellerSidebarNav.tsx`) with gradient glow & gold pulse dots.
-- [x] Universal tactile click feedback (`globals.css`, `SubmitButton.tsx`, `HeaderNav.tsx`) with active scale, inset shadows, and tap highlight colors.
+- [x] UPI Fraud Prevention: default to pending-verification, additive upi_utr DB column, strict 12-digit UTR validation, and admin 1-click verify/reject.
+- [x] Zero-Cost PII Data Masking: maskPhone (+91 normalization, middle 4 masking) and maskEmail (domain preservation) across Admin & Seller views.
+- [x] Free-Tier Image Optimization & Caching: wsrv.nl default quality=70 WebP conversion and 7-day immutable Cache-Control headers.
+- [x] Public API XSS & Information Leak Hardening: escapeHtml on shipping labels, suppressed stack traces in /api/health, escaped JSON-LD scripts.
+- [x] Zero-Cost In-Memory Rate Limiting: memoryRateLimit protecting /api/bootstrap (5/min, crypto.timingSafeEqual, POST), /api/search, /api/courier/label, /api/health.
+- [x] 24 Automated Enterprise Test Suites in tests/ (npm test passing in ~0.36s).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.
 - [ ] Geolocation auto-detection for Indian postal circles.
+
 

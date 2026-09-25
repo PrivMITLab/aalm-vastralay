@@ -53,6 +53,30 @@
   - Created `src/components/ui/MobileTabBarClient.tsx` featuring `usePathname()` active pill styling (`bg-[color:var(--brand-soft)]/70`), royal/gold color highlight, top indicator bar, and `active:scale-90` tactile tap feedback.
   - Created `src/components/admin/AdminSidebarNav.tsx` and `src/components/seller/SellerSidebarNav.tsx` with gradient highlights, pulsating gold status dots, and `active:scale-[0.97]` click states.
   - Updated `AdminCategoriesPage` to use `SubmitButton` for instant pending indicators ("Adding Category…", "Saving…").
-  - Enhanced `globals.css` with `-webkit-tap-highlight-color`, `.tap-feedback`, `.active-press`, `.card-clickable`, and active inset shadows on all `.btn` variants.
+### Incident 010: UPI Payment Auto-Marked as "paid" on Checkout (Fraud Exposure)
+- **Symptom:** Customers placing an order with UPI or Online payment had their `paymentStatus` immediately marked as `"paid"` in `src/actions/orders.ts` without any verification of funds received.
+- **Root Cause:** Placeholder order creation logic set `paymentStatus: "paid"` on order submission.
+- **Resolution:** Updated `paymentStatus` to default to `"pending-verification"` for UPI/Online methods. Added additive `upi_utr` column with strict 12-digit numeric validation (`/^[0-9]{12}$/`). Added server action `verifyUpiPayment` and interactive `<VerifyUpiButton />` in `/admin/orders` so only the administrator can mark the order as paid upon verifying the bank/UPI statement.
+
+### Incident 011: Unmasked PII (Phone & Email) in Public/Admin/Seller Dashboards
+- **Symptom:** Mobile numbers and email addresses of customers were shown in plaintext on administrative and vendor lists, creating risk of shoulder surfing, scraping, and accidental leakage.
+- **Root Cause:** Lack of a centralized PII masking utility for list views.
+- **Resolution:** Built `src/lib/masking.ts` with `maskPhone` (`8434061342` -> `8434****42`) and `maskEmail` (`ram@gmail.com` -> `r**@gmail.com`). Applied masking across `/admin/users`, `/admin/orders`, and `/seller/orders`.
+
+### Incident 012: Heavy Image Payloads & Missing Browser Cache-Control
+- **Symptom:** Product and catalog images loaded without compression on mobile networks; static logos and assets re-downloaded on every page visit.
+- **Root Cause:** Missing `quality = 70` default in `src/lib/image-resolver.ts` and absent immutable cache headers in `next.config.ts`.
+- **Resolution:** Configured `wsrv.nl` free proxy with `quality = 70`, `output = webp`, `fit = cover` reducing payload by >65%. Added 7-day `Cache-Control: public, max-age=604800, stale-while-revalidate=86400` in `next.config.ts`.
+
+### Incident 013: XSS & Internal Error Leakage in Public APIs
+- **Symptom:** Query params (`awb`, `courier`, `order`, `pin`) were interpolated raw into the HTML shipping label in `/api/courier/label`; `/api/health` returned database error messages and stack traces in JSON responses.
+- **Root Cause:** Absence of HTML entity escaping and unfiltered catch block returning `err.stack`.
+- **Resolution:** Implemented `escapeHtml()` in `/api/courier/label/route.ts` to sanitize all dynamic HTML inputs. Suppressed client-side error details in `/api/health` while keeping robust server logging (`console.error`). Added `.replace(/</g, '\\u003c')` to JSON-LD `<Script>` tags in `layout.tsx` and `product/[slug]/page.tsx`.
+
+### Incident 014: Unprotected Public Endpoints & Brute-Force Risk on Bootstrap
+- **Symptom:** `/api/bootstrap` used `GET` with raw string equality for token check; `/api/bootstrap`, `/api/search`, and `/api/courier/label` had no rate limiting, leaving Neon connection pools vulnerable to quota exhaustion.
+- **Root Cause:** Relying only on DB-backed rate limiting, which burns Neon connection pooler quotas for public bot traffic.
+- **Resolution:** Created zero-cost `memoryRateLimit` in `src/lib/rate-limit.ts` with 5-minute memory sweep. Protected `/api/bootstrap` (5 req/min, `crypto.timingSafeEqual`, POST support, `confirm=yes` for demo wipes), `/api/search` (60 req/min), `/api/courier/label` (30 req/min), and `/api/health` (60 req/min).
+
 
 

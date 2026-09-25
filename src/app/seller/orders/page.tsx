@@ -7,6 +7,7 @@ import { orders, ORDER_STATUSES } from "@/db/schema";
 import { getSellerContext } from "@/lib/seller";
 import { updateOrderStatus } from "@/actions/seller";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import { maskPhone } from "@/lib/masking";
 import SubmitButton from "@/components/SubmitButton";
 
 export const metadata: Metadata = { title: "Seller Orders" };
@@ -90,8 +91,8 @@ export default async function SellerOrdersPage({ searchParams }: { searchParams:
                       {a.fullName}, {a.addressLine}
                       {a.landmark ? `, ${a.landmark}` : ""}, {a.city}, {a.state} – {a.pincode}
                     </p>
-                    <p className="flex items-center gap-1 text-slate-600">
-                      <Phone className="h-3 w-3" /> {a.phone}
+                    <p className="flex items-center gap-1 text-slate-600 font-mono">
+                      <Phone className="h-3 w-3" /> {maskPhone(a.phone)}
                     </p>
                   </div>
                 </div>

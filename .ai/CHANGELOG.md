@@ -3,6 +3,37 @@
 
 ---
 
+## [2026-09-25] — UPI Fraud Defense, PII Masking, Free-Tier Image Compression, XSS Hardening & Zero-Cost Rate Limiting
+
+### Added & Hardened
+- **UPI Fraud Prevention & 1-Click Verification (`src/actions/orders.ts`, `src/actions/admin.ts`, `src/components/admin/VerifyUpiButton.tsx`):**
+  - Eliminated automatic `paymentStatus: "paid"` on client checkout for UPI and online payment methods.
+  - Set initial payment status to `"pending-verification"` until confirmed by admin.
+  - Added additive `upi_utr text` column to `orders` table with index `idx_orders_upi_utr` (zero data loss migration in `src/db/init.ts` and `src/db/schema.ts`).
+  - Added strict 12-digit numeric regex validation (`/^[0-9]{12}$/`) for UPI UTR in checkout schema.
+  - Created server action `verifyUpiPayment(orderId, action: "verify" | "reject")` with audit logging and instant path revalidation.
+  - Added interactive `<VerifyUpiButton />` in `/admin/orders` for 1-click verification or rejection.
+- **Customer Privacy & PII Data Masking (`src/lib/masking.ts`, `/admin/users`, `/admin/orders`, `/seller/orders`):**
+  - Created zero-cost PII masking library `maskPhone` and `maskEmail`.
+  - Normalizes Indian numbers (+91, trunk 0) and masks middle 4 digits (`8434061342` -> `8434****42`).
+  - Masks email usernames while preserving domain (`ram@gmail.com` -> `r**@gmail.com`).
+  - Conceals customer contact details in admin and seller list tables to stop visual shoulder surfing and bulk scraping.
+- **Free-Tier Image Compression & CDN Caching (`src/lib/image-resolver.ts`, `next.config.ts`):**
+  - Standardized `wsrv.nl` image transformations to default `quality = 70`, `output = webp`, `fit = cover`, saving over 65% network payload without paid image optimizers.
+  - Configured 7-day immutable `Cache-Control` browser/edge headers in `next.config.ts` for all static brand assets, images, and fonts.
+- **XSS & Information Leak Hardening (`src/app/api/courier/label/route.ts`, `src/app/api/health/route.ts`, `src/app/layout.tsx`, `src/app/products/[slug]/page.tsx`):**
+  - Added HTML entity sanitization (`escapeHtml`) on AWB, Courier, Order ID, and Pincode query params in direct shipping label generator.
+  - Suppressed internal database error message and stack trace leaks in `/api/health`, logging probe failures safely on the server and returning clean HTTP 500.
+  - Escaped `<` characters in JSON-LD structured data scripts (`replace(/</g, "\\u003c")`) to prevent script breakout XSS.
+- **Zero-Cost In-Memory Rate Limiting & Bootstrap Hardening (`src/lib/rate-limit.ts`, `src/app/api/bootstrap/route.ts`, `src/app/api/search/route.ts`):**
+  - Built zero-cost in-memory fixed-window rate limiter with automatic 5-minute memory cleanup (`memoryRateLimit`).
+  - Protected public endpoints (`/api/bootstrap`, `/api/courier/label`, `/api/health`, `/api/search`) against brute force and DDoS without burning Neon connection slots or compute hours.
+  - Converted `/api/bootstrap` to support secure `POST`, constant-time token comparison via `crypto.timingSafeEqual` over SHA-256 digests, 5 req/min rate limit, and required `confirm=yes` for demo data wipe requests.
+- **Enterprise Test Suite Expansion (`tests/unit/masking-and-hardening.test.ts`, `tests/run-all-tests.ts`):**
+  - Added 24th automated enterprise test suite covering PII masking, in-memory rate limiting, and XSS sanitization (all 24/24 passing in 0.36s).
+
+---
+
 ## [2026-09-25] — Interactive Click Feedback, Tactile Touch States & Dynamic Active Route Highlighting
 
 ### Added & Improved

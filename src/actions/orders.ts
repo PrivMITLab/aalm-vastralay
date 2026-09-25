@@ -70,6 +70,12 @@ const checkoutSchema = z.object({
   state: z.string().trim().min(2, "Select your state"),
   pincode: z.string().trim().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
   paymentMethod: z.enum(["cod", "upi", "online"]),
+  upiUtr: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{12}$/, "Enter a valid 12-digit UPI UTR / Reference number")
+    .optional()
+    .or(z.literal("")),
   couponCode: z.string().trim().optional(),
   notes: z.string().trim().max(500).optional(),
 });
@@ -106,6 +112,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     state: formData.get("state"),
     pincode: formData.get("pincode"),
     paymentMethod: formData.get("paymentMethod"),
+    upiUtr: formData.get("upiUtr") || undefined,
     couponCode: formData.get("couponCode") || undefined,
     notes: formData.get("notes") || undefined,
   });
@@ -113,6 +120,9 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const data = parsed.data;
   if (data.paymentMethod === "cod" && !codEnabled) return { error: "Cash on Delivery is temporarily unavailable. Please pay online." };
   if (data.paymentMethod !== "cod" && !onlineEnabled) return { error: "Online payment is temporarily unavailable. Please choose Cash on Delivery." };
+  if (data.paymentMethod === "upi" && (!data.upiUtr || !/^[0-9]{12}$/.test(data.upiUtr))) {
+    return { error: "Please enter a valid 12-digit Indian Banking UPI Reference (UTR) number to confirm your payment." };
+  }
 
   const rows: CartRow[] = await db
     .select({ item: cart, product: products, variant: productVariants })
@@ -187,12 +197,13 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
             storeId,
             status: "pending",
             paymentMethod: data.paymentMethod,
-            paymentStatus: data.paymentMethod === "cod" ? "pending" : "paid",
+            paymentStatus: data.paymentMethod === "cod" ? "pending" : "pending-verification",
             subtotal,
             shippingFee: shipping,
             total,
             shippingAddress,
             notes: notes || null,
+            upiUtr: data.upiUtr || upiUtr || null,
           })
           .returning({ id: orders.id });
 

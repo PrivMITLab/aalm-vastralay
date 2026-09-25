@@ -329,3 +329,56 @@ export async function seedMissingSettings() {
   await recordAudit({ actorId: admin.id, actorEmail: admin.email, action: "settings.update", detail: `Seeded ${missing.length} key(s)` });
   revalidatePath("/admin/settings");
 }
+
+/**
+ * Verifies or rejects a customer UPI payment using the 12-digit UTR number.
+ * Ensures the money is actually received before marking an order as paid.
+ */
+export async function verifyUpiPayment(orderId: string, action: "verify" | "reject"): Promise<{ ok: boolean; message: string }> {
+  const admin = await assertAdmin();
+  if (!admin) return { ok: false, message: "Unauthorized. Admin role required." };
+
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order) return { ok: false, message: "Order not found." };
+
+  if (action === "verify") {
+    await db
+      .update(orders)
+      .set({
+        paymentStatus: "paid",
+        status: order.status === "pending" ? "confirmed" : order.status,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    await recordAudit({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      action: "order.update_status",
+      target: orderId,
+      detail: `Verified UPI payment for order #${order.orderNumber}. UTR: ${order.upiUtr ?? "N/A"}`,
+    });
+  } else {
+    await db
+      .update(orders)
+      .set({
+        paymentStatus: "failed",
+        notes: [order.notes, "UPI Payment Rejected by Admin (Invalid / Unmatched UTR)"].filter(Boolean).join(" | "),
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    await recordAudit({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      action: "order.update_status",
+      target: orderId,
+      detail: `Rejected UPI payment for order #${order.orderNumber}. UTR: ${order.upiUtr ?? "N/A"}`,
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/orders/${orderId}`);
+  return { ok: true, message: action === "verify" ? "Payment verified successfully" : "Payment rejected" };
+}
+
