@@ -5,6 +5,7 @@ import { CheckCircle2, FolderTree, Plus, XCircle } from "lucide-react";
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { createCategoryDirect, toggleCategoryActive } from "@/actions/admin";
+import SubmitButton from "@/components/SubmitButton";
 
 export const metadata: Metadata = { title: "Category Hierarchy – Admin Console" };
 export const dynamic = "force-dynamic";
@@ -81,9 +82,9 @@ export default async function AdminCategoriesPage() {
             </select>
           </div>
           <div className="flex items-end">
-            <button type="submit" className="btn btn-primary w-full text-sm flex items-center justify-center gap-1.5">
+            <SubmitButton pendingText="Adding Category…" className="w-full text-sm flex items-center justify-center gap-1.5">
               <Plus className="h-4 w-4" /> Add Category
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </div>
@@ -131,12 +132,13 @@ export default async function AdminCategoriesPage() {
 
                       <form action={toggleCategoryActive}>
                         <input type="hidden" name="categoryId" value={parent.id} />
-                        <button
-                          type="submit"
-                          className="btn btn-outline py-1 px-2.5 text-xs"
+                        <SubmitButton
+                          variant="outline"
+                          pendingText="Saving…"
+                          className="py-1 px-2.5 text-xs h-auto"
                         >
                           {parent.isActive ? "Deactivate" : "Activate"}
-                        </button>
+                        </SubmitButton>
                       </form>
                     </div>
                   </div>
@@ -173,12 +175,13 @@ export default async function AdminCategoriesPage() {
 
                               <form action={toggleCategoryActive}>
                                 <input type="hidden" name="categoryId" value={child.id} />
-                                <button
-                                  type="submit"
-                                  className="text-[11px] text-[color:var(--brand)] hover:underline"
+                                <SubmitButton
+                                  variant="ghost"
+                                  pendingText="…"
+                                  className="h-auto py-0.5 px-2 text-[11px] text-[color:var(--brand)] hover:underline rounded-md"
                                 >
                                   {child.isActive ? "Disable" : "Enable"}
-                                </button>
+                                </SubmitButton>
                               </form>
                             </div>
                           </div>

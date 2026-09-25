@@ -35,6 +35,9 @@
 - [x] Universal Google Drive link resolver supporting multi-account URLs (`/file/u/X/d/`) and direct queries.
 - [x] Serverless upload fallback resilience with Backblaze B2 & Data URI fallback on Vercel.
 - [x] Real-time order status revalidation on `/seller/orders`.
+- [x] Mobile Bottom Navigation Dynamic Active Highlighting (`MobileTabBarClient.tsx`) with royal/gold active pill & tactile tap scale.
+- [x] Admin & Seller Sidebar Active Route Highlighting (`AdminSidebarNav.tsx`, `SellerSidebarNav.tsx`) with gradient glow & gold pulse dots.
+- [x] Universal tactile click feedback (`globals.css`, `SubmitButton.tsx`, `HeaderNav.tsx`) with active scale, inset shadows, and tap highlight colors.
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

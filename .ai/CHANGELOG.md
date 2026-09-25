@@ -3,6 +3,28 @@
 
 ---
 
+## [2026-09-25] — Interactive Click Feedback, Tactile Touch States & Dynamic Active Route Highlighting
+
+### Added & Improved
+- **Mobile Bottom Navigation Dynamic Active Highlighting (`src/components/ui/MobileTabBarClient.tsx`):**
+  - Converted tab bar rendering to a high-performance client component using `usePathname()`.
+  - Added real-time active tab detection across Home (`/`), Shop (`/products`, `/categories`, `/search`), Saved (`/wishlist`), Bag (`/cart`), and Orders/Seller (`/orders`, `/seller`, `/onboarding`).
+  - Added royal/gold color highlights, soft glowing background pills (`bg-[color:var(--brand-soft)]/70`), top glowing indicator bars, and immediate `active:scale-90` tactile feedback on tap.
+- **Admin Console Sidebar Active States (`src/components/admin/AdminSidebarNav.tsx`):**
+  - Built dedicated client component replacing static links in `src/app/admin/layout.tsx`.
+  - Added royal purple to indigo gradient background, imperial gold icon scaling, and pulsating gold status dot indicator for currently selected pages (`/admin/categories`, `/admin/products`, `/admin/orders`, etc.).
+  - Added tactile click compression (`active:scale-[0.97]`) and smooth hover animations.
+- **Seller Hub Sidebar Active States (`src/components/seller/SellerSidebarNav.tsx`):**
+  - Integrated active path detection with maroon gradient styling, gold accent border rings, and gold indicator dots in `src/app/seller/layout.tsx`.
+- **Category Action Button Feedback (`src/app/admin/categories/page.tsx`):**
+  - Integrated `SubmitButton` on "Add Category", parent "Activate/Deactivate", and child "Enable/Disable" actions to show instant spinners and pending text ("Adding Category…", "Saving…") instead of unresponsive frozen buttons.
+- **Universal Tactile Touch & Click Engine (`src/app/globals.css`, `src/components/SubmitButton.tsx`, `src/components/header/HeaderNav.tsx`):**
+  - Added native mobile tap highlight color (`-webkit-tap-highlight-color: rgba(212, 175, 55, 0.15)`).
+  - Enhanced all `.btn:active` states with `transform: scale(0.97) translateY(1px)`, inset press shadows, and variant-specific color/ring highlights (`.btn-primary`, `.btn-gold`, `.btn-outline`, `.btn-ghost`, `.btn-icon`).
+  - Introduced `.tap-feedback`, `.active-press`, and `.card-clickable` utilities across the application.
+
+---
+
 ## [2026-09-24] — Production Bug Fixes, Serverless Storage Resilience & Admin Interactive Suite
 
 ### Fixed

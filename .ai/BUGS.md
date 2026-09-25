@@ -42,3 +42,17 @@
 - **Root Cause:** `updateOrderStatus` in `src/actions/seller.ts` lacked `revalidatePath`.
 - **Resolution:** Added `revalidatePath("/seller/orders")`, `revalidatePath("/admin/orders")`, and `revalidatePath("/orders/" + orderId)` upon status change.
 
+### Incident 009: Missing Active Navigation Highlighting & Tactile Click/Tap Feedback
+- **Symptom:** Users could not tell which page was active or whether buttons/links were clicked in the Mobile Bottom Tab Bar, Admin Console sidebar, and Seller Hub. Tapping/clicking gave zero visual feedback, shadows, or color changes.
+- **Root Cause:**
+  - `MobileTabBar.tsx` was an `async` Server Component, unable to inspect `usePathname()` to highlight active tabs.
+  - `AdminLayout` and `SellerLayout` used static navigation links without current path detection.
+  - `globals.css` `.btn:active` used a tiny `translateY(1px)` with no scale, tap highlight color, or active shadow feedback.
+  - Category activation buttons lacked loading and pending states.
+- **Resolution:**
+  - Created `src/components/ui/MobileTabBarClient.tsx` featuring `usePathname()` active pill styling (`bg-[color:var(--brand-soft)]/70`), royal/gold color highlight, top indicator bar, and `active:scale-90` tactile tap feedback.
+  - Created `src/components/admin/AdminSidebarNav.tsx` and `src/components/seller/SellerSidebarNav.tsx` with gradient highlights, pulsating gold status dots, and `active:scale-[0.97]` click states.
+  - Updated `AdminCategoriesPage` to use `SubmitButton` for instant pending indicators ("Adding Category…", "Saving…").
+  - Enhanced `globals.css` with `-webkit-tap-highlight-color`, `.tap-feedback`, `.active-press`, `.card-clickable`, and active inset shadows on all `.btn` variants.
+
+

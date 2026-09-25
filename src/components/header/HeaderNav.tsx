@@ -712,7 +712,7 @@ function MenuLink({ href, icon, label }: { href: string; icon: React.ReactNode; 
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)] transition-colors"
+      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)] active:scale-[0.97] active:bg-[color:var(--surface-3)] transition-all tap-feedback select-none"
     >
       {icon} {label}
     </Link>
