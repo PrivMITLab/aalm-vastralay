@@ -5,44 +5,58 @@ import * as lorelei from "@dicebear/lorelei";
 export const dynamic = "force-dynamic";
 
 /**
- * Self-hosted privacy-first avatar generator (DiceBear `lorelei` style).
- *
- * - No external API, no rate limits: the SVG is rendered inside our own
- *   serverless function from pure code + seed.
- * - Deterministic: the same seed always yields the same avatar.
- * - Edge-cached for 1 year (`immutable`) so repeated views never re-run
- *   the function — bandwidth and invocation saver on Vercel Hobby.
- *
- * Security: `seed` is strictly sanitized (alphanumerics, dash, underscore;
- * max 50 chars) so it can only influence the deterministic PRNG, never HTML.
+ * Sanitizes the seed input:
+ * - Strips any special characters to prevent XSS or injection
+ * - Enforces a strict 50-character length limit to prevent DoS attacks
+ * - Defaults to 'guest' if empty or invalid
  */
 function sanitizeSeed(raw: string | null): string {
-  const cleaned = (raw ?? "").replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 50);
+  if (!raw) return "guest";
+  // Allow alphanumerics, underscores, dashes, and periods (e.g. user ID or sanitized email)
+  const cleaned = raw.trim().replace(/[^a-zA-Z0-9_\-.]/g, "").slice(0, 50);
   return cleaned || "guest";
 }
 
+/**
+ * 👑 Next.js App Router API Route: Self-Hosted DiceBear Avatar Generator
+ * GET /api/avatar?seed=<user_id_or_email>
+ *
+ * Benefits:
+ *  1. Privacy-First: Deterministic SVG generated in-memory on the server; zero external API calls.
+ *  2. Infinite Scale: Free & unlimited, completely eliminating third-party rate limits.
+ *  3. Vercel Caching: 1-year immutable Cache-Control header caches responses at edge PoPs,
+ *     ensuring repeated avatar loads cost zero serverless function execution bandwidth.
+ */
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const seed = sanitizeSeed(url.searchParams.get("seed"));
+    const rawSeed = url.searchParams.get("seed");
+    const seed = sanitizeSeed(rawSeed);
 
-    // Rendered synchronously in-memory; no network, no disk, no PII stored.
-    const svg = createAvatar(lorelei, {
+    // Generate the SVG synchronously using DiceBear's lorelei collection
+    const avatar = createAvatar(lorelei, {
       seed,
       size: 128,
-      backgroundColor: ["f3e5f5", "ede7f6", "fff8e1"],
-    }).toString();
+      backgroundColor: ["f3e5f5", "ede7f6", "fff8e1", "fce4ec"],
+    });
 
+    const svg = avatar.toString();
+
+    // Return pure SVG with 1-year immutable edge caching headers
     return new Response(svg, {
+      status: 200,
       headers: {
         "Content-Type": "image/svg+xml; charset=utf-8",
-        // 1-year immutable edge cache: same seed = same bytes forever.
+        // Crucial for Vercel: 1-year immutable cache eliminates repetitive function invocations
         "Cache-Control": "public, max-age=31536000, immutable",
         "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (err) {
-    console.error("[Avatar] generation failed:", err);
-    return NextResponse.json({ success: false, error: "Could not generate avatar" }, { status: 500 });
+    console.error("[Avatar:Generator] Failed to generate avatar:", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to generate avatar." },
+      { status: 500 }
+    );
   }
 }

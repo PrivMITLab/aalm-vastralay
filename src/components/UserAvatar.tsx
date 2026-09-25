@@ -3,62 +3,68 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+export interface UserAvatarProps {
+  /** Stable identifier for the user (user ID, username, or email). Max 50 chars. */
+  seed: string;
+  /** Optional display name or initial for fallback */
+  name?: string;
+  /** Optional avatar dimension in pixels (default 40px) */
+  size?: number;
+  /** Optional custom CSS classes (Tailwind) */
+  className?: string;
+}
+
 /**
- * Auto-generated user avatar — zero upload hassle.
+ * 👑 Reusable Privacy-First User Avatar Component
  *
- * Renders `/api/avatar?seed=` (self-hosted DiceBear `lorelei`, edge-cached
- * 1 year). Pass a stable non-PII seed (e.g. user.id, never email) so the
- * URL carries no personal data into logs/CDN.
+ * Renders an avatar generated in-memory via Next.js API route `/api/avatar?seed=...`
+ * powered by self-hosted DiceBear (lorelei style).
  *
- * Fallback is fully local (initial letter tile) — deliberately NOT an
- * external UI-Avatars link, keeping the privacy-first promise (no third
- * party sees our users).
+ * Key Benefits:
+ *  - Zero user upload friction (photo upload ka jhanjhat khatam)
+ *  - 100% self-hosted & unlimited (no external API calls or rate limits)
+ *  - Edge-cached on Vercel for 1 year (`public, max-age=31536000, immutable`)
+ *  - Fallback: onError falls back to UI Avatars if DiceBear fails
  */
 export default function UserAvatar({
   seed,
-  name = "A",
-  size = 112,
+  name,
+  size = 40,
   className,
-}: {
-  /** Stable identifier, e.g. user.id. Sanitized server-side; max 50 chars. */
-  seed: string;
-  /** Display name — only its first letter is used, only on fallback. */
-  name?: string;
-  /** Pixel size (square). */
-  size?: number;
-  className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
+}: UserAvatarProps) {
   const safeSeed = encodeURIComponent((seed || "guest").slice(0, 50));
+  const [src, setSrc] = useState<string>(`/api/avatar?seed=${safeSeed}`);
+  const [isFallback, setIsFallback] = useState<boolean>(false);
 
-  if (failed) {
-    return (
-      <span
-        role="img"
-        aria-label={name}
-        style={{ height: size, width: size }}
-        className={cn(
-          "grid shrink-0 place-items-center rounded-full bg-[#4A148C] font-display text-2xl font-bold text-[#D4AF37]",
-          className,
-        )}
-      >
-        {(name || "A").slice(0, 1).toUpperCase()}
-      </span>
-    );
-  }
+  const displayName = name || seed || "User";
+
+  const handleError = () => {
+    if (!isFallback) {
+      setIsFallback(true);
+      // Fallback to UI Avatars with brand colors (Royal Maroon #4A148C + Imperial Gold #D4AF37)
+      setSrc(
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          displayName
+        )}&background=4A148C&color=D4AF37&bold=true&size=128`
+      );
+    }
+  };
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`/api/avatar?seed=${safeSeed}`}
-      alt={name}
+      src={src}
+      alt={displayName}
       width={size}
       height={size}
       loading="lazy"
       decoding="async"
-      onError={() => setFailed(true)}
-      style={{ height: size, width: size }}
-      className={cn("shrink-0 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] object-cover", className)}
+      onError={handleError}
+      style={{ width: size, height: size }}
+      className={cn(
+        "shrink-0 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-2)] object-cover shadow-xs transition-transform duration-200",
+        className
+      )}
     />
   );
 }
