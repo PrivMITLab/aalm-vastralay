@@ -187,3 +187,39 @@ ame?\, \size?\ (default 40px), \className?\.
    - Used in: \src/app/dashboard/page.tsx:56\ (\size={112}\), header, order views.
 3. **Photo Upload Retired:** \POST /api/uploads/avatar\ returns 410 Gone. Zero jhanjhat, zero friction.
 4. **Commit:** \1bc370a\ - feat(avatar): DiceBear lorelei self-hosted avatar, ui-avatars onError fallback, zero upload friction.
+
+## 9. Save-Changes DB Retry Armor & Security PoW Agreement Fix (Production Hardened)
+1. **Root Cause Diagnosis (Sign-in / Sign-up "Security check missing" dead-end):**
+   - Route `/api/security/challenge/route.ts` returned `{ enabled: true, challenge }` (key was `enabled`).
+   - Client component `src/components/security/ClickToSolve.tsx` checked `if (!data.required || !data.challenge)`. Since `data.required` was `undefined`, `!data.required` evaluated to `true`, causing `ClickToSolve` to set `phase = "disabled"` and `notify(true)`.
+   - The widget became completely invisible (`<input type="hidden" name="botPayload" value="" />`), while enabling the submit button. Form submitted with empty `botPayload = ""`.
+   - Server `gate()` in `src/actions/auth.ts` checked `verifyPayloadAndConsume("")` which returned `"Suraksha jaanch missing hai. Kripya page reload karein. (Security check missing. Please reload the page.)"`.
+   - Network errors/429s on `/api/security/challenge` were also falsely setting `phase = "disabled"` and `notify(true)` instead of prompting a retry.
+2. **PoW Agreement & Single Source of Truth (`src/lib/pow.ts`):**
+   - Exported `shouldEnforcePow = cache(async (): Promise<boolean>)` from `src/lib/pow.ts`. Reads `security.botProtection` once per request, cached via React `cache()`.
+   - Guaranteed fail-closed: if the database or settings read throws or times out, it defaults to `true` ("pow").
+   - Used uniformly across: `/api/security/challenge/route.ts`, `src/actions/auth.ts` (`gate`), `src/actions/orders.ts` (`placeOrder`, `submitReview`), and `src/app/api/newsletter/route.ts`.
+   - Updated `/api/security/challenge/route.ts` to return `{ enabled: true, required: true, challenge }` when active and `{ enabled: false, required: false }` when disabled.
+   - Updated `src/components/security/ClickToSolve.tsx` to inspect `Boolean(data.required ?? data.enabled)` and on fetch failure/429/5xx enter `phase = "failed"` with a bilingual retry prompt `"Suraksha load nahi hui, net check karke dobara dabao (Retry)"` and backoff.
+3. **Neon Transient Retry Armor (`src/lib/db-retry.ts`):**
+   - Created `withDbRetry<T>()` helper with 1 automatic retry after a 500ms backoff for transient connection errors (`fetch failed`, `ECONNRESET`, `ETIMEDOUT`, `connection terminated`, etc.).
+   - Wrapped database mutations across:
+     - `updateProfile` (`src/actions/auth.ts`)
+     - `saveAddress`, `deleteAddress`, `setDefaultAddress`, `changePassword` (`src/actions/account.ts`)
+     - `placeOrder`, `cancelOrder`, `submitReview` (`src/actions/orders.ts`)
+   - All wrapped actions log `requestId` via `console.error` and return `{ error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" }` on unrecoverable DB errors instead of crashing to the host/Cloudflare black screen.
+4. **Error Boundaries:**
+   - `src/components/ErrorPanel.tsx`: Royal Maroon & Gold theme, bilingual Hindi + English, "Dobara try karo (Retry)" button + "Home par jayein" link, logging error via `useEffect`.
+   - `src/app/dashboard/error.tsx`: Reuses `ErrorPanel`.
+   - `src/app/orders/error.tsx`: Reuses `ErrorPanel`.
+   - `src/app/checkout/error.tsx`: Reuses `ErrorPanel`.
+   - `src/app/global-error.tsx`: Minimal fallback with zero CSS framework dependencies and inline styles.
+5. **Anti-Enumeration Posture:**
+   - `signIn` in `src/actions/auth.ts` returns the exact identical message `"Incorrect email or password."` for non-existent users vs wrong passwords.
+   - Constant-time password verification executed against a dummy hash when the user does not exist to prevent timing attacks.
+   - Documented decision and verified via automated unit test asserting 3 distinct email addresses yield the exact same error string.
+6. **Deploy Hygiene:**
+   - Added build hash indicator to footer: `Build: process.env.NEXT_PUBLIC_BUILD_ID || "v2.6-prod"`.
+7. **Test Suite Growth:**
+   - Added `tests/unit/save-changes-and-security-fix.test.ts` (suite #32). Total **32/32 suites passing green in ~5.8s**.
+
