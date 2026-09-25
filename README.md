@@ -48,7 +48,7 @@ Open **/admin → Site settings** (sign in as admin):
 | Homepage | Hero banner image, height, overlay, badge, headline, both CTAs, **grid columns per device**, enable/reorder/resize every homepage section, occasion chips, category-card artwork |
 | Commerce | Currency symbol + display conversion, rounding, free-shipping threshold, standard + COD fees, return window, GST rate/inclusive flag, minimum order value, shipping weight unit, catalogue page size & default sort |
 | Seller | Commission-free months, post-launch commission %, auto-approve listings, GST requirement, max images per product, open/close registration |
-| Security | Bot protection mode, **proof-of-work weight**, iteration budget, form/sign-in/API rate limits, lockout threshold + duration, session lifetime, strong-password policy, proxy header trust |
+| Security | Bot protection mode, **5 display modes** (standard, bar, floating, overlay, invisible), **2 widget styles** (checkbox, switch), **4 accent themes**, **proof-of-work weight**, iteration budget, form/sign-in/API rate limits, lockout threshold + duration, session lifetime, strong-password policy, proxy header trust |
 | Features | Wishlist, reviews, coupons, COD, online payment, notifications, stores directory, occasions, seller hub, analytics – each a switch |
 
 All money arithmetic (orders, discounts, GST, payouts) is executed **server-side in INR** and re-computed on every action; display currency/rounding only changes presentation, so totals can never be spoofed or drift.
@@ -57,7 +57,10 @@ All money arithmetic (orders, discounts, GST, payouts) is executed **server-side
 
 | Threat | Mitigation |
 | --- | --- |
-| Form spam / scripted sign-ups | Signed expiring proof-of-work challenge (`/api/security/challenge`), PBKDF2, verified server-side; difficulty = “weight” (leading zeros), admin-tunable |
+| Form spam / scripted bots | Self-hosted Turnstile-style click-to-solve PoW (`ClickToSolve.tsx`), Web Worker PBKDF2/SHA-256 solving, single-use `pow_used` table, `/24` mobile subnet binding, inspect-element button unlock bypass rejection |
+| Token replay / reuse | Atomic insert on `pow_used` (`ON CONFLICT DO NOTHING`) immediately rejects re-submitted tokens; automated 1-hour pruning |
+| IP spoofing / rate-limit bypass | Strict IPv4/IPv6 regex check (`isValidIp`), Cloudflare/Vercel priority, quarantine of spoofed IPs into strict "unknown" bucket, fail-closed on sensitive routes |
+| Button double-clicks / order race | Atomic re-entry guard hook `useFormLock()` locks interactive buttons on click, preventing duplicate orders and double billing |
 | Brute-force login | Per-IP throttle (10 attempts / 10 min) + per-account lockout after N failures for M minutes; generic error messages prevent account enumeration |
 | Session theft / replay | HttpOnly + SameSite cookie; HMAC-signed payload `userId.expiry.signature`; signature salt = hash of the user’s password hash → password change invalidates every session |
 | CSRF | Server Actions + POST-only transport; cookies are SameSite=Lax; every mutation re-checks ownership server-side |

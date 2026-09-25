@@ -11,7 +11,7 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 27 Enterprise test suites in `tests/` passing in ~0.39s (`npm test`).
+- **Automated Tests:** 28 Enterprise test suites in `tests/` passing in ~1.93s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
@@ -36,6 +36,14 @@
    - Path Traversal & MIME Hardening: `validateUploadMetadata()` strictly rejects directory traversal (`..`, `/`, `\`), enforces MIME allowlist, and caps uploads to 5MB.
    - Webhook Freshness & Soft Delete: `/api/webhooks/clerk` validates Svix signatures, enforces timestamp freshness (≤ 5 minutes), parses payloads safely with Zod, and performs soft deletion (`is_active = false`) to guarantee zero data loss.
    - Database Optimization: Full-text search index `idx_products_fts` added to DDL; immutable audit logs preserved permanently from deletion.
+5. **Self-Hosted Turnstile-Style Click-to-Solve PoW Defense (`src/components/security/ClickToSolve.tsx`, `src/lib/pow.ts`, `src/lib/pow-store.ts`):**
+   - 100% self-hosted, zero-cost, zero-third-party (no Google reCAPTCHA, no Cloudflare Turnstile). Web Worker PBKDF2/SHA-256 solving.
+   - 5 Display Modes: `standard` (Turnstile card), `bar` (compact inline ribbon), `floating` (bottom-right badge), `overlay` (modal security gate), and `invisible` (background auto-solve).
+   - 2 Widget Controls: `checkbox` `[ ✓ ]` vs `switch` `( O )` (iOS slide toggle).
+   - 4 Accent Themes: `gold`, `royal-maroon`, `emerald`, `neutral` configurable live in Admin Settings.
+   - Single-Use Anti-Replay Store: Table `pow_used` records `challenge_hash` with `ON CONFLICT DO NOTHING`. Reused tokens are rejected immediately.
+   - Subnet Binding: IPv4 `/24` (first 3 octets) and IPv6 `/64` prefix binding. Resilient against mobile carrier cellular tower IP drift, while blocking cross-network token theft.
+   - Client & Server Lock: Submit buttons locked (`disabled`) on forms until solved, and Server Actions strictly enforce PoW verification even if inspect element bypass is attempted.
 
 ## 4. High-Value Indian Commerce & Zero-Loss Security Features
 1. **Admin 1-Click Marketing Broadcast Center & Luxury Email Engine:**
@@ -97,13 +105,18 @@
    - 6-Stage priority auto-detection pipeline supporting ImageKit, Backblaze B2, Google Drive Direct IDs, Google Drive Share links, YouTube streaming videos, and direct web URLs via wsrv.nl WebP compression.
 
 ## 4. Infrastructure & Free-Tier Optimization
+- **Header Query Diet & Caching:**
+  - Header brand, settings, and commerce flags cached with `unstable_cache` (tag `site-settings`, revalidate 3600).
+  - Cart, wishlist, and unread notification counts consolidated into a single combined SQL query; guest sessions completely skip database execution.
+- **Elimination of Layout Nukes:**
+  - Replaced indiscriminate `revalidatePath("/", "layout")` calls with targeted `updateTag()` invalidation (`site-settings`, `products`, `categories`, `cart-${userId}`).
 - **Neon Database:** Pooled connection string (`-pooler`) enforcement with 10s connection timeout and 30s idle timeout; composite indexes on frequently filtered columns.
 - **Vercel Edge:** Lightweight middleware skipping static assets and public routes; zero database queries in middleware.
 - **Clerk Auth:** `useGuestOrAuth` React 19 hook for guest browsing/cart without burning 50,000 MRU quotas; React `cache()` request-scoped deduplication.
 - **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://aalm-b2-proxy.alamwastraly.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments.
 - **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
-## 5. Database Schema (16 Tables)
+## 5. Database Schema (17 Tables)
 1. `users`: Customers, Sellers, and Admins (`clerk_id`, `email`, `role`, `password_hash`).
 2. `stores`: Multi-vendor stores with Bihar/Indian address, GSTIN, ratings, and sales.
 3. `categories`: 18 hierarchical ethnic categories (Women, Men, Kids, Accessories).
@@ -117,9 +130,10 @@
 11. `coupons`: Discount vouchers (percentage/fixed) with `min_order_value` and `max_discount` caps.
 12. `notifications`: Real-time user alert feed.
 13. `addresses`: Customer shipping addresses with default flag.
-14. `settings`: 93 zero-code admin settings for banners, theme, brand, pricing, and toggles.
+14. `settings`: 100+ zero-code admin settings for banners, theme, brand, pricing, security, and toggles.
 15. `audit_logs`: Administrative action audit trails with IP and user agent.
 16. `login_attempts` & `rate_limits`: Brute-force lockout and IP throttling.
+17. `pow_used`: Single-use Proof-of-Work anti-replay challenge store (`challenge_hash` PK, `used_at` timestamp).
 
 ## 6. Brand Identity & Complete Asset Matrix (ADR 014)
 - **Master Vector Source:** `public/logo-source.svg` (1024×1024 master canvas) and `public/logo.svg`.

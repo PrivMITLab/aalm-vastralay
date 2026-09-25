@@ -3,6 +3,32 @@
 
 ---
 
+## [2026-09-25] — Turnstile-Style Click-to-Solve PoW Defense, Vercel Invocation Diet, Server-Side Security Hardening & Zero-Loss Schema
+
+### Added & Hardened
+- **Turnstile-Style Click-to-Solve Bot Defense (`src/components/security/ClickToSolve.tsx`, `src/lib/pow.ts`, `src/lib/pow-store.ts`, `tests/unit/pow-click.test.ts`):**
+  - Upgraded self-hosted ALTCHA-based proof-of-work mechanism into a Cloudflare Turnstile-style click-to-solve experience with zero external dependencies, zero API costs, and full privacy.
+  - Implemented 5 display presentation modes: `standard` (Turnstile card), `bar` (compact ribbon), `floating` (bottom-right badge), `overlay` (modal security gate), and `invisible` (background auto-solve).
+  - Implemented 2 widget control styles: `checkbox` `[ ✓ ]` and `switch` `( O )` (iOS slide toggle).
+  - Added 4 luxury accent themes: `gold` (`#D4AF37`), `royal-maroon` (`#722F37`), `emerald` (`#10B981`), and `neutral`.
+  - Added zero-code admin settings under `security` group in `src/lib/settings-defs.ts` with live interactive preview in `/admin/settings`.
+  - Single-Use Anti-Replay Store: Added `pow_used` table in `src/db/schema.ts` and `src/db/init.ts` with `ON CONFLICT DO NOTHING` atomic insert and hourly background pruning.
+  - Cellular IP Drift Safe: Bound PoW challenge tokens to IPv4 `/24` (first 3 octets) and IPv6 `/64` prefixes, allowing seamless mobile roaming between towers while blocking token transplants.
+  - Client & Server Hardening: Form submit buttons locked (`disabled`) until solved; server actions reject tampered, missing, or replayed tokens even if button is unlocked via browser DevTools.
+- **Vercel Function Invocation & Neon Query Diet (`src/components/Header.tsx`, `src/actions/`):**
+  - Cached Header brand, settings, and commerce flags using `unstable_cache` (tag `site-settings`, revalidate 3600), eliminating duplicate queries on page views.
+  - Consolidated cart, wishlist, and unread notification counts into a single combined SQL query; guest sessions completely skip database execution.
+  - Replaced indiscriminate `revalidatePath("/", "layout")` calls with targeted `updateTag()` cache invalidation (`site-settings`, `products`, `categories`, `cart-${userId}`).
+- **Production Server-Side Hardening Across All 26 API Routes (`src/lib/rate-limit.ts`, `src/lib/request.ts`, `src/middleware.ts`):**
+  - Validated client IP formats using strict IPv4 and IPv6 regex; routed garbage/spoofed IPs into a heavily throttled `"unknown"` bucket.
+  - Enforced fail-closed behavior on sensitive routes (auth, OTP, uploads, admin) if the rate-limit store throws an error.
+  - Eliminated internal database errors, stack traces, and environment variable names from all API responses.
+- **Automated Enterprise Test Suite Expansion (`tests/run-all-tests.ts`):**
+  - Added 28th enterprise test suite `tests/unit/pow-click.test.ts` verifying single-use replay rejection, subnet binding, tampering detection, and countdown expiration.
+  - All 28/28 enterprise test suites passing cleanly with 100% success.
+
+---
+
 ## [2026-09-25] — Luxury Email Redesign, Subject Line Encoding Fix, Admin 1-Click Broadcast Center & Bento 2.0 Product Cards
 
 ### Added & Hardened

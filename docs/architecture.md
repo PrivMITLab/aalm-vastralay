@@ -23,11 +23,16 @@ flowchart TD
   Bot[Scripted bot] -->|form post| Edge[Edge middleware]
   Edge -->|throttle IP| Middleware[Rate-limit bucket]
   Edge -->|CSP / headers| Browser[Real browser]
-  Browser -->|form submit| Action[Server Action]
+  Browser -->|click to solve| Solve[Web Worker PoW]
+  Solve -->|verified payload| FormSubmit[Submit Form]
+  FormSubmit --> Action[Server Action]
   Action -->|getCurrentUser| Session[(DB session)]
-  Action -->|verifyPayload| PoW{Valid PoW?}
+  Action -->|verifySolution| PoW{Valid PoW & /24 Subnet?}
   PoW -- no --> Reject[403 — Security check failed]
-  PoW -- yes --> Owner{Resource owner?}
+  PoW -- yes --> AntiReplay{First-time use?}
+  AntiReplay -- no (Replayed) --> ReplayReject[403 — Token already used]
+  AntiReplay -- yes --> StoreToken[(pow_used table)]
+  StoreToken --> Owner{Resource owner?}
   Owner -- no --> Deny[403 — Forbidden]
   Owner -- yes --> Mutual[Zod parse + atomic SQL]
   Action -->|recordAudit| Audit[(audit_logs)]
@@ -69,4 +74,8 @@ erDiagram
   coupons }o--o{ orders : applied_to
   settings ||--|| users : updatedBy
   audit_logs }o--o{ users : actor
+  pow_used {
+    string challenge_hash PK
+    timestamp used_at
+  }
 ```

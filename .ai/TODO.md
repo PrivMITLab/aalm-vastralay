@@ -50,7 +50,12 @@
 - [x] Luxury Email Template Redesign: Royal purple and gold gradient layout, 42px tracked OTP ticket box, clean UTF-8 headers (zero `??????` subject corruption).
 - [x] Admin 1-Click Marketing Broadcast Center (`/admin/marketing`): presets for Diwali, Eid, Chhath, Wedding Season, Coupon Blasts, and Stock Alerts with live interactive preview.
 - [x] Bento 2.0 Product Card Upgrade: Gold shimmer hover border, `🔥 महाबचत` savings badge, rupee savings calculation `(बचत ₹...)`, and tactile press feedback.
-- [x] 26 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~0.39s).
+- [x] Production Server-Side Hardening across all 26 API routes (Anti-spoof proxy IPs, fail-closed rate limit, 0 stack/DB error leakage).
+- [x] Vercel Function Invocation & Neon Query Diet (Header unstable_cache tag `site-settings`, 3-in-1 consolidated counts query, guest fast-path, targeted updateTag cache invalidation).
+- [x] Turnstile-Style Click-to-Solve PoW Bot Defense (5 display modes: standard, bar, floating, overlay, invisible; 2 widget styles: checkbox, switch; 4 luxury accent themes).
+- [x] Anti-Replay Security Store: `pow_used` table with atomic conflict rejection and automated 1-hour pruning.
+- [x] Cellular Roaming /24 Subnet Binding: Tower drift tolerance for Indian mobile carriers with cross-network theft prevention.
+- [x] 28 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~1.93s).
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.

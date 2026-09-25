@@ -29,7 +29,7 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 
 ---
 
-## 2. Table Catalog (All 16 Tables)
+## 2. Table Catalog (All 17 Tables)
 
 | Table | Purpose | Primary Key | Foreign Keys |
 |---|---|---|---|
@@ -50,6 +50,7 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 | `audit_logs` | Admin action trail | UUID | `actor_id -> users.id` |
 | `login_attempts` | Brute force defense logs | UUID | — |
 | `rate_limits` | IP request throttling | Text (key) | — |
+| `pow_used` | Single-use PoW anti-replay challenge store | Text (`challenge_hash`) | — |
 
 ---
 
@@ -75,4 +76,6 @@ Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean 
 6. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`
 7. `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')));` (Full-text search)
 8. `CREATE TABLE IF NOT EXISTS "push_subscriptions" (...);`
+9. `CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now() NOT NULL);`
+10. `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`
 

@@ -85,5 +85,29 @@
   3. Built secure SSRF-protected `/api/admin/scrape-image` endpoint with 1-click "Auto-Detect / Scrape" button to extract OpenGraph banners from arbitrary web URLs.
   4. Added `home.announcementText` and `home.marqueeText` to `SETTINGS_FIELDS` under `group: "home"` and enabled `revalidatePath("/admin/banners")`.
 
+### Incident 016: Vercel Function Invocations & Neon Query Spikes on Empty DB
+- **Symptom:** Vercel dashboard reported 3,100+ function invocations and high Neon query counts over a 6-hour window even on empty/low-traffic environments.
+- **Root Cause:**
+  1. `Header.tsx` ran 3 separate database queries for cart count, wishlist count, and unread notifications on every page render even for guest visitors without cookies.
+  2. Over 82 server actions executed `revalidatePath("/", "layout")`, indiscriminately purging all server-side caches and forcing every route to re-render.
+- **Resolution:**
+  1. Wrapped site settings and brand resolution in `unstable_cache` with tag `site-settings` (revalidate 3600).
+  2. Consolidated user cart, wishlist, and notification counts into a single combined SQL query, bypassing DB queries completely for guest sessions.
+  3. Replaced indiscriminate layout revalidations with targeted `updateTag()` invalidation (`site-settings`, `products`, `categories`, `cart-${userId}`).
+
+### Incident 017: Bot Protection Replay Vulnerability & Inspect-Element Bypass
+- **Symptom:** Bots could solve an ALTCHA challenge once and replay the identical payload repeatedly across form endpoints; users could inspect the submit button in DevTools, delete the `disabled` attribute, and submit unverified forms.
+- **Root Cause:** PoW verification was stateless with no database store tracking consumed challenges; server actions did not strictly validate that the verified token matched the form action and client IP.
+- **Resolution:**
+  1. Created `pow_used` table with `ON CONFLICT DO NOTHING` atomic insert and 1-hour background pruning to reject replayed challenges.
+  2. Added strict payload binding in `verifySolution` checking action name, challenge age, and IP prefix.
+  3. Form actions fail-closed if PoW payload is missing, expired, or invalid.
+
+### Incident 018: Cellular Tower IP Drift Causing False Bot Blocks on Roaming Devices
+- **Symptom:** Legitimate mobile shoppers travelling across cellular towers (Jio, Airtel) had their solved PoW challenges rejected with "network changed" errors.
+- **Root Cause:** Mobile network carriers allocate dynamic IP addresses where the last octet changes upon tower handoff, breaking exact IP equality hashes.
+- **Resolution:** Extracted IPv4 `/24` subnet prefix (first 3 octets `a.b.c`) and IPv6 `/64` prefix in `getIpSubnetPrefix()`, hashing `pow-ip|${prefix}`. This maintains cellular roaming resilience while blocking cross-network token theft.
+
+
 
 

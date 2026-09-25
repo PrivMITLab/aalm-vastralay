@@ -97,4 +97,20 @@
   - Generate 3 watermark variations (Full, Icon, Tiled 45-degree repeat) for product photo protection.
   - Implement the complete 53-icon asset suite across browser favicons, Apple touch, Android PWA, Windows tiles, and social cards without deleting or modifying any existing asset.
 
+## ADR 015: Zero-Budget Server Hardening, Anti-Spoof Rate Limiting & Fail-Closed Protection
+- **Status:** Accepted
+- **Decision:** Validate all incoming IP addresses against strict IPv4/IPv6 regex, enforce verified proxy priority (`cf-connecting-ip` when `TRUST_PROXY === "1"`, else direct socket IP), quarantine malformed IPs to a strictly throttled `"unknown"` bucket, and fail-closed on sensitive authentication and payment routes if rate-limiting throws.
+- **Rationale:** Free-tier deployments are vulnerable to IP header spoofing and brute-force credential stuffing. Failing closed guarantees unauthorized attackers cannot bypass security checks during database spikes.
+
+## ADR 016: Self-Hosted Turnstile-Style Click-to-Solve PoW Defense with /24 Subnet Binding
+- **Status:** Accepted
+- **Decision:** Replace third-party anti-bot services (Google reCAPTCHA / Cloudflare Turnstile) with an in-house, zero-cost PBKDF2 Web Worker solver featuring 5 display modes, 2 widget controls, 4 luxury themes, atomic single-use challenge store (`pow_used`), and `/24` IPv4 / `/64` IPv6 subnet drift tolerance.
+- **Rationale:** Eliminates vendor lock-in, recurring API fees, and privacy tracking while preserving user experience for Indian mobile network users roaming between cellular towers. Client-side submit locks combined with server-side validation completely neutralize inspect-element bypasses.
+
+## ADR 017: Next.js 16 Caching Strategy & Neon Query Diet
+- **Status:** Accepted
+- **Decision:** Cache Header site settings and commerce configuration using `unstable_cache` with tag `site-settings` (revalidate 3600s), combine user counts into a single consolidated SQL query, bypass queries entirely for guest users, and replace indiscriminate `revalidatePath("/", "layout")` calls with targeted `updateTag()` invalidation.
+- **Rationale:** Prevents excessive serverless function invocations and preserves Neon compute hours on Hobby/Free plans, dropping logged-out page view database hits from multiple round-trips to zero on warm cache.
+
+
 

@@ -23,7 +23,7 @@
    - 6.5 [Live Order Tracking & 5-Stage Stepper (`/track`, `/orders/[id]`)](#65-tracking)
    - 6.6 [Hassle-Free 7-Day Returns & Reverse Pickup (`/returns`, `/orders/[id]/return`)](#66-returns)
    - 6.7 [Multi-Vendor Seller Portal (`/seller`, `/seller/dashboard`)](#67-seller)
-   - 6.8 [Super Admin Command Center with 94 Zero-Code Settings (`/admin`, `/admin/settings`)](#68-admin)
+   - 6.8 [Super Admin Command Center with 100+ Zero-Code Settings (`/admin`, `/admin/settings`)](#68-admin)
    - 6.9 [WhatsApp Red OpenGraph Share Card & Royal Maroon Favicon](#69-social-brand)
    - 6.10 [Statutory Legal & Compliance Pages (`/privacy`, `/terms`, `/returns`, `/cookies`)](#610-legal)
 7. [🧪 Developer Verification & Feature Testing Runbook (फीचर टेस्टिंग रनबुक)](#7-testing-runbook)
@@ -395,15 +395,23 @@ Har route ka live look, UI elements, aur expected behavior neeche list kiya gaya
 ---
 
 <a id="68-admin"></a>
-### 6.8 Super Admin Command Center with 94 Zero-Code Settings (`/admin`, `/admin/settings`)
+<a id="68-admin"></a>
+### 6.8 Super Admin Command Center with 100+ Zero-Code Settings (`/admin`, `/admin/settings`)
 * **Live Link:** [`https://aalm-vastralay.vercel.app/admin/settings`](https://aalm-vastralay.vercel.app/admin/settings)
 * **Kaisa Dikhega:**
   1. Real-time GMV revenue analytics and order velocity.
-  2. **94 Zero-Code Settings Panel:**
+  2. **100+ Zero-Code Settings Panel:**
      - Top announcement strip text change bina code update ke.
      - Festive banner manager & flash sale countdown clock toggle.
      - Free shipping threshold adjustment (e.g. ₹999 / ₹1499).
      - COD toggle globally ya specific pincodes ke liye.
+     - **Turnstile-Style Bot Shield Settings:**
+       - `security.powDisplayMode`: `standard` (Card) | `bar` (Inline ribbon) | `floating` (Bottom-right badge) | `overlay` (Modal gate) | `invisible` (Background auto-solve)
+       - `security.powWidgetStyle`: `checkbox` `[ ✓ ]` | `switch` `( O )` (iOS slide toggle)
+       - `security.powTheme`: `gold` | `royal-maroon` | `emerald` | `neutral`
+       - `security.powLabel`: Custom human verification text prompt.
+  3. **Marketing & Broadcast Center (`/admin/marketing`):**
+     - 1-Click campaign presets for Diwali, Eid, Chhath, Wedding Season, Coupon Blasts, and Stock Alerts across Email, Push, and In-App.
 
 ---
 
@@ -429,7 +437,7 @@ Har route ka live look, UI elements, aur expected behavior neeche list kiya gaya
 ---
 
 <a id="7-testing-runbook"></a>
-## 7. 🧪 Developer Verification & Feature Testing Runbook (फीचर टेस्टिंग रनबुक)
+## 7. 🧪 Developer Verification & Feature Testing Runbook (फीचर टेस्टिंग रनbook)
 
 Is runbook ke zariye koi bhi developer ya tester verify kar sakta hai ki saare features 100% kaam kar rahe hain ya nahi.
 
@@ -437,7 +445,7 @@ Is runbook ke zariye koi bhi developer ya tester verify kar sakta hai ki saare f
 
 <a id="71-cli-tests"></a>
 ### 7.1 Automated CLI Test Verification
-Project ke andar **23 Enterprise Automated Test Suites** hain:
+Project ke andar **28 Enterprise Automated Test Suites** hain:
 
 ```bash
 # 1. Complete Test Suite Run Karein
@@ -455,7 +463,10 @@ npm test
 ▶ Running Admin Zero-Code Customization Tests... [Passed]
 ▶ Running Universal Media Resolver Tests... [Passed]
 ▶ Running Statutory GST Tax Invoice & Lifecycle Tests... [Passed]
-🏆 ALL 23/23 ENTERPRISE TEST SUITES PASSED!
+▶ Running Click-to-Solve PoW Single-Use & Binding Tests... [Passed]
+▶ Running Marketing Broadcasts & Luxury Email Template Tests... [Passed]
+▶ Running Server-Side Security Hardening Tests... [Passed]
+🏆 ALL 28/28 ENTERPRISE TEST SUITES PASSED IN ~1.93s!
 ```
 
 ```bash

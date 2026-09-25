@@ -24,12 +24,13 @@
 - **Tenant Privacy Isolation:** Seller cannot view or alter other sellers' inventory or sales.
 
 ### 👑 Admin Control Suite (`/admin`):
-- **Live Site Settings (`/admin/settings`):** 93 zero-code configurations for brand name, logo, announcement marquee, hero banner slides, CTA buttons, theme palette, and payment settings.
+- **Live Site Settings (`/admin/settings`):** 100+ zero-code configurations for brand name, logo, announcement marquee, hero banner slides, CTA buttons, theme palette, payment settings, and Turnstile-style bot defense customization (5 modes, 2 widget styles, 4 themes).
+- **Marketing Broadcast Center (`/admin/marketing`):** 1-Click festival and coupon blast dispatch across Email, In-App Notifications, and Web Push with live preview.
 - **Audit Logging (`/admin/security`):** Complete immutable security log of every administrative edit with actor email and IP.
 - **Integrations & Diagnostics (`/admin/integrations`):** Live database health check, table counts, and safe demo clean wiping.
 
 ## 3. Non-Functional Requirements
-- **Performance:** Sub-1.5s First Contentful Paint, Next.js 16 Turbopack optimization, image lazy-loading.
-- **Security:** AES-256 encryption for PII, Scrypt password hashing, rate limiting, no secrets in client code.
+- **Performance:** Sub-1.5s First Contentful Paint, Next.js 16 Turbopack optimization, image lazy-loading, cached header queries, and targeted cache tags.
+- **Security:** Self-hosted Turnstile-style PoW bot defense, `/24` subnet binding, single-use anti-replay `pow_used` table, AES-256 encryption for PII, Scrypt password hashing, rate limiting, no secrets in client code.
 - **Accessibility:** WCAG 2.1 AA keyboard navigation, high contrast ratios, accessible forms.
 - **Mobile First:** Responsive layout optimized for smartphones (320px to 420px) through 4K displays.
