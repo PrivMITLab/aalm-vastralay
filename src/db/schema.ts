@@ -242,6 +242,9 @@ export const notifications = pgTable("notifications", {
   title: text("title").notNull(),
   body: text("body"),
   data: jsonb("data").$type<Record<string, unknown>>(),
+  priority: text("priority").default("info").notNull(),
+  channelId: text("channel_id").default("orders_and_alerts").notNull(),
+  actionButtons: jsonb("action_buttons").$type<Array<{ label: string; action: string; url?: string }>>().default(sql`'[]'::jsonb`).notNull(),
   isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
