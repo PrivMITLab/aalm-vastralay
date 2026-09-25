@@ -172,3 +172,18 @@
 5. **Zero Data Loss Guarantee (`src/lib/settings.ts`, `src/actions/admin.ts`):**
    - Additive database key `home.slides` (JSON array, max 5 slides, validated via Zod `heroSlidesArraySchema`).
    - Legacy single banner `home.banner` remains 100% intact with zero destructive drops or deletions, serving as instant automatic fallback whenever slides array is empty.
+
+## 8. Privacy-First Avatar System (Zero Upload Friction)
+1. **Self-Hosted DiceBear Avatar API (\src/app/api/avatar/route.ts\):**
+   - Endpoint: \GET /api/avatar?seed=<user_id>\ - generates deterministic lorelei-style SVG in-memory server-side.
+   - Seed sanitizer: strips all non-alphanumeric chars except \_\, \-\, \.\; caps at 50 chars; defaults to \guest\ if empty.
+   - Returns \image/svg+xml\ with \Cache-Control: public, max-age=31536000, immutable\ - Vercel edge-caches for 1 year.
+   - Completely self-hosted: zero external API calls, zero rate limits, infinite scale.
+2. **\<UserAvatar>\ Component (\src/components/UserAvatar.tsx\):**
+   - Props: \seed\ (user ID, never email), \
+ame?\, \size?\ (default 40px), \className?\.
+   - Primary: \/api/avatar?seed=<encoded_id>\ (DiceBear lorelei).
+   - \onError\ fallback: ui-avatars.com with brand colors Royal Maroon #4A148C + Imperial Gold #D4AF37.
+   - Used in: \src/app/dashboard/page.tsx:56\ (\size={112}\), header, order views.
+3. **Photo Upload Retired:** \POST /api/uploads/avatar\ returns 410 Gone. Zero jhanjhat, zero friction.
+4. **Commit:** \1bc370a\ - feat(avatar): DiceBear lorelei self-hosted avatar, ui-avatars onError fallback, zero upload friction.
