@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { validateUploadMetadata, getB2DirectUploadCredentials } from "@/lib/b2";
+import { validateUploadMetadata, getB2DirectUploadCredentials, B2StorageNotConfiguredError } from "@/lib/b2";
 import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
  * POST /api/upload/presign
  * Body: { filename: string, contentType: string, sizeBytes: number, folder?: "products" | "brand" | "avatars" }
  * Enforces seller/admin role in all environments and rate limits to 30 req/min.
+ * Returns 503 when B2 storage credentials are not configured.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +52,13 @@ export async function POST(req: NextRequest) {
       ...credentials,
     });
   } catch (err) {
+    // B2 credentials not configured → 503 (not 500)
+    if (err instanceof B2StorageNotConfiguredError) {
+      return NextResponse.json(
+        { success: false, error: "Storage not configured. Contact administrator." },
+        { status: 503 }
+      );
+    }
     const requestId = crypto.randomUUID();
     console.error(`[Upload:Presign] [${requestId}] Failed:`, err);
     return NextResponse.json(
@@ -59,3 +67,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

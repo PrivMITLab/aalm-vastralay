@@ -23,15 +23,15 @@ export async function testEncryption() {
     throw new Error("Failed: Tampered ciphertext should return null!");
   }
 
-  // 3. PII Phone Masking
+  // 3. PII Phone Masking (canonical masking.ts: 9876****10 — first 4 + last 2 for 10-digit Indian numbers)
   const maskedPhone = maskPhone("9876543210");
-  if (maskedPhone !== "******3210") {
+  if (maskedPhone !== "9876****10") {
     throw new Error(`Failed: Phone masking returned unexpected: ${maskedPhone}`);
   }
 
-  // 4. PII Email Masking
+  // 4. PII Email Masking (canonical masking.ts: c****r@example.com — first + masked + last)
   const maskedEmail = maskEmail("customer@example.com");
-  if (maskedEmail !== "c***r@example.com") {
+  if (maskedEmail !== "c****r@example.com") {
     throw new Error(`Failed: Email masking returned unexpected: ${maskedEmail}`);
   }
 

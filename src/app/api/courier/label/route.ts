@@ -24,15 +24,29 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const rawAwb = (searchParams.get("awb") || "AWB-SAMPLE").trim();
-  const rawCourier = (searchParams.get("courier") || "Delhivery").trim();
-  const rawOrder = (searchParams.get("order") || "AV-SAMPLE").trim();
-  const rawPin = (searchParams.get("pin") || "848302").trim();
+  const rawAwb = searchParams.get("awb")?.trim() ?? "";
+  const rawCourier = (searchParams.get("courier") ?? "Delhivery").trim();
+  const rawOrder = searchParams.get("order")?.trim() ?? "";
+  const rawPin = searchParams.get("pin")?.trim() ?? "";
+
+  // Required fields — no SAMPLE fallbacks; missing params = 400
+  if (!rawAwb) {
+    return NextResponse.json({ success: false, error: "Missing required parameter: awb" }, { status: 400 });
+  }
+  if (!rawOrder) {
+    return NextResponse.json({ success: false, error: "Missing required parameter: order" }, { status: 400 });
+  }
+
+  // Strict 6-digit Indian pincode
+  const pinDigits = rawPin.replace(/[^0-9]/g, "");
+  if (pinDigits.length !== 6) {
+    return NextResponse.json({ success: false, error: "Invalid pin: must be exactly 6 digits" }, { status: 400 });
+  }
 
   const awb = escapeHtml(rawAwb);
   const courier = escapeHtml(rawCourier);
   const order = escapeHtml(rawOrder);
-  const pin = escapeHtml(rawPin.replace(/[^0-9]/g, "").slice(0, 6) || "848302");
+  const pin = pinDigits; // already sanitized to exactly 6 digits
 
   const html = `<!DOCTYPE html>
 <html lang="en">

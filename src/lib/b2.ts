@@ -4,7 +4,21 @@
  * Handles direct-to-B2 uploads, presigned upload URLs, and file verification.
  * Completely bypasses Vercel 4.5MB serverless payload limit by letting clients
  * stream large media assets directly to Backblaze B2.
+ *
+ * Security contract:
+ *  - Missing B2 credentials → throws B2StorageNotConfiguredError (caller must 503).
+ *  - No hardcoded fake tokens — any request with missing creds fails explicitly.
+ *  - validateUploadMetadata covers gif/mp4/webm with 10 MB image / 100 MB video caps.
  */
+
+/** Sentinel error thrown when B2 env vars are absent. Presign route must return 503. */
+export class B2StorageNotConfiguredError extends Error {
+  readonly code = "B2_NOT_CONFIGURED" as const;
+  constructor() {
+    super("Storage not configured. Set B2_KEY_ID, B2_APP_KEY and B2_BUCKET_ID in environment.");
+    this.name = "B2StorageNotConfiguredError";
+  }
+}
 
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
@@ -15,7 +29,7 @@ const ALLOWED_MIME_TYPES = new Set([
   "video/webm",
 ]);
 
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;  // 10 MB
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
 
 export interface PresignResult {
@@ -28,7 +42,8 @@ export interface PresignResult {
 
 /**
  * Validates upload metadata against strict safety rules before generating presigned URLs.
- * Rejects path traversal and disallowed MIME types.
+ * Covers image/gif + video/mp4/webm with separate size caps.
+ * Rejects path traversal, disallowed MIME types, and empty files.
  */
 export function validateUploadMetadata(
   filename: string,
@@ -53,6 +68,10 @@ export function validateUploadMetadata(
     };
   }
 
+  if (sizeBytes <= 0) {
+    return { isValid: false, error: "File cannot be empty." };
+  }
+
   const isVideo = cleanMime.startsWith("video/");
   const maxAllowed = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
   if (sizeBytes > maxAllowed) {
@@ -64,9 +83,13 @@ export function validateUploadMetadata(
   }
 
   // Sanitize filename and extract extension
-  const ext = filename.split(".").pop()?.toLowerCase() || (isVideo ? "mp4" : "webp");
+  const ext = filename.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "webp");
   const randomSuffix = Math.random().toString(36).slice(2, 10);
-  const safeFolder = ["products", "brand", "avatars"].includes(folder) ? folder : "products";
+  const safeFolder = (["products", "brand", "avatars"] as const).includes(
+    folder as "products" | "brand" | "avatars"
+  )
+    ? folder
+    : "products";
   const key = `${safeFolder}/${Date.now()}-${randomSuffix}.${ext}`;
 
   return { isValid: true, key };
@@ -74,6 +97,9 @@ export function validateUploadMetadata(
 
 /**
  * Generates an upload destination token for direct-to-B2 client upload.
+ *
+ * @throws {B2StorageNotConfiguredError} when B2 credentials are absent — caller must return 503.
+ * @throws {Error} on B2 API failures.
  */
 export async function getB2DirectUploadCredentials(
   key: string
@@ -82,15 +108,9 @@ export async function getB2DirectUploadCredentials(
   const appKey = process.env.B2_APP_KEY;
   const bucketId = process.env.B2_BUCKET_ID;
 
-  // In local development or if credentials aren't set yet, return local upload fallback
+  // Fail explicitly — never return a fake token in any environment
   if (!keyId || !appKey || !bucketId) {
-    return {
-      uploadUrl: `/api/upload/direct-fallback?key=${encodeURIComponent(key)}`,
-      authorizationToken: "dev-fallback-token",
-      key,
-      fileName: key,
-      maxBytes: MAX_IMAGE_BYTES,
-    };
+    throw new B2StorageNotConfiguredError();
   }
 
   // 1. Authorize with Backblaze B2

@@ -28,6 +28,7 @@ import { testPowClickDefense } from "./unit/pow-click.test";
 import { testSecurityHardening } from "./unit/security-hardening.test";
 import { runHeaderScrollAndA11yTests } from "./unit/header-scroll-lock.test";
 import { runHeroCarouselTests } from "./unit/hero-carousel.test";
+import { testFailClosedSecrets } from "./unit/fail-closed-secrets.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -60,13 +61,14 @@ async function runAllTests() {
     { name: "Shiprocket & Delhivery Direct Courier & AWB Generation", fn: testCourierIntegration },
     { name: "Brand Identity, 20 Logos & 53-Icon Matrix Integrity", fn: testBrandAssets },
     { name: "Statutory GST Tax Invoice & Lifecycle Engine", fn: testGstInvoice },
-    { name: "PII Masking, Zero-Cost Rate Limiting & XSS Defense", fn: testMaskingAndHardening },
+    { name: "PII masking, memory rate limiting & XSS escaping", fn: testMaskingAndHardening },
     { name: "Button Double-Click Chaos Defense & Re-entry Guard", fn: testFormLockDefense },
     { name: "Click-to-Solve PoW Single-Use & Action Binding", fn: testPowClickDefense },
     { name: "Marketing Broadcasts & Luxury Email Template Engine", fn: testMarketingAndTemplates },
     { name: "Server-Side Hardening & Anti-Spoof Defense", fn: testSecurityHardening },
     { name: "Header Dropdown Scroll-Lock, Clip Fix & A11Y", fn: runHeaderScrollAndA11yTests },
     { name: "Hero Carousel, Multi-Strategy & B2 Mirror Engine", fn: runHeroCarouselTests },
+    { name: "Fail-Closed Secrets, Presign 503 & Courier Label 400", fn: testFailClosedSecrets },
   ];
 
   for (const suite of suites) {

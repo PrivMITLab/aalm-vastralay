@@ -2,15 +2,31 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypt
 
 /**
  * Enterprise-grade AES-256-GCM Authenticated Encryption for Database Credentials & PII.
- * 
- * Uses AUTH_SECRET (or ENCRYPTION_SECRET) to derive a 256-bit encryption key.
+ *
+ * Uses ENCRYPTION_SECRET (or AUTH_SECRET) to derive a 256-bit encryption key.
  * Format: `iv:ciphertext:authTag` (base64url encoded).
+ *
+ * Fail-closed: throws at module load in production if no secret is configured.
  */
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.ENCRYPTION_SECRET || process.env.AUTH_SECRET || "aalm-vastralay-dev-secret-change-me";
+  const secret = process.env.ENCRYPTION_SECRET ?? process.env.AUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[FATAL] ENCRYPTION_SECRET (or AUTH_SECRET) env var is not set. " +
+        "All encrypted PII would be silently unreadable. " +
+        "Set ENCRYPTION_SECRET in your Vercel / hosting environment. Boot aborted."
+      );
+    }
+    console.warn(
+      "[SECURITY WARNING] ENCRYPTION_SECRET is not set. " +
+      "Using insecure dev-only fallback. Set ENCRYPTION_SECRET in .env.local before going to production."
+    );
+  }
+  const key = secret ?? "aalm-vastralay-dev-secret-change-me";
   // Derive a fixed 32-byte (256-bit) key using SHA-256
-  return createHash("sha256").update(`encryption-salt:${secret}`).digest();
+  return createHash("sha256").update(`encryption-salt:${key}`).digest();
 }
 
 /** Encrypts sensitive string data with AES-256-GCM */
@@ -54,19 +70,9 @@ export function decryptData(cipherPackage: string): string | null {
   }
 }
 
-/** PII Masking: Masks phone number e.g. 9876543210 -> ******3210 */
-export function maskPhone(phone: string | null | undefined): string {
-  if (!phone) return "";
-  const clean = phone.trim();
-  if (clean.length < 4) return "****";
-  return clean.slice(0, -4).replace(/./g, "*") + clean.slice(-4);
-}
+/**
+ * PII Masking: re-exported from the single canonical implementation in lib/masking.ts.
+ * Do NOT add masking logic here — add it to masking.ts and re-export.
+ */
+export { maskPhone, maskEmail } from "./masking";
 
-/** PII Masking: Masks email e.g. user@example.com -> u***@example.com */
-export function maskEmail(email: string | null | undefined): string {
-  if (!email) return "";
-  const [local, domain] = email.split("@");
-  if (!domain) return "****";
-  const maskedLocal = local.length > 2 ? local[0] + "***" + local.slice(-1) : local[0] + "***";
-  return `${maskedLocal}@${domain}`;
-}
