@@ -3,7 +3,40 @@
 
 ---
 
-## [2026-09-27] — Sign-Out Event Bubbling Fix, Marketing Broadcast Reliability & Sonner Toasts
+## [2026-09-27] — B2 + Cloudflare Worker One-Command Auto-Setup Script & Open-Source Template Safety
+
+### Added
+- **One-Command B2 + Cloudflare Worker Setup Scripts (`scripts/setup-b2-worker.ps1`, `scripts/setup-b2-worker.sh`):**
+  - Windows PowerShell + Mac/Linux Bash scripts that fully automate: Cloudflare login check, KV namespace creation (`B2_TOKEN_KV`), `wrangler-b2-proxy.toml` auto-update with `account_id` + KV id, secure B2 credential prompting (piped to `wrangler secret put` — never stored in any file), Worker deploy, and `.env.local` update with Worker URL.
+  - Supports flags: `-SkipSecrets` (redeploy only) and `-OnlySecrets` (update B2 keys only).
+  - **Security guarantee:** `B2_KEY_ID` and `B2_APP_KEY` never touch any file, log, or git commit — only Cloudflare encrypted secrets vault.
+- **Cloudflare Worker Deployed (`https://aalm-b2-proxy.alamwastraly.workers.dev`):**
+  - KV namespace auto-created: `edb6eeb23e5745bb9dfc1a357463601e` (Account `ff744537d529eb795cb9bacfb48d54cb`).
+  - All bindings verified: `B2_TOKEN_KV` KV namespace + `B2_BUCKET_NAME = "aalm-vastralay-media"` env var.
+- **`cloudflare-worker/wrangler-b2-proxy.toml` — Open-Source Safe Template:**
+  - Reverted to placeholder IDs (`SETUP_SCRIPT_WILL_FILL_THIS`) so template users don't accidentally use someone else's account.
+  - Setup script auto-fills `account_id` and KV `id` at runtime.
+- **`docs/b2-cloudflare-setup.md` — Simplified One-Command Documentation:**
+  - Replaced 6-part manual guide with single "run this script" entry point.
+  - Includes B2 bucket creation pre-requisite steps, Vercel env var setup, test commands, and free tier limits table.
+- **Quality Assurance:** TypeScript strict mode ✅ | lint ✅ | typecheck ✅ | 33/33 tests ✅
+
+---
+
+## [2026-09-27] — Privacy-First UserAvatar Integrated in Header (Commit `bd3e365`)
+
+### Added & Hardened
+- **`<UserAvatar>` in All 3 Header Locations (`src/components/header/HeaderNav.tsx`):**
+  - Desktop trigger button (size 28): replaced letter monogram `<span>` with `<UserAvatar seed={user.id} size={28} />`.
+  - Desktop dropdown menu header (size 36): wrapped name/email row with `<UserAvatar seed={user.id} size={36} />`.
+  - Mobile drawer user bar (size 36): replaced hard-coded gold `<div>` letter monogram with `<UserAvatar seed={user.id} size={36} />`.
+  - `src/components/Header.tsx`: Added `id: user.id` to the `user` prop passed down to `<HeaderNav />`.
+  - `HeaderUser` type in `HeaderNav.tsx`: Added `id: string` field.
+- **Quality Assurance:** TypeScript strict mode ✅ | lint ✅ | typecheck ✅ | 33/33 tests ✅
+
+---
+
+
 
 ### Added & Hardened
 - **Sign-Out Event Bubbling & Unmount Fix (`src/components/header/HeaderNav.tsx`, `src/app/api/auth/sign-out/route.ts`):**

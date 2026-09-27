@@ -12,11 +12,13 @@
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
 - **Automated Tests:** 33 Enterprise test suites in `tests/` passing in ~2.50s (`npm test`).
-- **Git Branch:** `main` (Remote: `https://github.com/your-org/aalm-vastralay.git`).
+- **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 - **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
 - **Self-Hosted Avatars:** DiceBear Lorelei SVG generator at `/api/avatar` (1-year immutable cache, 0 upload friction).
+- **UserAvatar in Header:** `<UserAvatar seed={user.id} />` in desktop trigger, dropdown, and mobile drawer (commit `bd3e365`).
+- **B2 Cloudflare Worker:** Deployed at `https://aalm-b2-proxy.alamwastraly.workers.dev` with KV namespace `edb6eeb23e5745bb9dfc1a357463601e`.
 
 ## 3. Production Server-Side Security Hardening (All 26 API Routes)
 1. **Rate-Limit Bypass & Anti-Spoof Defense (`src/lib/rate-limit.ts`, `src/lib/request.ts`):**
@@ -116,7 +118,7 @@
 - **Neon Database:** Pooled connection string (`-pooler`) enforcement with 10s connection timeout and 30s idle timeout; composite indexes on frequently filtered columns.
 - **Vercel Edge:** Lightweight middleware skipping static assets and public routes; zero database queries in middleware.
 - **Clerk Auth:** `useGuestOrAuth` React 19 hook for guest browsing/cart without burning 50,000 MRU quotas; React `cache()` request-scoped deduplication.
-- **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://b2-proxy.marketplace.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments.
+- **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://aalm-b2-proxy.alamwastraly.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments. **Auto-setup script:** `pwsh scripts/setup-b2-worker.ps1` (Windows) or `bash scripts/setup-b2-worker.sh` (Mac/Linux).
 - **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
 ## 5. Database Schema (17 Tables)
@@ -256,8 +258,8 @@ ame?\, \size?\ (default 40px), \className?\.
      - Bridged `useToast().push()` directly to `sonnerToast.success`, `sonnerToast.error`, and `sonnerToast.info`, ensuring any legacy toast call seamlessly triggers a rich Sonner toast.
      - Added direct `toast.success` and `toast.error` dispatch to `src/components/admin/BroadcastManager.tsx` on marketing campaign launch.
 
-## 11. Open-Source Turnkey Template, Auto-Migrate Engine & Genuine Reviews
-1. **Automated Database Migration & Schema Healing (`scripts/db-auto-migrate.ts`, `npm run db:auto-migrate`):**
+## 11. Open-Source Turnkey Template, Auto-Migrate Engine \u0026 Genuine Reviews
+1. **Automated Database Migration \u0026 Schema Healing (`scripts/db-auto-migrate.ts`, `npm run db:auto-migrate`):**
    - Automatically executes idempotent DDL statements, applies non-destructive column additions (`ADD COLUMN IF NOT EXISTS`), builds missing indexes (`CREATE INDEX IF NOT EXISTS`), and verifies clean baseline data without manual SQL execution.
    - Zero data loss guarantee: Never drops tables or columns. Safe to run against existing production Neon databases.
 2. **Turnkey Open-Source Marketplace Template Architecture:**
@@ -267,7 +269,25 @@ ame?\, \size?\ (default 40px), \className?\.
 3. **Genuine Review Engine (BIS IS 19000:2022 Compliant):**
    - Strictly requires verified completed orders before submitting reviews; zero synthetic or fake reviews.
    - Added full customer review CRUD: `editReview` and `deleteReview` (`src/actions/orders.ts`) with dynamic rating and count recalculation.
-4. **Statutory Legal Compliance & Sandboxed Embeds:**
+4. **Statutory Legal Compliance \u0026 Sandboxed Embeds:**
    - DPDP Act 2023 / GDPR compliant `<CookieConsent />` preferences drawer with granular consent controls.
    - Hardened `<ThirdPartyEmbed />` component with secure sandbox attributes (`allow-scripts allow-same-origin allow-presentation allow-popups`) and lazy loading.
+
+## 12. Privacy-First Avatar System in Header (Commit `bd3e365`)
+1. **`<UserAvatar>` integrated in all 3 header locations (`src/components/header/HeaderNav.tsx`):**
+   - Desktop trigger button: `<UserAvatar seed={user.id} size={28} />` replacing letter monogram.
+   - Desktop dropdown header: `<UserAvatar seed={user.id} size={36} />` next to name/email.
+   - Mobile drawer user bar: `<UserAvatar seed={user.id} size={36} />` replacing gold monogram `<div>`.
+   - `src/components/Header.tsx` updated to pass `id: user.id` in the `user` prop to `<HeaderNav />`.
+2. **`HeaderUser` type updated** to include `id: string` field alongside existing `name`, `email`, `role`.
+
+## 13. B2 + Cloudflare Worker One-Command Auto-Setup (Commit `2db0561`)
+1. **`scripts/setup-b2-worker.ps1`** (Windows PowerShell) — Full auto-setup:
+   - Checks Cloudflare login (`wrangler whoami`), creates KV namespace if missing, patches `wrangler-b2-proxy.toml` with `account_id` and `kv id`, securely prompts for `B2_KEY_ID` and `B2_APP_KEY` (piped to `wrangler secret put`, never stored in files), deploys worker, updates `.env.local` with worker URL.
+2. **`scripts/setup-b2-worker.sh`** (Mac/Linux Bash) — Identical flow.
+3. **`cloudflare-worker/wrangler-b2-proxy.toml`** — Open-source safe template (placeholder IDs, no credentials).
+4. **Worker deployed:** `https://aalm-b2-proxy.alamwastraly.workers.dev`
+5. **KV Namespace:** `edb6eeb23e5745bb9dfc1a357463601e` (auto-created, Account: `ff744537d529eb795cb9bacfb48d54cb`).
+6. **Security guarantee:** `B2_KEY_ID` and `B2_APP_KEY` are ONLY in Cloudflare encrypted secrets — never in any file, log, or git commit.
+
 

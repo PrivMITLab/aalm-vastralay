@@ -112,5 +112,12 @@
 - **Decision:** Cache Header site settings and commerce configuration using `unstable_cache` with tag `site-settings` (revalidate 3600s), combine user counts into a single consolidated SQL query, bypass queries entirely for guest users, and replace indiscriminate `revalidatePath("/", "layout")` calls with targeted `updateTag()` invalidation.
 - **Rationale:** Prevents excessive serverless function invocations and preserves Neon compute hours on Hobby/Free plans, dropping logged-out page view database hits from multiple round-trips to zero on warm cache.
 
+## ADR 018: Privacy-First Avatar Display — User ID as Seed (Never Email or Name)
+- **Status:** Accepted
+- **Decision:** Use `user.id` (UUID, never email or name) as the DiceBear Lorelei avatar seed everywhere — header trigger (size 28), dropdown (size 36), mobile drawer (size 36), and dashboard (size 112).
+- **Rationale:** Email-as-seed would make a hashed/derivable version of PII visible in the SVG request URL (`/api/avatar?seed=...`). UUID is opaque and contains no reversible PII. Avatar is deterministic (same user always gets same face) without any upload friction. Open-source safe: user ID is meaningless without the database.
 
-
+## ADR 019: Open-Source-Safe Cloudflare Worker Template with One-Command CLI Setup
+- **Status:** Accepted
+- **Decision:** The committed `cloudflare-worker/wrangler-b2-proxy.toml` uses placeholder values (`SETUP_SCRIPT_WILL_FILL_THIS`) for `account_id` and KV namespace `id`. Actual values are written at runtime by `scripts/setup-b2-worker.ps1` (Windows) / `.sh` (Mac/Linux). B2 credentials (`B2_KEY_ID`, `B2_APP_KEY`) are piped directly to `wrangler secret put` — never stored in any file, shell variable, log, or git history.
+- **Rationale:** Committing a real `account_id` allows enumerating or targeting specific Cloudflare accounts. The one-command script approach makes the project safe to open-source while maintaining zero-friction setup for new operators. All secrets live exclusively in Cloudflare's encrypted secrets vault.

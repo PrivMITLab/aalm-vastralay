@@ -144,3 +144,12 @@
   2. Bridged `useToast().push()` directly to `sonnerToast.success`, `sonnerToast.error`, and `sonnerToast.info`.
   3. Integrated direct Sonner feedback into `/admin/marketing` broadcast launcher.
 
+### Incident 023: `wrangler-b2-proxy.toml` Exposed Real Cloudflare Account ID in Git History
+- **Symptom:** After deploying the worker, `cloudflare-worker/wrangler-b2-proxy.toml` contained the real `account_id` and live KV namespace ID — publicly visible when the repo is open-sourced.
+- **Root Cause:** The wrangler deploy command modified the TOML with real account/KV IDs which were then staged into git.
+- **Resolution:** Reset `wrangler-b2-proxy.toml` to placeholder values (`SETUP_SCRIPT_WILL_FILL_THIS`). Created `scripts/setup-b2-worker.ps1` / `.sh` to write real values at runtime. B2 credentials piped directly to `wrangler secret put` — never in any file or log. Template is now open-source safe (ADR 019).
+
+### Incident 024: Header Nav Displayed Hard-Coded Letter Monogram Instead of Lorelei Avatar
+- **Symptom:** After implementing `/api/avatar` (DiceBear Lorelei), the header still showed a hard-coded `<span>A</span>` monogram in desktop trigger and a gold `<div>` initial in mobile drawer.
+- **Root Cause:** `<HeaderNav>` was not updated when `<UserAvatar>` was introduced. `HeaderUser` type lacked `id: string` field needed for avatar seed.
+- **Resolution:** Updated `Header.tsx` to pass `id: user.id`. Added `id: string` to `HeaderUser` type. Replaced all 3 monogram instances (desktop trigger size 28, dropdown size 36, mobile drawer size 36) with `<UserAvatar seed={user.id} size={N} />` (commit `bd3e365`).
