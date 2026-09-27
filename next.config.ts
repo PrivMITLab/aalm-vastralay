@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+// package.json se version read karo — NEXT_PUBLIC_APP_VERSION ke roop mein inject hoga
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const pkg = require("./package.json") as { version: string; name: string };
 
 const csp = [
   "default-src 'self'",
@@ -29,6 +33,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // 0. App Version — package.json se version client-side env var mein inject karo
+  //    VersionBadge component isko NEXT_PUBLIC_APP_VERSION se read karta hai
+  env: {
+    NEXT_PUBLIC_APP_VERSION: pkg.version,
+  },
+
   // 1. Enable HTTP response compression (Brotli / Gzip)
   compress: true,
 

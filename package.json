@@ -1,5 +1,6 @@
 {
-  "name": "nextjs-postgresql-template",
+  "name": "aalm-vastralay",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -14,6 +15,7 @@
     "deploy:bootstrap": "tsx scripts/deploy-bootstrap.ts",
     "icons:generate": "tsx scripts/generate-all-icons.ts",
     "icons:verify": "node scripts/verify-icons.js",
+    "commitlint": "commitlint --edit",
     "prepare": "husky"
   },
   "dependencies": {
@@ -34,6 +36,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@opennextjs/cloudflare": "^1.20.6",
     "@tailwindcss/postcss": "4.1.17",
     "@types/node": "22.19.15",
@@ -46,6 +50,7 @@
     "husky": "^9.1.7",
     "postcss": "8.5.8",
     "tailwindcss": "4.1.17",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3",
     "wrangler": "^4.135.0"
   }

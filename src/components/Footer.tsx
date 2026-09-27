@@ -6,6 +6,7 @@ import { categories } from "@/db/schema";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { getBrand, getCommerce, getSettingBool, getSettingNumber } from "@/lib/settings";
 import Newsletter from "./ui/Newsletter";
+import VersionBadge from "./VersionBadge";
 
 export default async function Footer() {
   const [brand, commerce, freeMonths, wishlist] = await Promise.all([
@@ -124,6 +125,7 @@ export default async function Footer() {
               <span className="text-[10px] font-mono text-[color:var(--text-soft)]/60" title="Deploy build version. Hard reload: Ctrl+Shift+R">
                 Build: {process.env.NEXT_PUBLIC_BUILD_ID || "v2.6-prod"}
               </span>
+              <VersionBadge className="ml-1" />
             </div>
             <p className="text-center text-xs text-[color:var(--text-soft)]">UPI · Cards · Net banking · Cash on Delivery · Prices {commerce.gstInclusive ? "incl." : "excl."} GST</p>
           </div>
