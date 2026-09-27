@@ -93,7 +93,7 @@ export default async function Header() {
 
       <HeaderNav
         categories={nav}
-        user={user ? { fullName: user.fullName, email: user.email, role: user.role } : null}
+        user={user ? { id: user.id, fullName: user.fullName, email: user.email, role: user.role } : null}
         cartCount={cartCount}
         wishCount={wishCount}
         unread={unread}

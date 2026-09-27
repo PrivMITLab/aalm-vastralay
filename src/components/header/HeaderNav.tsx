@@ -32,10 +32,11 @@ import {
 import { signOut } from "@/actions/auth";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { cn, formatINR } from "@/lib/utils";
+import UserAvatar from "@/components/UserAvatar";
 
 type Category = { name: string; slug: string; children: { name: string; slug: string }[] };
 type Suggestion = { id: string; title: string; slug: string; price: number; image: string; storeName: string | null };
-type HeaderUser = { fullName: string | null; email: string; role: string } | null;
+type HeaderUser = { id: string; fullName: string | null; email: string; role: string } | null;
 
 /** 60-second in-memory cache so typing doesn't fire a request for every keystroke revisit. */
 const suggestionCache = new Map<string, { at: number; data: Suggestion[] }>();
@@ -537,9 +538,12 @@ export default function HeaderNav({
                 aria-haspopup="menu"
                 className="flex cursor-pointer items-center gap-2 rounded-full border border-[color:var(--border-strong)] py-1 pl-1 pr-2.5 hover:bg-[color:var(--surface-2)] transition focus:outline-none focus:ring-2 focus:ring-[color:var(--brand)]/40"
               >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-[color:var(--accent)] text-xs font-bold text-[color:var(--accent-fg)]">
-                  {(user.fullName ?? user.email).slice(0, 1).toUpperCase()}
-                </span>
+                <UserAvatar
+                  seed={user.id}
+                  name={user.fullName ?? user.email}
+                  size={28}
+                  className="h-7 w-7 rounded-full border border-[color:var(--accent)] object-cover shadow-xs"
+                />
                 <span className="hidden max-w-[7rem] truncate text-sm font-medium sm:block text-[color:var(--text)]">
                   {user.fullName?.split(" ")[0] ?? "Account"}
                 </span>
@@ -548,9 +552,19 @@ export default function HeaderNav({
               {userMenuOpen && (
                 <div className="animate-fade-in absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
                   <div className="border-b border-[color:var(--border)] px-3 py-2">
-                    <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
-                    <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
-                    <span className="badge mt-1 capitalize">{user.role}</span>
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <UserAvatar
+                        seed={user.id}
+                        name={user.fullName ?? user.email}
+                        size={36}
+                        className="h-9 w-9 shrink-0 rounded-full border border-[color:var(--border)] object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
+                        <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
+                        <span className="badge mt-1 capitalize">{user.role}</span>
+                      </div>
+                    </div>
                   </div>
                   <div className="py-1">
                     <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" onClick={() => setUserMenuOpen(false)} />
@@ -859,9 +873,12 @@ export default function HeaderNav({
               {user ? (
                 <div className="mt-4 rounded-xl bg-white/10 p-2.5 backdrop-blur-sm border border-white/15">
                   <div className="flex items-center gap-3">
-                    <div className="grid h-8 w-8 place-items-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">
-                      {(user.fullName ?? user.email).slice(0, 1).toUpperCase()}
-                    </div>
+                    <UserAvatar
+                      seed={user.id}
+                      name={user.fullName ?? user.email}
+                      size={36}
+                      className="h-9 w-9 shrink-0 rounded-full border border-[#D4AF37] object-cover shadow-xs"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-semibold text-white">{user.fullName || "Account"}</p>
                       <p className="truncate text-[10px] text-white/70">{user.email}</p>
