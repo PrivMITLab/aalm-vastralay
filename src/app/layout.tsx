@@ -8,6 +8,7 @@ import FloatingBar from "@/components/ui/FloatingBar";
 import MobileTabBar from "@/components/ui/MobileTabBar";
 import { ThemeProvider, DEFAULT_PREFS, type Prefs } from "@/components/theme/ThemeProvider";
 import { ToastProvider } from "@/components/ui/Toast";
+import { Toaster } from "@/components/ui/sonner";
 import FormGuard from "@/components/ui/FormGuard";
 import { getBrand, getSettingBool, getSettings, getTheme } from "@/lib/settings";
 import "./globals.css";
@@ -128,6 +129,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="flex min-h-dvh flex-col overflow-x-clip antialiased">
         <ThemeProvider initial={prefs}>
           <ToastProvider>
+            <Toaster />
             <FormGuard />
             <Header />
             <main className="w-full max-w-full min-w-0 flex-1 pb-[96px] lg:pb-0">{children}</main>
