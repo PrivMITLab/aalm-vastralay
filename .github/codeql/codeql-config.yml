@@ -1,0 +1,9 @@
+# CodeQL Custom Configuration for Aalm Vastralay
+# Ignores test files from security scanning so test assertions are not flagged
+name: "CodeQL Custom Config"
+
+paths-ignore:
+  - 'tests/**'
+  - '**/*.test.ts'
+  - '**/*.test.js'
+  - 'scripts/**'

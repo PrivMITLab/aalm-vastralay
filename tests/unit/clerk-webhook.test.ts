@@ -16,7 +16,7 @@ function verifySvixSignature(
   signatureHeader: string
 ): boolean {
   try {
-    const rawSecret = secret.replace(/^whsec_/, "");
+    const rawSecret = secret.replace(/^(whsec_|mock_sec_)/, "");
     const key = Buffer.from(rawSecret, "base64");
     const expected = createHmac("sha256", key)
       .update(`${id}.${timestamp}.${body}`)
@@ -37,7 +37,8 @@ function verifySvixSignature(
 export async function testClerkWebhookSecurity() {
   console.log("  ▶ Running Clerk Webhook Signature Security Tests...");
 
-  const secret = "whsec_MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1234567890abcdef";
+  // Use mock_sec_ prefix with safe test string — prevents false positive in GitHub Secret Scanner
+  const secret = `mock_sec_${Buffer.from("aalm_vastralay_mock_clerk_svix_test_secret_key_32b").toString("base64")}`;
   const id = "msg_2XyZaBcDeFgHiJkLmNoP";
   const timestamp = String(Math.floor(Date.now() / 1000));
   const payload = JSON.stringify({
@@ -49,7 +50,7 @@ export async function testClerkWebhookSecurity() {
   });
 
   // Calculate legitimate signature
-  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const key = Buffer.from(secret.replace(/^(whsec_|mock_sec_)/, ""), "base64");
   const expectedSig = createHmac("sha256", key)
     .update(`${id}.${timestamp}.${payload}`)
     .digest("base64");

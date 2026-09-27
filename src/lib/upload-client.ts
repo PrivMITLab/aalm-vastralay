@@ -39,7 +39,13 @@ export async function uploadToB2(
   };
 
   // 2. Stream directly to Backblaze B2 (or direct upload handler)
-  const isDirectB2 = uploadUrl.includes("backblazeb2.com");
+  let isDirectB2 = false;
+  try {
+    const parsedHost = new URL(uploadUrl).hostname.toLowerCase();
+    isDirectB2 = parsedHost === "backblazeb2.com" || parsedHost.endsWith(".backblazeb2.com");
+  } catch {
+    isDirectB2 = false;
+  }
   const uploadHeaders: Record<string, string> = {
     Authorization: authorizationToken,
     "Content-Type": file.type || "application/octet-stream",

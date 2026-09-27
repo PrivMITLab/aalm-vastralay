@@ -12,8 +12,6 @@ updates:
     ignore:
       - dependency-name: "@types/node"
         versions: [">= 23.0.0"]
-    reviewers:
-      - "maintainers"
     labels:
       - "dependencies"
       - "security"

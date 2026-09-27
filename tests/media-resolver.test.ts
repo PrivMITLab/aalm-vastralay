@@ -50,7 +50,11 @@ export async function testMediaResolver() {
   // 3b. User's specific production Google Drive Link
   const userGdrive = "https://drive.google.com/file/d/1cCzmA3yLZgIAKzrGBOBv32ef4PZhScGQ/view?usp=sharing";
   const resolvedUserGdrive = resolveImage(userGdrive);
-  if (!resolvedUserGdrive.includes("1cCzmA3yLZgIAKzrGBOBv32ef4PZhScGQ") || !resolvedUserGdrive.includes("lh3.googleusercontent.com")) {
+  const parsedHost = new URL(resolvedUserGdrive).hostname;
+  const innerUrlParam = new URL(resolvedUserGdrive).searchParams.get("url") || "";
+  let innerHost = "";
+  try { innerHost = innerUrlParam ? new URL(innerUrlParam).hostname : ""; } catch { innerHost = ""; }
+  if (!resolvedUserGdrive.includes("1cCzmA3yLZgIAKzrGBOBv32ef4PZhScGQ") || (parsedHost !== "lh3.googleusercontent.com" && innerHost !== "lh3.googleusercontent.com")) {
     throw new Error(`Failed: Production GDrive URL not resolved properly! Got: ${resolvedUserGdrive}`);
   }
 

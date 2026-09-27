@@ -40,7 +40,8 @@ export async function testUpiQrEngine() {
 
   // 2. QR Code Image URL
   const qrUrl = generateUpiQrImageUrl(upiUrl, 260);
-  if (!qrUrl.includes("api.qrserver.com") || !qrUrl.includes("260x260")) {
+  const parsedQr = new URL(qrUrl);
+  if (parsedQr.hostname !== "api.qrserver.com" || !qrUrl.includes("260x260")) {
     throw new Error(`Failed: QR image URL malformed: ${qrUrl}`);
   }
 

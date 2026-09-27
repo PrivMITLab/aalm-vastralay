@@ -125,7 +125,13 @@ export async function persistUpload(input: {
     try {
       const b2Key = `${input.bucket}/${filename}`;
       const creds = await getB2DirectUploadCredentials(b2Key);
-      const isDirectB2 = creds.uploadUrl.includes("backblazeb2.com");
+      let isDirectB2 = false;
+      try {
+        const parsedHost = new URL(creds.uploadUrl).hostname.toLowerCase();
+        isDirectB2 = parsedHost === "backblazeb2.com" || parsedHost.endsWith(".backblazeb2.com");
+      } catch {
+        isDirectB2 = false;
+      }
       if (isDirectB2) {
         const cryptoMod2 = await import("node:crypto");
         const sha1 = cryptoMod2.createHash("sha1").update(buffer).digest("hex");

@@ -39,6 +39,11 @@ jobs:
       version: ${{ steps.release.outputs.version }}
 
     steps:
+      - name: Checkout Code & Full Git History
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
