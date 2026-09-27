@@ -1,395 +1,230 @@
-# 👑 Backblaze B2 + Cloudflare Worker — Complete Setup Guide
-**Location:** `docs/b2-cloudflare-setup.md`  
-**Architecture:** Private B2 Bucket → Cloudflare Worker Proxy → Your App  
-**Cost:** ₹0/month (Cloudflare Free + Backblaze Bandwidth Alliance = Zero egress fee)
+# 👑 Backblaze B2 + Cloudflare Worker — Setup Guide
+**Location:** `docs/b2-cloudflare-setup.md`
+
+> **TL;DR:** Sab kuch ek command mein ho jaata hai. Neeeche dekho.
 
 ---
 
-## 📐 Architecture Overview (कैसे काम करता है)
+## ⚡ One-Command Setup
 
-```
-Your App (Vercel)
-      │
-      ▼
-NEXT_PUBLIC_B2_WORKER_URL
-      │
-      ▼
-Cloudflare Worker (b2-proxy / aalm-b2-proxy)
- • Path traversal block
- • KV token cache (23h)
- • 401 auto-retry
- • 1-year immutable cache headers
-      │
-      ▼ (zero egress cost via Bandwidth Alliance)
-Backblaze B2 Private Bucket
- • aalm-vastralay-media
- • Private (no public access)
- • Application Key (bucket-scoped)
+### Windows (PowerShell)
+```powershell
+pwsh scripts/setup-b2-worker.ps1
 ```
 
-**फायदे:**
-- B2 bucket **private** रहता है — direct URL से कोई access नहीं कर सकता
-- Cloudflare 300+ global PoPs से ultra-fast delivery
-- Bandwidth Alliance के कारण B2↔Cloudflare egress = **$0**
-- Browser को कभी B2 credentials या raw B2 URL नहीं दिखता
+### Mac / Linux (Bash)
+```bash
+bash scripts/setup-b2-worker.sh
+```
+
+**Script automatically karta hai:**
+1. ✅ Cloudflare login check (agar nahi hai to browser mein open karta hai)
+2. ✅ KV Namespace create (agar nahi hai to) — `B2_TOKEN_KV`
+3. ✅ `wrangler-b2-proxy.toml` auto-update (account_id + KV id)
+4. ✅ B2_KEY_ID + B2_APP_KEY **securely** prompt karke Cloudflare encrypted secrets mein store
+5. ✅ Worker deploy → URL milta hai
+6. ✅ `.env.local` auto-update with Worker URL
+
+**Koi bhi credential file mein save nahi hoti. Ever.**
 
 ---
 
-## 🅰️ PART 1 — Backblaze B2 Setup (B2 कॉन्फ़िगर करें)
+## 🅰️ Pehle Kya Chahiye (Pre-requisites)
 
-### Step 1.1 — B2 Account बनाएं (Free)
+Script run karne se **pehle** sirf yeh 2 cheezein chahiye:
 
-1. जाएं: **[https://www.backblaze.com/b2/sign-up.html](https://www.backblaze.com/b2/sign-up.html)**
-2. Email + Password से sign up करें — **कोई credit card नहीं चाहिए** (10GB free tier)
-3. Email verify करें
+### 1. Backblaze B2 Account + Private Bucket + App Key
 
----
+| Step | Kya karna hai |
+|---|---|
+| [Sign Up](https://www.backblaze.com/b2/sign-up.html) | Free account banaaen (credit card nahi) |
+| Bucket banaaen | **Buckets → Create Bucket** → Name: `aalm-vastralay-media` → **Private** |
+| App Key banaaen | **Account → App Keys → Add New** → Bucket: `aalm-vastralay-media` → Read+Write |
+| Keys note karein | `keyID` = `B2_KEY_ID` / `applicationKey` = `B2_APP_KEY` |
 
-### Step 1.2 — Private Bucket बनाएं
-
-1. Login करने के बाद: **B2 Cloud Storage → Buckets → Create a Bucket**
-2. Settings:
-   - **Bucket Name:** `aalm-vastralay-media`
-   - **Files in Bucket are:** `Private` ← ⚠️ यह जरूरी है
-   - **Default Encryption:** `Disabled` (free tier)
-   - **Object Lock:** `Disabled`
-3. **Create Bucket** पर click करें
+> [!CAUTION]
+> App Key **sirf ek baar** dikhta hai Backblaze par. Note kar lein warna dobara banana padega.
 
 > [!IMPORTANT]
-> Bucket को **Private** रखें। Public मत करें। Cloudflare Worker ही access करेगा।
+> Bucket **Private** rakhen. Public mat karein. Worker hi access karega.
+
+### 2. Cloudflare Account
+
+[cloudflare.com/sign-up](https://dash.cloudflare.com/sign-up) par Free account — koi credit card nahi.
 
 ---
 
-### Step 1.3 — Application Key बनाएं (Bucket-Scoped)
+## 🚀 Script Run Karein
 
-1. **Account → App Keys → Add a New Application Key**
-2. Settings:
-   - **Name of Key:** `aalm-vastralay-worker-key`
-   - **Allow access to Bucket(s):** `aalm-vastralay-media` ← सिर्फ इस bucket तक
-   - **Type of Access:** `Read and Write`
-   - **Allow List Files:** ✅ checked
-   - **File name prefix:** *(खाली छोड़ें)*
-   - **Duration:** *(खाली = permanent key)*
-3. **Create New Key** पर click करें
-
-> [!CAUTION]
-> **अगला page एक बार ही key दिखाता है!** इन दोनों को तुरंत note कर लें:
-> - `keyID` → यह है `B2_KEY_ID`
-> - `applicationKey` → यह है `B2_APP_KEY`
-
-**Note कहाँ करें:** Notepad में temporarily save करें (Notepad बंद मत करें जब तक Wrangler setup पूरा न हो)
-
----
-
-### Step 1.4 — अपना B2 Endpoint Note करें
-
-Bucket page पर जाएं → **Bucket Settings** → आपको दिखेगा:
-```
-Endpoint: s3.us-west-004.backblazeb2.com
-```
-यह URL आपको Step 3 में चाहिए होगा।
-
----
-
-## 🅱️ PART 2 — Cloudflare Account Setup
-
-### Step 2.1 — Cloudflare Account बनाएं (Free)
-
-1. जाएं: **[https://dash.cloudflare.com/sign-up](https://dash.cloudflare.com/sign-up)**
-2. Email + Password → Sign up
-3. Email verify करें
-4. Plan: **Free** select करें (Workers free tier = 100,000 requests/day)
-
----
-
-### Step 2.2 — Cloudflare Account ID Note करें
-
-1. Cloudflare Dashboard → Right sidebar में **Account ID** दिखेगा
-2. Copy करके note कर लें (बाद में काम आएगा)
-
----
-
-## 🅲 PART 3 — Wrangler CLI Setup (अपने Computer पर)
-
-### Step 3.1 — Wrangler Login करें
-
-Project folder में terminal खोलें:
-
-```bash
-# Cloudflare CLI से login करें (browser खुलेगा)
-npx wrangler login
+```powershell
+# Windows
+pwsh scripts/setup-b2-worker.ps1
 ```
 
-> Browser में Cloudflare login page खुलेगा → **Allow** पर click करें → Terminal में `Successfully logged in` दिखेगा
+Script step-by-step guide karega:
 
----
-
-### Step 3.2 — KV Namespace बनाएं (Token Cache के लिए)
-
-```bash
-npx wrangler kv namespace create B2_TOKEN_KV --config cloudflare-worker/wrangler-b2-proxy.toml
 ```
+🔹 Checking Wrangler CLI...
+   ✅ Wrangler found: wrangler 4.135.0
 
-Output कुछ ऐसा दिखेगा:
-```
-✅ Successfully created namespace B2_TOKEN_KV
-{ binding: 'B2_TOKEN_KV', id: 'abc123def456abc123def456abc123de' }
-```
+🔹 Checking Cloudflare login...
+   ✅ Logged in | Account ID: ff744537...
 
-**`id` को copy करें** — अगले step में चाहिए।
+🔹 Checking KV Namespace (B2_TOKEN_KV)...
+   ✅ KV Namespace created: edb6eeb2...
 
----
+🔹 Updating wrangler-b2-proxy.toml...
+   ✅ Updated (account_id + KV id)
 
-### Step 3.3 — KV ID को `wrangler-b2-proxy.toml` में paste करें
+🔹 Setting Backblaze B2 Secrets...
+   Backblaze B2 Console → App Keys:
+   https://secure.backblaze.com/app_keys.htm
 
-[`cloudflare-worker/wrangler-b2-proxy.toml`](file:///e:/daily/aalm-vastralay-marketplace-development%20(1)/cloudflare-worker/wrangler-b2-proxy.toml) खोलें:
+   Enter B2_KEY_ID: ████████████████  ← Type karo, screen par nahi dikhega
+   ✅ B2_KEY_ID stored securely in Cloudflare
 
-```toml
-[[kv_namespaces]]
-binding = "B2_TOKEN_KV"
-id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"   # ← यहाँ paste करें
-```
+   Enter B2_APP_KEY: ████████████████
+   ✅ B2_APP_KEY stored securely in Cloudflare
 
-को बदलकर करें:
-```toml
-[[kv_namespaces]]
-binding = "B2_TOKEN_KV"
-id = "abc123def456abc123def456abc123de"   # ← आपका असली ID
+🔹 Deploying Cloudflare Worker...
+   ✅ Worker deployed: https://aalm-b2-proxy.alamwastraly.workers.dev
+
+🔹 Updating .env.local...
+   ✅ .env.local updated
 ```
 
 ---
 
-### Step 3.4 — Bucket Name Confirm करें (पहले से set है)
+## 📌 Script ke Baad — Vercel mein URL set karein
 
-[`cloudflare-worker/wrangler-b2-proxy.toml`](file:///e:/daily/aalm-vastralay-marketplace-development%20(1)/cloudflare-worker/wrangler-b2-proxy.toml) में पहले से है:
+Yeh ek manual step hai (Vercel Dashboard login ke liye):
 
-```toml
-[vars]
-B2_BUCKET_NAME = "aalm-vastralay-media"
-```
-
-अगर आपने अलग नाम रखा है तो यहाँ बदलें।
-
----
-
-### Step 3.5 — B2 Secrets Securely Store करें
-
-> [!CAUTION]
-> ये commands interactive हैं — prompt आने पर key paste करें और Enter दबाएं। Key screen पर नहीं दिखती (secure input)।
-
-```bash
-# Secret 1: B2 Key ID (Step 1.3 में note किया था)
-npx wrangler secret put B2_KEY_ID --config cloudflare-worker/wrangler-b2-proxy.toml
-```
-Prompt: `Enter a secret value:` → अपना `keyID` paste करें → Enter
-
-```bash
-# Secret 2: B2 Application Key (Step 1.3 में note किया था)
-npx wrangler secret put B2_APP_KEY --config cloudflare-worker/wrangler-b2-proxy.toml
-```
-Prompt: `Enter a secret value:` → अपना `applicationKey` paste करें → Enter
-
----
-
-### Step 3.6 — Worker Deploy करें
-
-```bash
-npx wrangler deploy --config cloudflare-worker/wrangler-b2-proxy.toml
-```
-
-Output:
-```
-✅ Deployed aalm-b2-proxy (X.XX sec)
-   https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev
-```
-
-**Worker URL को copy करें** — अगला step इसी से होगा।
-
----
-
-## 🅳 PART 4 — App Configuration (Project में URL जोड़ें)
-
-### Step 4.1 — `.env.local` में Worker URL set करें
-
-अपनी `.env.local` file खोलें (project root में):
-
-```bash
-# B2 Worker URL (Cloudflare से मिला URL)
-NEXT_PUBLIC_B2_WORKER_URL="https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev"
-```
-
-> `.env.local` already `.gitignore` में है — यह git में commit नहीं होगा।
-
----
-
-### Step 4.2 — Vercel में Environment Variable set करें (Production के लिए)
-
-1. जाएं: **[https://vercel.com/dashboard](https://vercel.com/dashboard)**
-2. अपना project → **Settings → Environment Variables**
-3. Add करें:
+1. [vercel.com/dashboard](https://vercel.com/dashboard) → Your Project → **Settings → Environment Variables**
+2. Add karein:
    - **Name:** `NEXT_PUBLIC_B2_WORKER_URL`
-   - **Value:** `https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev`
-   - **Environments:** Production + Preview + Development (सभी check)
-4. **Save** → Project को Redeploy करें (`git push origin main` या Vercel dashboard से)
+   - **Value:** `https://aalm-b2-proxy.alamwastraly.workers.dev` *(script ne bata diya hoga)*
+   - **Environments:** ✅ Production ✅ Preview ✅ Development
+3. **Save** → Vercel project redeploy (`git push` ya dashboard se)
 
 ---
 
-## ✅ PART 5 — Testing (जांच करें)
+## 🔄 Script Options
 
-### Step 5.1 — Worker Health Check
+```powershell
+# Normal full setup (pehli baar)
+pwsh scripts/setup-b2-worker.ps1
+
+# Sirf redeploy (B2 keys already set hain)
+pwsh scripts/setup-b2-worker.ps1 -SkipSecrets
+
+# Sirf B2 keys update karna hai
+pwsh scripts/setup-b2-worker.ps1 -OnlySecrets
+```
 
 ```bash
-# 1. Invalid key → 404 आना चाहिए
-curl -I "https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev/non-existent.jpg"
-# Expected: HTTP/2 404
-
-# 2. Path traversal block → 404 आना चाहिए
-curl -I "https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev/../secret.env"
-# Expected: HTTP/2 404
-
-# 3. Method check → 405 आना चाहिए
-curl -X POST "https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev/test.jpg"
-# Expected: HTTP/2 405
-
-# 4. Real file test (पहले B2 में एक test file upload करें)
-curl -I "https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev/test/logo.png"
-# Expected: HTTP/2 200, X-Served-From: backblaze-b2-cloudflare-proxy
-```
-
-### Step 5.2 — B2 में Test File Upload करें
-
-1. Backblaze Dashboard → **Buckets → aalm-vastralay-media → Upload File**
-2. कोई भी image upload करें (e.g. `test/logo.png`)
-3. फिर ऊपर Step 5.1 का command #4 run करें
-
-### Step 5.3 — App में Image Test करें
-
-Admin Panel → Banner Editor में B2 Worker URL से image URL बनाएं:
-```
-https://aalm-b2-proxy.YOUR-ACCOUNT.workers.dev/products/saree-001.jpg
+# Mac/Linux equivalents
+bash scripts/setup-b2-worker.sh
+bash scripts/setup-b2-worker.sh --skip-secrets
+bash scripts/setup-b2-worker.sh --only-secrets
 ```
 
 ---
 
-## 📁 PART 6 — File Upload करना (B2 में)
+## ✅ Test Karein
 
-### Option A — Backblaze Web Dashboard (आसान)
-1. Dashboard → Buckets → aalm-vastralay-media → **Upload**
-2. Files select करें → Upload
+Script complete hone ke baad:
 
-### Option B — B2 CLI (Bulk Upload के लिए)
+```powershell
+# 1. Invalid file → 404 aana chahiye
+Invoke-WebRequest "https://aalm-b2-proxy.alamwastraly.workers.dev/no-such-file.jpg" -ErrorAction SilentlyContinue | Select-Object StatusCode
 
+# 2. Path traversal → 404 aana chahiye
+Invoke-WebRequest "https://aalm-b2-proxy.alamwastraly.workers.dev/../secret" -ErrorAction SilentlyContinue | Select-Object StatusCode
+
+# 3. POST method → 405 aana chahiye
+Invoke-WebRequest -Method POST "https://aalm-b2-proxy.alamwastraly.workers.dev/test.jpg" -ErrorAction SilentlyContinue | Select-Object StatusCode
+```
+
+Real file test ke liye: Backblaze Dashboard → Bucket → Upload koi bhi image → phir:
+```powershell
+Invoke-WebRequest "https://aalm-b2-proxy.alamwastraly.workers.dev/your-image.jpg" | Select-Object StatusCode, Headers
+# Expected: 200, X-Served-From: backblaze-b2-cloudflare-proxy
+```
+
+---
+
+## 📁 B2 Bucket mein Files Upload Karna
+
+### Option A — Backblaze Web Dashboard (Recommended for first upload)
+Dashboard → Buckets → `aalm-vastralay-media` → **Upload**
+
+### Option B — Admin Panel se Mirror (Existing URLs ke liye)
+Admin → Products → Image ke neeche **"Mirror to B2"** button
+
+### Option C — B2 CLI (Bulk upload ke liye)
 ```bash
-# B2 CLI install करें (एक बार)
 pip install b2
-
-# Login करें
 b2 authorize-account YOUR_KEY_ID YOUR_APP_KEY
-
-# Single file upload
-b2 upload-file aalm-vastralay-media ./local-image.jpg products/saree-001.jpg
-
-# Folder sync करें (bulk)
-b2 sync ./local-images-folder b2://aalm-vastralay-media/products/
+b2 sync ./local-images/ b2://aalm-vastralay-media/products/
 ```
 
-### Option C — App के Admin Panel से (Mirror)
-Admin Panel → Products → किसी product की image पर **"Mirror to B2"** button
-
----
-
-## 🗂️ Recommended B2 Folder Structure (फोल्डर संरचना)
-
+### Recommended Folder Structure
 ```
 aalm-vastralay-media/
-├── products/          # Product images
-│   ├── saree-001.jpg
-│   ├── lehenga-002.jpg
-│   └── ...
-├── banners/           # Hero carousel banners
-│   ├── slide-1.jpg
-│   └── ...
-├── brands/            # Store/brand logos
-│   └── ...
-├── categories/        # Category thumbnails
-│   └── ...
-└── uploads/           # User uploaded content (if any)
-    └── ...
+├── products/     ← Product images
+├── banners/      ← Hero carousel banners
+├── categories/   ← Category thumbnails
+└── brands/       ← Store logos
 ```
 
 ---
 
-## 🔒 Security Summary (सुरक्षा का सारांश)
+## 🔒 Security Architecture
 
-| Feature | Status |
-|---|---|
-| B2 Bucket Private | ✅ Private (no public access) |
-| Application Key Scoped | ✅ Bucket-specific key only |
-| Credentials in Cloudflare Secrets | ✅ Never in code or git |
-| Path Traversal Protection | ✅ `..` and hidden files blocked |
-| Token Caching (KV) | ✅ 23-hour cache, auto-refresh on 401 |
-| Immutable Edge Caching | ✅ 1 year, 300+ global PoPs |
-| Zero Egress Cost | ✅ Bandwidth Alliance = ₹0 |
-| Video Seeking (206) | ✅ Range headers forwarded |
-| 50MB Video Cap | ✅ Oversized videos rejected cleanly |
-| CORS | ✅ `Access-Control-Allow-Origin: *` |
-
----
-
-## 🐛 Troubleshooting (समस्या निवारण)
-
-### समस्या: Worker `502` दे रहा है
-```bash
-# Secrets check करें
-npx wrangler secret list --config cloudflare-worker/wrangler-b2-proxy.toml
-# B2_KEY_ID और B2_APP_KEY दोनों list में होने चाहिए
-```
-अगर missing हैं → Step 3.5 दोबारा करें।
-
-### समस्या: `404` हर file पर आ रहा है
-- `B2_BUCKET_NAME` check करें — exact match होना चाहिए
-- B2 bucket में file actually exists करती है कि नहीं check करें
-
-### समस्या: Images app में नहीं दिख रही
-- `NEXT_PUBLIC_B2_WORKER_URL` में trailing slash नहीं होनी चाहिए
-- `.env.local` update के बाद `npm run dev` restart करें
-- Vercel पर update किया है?
-
-### समस्या: `wrangler login` browser नहीं खुल रहा
-```bash
-# Alternative: API Token से login करें
-# Cloudflare Dashboard → Profile → API Tokens → Create Token
-# Template: "Edit Cloudflare Workers"
-CLOUDFLARE_API_TOKEN="your-token" npx wrangler deploy --config cloudflare-worker/wrangler-b2-proxy.toml
-```
-
----
-
-## 📊 Free Tier Limits (मुफ्त में कितना मिलता है)
-
-| Service | Free Limit | आपका Use Case |
+| Kya | Kahan store hota hai | Secret hai? |
 |---|---|---|
-| Backblaze B2 Storage | **10 GB** | ~5,000-10,000 product images |
-| Backblaze B2 Download | **₹0** via Bandwidth Alliance | Unlimited via Cloudflare |
-| Cloudflare Workers | **100,000 requests/day** | हजारों page views |
-| Cloudflare KV | **100,000 reads/day** | Token cache = 1 read/23 hours |
-| Cloudflare Workers CPU | **10ms per request** | Image proxy = ~1-2ms ✅ |
+| `B2_KEY_ID` | Cloudflare Encrypted Secrets | ✅ Haan — script ke alawa kahi nahi |
+| `B2_APP_KEY` | Cloudflare Encrypted Secrets | ✅ Haan — script ke alawa kahi nahi |
+| `account_id` | `wrangler-b2-proxy.toml` | ❌ Nahi — public identifier |
+| `KV namespace id` | `wrangler-b2-proxy.toml` | ❌ Nahi — public identifier |
+| `NEXT_PUBLIC_B2_WORKER_URL` | `.env.local` + Vercel | ❌ Nahi — public URL |
 
-> [!TIP]
-> 10GB से ज्यादा storage चाहिए? B2 में extra storage सिर्फ **\$0.006/GB/month** (₹0.50/GB) — बहुत सस्ता।
+> [!NOTE]
+> `account_id` aur `KV namespace id` Cloudflare ke public non-secret identifiers hain — inhe commit karna safe hai.
 
 ---
 
-## 🔗 Quick Reference Links
+## 🐛 Troubleshooting
 
-| Resource | URL |
+| Samasya | Karan | Samadhan |
+|---|---|---|
+| `Worker not found` error | Pehle deploy nahi hua | `pwsh scripts/setup-b2-worker.ps1 -SkipSecrets` |
+| Worker `502` deta hai | B2 keys missing/wrong | `pwsh scripts/setup-b2-worker.ps1 -OnlySecrets` |
+| Images nahi dikh rahi | Worker URL wrong | `.env.local` mein URL check karein |
+| `404` sab files par | Bucket name mismatch | `B2_BUCKET_NAME` in `wrangler-b2-proxy.toml` check |
+| Wrangler login nahi hua | Browser block | `CLOUDFLARE_API_TOKEN=xxx npx wrangler deploy --config cloudflare-worker/wrangler-b2-proxy.toml` |
+
+---
+
+## 📊 Free Tier Limits
+
+| Service | Free Limit |
+|---|---|
+| Backblaze B2 Storage | **10 GB** |
+| B2 Download via Cloudflare | **₹0** (Bandwidth Alliance) |
+| Cloudflare Workers requests | **100,000/day** |
+| Cloudflare KV reads | **100,000/day** |
+
+---
+
+## 🔗 Links
+
+| | |
 |---|---|
 | Backblaze Dashboard | https://secure.backblaze.com/b2_buckets.htm |
-| Cloudflare Dashboard | https://dash.cloudflare.com |
-| Cloudflare Workers | https://dash.cloudflare.com/workers |
+| Cloudflare Workers Dashboard | https://dash.cloudflare.com/workers |
 | Wrangler Docs | https://developers.cloudflare.com/workers/wrangler/ |
-| B2 Native API Docs | https://www.backblaze.com/apidocs/introduction-to-the-b2-native-api |
 
 ---
 
-*Last updated: 2026-09-27 | Guide version: 2.0*
+*Last updated: 2026-09-27 | Script version: 2.0*

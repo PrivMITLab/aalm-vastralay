@@ -1,6 +1,12 @@
 # ==============================================================================
 # 👑 AALM VASTRALAY — BACKBLAZE B2 PROXY CLOUDFLARE WORKER CONFIGURATION
 # Location: cloudflare-worker/wrangler-b2-proxy.toml
+#
+# ⚠️  DO NOT manually edit account_id or kv_namespaces id.
+#     Run the setup script instead:
+#       Windows:  scripts/setup-b2-worker.ps1
+#       Mac/Linux: bash scripts/setup-b2-worker.sh
+#
 # Note: Do NOT touch root wrangler.toml (reserved for OpenNext Next.js Pages)
 # ==============================================================================
 
@@ -8,24 +14,25 @@ name = "aalm-b2-proxy"
 main = "b2-proxy.js"
 compatibility_date = "2026-09-20"
 compatibility_flags = ["nodejs_compat"]
+# account_id is auto-filled by setup script — do not hardcode here
 
 # Public Non-Secret Environment Variables
 [vars]
-# Replace with your actual Backblaze B2 bucket name (e.g. "aalm-vastralay-media")
+# Your Backblaze B2 bucket name — auto-set by setup script or change manually
 B2_BUCKET_NAME = "aalm-vastralay-media"
 
 # Cloudflare KV Namespace Binding for B2 Auth Token Caching (23 Hours)
+# id is auto-filled by setup script — do not hardcode here
 [[kv_namespaces]]
 binding = "B2_TOKEN_KV"
-# Step 1: Run `npx wrangler kv namespace create B2_TOKEN_KV`
-# Step 2: Paste the returned namespace ID below
-id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
+id = "SETUP_SCRIPT_WILL_FILL_THIS"
 
 # ==============================================================================
-# 🔒 SECRETS (KABHI BHI IS FILE MEIN NA LIKHEIN / NEVER COMMIT TO GIT)
-# Configure secrets via the Cloudflare CLI:
+# 🔒 SECRETS — NEVER COMMIT TO GIT. Set via setup script only:
+#   scripts/setup-b2-worker.ps1  (Windows)
+#   scripts/setup-b2-worker.sh   (Mac/Linux)
 #
-#   npx wrangler secret put B2_KEY_ID --config wrangler-b2-proxy.toml
-#   npx wrangler secret put B2_APP_KEY --config wrangler-b2-proxy.toml
-#
+#   Script securely prompts and runs:
+#     wrangler secret put B2_KEY_ID
+#     wrangler secret put B2_APP_KEY
 # ==============================================================================
