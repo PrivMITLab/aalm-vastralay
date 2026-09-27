@@ -1,5 +1,33 @@
-# Dependencies
-node_modules
+# ==============================================================================
+# 👑 AALM VASTRALAY — PRODUCTION GITIGNORE
+# Comprehensive, Enterprise-Grade Exclusion Policy
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Secrets (CRITICAL: Never commit secrets)
+# ------------------------------------------------------------------------------
+.env
+.env*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*credentials*.json
+*service-account*.json
+secrets.json
+
+# ------------------------------------------------------------------------------
+# 2. Dependencies & Package Managers
+# ------------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
 /.pnp
 .pnp.*
 .yarn/*
@@ -9,36 +37,71 @@ node_modules
 !.yarn/sdks
 !.yarn/versions
 
-# Environment files
-.env
-.env*.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Next.js build and outputs
+# ------------------------------------------------------------------------------
+# 3. Next.js, Bundlers & Build Outputs
+# ------------------------------------------------------------------------------
 .next/
 .open-next/
 out/
 build/
 dist/
+.vercel
+.turbo/
+.swc/
 
-# Production uploads (user generated content)
+# ------------------------------------------------------------------------------
+# 4. Cloudflare, Serverless & Edge Tooling
+# ------------------------------------------------------------------------------
+.wrangler/
+wrangler.log
+
+# ------------------------------------------------------------------------------
+# 5. User Uploads, Media & Local Databases
+# ------------------------------------------------------------------------------
 public/uploads/
+uploads/
+storage/
+media/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
 
-# Debug and Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-*.log
+# ------------------------------------------------------------------------------
+# 6. TypeScript, Linter & Tool Caches
+# ------------------------------------------------------------------------------
+*.tsbuildinfo
+next-env.d.ts
+.eslintcache
+.stylelintcache
+.prettiercache
 
-# Operating System Files
+# ------------------------------------------------------------------------------
+# 7. Testing, Coverage & Playwright Artifacts
+# ------------------------------------------------------------------------------
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ------------------------------------------------------------------------------
+# 8. Operating System Junk & Thumbnails
+# ------------------------------------------------------------------------------
 .DS_Store
-*.pem
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
 
-# IDE & Editor files
+# ------------------------------------------------------------------------------
+# 9. IDEs, Editors & Workspaces
+# ------------------------------------------------------------------------------
 .vscode/
 .idea/
 *.suo
@@ -46,12 +109,26 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.sublime-workspace
+*.sublime-project
+*.sublime-grunt
 
-# TypeScript cache
-*.tsbuildinfo
-next-env.d.ts
-
-# Backups
+# ------------------------------------------------------------------------------
+# 10. Backups, Patches, Logs & Scratch Files
+# ------------------------------------------------------------------------------
 .backup/
 *.backup
-
+*.bak
+*.old
+*~
+*.orig
+*.rej
+*.tmp
+*.temp
+*.patch
+*.diff
+scratch/
+tmp/
+temp/
+logs/
+*.log
