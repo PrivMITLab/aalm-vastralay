@@ -176,6 +176,9 @@ const TABLE_DDL_STATEMENTS = [
     "title" text NOT NULL,
     "body" text,
     "data" jsonb,
+    "priority" text DEFAULT 'info' NOT NULL,
+    "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL,
+    "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL,
     "is_read" boolean DEFAULT false NOT NULL,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
@@ -295,6 +298,9 @@ export async function autoEnsureTables() {
     await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "push_subscriptions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "endpoint" text UNIQUE NOT NULL, "keys_p256dh" text NOT NULL, "keys_auth" text NOT NULL, "created_at" timestamptz DEFAULT now());`));
     await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now());`));
     await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`));
+    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'info' NOT NULL;`));
+    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL;`));
+    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`));
   } catch {
     // Non-fatal if columns/indexes exist
   }

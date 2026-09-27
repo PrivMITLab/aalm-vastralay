@@ -113,3 +113,34 @@
   1. Replaced native `<details>` in `HeaderNav.tsx` with semantic `<Link>` elements for leaf categories and smooth CSS hover/focus dropdowns with outside-click dismissal.
   2. Refactored mobile drawer to `overflow-hidden` on parent `<aside>` and kinetic `overscroll-contain` on the single scrollable view container.
   3. Single-level categories in mobile drawer now render direct navigation links with `ChevronRight`, eliminating dead accordion clicks.
+
+### Incident 020: Sign-Out Dropdown Premature Unmount & Action Cancellation
+- **Symptom:** Clicking the "Sign out" button in the user profile header dropdown failed to log out the user. The dropdown closed, but the user remained logged in.
+- **Root Cause:** In `src/components/header/HeaderNav.tsx`, the parent `div` of the user menu had an `onClick={() => setUserMenuOpen(false)}` handler. Clicking the submit button triggered event bubbling to the parent container, setting state to `false` and immediately unmounting the `<form action={signOut}>` before the Server Action could finish its network flight.
+- **Resolution:**
+  1. Removed the container-level unmounting click listener from the dropdown parent `div`.
+  2. Assigned menu closing handlers directly to navigation link anchors (`MenuLink`) so navigation still closes the dropdown without affecting form actions.
+  3. Created a fail-safe fallback route `/api/auth/sign-out` which expires the session cookie with `maxAge: 0` directly on HTTP redirect.
+  4. Hardened `clearSessionCookie()` in `src/lib/auth.ts` to both `store.delete()` and `store.set(..., "", { maxAge: 0, expires: new Date(0) })`.
+  5. Wrapped audit logging inside `signOut()` in a `try/catch` block so transient database errors never prevent session invalidation.
+
+### Incident 021: Marketing Campaign Broadcast Failure on Missing Notification Columns
+- **Symptom:** Dispatching a marketing campaign to "All Customers" in `/admin/marketing` resulted in error: `(!) Failed: Broadcast dispatch failed. Please check server logs.`
+- **Root Cause:**
+  1. `src/db/schema.ts` defined `priority`, `channel_id`, and `action_buttons` on `notifications`, but the original table creation script in `src/db/init.ts` omitted these columns. Inserting records caused PostgreSQL to throw `column "priority" does not exist`.
+  2. Sequential email sending to 50+ customers in a single server action exceeded Vercel's 10-second serverless timeout limit.
+- **Resolution:**
+  1. Added `priority`, `channel_id`, and `action_buttons` to `notifications` DDL and implemented non-destructive `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS ...` migrations.
+  2. Refactored email dispatch into bounded parallel chunks via `Promise.allSettled` (capped at 10 for free-tier serverless execution, completing in under 2 seconds).
+  3. Updated error handling in `sendBroadcastCampaignAction` to surface actionable database and network error details.
+
+### Incident 022: Sonner Toast Notifications Silent / Unstyled
+- **Symptom:** Sonner toast notifications were not appearing or lacked standard styling when triggered across the application.
+- **Root Cause:**
+  1. `sonner/dist/styles.css` was not imported in `src/components/ui/sonner.tsx`.
+  2. Legacy `useToast().push()` in `src/components/ui/Toast.tsx` was storing alerts in isolated component state instead of dispatching to Sonner.
+- **Resolution:**
+  1. Added `import "sonner/dist/styles.css";` to `src/components/ui/sonner.tsx`.
+  2. Bridged `useToast().push()` directly to `sonnerToast.success`, `sonnerToast.error`, and `sonnerToast.info`.
+  3. Integrated direct Sonner feedback into `/admin/marketing` broadcast launcher.
+

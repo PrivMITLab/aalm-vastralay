@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
+import { toast as sonnerToast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Toast = { id: number; title: string; description?: string; variant: "success" | "error" | "info" };
@@ -13,6 +14,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const push = useCallback((t: Omit<Toast, "id">) => {
+    try {
+      if (t.variant === "success") {
+        sonnerToast.success(t.title, { description: t.description });
+      } else if (t.variant === "error") {
+        sonnerToast.error(t.title, { description: t.description });
+      } else {
+        sonnerToast.info(t.title, { description: t.description });
+      }
+    } catch {
+      // Fallback
+    }
+
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev.slice(-3), { ...t, id }]);
     setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), 4200);

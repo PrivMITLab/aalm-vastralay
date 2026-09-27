@@ -194,14 +194,50 @@ SKIP_SEED="true"
 
 ---
 
+---
+
 ## 🚀 `.env.local` सेव करने के बाद क्या करें?
 
 1. टर्मिनल में प्रोजेक्ट रन करें:
    ```bash
    npm run dev
    ```
-2. ब्राउज़र में एक बार यह यूआरएल खोलें:
-   ```text
-   http://localhost:3000/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true
-   ```
-   **बस!** आपके डेटाबेस में सभी 16 टेबल्स बन जाएंगी और आपकी वेबसाइट 100% काम करने लगेगी।
+2. एक बार डेटाबेस बूटस्ट्रैप (POST request) चलाएं:
+   - **PowerShell (Windows) से:**
+     ```powershell
+     Invoke-RestMethod -Method Post -Uri "http://localhost:3000/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
+     ```
+   - **या Git Bash / Terminal (curl) से:**
+     ```bash
+     curl -X POST "http://localhost:3000/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
+     ```
+   *(नोट: सुरक्षा कारणों से `/api/bootstrap` केवल **POST** मेथड स्वीकार करता है ताकि ब्राउज़र या वेब क्रॉलर गलती से डेटाबेस को हिट न करें।)*
+
+   **बस!** आपके डेटाबेस में सभी 17 टेबल्स और आवश्यक इंडेक्स बन जाएंगे और आपकी वेबसाइट 100% तैयार हो जाएगी।
+
+---
+
+## 💡 जरूरी सवाल व स्पष्टीकरण (FAQ)
+
+### 1. क्या Sonner (Toast) या DiceBear (Avatars) के लिए कोई API Key या .env वेरिएबल चाहिए?
+- **नहीं!** 
+  - **Sonner Toasts:** पूरी तरह से इन-ऐप क्लाइंट लाइब्रेरी है, इसके लिए कोई भी API key नहीं चाहिए।
+  - **DiceBear Avatars:** पूरी तरह से सेल्फ-होस्टेड (`/api/avatar`) है। यह सर्वर साइड पर ही SVG जेनरेट करता है और Vercel CDN पर 1 साल के लिए कैश हो जाता है। कोई 3rd पार्टी रेट लिमिट या बिलिंग नहीं है।
+
+### 2. Vercel और Cloudflare Worker में कौन-से वेरिएबल्स डालने हैं?
+- **Vercel Project Settings -> Environment Variables:**
+  - `DATABASE_URL` (Neon Pooled connection string)
+  - `AUTH_SECRET` (64-char hex)
+  - `ENCRYPTION_SECRET` (64-char hex)
+  - `POW_SECRET` (Bot protection key)
+  - `NEXT_PUBLIC_SITE_URL` (उदा. `https://aalm-vastralay.vercel.app`)
+  - `NEXT_PUBLIC_B2_WORKER_URL` (`https://aalm-b2-proxy.alamwastraly.workers.dev`)
+  - `COOKIE_SECURE="true"`
+- **Cloudflare Worker (`wrangler-b2-proxy.toml` / Secrets):**
+  - `B2_KEY_ID` (Backblaze Key ID)
+  - `B2_APP_KEY` (Backblaze Application Key)
+  - `B2_TOKEN_KV` (KV Namespace ID)
+
+### 3. क्या इस प्रोजेक्ट में Android या Kotlin की कोई जरूरत है?
+- **बिल्कुल नहीं!** आलम वस्त्रालय एक आधुनिक **Next.js 16 (React 19 + TypeScript)** वेब मार्केटप्लेस है। यह मोबाइल ब्राउज़र, टैबलेट और लैपटॉप सभी पर PWA (Progressive Web App) की तरह चलता है। इसमें Kotlin की कोई आवश्यकता नहीं है।
+

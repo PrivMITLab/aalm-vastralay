@@ -178,8 +178,12 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
 }
 
 export async function signOut() {
-  const user = await getCurrentUser();
-  if (user) await recordAudit({ actorId: user.id, actorEmail: user.email, action: "auth.sign_out" });
+  try {
+    const user = await getCurrentUser();
+    if (user) await recordAudit({ actorId: user.id, actorEmail: user.email, action: "auth.sign_out" });
+  } catch (err) {
+    console.error("[signOut] Non-fatal audit recording error:", err);
+  }
   await clearSessionCookie();
   redirect("/");
 }

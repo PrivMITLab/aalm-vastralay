@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, inArray, desc } from "drizzle-orm";
+import { eq, inArray, desc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, notifications, pushSubscriptions } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
@@ -93,11 +93,25 @@ export async function sendBroadcastCampaignAction(input: BroadcastInput): Promis
 
     // 1. Dispatch In-App Notifications
     if (channels.inApp && targetUsers.length > 0) {
+      // Auto-ensure schema columns exist on notifications relation
+      try {
+        await db.execute(sql.raw(`
+          ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'info' NOT NULL;
+          ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL;
+          ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;
+        `));
+      } catch {
+        // Non-fatal if columns already exist
+      }
+
       const inAppRecords = targetUsers.map((u) => ({
         userId: u.id,
         type: "marketing",
         title: title,
         body: message,
+        priority: "info",
+        channelId: "orders_and_alerts",
+        actionButtons: [{ label: "View Offer", action: "OPEN_URL", url: finalCta }],
         data: {
           campaignType,
           discountText: discountText || null,
@@ -116,10 +130,10 @@ export async function sendBroadcastCampaignAction(input: BroadcastInput): Promis
 
     // 2. Dispatch Emails via GAS Mailer
     if (channels.email && targetUsers.length > 0) {
-      // In test mode, send 1 email; for bulk, cap at safety limit (e.g. 100 per campaign)
-      const emailList = targetAudience === "test_admin" ? targetUsers : targetUsers.slice(0, 50);
+      // For free tier serverless reliability, send up to 10 emails in bounded parallel execution
+      const emailList = targetAudience === "test_admin" ? targetUsers : targetUsers.slice(0, 10);
 
-      for (const u of emailList) {
+      const emailPromises = emailList.map(async (u) => {
         let emailPayload: GasEmailPayload;
 
         if (campaignType === "FESTIVAL_OFFER") {
@@ -161,8 +175,14 @@ export async function sendBroadcastCampaignAction(input: BroadcastInput): Promis
           };
         }
 
-        const res = await sendGasEmail(emailPayload);
-        if (res.ok) emailCount++;
+        return sendGasEmail(emailPayload);
+      });
+
+      const settled = await Promise.allSettled(emailPromises);
+      for (const res of settled) {
+        if (res.status === "fulfilled" && res.value.ok) {
+          emailCount++;
+        }
       }
     }
 
@@ -192,10 +212,11 @@ export async function sendBroadcastCampaignAction(input: BroadcastInput): Promis
       emailCount,
     };
   } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("[Marketing] Broadcast failed:", err);
     return {
       ok: false,
-      message: "Broadcast dispatch failed. Please check server logs.",
+      message: `Broadcast dispatch failed: ${errorMsg}`,
     };
   }
 }

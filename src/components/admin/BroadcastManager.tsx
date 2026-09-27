@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Sparkles, Megaphone, Tag, PackageCheck, Send, CheckCircle2, AlertCircle, Loader2, Eye, ShieldCheck, Mail, Bell, Smartphone } from "lucide-react";
 import { sendBroadcastCampaignAction, type BroadcastInput } from "@/actions/marketing";
+import { toast } from "sonner";
 import { useFormLock } from "@/lib/use-form-lock";
 import { cn } from "@/lib/utils";
 
@@ -114,6 +115,15 @@ export default function BroadcastManager({ adminEmail, activeCoupons }: Broadcas
       startTransition(async () => {
         const res = await sendBroadcastCampaignAction(payload);
         setResult(res);
+        if (res.ok) {
+          toast.success("अभियान सफलतापूर्वक भेजा गया!", {
+            description: res.message,
+          });
+        } else {
+          toast.error("अभियान नहीं भेजा जा सका", {
+            description: res.message,
+          });
+        }
       });
     });
   };

@@ -2,14 +2,15 @@
 
 A production-grade, multi-vendor e-commerce platform built with **Next.js 16 (App Router) + PostgreSQL (Drizzle ORM)**, designed to run on **permanent free tiers with no credit card** and serve 1,000+ daily customers. Everything below is editable from `/admin` – no code changes needed.
 
-> **Live:** https://aalm-vastralay.pages.dev · **Operator console:** `/admin`
+> **Live:** https://aalm-vastralay.vercel.app · **Operator console:** `/admin`
+> **Enterprise Test Suite:** 32/32 suites passing in ~2.3s (`npm test`).
 > **Security Audit:** Audited & Hardened (Connection pooling, CSRF, PoW anti-bot, Open-redirect protection).
 > **Documentation Hub:** Explore the [Complete Documentation Index (docs/README.md)](docs/README.md) for architecture, guides, and runbooks.
 
 ## 📚 Complete Guides & Documentation
 - 📖 [Complete Platform & Feature Guide](docs/COMPLETE_GUIDE.md) — Comprehensive architecture and features.
-- 🔐 [Environment Variables Guide (`.env`)](docs/ENV_SETUP_GUIDE.md) — Setup guide with Neon, ImageKit & Cloudflare screenshots.
-- 🚀 [Deployment Manual](docs/DEPLOYMENT.md) — Production deployment guidelines.
+- 🔐 [Environment Variables Guide (`.env`)](docs/ENV_SETUP_GUIDE.md) — Setup guide with Neon, Vercel, Cloudflare & B2 credentials.
+- 🚀 [Deployment Manual](docs/DEPLOYMENT.md) — Production deployment guidelines for Vercel, Cloudflare, and Neon.
 - 🏗️ [System Architecture](docs/architecture.md) — Edge routing, data flow, and database models.
 - 🧠 [AI Agent Architecture & Rules](.ai/RULES.md) — Golden rules, zero data loss, and live context.
 
@@ -174,8 +175,9 @@ flowchart LR
 - [x] Self-hosted proof-of-work bot shield (no captcha vendor)
 - [x] Rate limits at edge + actions + API, brute-force lockout
 - [x] Sitemap.xml, robots.txt, OG image generator, legal pages
-- [x] Avatar + store logo/banner upload (local; swap to B2/ImageKit by URL)
-- [x] `npm run db:bootstrap` for idempotent deploys
+- [x] Privacy-first DiceBear Lorelei SVG avatars at `/api/avatar` (1-year immutable cache, 0 upload friction)
+- [x] Sonner rich toast notifications wired with `useToast()` bridge
+- [x] `npm run db:bootstrap` (POST-only) for idempotent deploys
 - [ ] Create Neon project & paste `DATABASE_URL`
 - [ ] Create ImageKit / B2 / Cloudflare accounts and fill `.env.local`
 - [ ] Deploy Worker, deploy to Cloudflare Pages

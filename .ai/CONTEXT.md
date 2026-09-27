@@ -11,10 +11,12 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 30 Enterprise test suites in `tests/` passing in ~1.30s (`npm test`).
+- **Automated Tests:** 32 Enterprise test suites in `tests/` passing in ~2.30s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
+- **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
+- **Self-Hosted Avatars:** DiceBear Lorelei SVG generator at `/api/avatar` (1-year immutable cache, 0 upload friction).
 
 ## 3. Production Server-Side Security Hardening (All 26 API Routes)
 1. **Rate-Limit Bypass & Anti-Spoof Defense (`src/lib/rate-limit.ts`, `src/lib/request.ts`):**
@@ -221,5 +223,37 @@ ame?\, \size?\ (default 40px), \className?\.
 6. **Deploy Hygiene:**
    - Added build hash indicator to footer: `Build: process.env.NEXT_PUBLIC_BUILD_ID || "v2.6-prod"`.
 7. **Test Suite Growth:**
-   - Added `tests/unit/save-changes-and-security-fix.test.ts` (suite #32). Total **32/32 suites passing green in ~5.8s**.
+   - Added `tests/unit/save-changes-and-security-fix.test.ts` (suite #32). Total **32/32 suites passing green in ~2.3s**.
+
+## 10. Sign-Out Event Bubbling Fix, Marketing Broadcast Reliability & Sonner Toasts
+1. **Sign-Out Button Unmount Bug Resolved (`src/components/header/HeaderNav.tsx`, `src/app/api/auth/sign-out/route.ts`):**
+   - **Root Cause:** In the header dropdown, the parent `div` had an `onClick={() => setUserMenuOpen(false)}` handler. When the user clicked the "Sign out" submit button, the click event bubbled to the parent container, immediately updating state to `setUserMenuOpen(false)` and unmounting the `<form action={signOut}>` before React 19 / Next.js Server Action could initiate its network dispatch.
+   - **Resolution:**
+     - Removed the container-level unmounting `onClick` handler from the dropdown parent `div`.
+     - Attached `onClick={() => setUserMenuOpen(false)}` directly to navigation links (`MenuLink`) so navigation closes the menu while form submissions proceed unhindered.
+     - Added an active `isSigningOut` spinner state and tactile button styling with `Loader2` animation.
+     - Added fail-safe fallback route `GET/POST /api/auth/sign-out/route.ts` that explicitly sets `SESSION_COOKIE` with `maxAge: 0` and `expires: new Date(0)` on `NextResponse.redirect` directly at the HTTP header level.
+     - Hardened `clearSessionCookie()` in `src/lib/auth.ts` to both delete and overwrite with an expired empty cookie across `store.delete()` and `store.set()`.
+     - Wrapped audit logging in `signOut()` (`src/actions/auth.ts`) in `try/catch` so database connection delays never block cookie removal and redirect.
+
+2. **Marketing Broadcast Dispatch Failure & Database Zero-Loss Migration (`src/actions/marketing.ts`, `src/db/init.ts`):**
+   - **Root Cause:** The `notifications` table in `src/db/schema.ts` had columns `priority`, `channel_id`, and `action_buttons` marked as `.notNull().default(...)`. However, in `src/db/init.ts`, the original `TABLE_DDL_STATEMENTS` created the `notifications` table without these 3 columns. When `sendBroadcastCampaignAction` inserted batch notifications into PostgreSQL, Neon rejected the query with `column "priority" does not exist`. Furthermore, sequential email sending to customers risked exceeding Vercel's 10-second serverless execution ceiling.
+   - **Resolution:**
+     - Added `priority text DEFAULT 'normal' NOT NULL`, `channel_id text DEFAULT 'general' NOT NULL`, and `action_buttons jsonb DEFAULT '[]'::jsonb NOT NULL` to the `notifications` DDL table definition in `src/db/init.ts`.
+     - Added automatic non-destructive runtime migrations:
+       ```sql
+       ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'normal' NOT NULL;
+       ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'general' NOT NULL;
+       ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;
+       ```
+     - Converted sequential email dispatch loop to a bounded parallel execution using `Promise.allSettled` (capped at 10 for free-tier serverless speed, completing in < 2 seconds).
+     - Enhanced error reporting in `sendBroadcastCampaignAction` to capture and surface real database and network error messages rather than returning a generic `"Broadcast dispatch failed"`.
+
+3. **Sonner Toast Notification System Audit & Fix (`src/components/ui/sonner.tsx`, `src/components/ui/Toast.tsx`, `src/components/admin/BroadcastManager.tsx`):**
+   - **Root Cause:** `sonner/dist/styles.css` was not imported in `src/components/ui/sonner.tsx`, causing rendered toasts to appear unstyled or invisible. In addition, `useToast().push()` in `src/components/ui/Toast.tsx` was isolated in a local React state and disconnected from `sonner`.
+   - **Resolution:**
+     - Explicitly imported `sonner/dist/styles.css` in `src/components/ui/sonner.tsx`.
+     - Bridged `useToast().push()` directly to `sonnerToast.success`, `sonnerToast.error`, and `sonnerToast.info`, ensuring any legacy toast call seamlessly triggers a rich Sonner toast.
+     - Added direct `toast.success` and `toast.error` dispatch to `src/components/admin/BroadcastManager.tsx` on marketing campaign launch.
+
 

@@ -139,12 +139,20 @@ SKIP_SEED="true"
 <a id="5-bootstrap"></a>
 ## 🔄 5. डेटाबेस इनिशियलाइज़ेशन (Zero-Downtime Bootstrap)
 
-डिप्लॉय होने के बाद एक बार ब्राउज़र में यह सुरक्षित बूटस्ट्रैप यूआरएल खोलें:
-```text
-https://aalm-vastralay.vercel.app/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true
+डिप्लॉय होने के बाद एक बार टर्मिनल / PowerShell से यह सुरक्षित POST बूटस्ट्रैप चलाएं:
+```bash
+# Terminal / cURL:
+curl -X POST "https://aalm-vastralay.vercel.app/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
 ```
-- यह आपके डेटाबेस में सभी 16 टेबल्स (Users, Products, Categories, Orders, Cart, Settings आदि) सुरक्षित रूप से तैयार कर देगा।
-- किसी भी पुराने डेटा को डिलीट किए बिना सारे ज़रूरी कॉलम्स और इंडेक्स बना देगा।
+या PowerShell (Windows) में:
+```powershell
+Invoke-RestMethod -Method Post -Uri "https://aalm-vastralay.vercel.app/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
+```
+*(नोट: सुरक्षा कारणों से `/api/bootstrap` केवल **POST** मेथड स्वीकार करता है ताकि गलती से कोई वेब बॉट या GET क्रॉलर डेटाबेस को ट्रिगर न करे।)*
+
+- यह आपके डेटाबेस में सभी 17 टेबल्स (Users, Products, Categories, Orders, Cart, Settings, Notifications, pow_used आदि) सुरक्षित रूप से तैयार कर देगा।
+- किसी भी पुराने डेटा को डिलीट किए बिना सारे ज़रूरी कॉलम्स और इंडेक्स बना देगा (Zero-Loss Migration Protocol)।
+
 
 ---
 

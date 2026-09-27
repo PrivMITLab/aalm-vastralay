@@ -87,6 +87,21 @@ export default function HeaderNav({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [desktopActiveCat, setDesktopActiveCat] = useState<string | null>(null);
   const [headerBottom, setHeaderBottom] = useState<number>(112);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } catch {
+      window.location.href = "/api/auth/sign-out";
+    }
+  };
 
   const boxRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -531,35 +546,38 @@ export default function HeaderNav({
                 <ChevronDown className={cn("hidden sm:block h-3.5 w-3.5 text-[color:var(--text-soft)] transition-transform duration-200", userMenuOpen && "rotate-180")} />
               </button>
               {userMenuOpen && (
-                <div
-                  className="animate-fade-in absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
-                  onClick={() => setUserMenuOpen(false)}
-                >
+                <div className="animate-fade-in absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 text-[color:var(--text)] shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
                   <div className="border-b border-[color:var(--border)] px-3 py-2">
                     <p className="truncate text-sm font-semibold text-[color:var(--text)]">{user.fullName}</p>
                     <p className="truncate text-xs text-[color:var(--text-soft)]">{user.email}</p>
                     <span className="badge mt-1 capitalize">{user.role}</span>
                   </div>
                   <div className="py-1">
-                    <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" />
-                    <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" />
-                    {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" />}
+                    <MenuLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="My Account" onClick={() => setUserMenuOpen(false)} />
+                    <MenuLink href="/orders" icon={<Package className="h-4 w-4" />} label="My Orders" onClick={() => setUserMenuOpen(false)} />
+                    {showWishlist && <MenuLink href="/wishlist" icon={<Heart className="h-4 w-4" />} label="Wishlist" onClick={() => setUserMenuOpen(false)} />}
                     {isSeller ? (
-                      <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" />
+                      <MenuLink href="/seller" icon={<Store className="h-4 w-4" />} label="Seller Hub" onClick={() => setUserMenuOpen(false)} />
                     ) : (
-                      <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" />
+                      <MenuLink href="/onboarding" icon={<Store className="h-4 w-4" />} label="Become a Seller" onClick={() => setUserMenuOpen(false)} />
                     )}
                     {user.role === "admin" && (
-                      <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" />
+                      <MenuLink href="/admin" icon={<ShieldCheck className="h-4 w-4" />} label="Admin Panel" onClick={() => setUserMenuOpen(false)} />
                     )}
                   </div>
-                  <div className="border-t border-[color:var(--border)] pt-1">
-                    <form action={signOut}>
+                  <div className="border-t border-[color:var(--border)] pt-1" onClick={(e) => e.stopPropagation()}>
+                    <form action="/api/auth/sign-out" method="POST" onSubmit={handleSignOut}>
                       <button
                         type="submit"
-                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-[color:var(--surface-2)]"
+                        disabled={isSigningOut}
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-[color:var(--surface-2)] transition disabled:opacity-60"
                       >
-                        <LogOut className="h-4 w-4" /> Sign out
+                        {isSigningOut ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-rose-600" />
+                        ) : (
+                          <LogOut className="h-4 w-4 text-rose-600" />
+                        )}
+                        <span>{isSigningOut ? "Signing out..." : "Sign out"}</span>
                       </button>
                     </form>
                   </div>
@@ -839,17 +857,34 @@ export default function HeaderNav({
 
               {/* User Bar in Drawer */}
               {user ? (
-                <div className="mt-4 flex items-center gap-3 rounded-xl bg-white/10 p-2.5 backdrop-blur-sm border border-white/15">
-                  <div className="grid h-8 w-8 place-items-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">
-                    {(user.fullName ?? user.email).slice(0, 1).toUpperCase()}
+                <div className="mt-4 rounded-xl bg-white/10 p-2.5 backdrop-blur-sm border border-white/15">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-8 w-8 place-items-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">
+                      {(user.fullName ?? user.email).slice(0, 1).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-white">{user.fullName || "Account"}</p>
+                      <p className="truncate text-[10px] text-white/70">{user.email}</p>
+                    </div>
+                    <span className="rounded-full bg-[#D4AF37]/20 px-2 py-0.5 text-[10px] font-bold text-[#D4AF37] border border-[#D4AF37]/40 uppercase">
+                      {user.role}
+                    </span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-white">{user.fullName || "Account"}</p>
-                    <p className="truncate text-[10px] text-white/70">{user.email}</p>
+                  <div className="mt-2.5 border-t border-white/15 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                      className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-rose-500/20 border border-rose-500/40 px-3 py-2 text-xs font-bold text-rose-200 hover:bg-rose-500/30 transition disabled:opacity-60"
+                    >
+                      {isSigningOut ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-rose-300" />
+                      ) : (
+                        <LogOut className="h-4 w-4 text-rose-300" />
+                      )}
+                      <span>{isSigningOut ? "Signing out..." : "Sign out"}</span>
+                    </button>
                   </div>
-                  <span className="rounded-full bg-[#D4AF37]/20 px-2 py-0.5 text-[10px] font-bold text-[#D4AF37] border border-[#D4AF37]/40 uppercase">
-                    {user.role}
-                  </span>
                 </div>
               ) : (
                 <div className="mt-4 grid grid-cols-2 gap-2">
@@ -1127,10 +1162,11 @@ export default function HeaderNav({
   );
 }
 
-function MenuLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+function MenuLink({ href, icon, label, onClick }: { href: string; icon: React.ReactNode; label: string; onClick?: () => void }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[color:var(--text-muted)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--brand)] active:scale-[0.97] active:bg-[color:var(--surface-3)] transition-all tap-feedback select-none"
     >
       {icon} {label}

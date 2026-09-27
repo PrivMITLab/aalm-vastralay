@@ -44,7 +44,7 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 | `wishlist` | Saved favorite products | UUID | `user_id -> users.id`, `product_id -> products.id` |
 | `reviews` | Customer ratings & photos | UUID | `product_id -> products.id`, `user_id -> users.id` |
 | `coupons` | Promo codes & discounts | UUID | — |
-| `notifications` | User alerts feed | UUID | `user_id -> users.id` |
+| `notifications` | User alerts feed (`priority`, `channel_id`, `action_buttons`) | UUID | `user_id -> users.id` |
 | `addresses` | Customer delivery locations | UUID | `user_id -> users.id` |
 | `settings` | Zero-code site customizations | Text (key) | `updated_by -> users.id` |
 | `audit_logs` | Admin action trail | UUID | `actor_id -> users.id` |
@@ -80,5 +80,9 @@ Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean 
 10. `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`
 11. `settings` key `home.slides`: JSON array of max 5 slides (`[{ image, title, subtitle, badge, ctaLabel, ctaHref, strategy, mirroredUrl, active, order }]`), validated via Zod `heroSlidesArraySchema`.
 12. `settings` key `stats.mirroredBytes`: Cumulative mirrored storage counter (integer byte tally) for Backblaze B2 usage tracking against the 10GB free tier.
+13. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'normal' NOT NULL;`
+14. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'general' NOT NULL;`
+15. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`
 *Note: Existing `home.banner` settings key is 100% preserved as automatic zero-cost fallback.*
+
 

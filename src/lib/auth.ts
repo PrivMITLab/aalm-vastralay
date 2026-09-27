@@ -102,7 +102,19 @@ export async function setSessionCookie(user: Pick<User, "id" | "passwordHash" | 
 
 export async function clearSessionCookie() {
   const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  try {
+    store.delete(SESSION_COOKIE);
+  } catch {}
+  try {
+    store.set(SESSION_COOKIE, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
+      secure: process.env.COOKIE_SECURE === "true" || process.env.NODE_ENV === "production",
+    });
+  } catch {}
 }
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
