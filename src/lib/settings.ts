@@ -385,18 +385,7 @@ export async function getHomeConfig(): Promise<HomeConfig> {
   };
 }
 
-/** Seed the settings table with any missing keys (called from admin + instrumentation). */
-export async function ensureSettingsRows() {
-  const existing = await db.select({ key: settingsTable.key }).from(settingsTable);
-  const known = new Set(existing.map((r) => r.key));
-  const missing = SETTINGS_FIELDS.filter((f) => !known.has(f.key));
-  if (missing.length === 0) return 0;
-  await db
-    .insert(settingsTable)
-    .values(missing.map((f) => ({ key: f.key, value: f.default, group: f.group, label: f.label })))
-    .onConflictDoNothing();
-  return missing.length;
-}
+export { ensureSettingsRows } from "@/db/init";
 
 export async function getSettingsByGroup(group: string) {
   const rows = await db.select().from(settingsTable).where(inArray(settingsTable.group, [group]));

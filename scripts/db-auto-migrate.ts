@@ -10,9 +10,7 @@
  * Guaranteed: ZERO DATA LOSS. Never drops any table or column.
  */
 
-import { config } from "dotenv";
-config();
-
+import "dotenv/config";
 import { initCleanBaseData } from "../src/db/init";
 
 async function main() {

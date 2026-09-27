@@ -78,24 +78,37 @@ async function handleBootstrap(req: Request) {
     wipeResult = await wipeDemoData();
   }
 
-  const initResult = await initCleanBaseData();
-
-  const report: Record<string, unknown> = {
-    ...initResult,
-    wipedDemoData: isWipeRequested ? wipeResult : false,
-  };
-
   try {
-    const rows = await db.execute(
-      sql`SELECT to_regclass('public.users') AS users, to_regclass('public.products') AS products, to_regclass('public.settings') AS settings, to_regclass('public.categories') AS categories`
-    );
-    report.tables = rows.rows?.[0];
-  } catch (err) {
-    console.error("[Bootstrap] Table query error:", err);
-  }
+    const initResult = await initCleanBaseData();
 
-  report.timestamp = new Date().toISOString();
-  return NextResponse.json({ ok: true, ...report });
+    const report: Record<string, unknown> = {
+      ...initResult,
+      wipedDemoData: isWipeRequested ? wipeResult : false,
+    };
+
+    try {
+      const rows = await db.execute(
+        sql`SELECT to_regclass('public.users') AS users, to_regclass('public.products') AS products, to_regclass('public.settings') AS settings, to_regclass('public.categories') AS categories`
+      );
+      report.tables = rows.rows?.[0];
+    } catch (err) {
+      console.error("[Bootstrap] Table query error:", err);
+    }
+
+    report.timestamp = new Date().toISOString();
+    return NextResponse.json({ ok: true, ...report });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[Bootstrap] Initialization failed:", err);
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Database initialization failed: " + msg,
+        hint: "Check Neon database password, pooled connection string (-pooler), and ensure the database project is active.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 /**

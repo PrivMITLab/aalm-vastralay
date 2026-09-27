@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { db } from "./index";
 import { categories, coupons, settings, users } from "./schema";
 import { hashPassword } from "../lib/password";
-import { ensureSettingsRows } from "../lib/settings";
+import { SETTINGS_FIELDS } from "../lib/settings-defs";
 import { autoPruneOldData } from "../lib/db-hygiene";
 
 /**
@@ -304,6 +304,21 @@ export async function autoEnsureTables() {
   } catch {
     // Non-fatal if columns/indexes exist
   }
+}
+
+/**
+ * Seed the settings table with any missing keys (called from admin + instrumentation).
+ */
+export async function ensureSettingsRows() {
+  const existing = await db.select({ key: settings.key }).from(settings);
+  const known = new Set(existing.map((r) => r.key));
+  const missing = SETTINGS_FIELDS.filter((f) => !known.has(f.key));
+  if (missing.length === 0) return 0;
+  await db
+    .insert(settings)
+    .values(missing.map((f) => ({ key: f.key, value: f.default, group: f.group, label: f.label })))
+    .onConflictDoNothing();
+  return missing.length;
 }
 
 /**
