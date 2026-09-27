@@ -37,11 +37,11 @@ const SECTIONS_DEFAULT = JSON.stringify([
 
 const defaultAppName = process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay";
 const defaultTagline = process.env.NEXT_PUBLIC_BRAND_TAGLINE || "Royal Indian Wedding & Luxury Ethnic Wear";
-const defaultPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 84340 61342";
+const defaultPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210";
 const defaultWhatsApp = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || defaultPhone;
-const defaultEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@aalmvastralay.com";
+const defaultEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com";
 const defaultLogoUrl = process.env.NEXT_PUBLIC_DEFAULT_LOGO_URL || "";
-const defaultAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS || "Kalyanipur, Bihar, India (Proprietor: Suheb Alam)";
+const defaultAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS || "Main Market, Bihar, India";
 
 export const SETTINGS_FIELDS: SettingField[] = [
   /* ---------------- brand ---------------- */
@@ -55,7 +55,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
     group: "brand",
     label: "Announcement bar messages",
     type: "list",
-    default: "बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान|साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन|हर अंदाज आपके लिए खास — Royal Indian Wedding & Luxury Ethnic Wear|Proprietor: Suheb Alam · Kalyanipur · Call/WhatsApp: 8434061342",
+    default: "बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान|साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन|हर अंदाज आपके लिए खास — Royal Indian Wedding & Luxury Ethnic Wear|Customer Support Available · Call / WhatsApp for Assistance",
     help: "One message per line. Supports all link types: Markdown [Text](/link), direct URLs (https://...), arrow syntax (Sale -> /products), WhatsApp (wa.me/...), or phone numbers.",
   },
   { key: "site.announcementSpeed", group: "brand", label: "Announcement scroll speed (seconds)", type: "number", default: "26", min: 8, max: 120 },
@@ -94,8 +94,8 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "home.bannerSubtitle", group: "home", label: "Banner sub-headline", type: "textarea", default: "Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis handcrafted by master artisans. Cash on delivery & nationwide delivery." },
   { key: "home.bannerCtaLabel", group: "home", label: "Primary button label", type: "text", default: "Explore Collections" },
   { key: "home.bannerCtaHref", group: "home", label: "Primary button link", type: "text", default: "/products?category=women" },
-  { key: "home.bannerCta2Label", group: "home", label: "Secondary button label", type: "text", default: "कॉल करें: 8434061342" },
-  { key: "home.bannerCta2Href", group: "home", label: "Secondary button link", type: "text", default: "tel:+918434061342" },
+  { key: "home.bannerCta2Label", group: "home", label: "Secondary button label", type: "text", default: "कॉल करें (Call Us)" },
+  { key: "home.bannerCta2Href", group: "home", label: "Secondary button link", type: "text", default: process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210" },
   { key: "home.bannerStrategy", group: "home", label: "Banner Image Delivery Strategy", type: "select", options: ["wsrv", "direct", "b2", "auto"], default: "wsrv" },
   { key: "home.bannerMirroredUrl", group: "home", label: "Banner Mirrored B2 URL", type: "text", default: "" },
   { key: "home.slides", group: "home", label: "Hero Carousel Slides (Max 5)", type: "json", default: "[]", help: "Auto-rotating Flipkart/Myntra style hero slides." },
@@ -120,7 +120,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "commerce.returnWindowDays", group: "commerce", label: "Return window", type: "number", default: "7", unit: "days" },
   { key: "commerce.gstPercent", group: "commerce", label: "GST rate", type: "number", default: "5", unit: "%" },
   { key: "commerce.gstInclusive", group: "commerce", label: "Prices include GST", type: "boolean", default: "true" },
-  { key: "commerce.gstin", group: "commerce", label: "Marketplace GSTIN", type: "text", default: "10AABFA8434Q1Z5", help: "15-digit statutory GSTIN printed on tax invoices (State Code: 10 - Bihar)." },
+  { key: "commerce.gstin", group: "commerce", label: "Marketplace GSTIN", type: "text", default: process.env.NEXT_PUBLIC_STORE_GSTIN || "10AAAAA0000A1Z5", help: "15-digit statutory GSTIN printed on tax invoices (State Code: 10 - Bihar)." },
   { key: "commerce.minOrderValue", group: "commerce", label: "Minimum order value", type: "number", default: "0", unit: "₹" },
   { key: "commerce.allowGuestBrowsing", group: "commerce", label: "Allow browsing without signing in", type: "boolean", default: "true" },
   { key: "commerce.weightUnit", group: "commerce", label: "Shipping weight unit", type: "select", options: ["kg", "g"], default: "kg" },

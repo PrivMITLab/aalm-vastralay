@@ -44,7 +44,7 @@ export const BLOG_POSTS: BlogPost[] = [
         heading: "3. Dual Dupatta Draping with Contrast Zari Borders",
         paragraphs: [
           "The two-dupatta aesthetic remains essential for Indian brides: a heavily embroidered velvet or silk shawl draped gracefully over the shoulder or chest, paired with a featherlight sheer organza or tulle veil pinned over the bridal bun.",
-          "At Aalm Vastralay, our Kalyanipur bridal stylists coordinate contrasting hand-scalloped borders so each dupatta frames the bridal jewellery without overpowering the necklace.",
+          "At Aalm Vastralay, our master bridal stylists coordinate contrasting hand-scalloped borders so each dupatta frames the bridal jewellery without overpowering the necklace.",
         ],
       },
     ],

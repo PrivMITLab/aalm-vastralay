@@ -389,7 +389,7 @@ export default function HeaderNav({
                   AALM <span className="font-serif text-[#D4AF37] drop-shadow-xs">VASTRALAY</span>
                 </span>
                 <span className="hidden sm:block text-[9px] font-semibold tracking-[0.22em] text-[color:var(--text-soft)] uppercase mt-0.5">
-                  Wedding &amp; Ethnic Wear · Kalyanipur
+                  Wedding &amp; Ethnic Wear Collection
                 </span>
               </div>
             </div>
@@ -840,7 +840,7 @@ export default function HeaderNav({
                       आलम वस्त्रालय
                     </h2>
                     <p className="text-[10px] font-medium tracking-widest text-[#D4AF37] uppercase">
-                      Aalm Vastralay · Kalyanipur
+                      Royal Indian Wedding &amp; Luxury Ethnic Wear
                     </p>
                   </div>
                 </div>
@@ -1118,7 +1118,7 @@ export default function HeaderNav({
               {/* Direct WhatsApp Consultation Button */}
               <div className="pt-1">
                 <a
-                  href="https://wa.me/918434061342?text=Namaste%20Aalm%20Vastralay,%20I%20would%20like%20to%20consult%20for%20bridal/wedding%20wear%20and%20sarees."
+                  href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Namaste,%20I%20would%20like%20to%20consult%20for%20bridal/wedding%20wear%20and%20sarees.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex min-h-[44px] items-center justify-center gap-2 w-full rounded-2xl bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#1fb855] transition-all"
@@ -1127,7 +1127,7 @@ export default function HeaderNav({
                   <span>WhatsApp Bridal Consultation</span>
                 </a>
                 <p className="mt-1 text-center text-[10px] text-[color:var(--text-soft)]">
-                  Call Proprietor: +91 8434061342 (Kalyanipur)
+                  Customer Support: {process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210"}
                 </p>
               </div>
 

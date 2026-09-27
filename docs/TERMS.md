@@ -1,7 +1,7 @@
 # 📜 AALM VASTRALAY (आलम वस्त्रालय) — TERMS OF SERVICE SPECIFICATION
 > **Document Location:** `docs/TERMS.md`  
 > **Statutory Compliance:** Indian Contract Act, 1872 · Information Technology Act, 2000 (Section 79 Safe Harbor) · Consumer Protection (E-Commerce) Rules, 2020  
-> **Headquarters:** Kalyanipur, District Samastipur, Bihar – 848302, India  
+> **Headquarters:** Bihar, India (Configurable via `NEXT_PUBLIC_STORE_ADDRESS`)  
 > **Live Web Route:** [`https://aalm-vastralay.vercel.app/terms`](https://aalm-vastralay.vercel.app/terms)
 
 ---

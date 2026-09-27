@@ -10,7 +10,7 @@
 
 ### Step 1: Clone & Install Dependencies
 ```bash
-git clone https://github.com/alamwastraly-sketch/aalm-vastralay.git
+git clone https://github.com/your-org/aalm-vastralay.git
 cd aalm-vastralay
 npm install
 ```

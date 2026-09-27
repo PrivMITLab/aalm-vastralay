@@ -153,7 +153,7 @@ All marketplace settings can be customized in real-time from **/admin → Site s
 | **Database Degradation / Blips** | `withDbRetry<T>` armor providing automatic backoff retry on transient Neon connection blips. |
 | **IP Spoofing & Header Tampering** | Strict IPv4/IPv6 regex check (`isValidIp`), proxy header precedence, and quarantine of invalid IPs. |
 | **Button Rapid Double-Clicks** | Re-entry lock hook `useFormLock()` disabling buttons immediately to prevent duplicate orders. |
-| **Sensitive Data Exposure** | Zero internal error leakage; automated PII masking on phone (`8434****42`) and email (`r**@gmail.com`). |
+| **Sensitive Data Exposure** | Zero internal error leakage; automated PII masking on phone (`9876****10`) and email (`r**@gmail.com`). |
 | **Session Security** | Signed `HttpOnly`, `SameSite=Lax` cookies; invalidation on password change; fail-safe sign-out endpoint (`/api/auth/sign-out`). |
 | **Zero Data Loss Migrations** | All schema updates strictly use `ADD COLUMN IF NOT EXISTS` with safe non-null defaults. |
 
@@ -169,7 +169,7 @@ All marketplace settings can be customized in real-time from **/admin → Site s
 ### 2. Setup Repository
 ```bash
 # Clone the repository
-git clone https://github.com/alamwastraly-sketch/aalm-vastralay.git
+git clone https://github.com/your-org/aalm-vastralay.git
 cd aalm-vastralay
 
 # Install dependencies
@@ -320,7 +320,7 @@ Comprehensive guides, specifications, and runbooks located in [`docs/`](docs/REA
 
 <div align="center">
 
-**Aalm Vastralay (आलम वस्त्रालय)** &nbsp;•&nbsp; Kalyanipur, Bihar, India  
+**Aalm Vastralay (आलम वस्त्रालय)** &nbsp;•&nbsp; Bihar, India  
 *Crafted with precision for Indian Commerce.*
 
 </div>

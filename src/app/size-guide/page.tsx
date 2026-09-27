@@ -68,7 +68,7 @@ export default function SizeGuidePage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
             <span className="inline-flex items-center gap-1 text-xs font-bold text-[color:var(--accent)]">
-              <Sparkles className="h-3.5 w-3.5 fill-[color:var(--accent)]" /> Bespoke Kalyanipur Atelier
+              <Sparkles className="h-3.5 w-3.5 fill-[color:var(--accent)]" /> Bespoke Artisan Atelier
             </span>
             <h3 className="font-display text-lg font-bold text-[color:var(--brand)]">
               Need Made-to-Measure Custom Stitching?
@@ -78,7 +78,7 @@ export default function SizeGuidePage() {
             </p>
           </div>
           <a
-            href="https://wa.me/918434061342?text=Hello%20Aalm%20Vastralay,%20I%20want%20to%20book%20a%20custom%20stitching%20consultation"
+            href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Hello,%20I%20want%20to%20book%20a%20custom%20stitching%20consultation`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 shrink-0"

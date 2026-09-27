@@ -125,7 +125,7 @@ The system maintains 100% backward compatibility:
 | **Logo Wordmark** | Playfair Display | 700 | Georgia, Times New Roman, serif | "AALM VASTRALAY" text |
 | **Monogram** | Georgia | Bold | Playfair Display, Times New Roman, serif | "AV" letters |
 | **Tagline** | Inter | 600 | -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif | "WEDDING & ETHNIC WEAR" |
-| **Location** | Inter | 500 | Same as tagline | "KALYANIPUR · BIHAR · INDIA" |
+| **Location** | Inter | 500 | Same as tagline | "HANDCRAFTED · BIHAR · INDIA" |
 | **Body Copy** | Inter | 400 | Same as tagline | Website paragraphs, product descriptions |
 | **Headings (H1-H3)** | Playfair Display | 700 | Georgia, serif | Section titles on website |
 | **UI Elements** | Inter | 500 | system-ui, sans-serif | Buttons, forms, navigation |
@@ -905,7 +905,7 @@ Aalm Vastralay is a royal, elegant, and warm brand that celebrates Indian artisa
 4. **Pillar 4: Fair & Transparent**  
    *"We believe in fair trade. Our artisans earn 2x the industry average, and every rupee you spend goes directly to the weavers and their families. No middlemen. No exploitation."*
 5. **Pillar 5: Serving Bihar & Beyond**  
-   *"Born in Kalyanipur, Bihar, we're proud to serve customers across India and the world. From local weddings to global celebrations, we bring the finest ethnic wear to your doorstep."*
+   *"Rooted in Bihar, we're proud to serve customers across India and the world. From local weddings to global celebrations, we bring the finest ethnic wear to your doorstep."*
 
 ### Content Guidelines
 

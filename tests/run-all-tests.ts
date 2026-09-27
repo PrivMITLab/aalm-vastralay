@@ -30,6 +30,7 @@ import { runHeaderScrollAndA11yTests } from "./unit/header-scroll-lock.test";
 import { runHeroCarouselTests } from "./unit/hero-carousel.test";
 import { testFailClosedSecrets } from "./unit/fail-closed-secrets.test";
 import { testSaveChangesAndSecurityFix } from "./unit/save-changes-and-security-fix.test";
+import { testOpenSourceTemplateIntegrity } from "./unit/open-source-template.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -71,6 +72,7 @@ async function runAllTests() {
     { name: "Hero Carousel, Multi-Strategy & B2 Mirror Engine", fn: runHeroCarouselTests },
     { name: "Fail-Closed Secrets, Presign 503 & Courier Label 400", fn: testFailClosedSecrets },
     { name: "DB Transient Retry Armor, PoW Agreement & Anti-Enumeration", fn: testSaveChangesAndSecurityFix },
+    { name: "Open-Source Turnkey Template & Zero-PII Integrity", fn: testOpenSourceTemplateIntegrity },
   ];
 
   for (const suite of suites) {

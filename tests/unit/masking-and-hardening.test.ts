@@ -15,9 +15,9 @@ export async function testMaskingAndHardening() {
   console.log("  ▶ Running PII Masking, Rate Limiting & XSS Defense Tests...");
 
   // 1. Phone Masking Tests
-  assert.equal(maskPhone("8434061342"), "8434****42", "10-digit phone should mask middle digits");
-  assert.equal(maskPhone("+918434061342"), "8434****42", "Phone with +91 country code should normalize and mask");
-  assert.equal(maskPhone("+91 8434-061342"), "8434****42", "Phone with dashes and spaces should sanitize and mask");
+  assert.equal(maskPhone("9876543210"), "9876****10", "10-digit phone should mask middle digits");
+  assert.equal(maskPhone("+919876543210"), "9876****10", "Phone with +91 country code should normalize and mask");
+  assert.equal(maskPhone("+91 9876-543210"), "9876****10", "Phone with dashes and spaces should sanitize and mask");
   assert.equal(maskPhone("123"), "1***3", "Short phone should mask middle characters");
   assert.equal(maskPhone(null), "N/A", "Null phone should return N/A");
 

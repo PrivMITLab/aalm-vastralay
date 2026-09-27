@@ -10,7 +10,7 @@
  */
 
 export interface UpiPaymentDetails {
-  /** Store UPI VPA (e.g. 8434061342@upi or suhebalam@okaxis) */
+  /** Store UPI VPA (e.g. merchant@upi or store@okaxis) */
   vpa: string;
   /** Registered merchant / store display name */
   payeeName: string;

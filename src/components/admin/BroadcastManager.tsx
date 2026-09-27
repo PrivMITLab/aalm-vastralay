@@ -453,7 +453,7 @@ export default function BroadcastManager({ adminEmail, activeCoupons }: Broadcas
                     आलम वस्त्रालय <span className="font-normal text-xs text-amber-100">(Aalm Vastralay)</span>
                   </h4>
                   <p className="text-purple-200 text-[9px] tracking-wider uppercase mt-0.5">
-                    WEDDING & BRIDAL COUTURE · KALYANIPUR
+                    WEDDING & BRIDAL COUTURE · LUXURY ETHNIC WEAR
                   </p>
                 </div>
 
@@ -487,8 +487,8 @@ export default function BroadcastManager({ adminEmail, activeCoupons }: Broadcas
 
                 {/* Footer Preview */}
                 <div className="bg-[#fdfaf6] border-t border-[#f0e6d6] p-2.5 text-center text-[10px] text-slate-500">
-                  <p className="font-bold text-slate-700">Aalm Vastralay, Kalyanipur, Bihar</p>
-                  <p className="text-[9px]">WhatsApp: +91 8434061342 · COD Available</p>
+                  <p className="font-bold text-slate-700">{process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay"} · {process.env.NEXT_PUBLIC_STORE_CITY || "Bihar, India"}</p>
+                  <p className="text-[9px]">WhatsApp: {process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210"} · COD Available</p>
                 </div>
               </div>
             </div>

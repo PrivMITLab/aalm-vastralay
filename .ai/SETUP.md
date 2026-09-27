@@ -57,12 +57,12 @@ Set the following rules in B2 Bucket Settings:
 ## 4. DYNAMIC UPI QR & 1-CLICK WHATSAPP COMMERCE
 
 ### Dynamic UPI QR (Zero Gateway Fees)
-- **Merchant VPA:** `8434061342@upi`
+- **Merchant VPA:** Configurable via `NEXT_PUBLIC_UPI_VPA` in `.env.local` (e.g. `merchant@upi`)
 - **Supported Apps:** Google Pay, PhonePe, Paytm, BHIM, and all UPI-compatible bank apps.
 - **Features:** 5-minute countdown security timer, live amount encoding, 12-digit UTR verification input, Web Audio confirmation chime.
 
 ### WhatsApp Commerce
-- **Store WhatsApp:** `+91 84340 61342`
+- **Store WhatsApp:** Configurable via `NEXT_PUBLIC_SUPPORT_PHONE` in `.env.local`
 - **Order Confirmations:** Auto-generates pre-filled order confirmation message link for customers.
 - **Bridal Consultation:** Direct WhatsApp chat link for lehenga/saree custom stitching measurements.
 - **Dispatch Updates:** 1-Click WhatsApp tracking notification for Admin & Sellers.

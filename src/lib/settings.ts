@@ -257,10 +257,15 @@ export async function getHomeConfig(): Promise<HomeConfig> {
   const bannerBadge = s["home.bannerBadge"] || "Aalm Vastralay · Wedding & Ethnic Wear";
   const bannerTitle = s["home.bannerTitle"] || "Royal Indian Wedding & Luxury Ethnic Wear";
   const bannerSubtitle = s["home.bannerSubtitle"] || "Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis handcrafted by master artisans. Cash on delivery & nationwide delivery.";
+  const defaultPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210";
+  const defaultWhatsAppClean = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP?.replace(/\D/g, "") || "919876543210";
+  const defaultPhoneHref = process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210";
+  const defaultWhatsAppHref = `https://wa.me/${defaultWhatsAppClean}`;
+
   const bannerCtaLabel = s["home.bannerCtaLabel"] || "Explore Collections";
   const bannerCtaHref = s["home.bannerCtaHref"] || "/products?category=women";
-  const bannerCta2Label = s["home.bannerCta2Label"] || "कॉल करें: 8434061342";
-  const bannerCta2Href = s["home.bannerCta2Href"] || "tel:+918434061342";
+  const bannerCta2Label = s["home.bannerCta2Label"] || "कॉल करें (Call Us)";
+  const bannerCta2Href = s["home.bannerCta2Href"] || defaultPhoneHref;
 
   // Parse slides from home.slides setting
   const rawSlides = parseJson<HeroSlide[]>(s["home.slides"], []);
@@ -300,7 +305,7 @@ export async function getHomeConfig(): Promise<HomeConfig> {
         ctaLabel: "Shop Silk Sarees",
         ctaHref: "/products",
         cta2Label: "WhatsApp Consult",
-        cta2Href: "https://wa.me/918434061342",
+        cta2Href: defaultWhatsAppHref,
         alt: "Pure Banarasi & Heritage Handloom Sarees",
         active: true,
         order: 1,
@@ -315,7 +320,7 @@ export async function getHomeConfig(): Promise<HomeConfig> {
         ctaLabel: "View Bridal Wear",
         ctaHref: "/products",
         cta2Label: "Call Stylist",
-        cta2Href: "tel:+918434061342",
+        cta2Href: defaultPhoneHref,
         alt: "Royal Bridal Lehengas & Wedding Ensembles",
         active: true,
         order: 2,
@@ -330,7 +335,7 @@ export async function getHomeConfig(): Promise<HomeConfig> {
         ctaLabel: "Explore Groom Wear",
         ctaHref: "/products",
         cta2Label: "Boutique Visit",
-        cta2Href: "tel:+918434061342",
+        cta2Href: defaultPhoneHref,
         alt: "Regal Groom Sherwanis & Kurta Sets",
         active: true,
         order: 3,

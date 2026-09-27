@@ -7,7 +7,7 @@
  */
 
 /**
- * Masks an Indian mobile number (e.g. "8434061342" -> "8434****42").
+ * Masks an Indian mobile number (e.g. "9876543210" -> "9876****10").
  * Preserves the initial routing network digits and ending digits for customer identification.
  */
 export function maskPhone(phone: string | null | undefined): string {
@@ -36,7 +36,7 @@ export function maskPhone(phone: string | null | undefined): string {
 }
 
 /**
- * Masks an email address (e.g. "ram@gmail.com" -> "r**@gmail.com", "suheb.alam@example.com" -> "s***m@example.com").
+ * Masks an email address (e.g. "customer@gmail.com" -> "c******r@gmail.com").
  * Preserves the domain and first character of local part for verification while hiding the full identity.
  */
 export function maskEmail(email: string | null | undefined): string {

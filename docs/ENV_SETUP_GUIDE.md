@@ -180,7 +180,7 @@ SKIP_SEED="true"
 # B2_APPLICATION_KEY="K005xxxxxxxxxxxxxxxxxxxx"
 # B2_BUCKET_NAME="aalm-vastralay-media"
 # B2_BUCKET_ID="xxxxxxxxxxxxxxxxxxxx"
-# NEXT_PUBLIC_B2_WORKER_URL="https://aalm-b2-proxy.alamwastraly.workers.dev"
+# NEXT_PUBLIC_B2_WORKER_URL="https://b2-proxy.marketplace.workers.dev"
 
 # ------------------------------------------------------------------------------
 # 7. ईमेल सेवा: Google Apps Script / QuietMail / Resend (वैकल्पिक)
@@ -231,7 +231,7 @@ SKIP_SEED="true"
   - `ENCRYPTION_SECRET` (64-char hex)
   - `POW_SECRET` (Bot protection key)
   - `NEXT_PUBLIC_SITE_URL` (उदा. `https://aalm-vastralay.vercel.app`)
-  - `NEXT_PUBLIC_B2_WORKER_URL` (`https://aalm-b2-proxy.alamwastraly.workers.dev`)
+  - `NEXT_PUBLIC_B2_WORKER_URL` (`https://b2-proxy.marketplace.workers.dev`)
   - `COOKIE_SECURE="true"`
 - **Cloudflare Worker (`wrangler-b2-proxy.toml` / Secrets):**
   - `B2_KEY_ID` (Backblaze Key ID)

@@ -3,7 +3,7 @@
 
 ## 1. Project Overview
 - **Project Name:** Aalm Vastralay (आलम वस्त्रालय) — Marketplace Platform
-- **Owner / Proprietor:** Suheb Alam (Kalyanipur, Bihar, India)
+- **Owner / Proprietor:** Store Proprietor (Bihar, India)
 - **Primary Domain:** Indian Ethnic Wear Marketplace (Sarees, Lehengas, Sherwanis, Kurta Sets, Dupattas, Jewellery)
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
@@ -11,8 +11,8 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 32 Enterprise test suites in `tests/` passing in ~2.30s (`npm test`).
-- **Git Branch:** `main` (Remote: `https://github.com/alamwastraly-sketch/aalm-vastralay.git`).
+- **Automated Tests:** 33 Enterprise test suites in `tests/` passing in ~2.50s (`npm test`).
+- **Git Branch:** `main` (Remote: `https://github.com/your-org/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 - **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
@@ -74,7 +74,7 @@
    - Stored in additive `orders.upi_utr` column with index `idx_orders_upi_utr`.
    - Admin 1-Click Verify (`verifyUpiPayment`) or Reject button with full audit log trails.
 2. **Zero-Cost PII Data Masking (`src/lib/masking.ts`):**
-   - Automatically sanitizes and masks customer phone numbers (`8434061342` -> `8434****42`) and emails (`ram@gmail.com` -> `r**@gmail.com`) across Admin Users, Admin Orders, and Seller Orders.
+   - Automatically sanitizes and masks customer phone numbers (`9876543210` -> `9876****10`) and emails (`ram@gmail.com` -> `r**@gmail.com`) across Admin Users, Admin Orders, and Seller Orders.
    - Shields customer privacy and defends against shoulder surfing and bulk scrapers.
 3. **Zero-Cost In-Memory Rate Limiting (`src/lib/rate-limit.ts`):**
    - In-memory fixed-window rate limiter with automatic 5-minute memory sweep.
@@ -87,7 +87,7 @@
    - Customer opt-in prompt with React 19 `useSyncExternalStore` permission synchronization.
    - Automatic dispatch push and in-app alerts on courier dispatch.
 6. **Dynamic UPI QR Code (Zero Payment Gateway Fee):**
-   - Real-time NPCI UPI QR code generator (`upi://pay?pa=8434061342@upi&pn=Aalm+Vastralay&am=...`) with exact order amount.
+   - Real-time NPCI UPI QR code generator (`upi://pay?pa=merchant@upi&pn=Marketplace+Store&am=...`) with exact order amount.
    - 5-Minute countdown security timer with progress bar and auto-expiration state.
    - 12-Digit Indian banking UTR / UPI Reference Number verification input with Web Audio API celebratory chime.
    - 1-Click deep link launch for Google Pay, PhonePe, Paytm, and BHIM on mobile devices.
@@ -116,7 +116,7 @@
 - **Neon Database:** Pooled connection string (`-pooler`) enforcement with 10s connection timeout and 30s idle timeout; composite indexes on frequently filtered columns.
 - **Vercel Edge:** Lightweight middleware skipping static assets and public routes; zero database queries in middleware.
 - **Clerk Auth:** `useGuestOrAuth` React 19 hook for guest browsing/cart without burning 50,000 MRU quotas; React `cache()` request-scoped deduplication.
-- **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://aalm-b2-proxy.alamwastraly.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments.
+- **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://b2-proxy.marketplace.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments.
 - **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
 ## 5. Database Schema (17 Tables)

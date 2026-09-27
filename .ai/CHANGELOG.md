@@ -89,7 +89,7 @@
 - **Colorful Luxury Email Redesign (`scripts/mailer/Code.gs`, `src/lib/gas-mailer.ts`):**
   - Upgraded email templates to Aalm Vastralay royal brand identity:
     - Royal Purple (`#4A148C`) to Carmine Burgundy (`#7a1f2b`) gradient header with 4px gold (`#D4AF37`) embroidery border.
-    - Ornate golden crest: `👑 PURE BIHAR & INDIAN ETHNIC WEAR` with brand title and Kalyanipur tagline.
+    - Ornate golden crest: `👑 PURE BIHAR & INDIAN ETHNIC WEAR` with brand title and Artisan tagline.
     - Grand Gold-bordered OTP Ticket Box with 42px tracked digits (`letter-spacing: 14px`), 15-minute validity pill, and WhatsApp support direct connect.
     - Added dedicated luxury templates for `FESTIVAL_OFFER`, `COUPON_OFFER`, and `STOCK_DELIVERY_ALERT`.
 - **Admin 1-Click Broadcast & Marketing Center (`/admin/marketing`, `src/actions/marketing.ts`, `src/components/admin/BroadcastManager.tsx`):**
@@ -183,7 +183,7 @@
   - Added interactive `<VerifyUpiButton />` in `/admin/orders` for 1-click verification or rejection.
 - **Customer Privacy & PII Data Masking (`src/lib/masking.ts`, `/admin/users`, `/admin/orders`, `/seller/orders`):**
   - Created zero-cost PII masking library `maskPhone` and `maskEmail`.
-  - Normalizes Indian numbers (+91, trunk 0) and masks middle 4 digits (`8434061342` -> `8434****42`).
+  - Normalizes Indian numbers (+91, trunk 0) and masks middle 4 digits (`9876543210` -> `9876****10`).
   - Masks email usernames while preserving domain (`ram@gmail.com` -> `r**@gmail.com`).
   - Conceals customer contact details in admin and seller list tables to stop visual shoulder surfing and bulk scraping.
 - **Free-Tier Image Compression & CDN Caching (`src/lib/image-resolver.ts`, `next.config.ts`):**
@@ -371,7 +371,7 @@
 
 ### Added
 - **Dynamic UPI QR Code with Sound & 5-Minute Timer (`src/components/checkout/DynamicUpiQr.tsx`, `src/lib/upi.ts`):**
-  - Real-time NPCI-compliant UPI QR generator (`upi://pay?pa=8434061342@upi&pn=Aalm+Vastralay&am=...`) with zero payment gateway commission.
+  - Real-time NPCI-compliant UPI QR generator (`upi://pay?pa=merchant@upi&pn=Marketplace+Store&am=...`) with zero payment gateway commission.
   - 5-Minute countdown security timer with animated progress bar and auto-expiration state.
   - 12-Digit Indian banking UTR / UPI Reference Number verification input with instant confirmation chime (Web Audio API synthesis).
   - 1-Click mobile deep link buttons for Google Pay, PhonePe, Paytm, and BHIM.

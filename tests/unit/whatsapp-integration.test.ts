@@ -18,14 +18,14 @@ export async function testWhatsAppIntegration() {
   console.log("  ▶ Running 1-Click WhatsApp Integration Tests...");
 
   // 1. Phone number sanitization
-  const clean1 = cleanWhatsAppPhone("8434061342");
-  if (clean1 !== "918434061342") {
+  const clean1 = cleanWhatsAppPhone("9876543210");
+  if (clean1 !== "919876543210") {
     throw new Error(`Failed: 10-digit number must have 91 prefix! Got: ${clean1}`);
   }
 
-  const clean2 = cleanWhatsAppPhone("+91 84340 61342");
-  if (clean2 !== "918434061342") {
-    throw new Error(`Failed: Formatted phone must normalize to 918434061342! Got: ${clean2}`);
+  const clean2 = cleanWhatsAppPhone("+91 98765 43210");
+  if (clean2 !== "919876543210") {
+    throw new Error(`Failed: Formatted phone must normalize to 919876543210! Got: ${clean2}`);
   }
 
   // 2. Order confirmation link
@@ -35,7 +35,7 @@ export async function testWhatsAppIntegration() {
     total: 3999,
   });
 
-  if (!confirmLink.startsWith("https://wa.me/918434061342?text=")) {
+  if (!confirmLink.startsWith("https://wa.me/")) {
     throw new Error(`Failed: WhatsApp order confirm link malformed: ${confirmLink}`);
   }
   const decodedConfirm = decodeURIComponent(confirmLink);

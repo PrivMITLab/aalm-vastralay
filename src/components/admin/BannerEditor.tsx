@@ -57,7 +57,7 @@ const DEFAULT_SLIDES: HeroSlide[] = [
     ctaLabel: "Explore Collections",
     ctaHref: "/products",
     cta2Label: "Call Showroom",
-    cta2Href: "tel:8434061342",
+    cta2Href: "tel:+919876543210",
     alt: "Royal Ethnic Collection",
     active: true,
     order: 0,
@@ -72,7 +72,7 @@ const DEFAULT_SLIDES: HeroSlide[] = [
     ctaLabel: "Shop Silk Sarees",
     ctaHref: "/products",
     cta2Label: "WhatsApp Consult",
-    cta2Href: "https://wa.me/918434061342",
+    cta2Href: "https://wa.me/919876543210",
     alt: "Pure Banarasi Silk Sarees",
     active: true,
     order: 1,
@@ -87,7 +87,7 @@ const DEFAULT_SLIDES: HeroSlide[] = [
     ctaLabel: "View Bridal Wear",
     ctaHref: "/products",
     cta2Label: "Stylist Consult",
-    cta2Href: "tel:8434061342",
+    cta2Href: "tel:+919876543210",
     alt: "Imperial Bridal Lehengas",
     active: true,
     order: 2,
@@ -102,7 +102,7 @@ const DEFAULT_SLIDES: HeroSlide[] = [
     ctaLabel: "Explore Sherwanis",
     ctaHref: "/products",
     cta2Label: "Boutique Visit",
-    cta2Href: "tel:8434061342",
+    cta2Href: "tel:+919876543210",
     alt: "Regal Groom Sherwanis",
     active: true,
     order: 3,
@@ -163,7 +163,7 @@ export default function BannerEditor({
 
   // --- Legacy Single Banner State ---
   const [bannerUrl, setBannerUrl] = useState(initialBanner.url ?? "");
-  const [bannerBadge, setBannerBadge] = useState(initialBanner.badge ?? "Aalm Vastralay · Kalyanipur");
+  const [bannerBadge, setBannerBadge] = useState(initialBanner.badge ?? "Aalm Vastralay · Wedding & Ethnic Wear");
   const [bannerTitle, setBannerTitle] = useState(initialBanner.title ?? "Royal Indian Wedding & Luxury Ethnic Wear");
   const [bannerSubtitle, setBannerSubtitle] = useState(
     initialBanner.subtitle ?? "Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis."

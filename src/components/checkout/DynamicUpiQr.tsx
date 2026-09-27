@@ -37,7 +37,7 @@ interface Props {
 export default function DynamicUpiQr({
   amount,
   orderReference = "AV-CHECKOUT",
-  upiVpa = process.env.NEXT_PUBLIC_UPI_VPA || "8434061342@upi",
+  upiVpa = process.env.NEXT_PUBLIC_UPI_VPA || "merchant@upi",
   merchantName = process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay",
   initialSeconds = 300,
 }: Props) {

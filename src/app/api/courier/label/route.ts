@@ -127,9 +127,9 @@ export async function GET(req: NextRequest) {
 
     <div class="section">
       <div class="section-title">Shipped From (Return Origin)</div>
-      <div><strong>Aalm Vastralay</strong></div>
-      <div>Main Chowk, Kalyanipur, Samastipur, Bihar - 848302</div>
-      <div>Helpline: +91 8434061342</div>
+      <div><strong>${escapeHtml(process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay")}</strong></div>
+      <div>${escapeHtml(process.env.NEXT_PUBLIC_STORE_ADDRESS || "Central Fulfillment Hub, Bihar, India")}</div>
+      <div>Helpline: ${escapeHtml(process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210")}</div>
     </div>
 
     <div class="footer">

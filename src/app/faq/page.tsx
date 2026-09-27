@@ -28,7 +28,7 @@ const FAQ_CATEGORIES = [
     items: [
       {
         q: "Do you offer custom blouse stitching and lehenga fitting?",
-        a: "Yes! Every bridal lehenga, unstitched suit, and designer saree comes with our complimentary custom tailoring consultation. Our master tailors in Kalyanipur can stitch according to your custom measurements via WhatsApp video call.",
+        a: "Yes! Every bridal lehenga, unstitched suit, and designer saree comes with our complimentary custom tailoring consultation. Our master tailors can stitch according to your custom measurements via WhatsApp video call.",
       },
       {
         q: "How do I choose the correct size?",
@@ -58,7 +58,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: "Can I visit your flagship showroom in person?",
-        a: "Yes, you are warmly invited to our flagship showroom located at Main Road, Kalyanipur, Jamui, Bihar (811307). Experience the fabrics and try outfits in person!",
+        a: "Yes, you are warmly invited to authorized artisan partner showrooms across Bihar. Experience the fabrics and try outfits in person!",
       },
     ],
   },
@@ -134,19 +134,19 @@ export default function FAQPage() {
           Still have questions? We are here to help!
         </h3>
         <p className="text-xs text-[color:var(--text-soft)] max-w-md mx-auto">
-          Our Kalyanipur bridal stylists and customer care specialists are available 7 days a week from 9 AM to 9 PM IST.
+          Our bridal stylists and customer care specialists are available 7 days a week from 9 AM to 9 PM IST.
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-2">
           <a
-            href="https://wa.me/918434061342?text=Hello%20Aalm%20Vastralay,%20I%20have%20a%20question%20about%20your%20collection"
+            href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Hello,%20I%20have%20a%20question%20about%20your%20collection`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition-colors"
           >
-            <MessageCircle className="h-4 w-4" /> WhatsApp Us (+91 8434061342)
+            <MessageCircle className="h-4 w-4" /> WhatsApp Support
           </a>
           <a
-            href="tel:+918434061342"
+            href={process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210"}
             className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-2)] px-4 py-2.5 text-xs font-bold text-[color:var(--text)] hover:bg-[color:var(--surface)] transition-colors"
           >
             <Phone className="h-4 w-4 text-[color:var(--brand)]" /> Call Customer Care

@@ -14,7 +14,7 @@ export default async function AdminThemePage() {
     getSetting("theme.radius", "16px"),
     getSetting("site.logoText", "AV"),
     getSetting("site.name", "Aalm Vastralay"),
-    getSetting("site.tagline", "Wedding & Ethnic Wear · Kalyanipur"),
+    getSetting("site.tagline", "Royal Indian Wedding & Luxury Ethnic Wear"),
   ]);
 
   return (

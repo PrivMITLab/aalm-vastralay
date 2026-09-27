@@ -27,7 +27,7 @@ export default function WhatsAppShare({ title, price, slug, storePhone, storeNam
   };
 
   const handleChatStylist = () => {
-    const phone = storePhone?.replace(/\D/g, "") || "918434061342";
+    const phone = storePhone?.replace(/\D/g, "") || (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "");
     const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
     const url = getProductUrl();
     const text = encodeURIComponent(

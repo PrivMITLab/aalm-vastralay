@@ -3,7 +3,7 @@ name: Security Vulnerability Report
 about: Report a security issue or vulnerability privately to maintainers
 title: "[SECURITY] "
 labels: security, high-priority
-assignees: alamwastraly-sketch
+assignees: maintainers
 ---
 
 **Vulnerability Description**

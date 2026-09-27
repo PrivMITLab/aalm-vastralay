@@ -119,7 +119,7 @@ export default async function OrderTaxInvoicePage({ params }: { params: Promise<
                 </span>
               </div>
               <p className="mt-1 text-xs font-medium text-slate-600">
-                Royal Indian Wedding & Luxury Ethnic Wear · Kalyanipur, Bihar
+                Royal Indian Wedding & Luxury Ethnic Wear · Bihar, India
               </p>
               <p className="text-xs text-slate-500">
                 Proprietor: {invoice.supplier.proprietor} · {invoice.supplier.addressLine}, {invoice.supplier.city},{" "}
@@ -365,14 +365,14 @@ export default async function OrderTaxInvoicePage({ params }: { params: Promise<
           </div>
 
           <div className="text-center sm:text-right">
-            <p className="text-xs font-bold text-maroon-900">For AALM VASTRALAY</p>
+            <p className="text-xs font-bold text-maroon-900">For {invoice.supplier.legalName.toUpperCase()}</p>
             <div className="my-2 inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50/50 px-4 py-2 print:border-slate-400 print:bg-transparent">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-maroon-900">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 inline" />
-                  <span>ALAM VASTRALAY · KALYANIPUR</span>
+                  <span>{invoice.supplier.legalName.toUpperCase()} · FULFILLMENT</span>
                 </div>
-                <p className="text-[10px] text-slate-600">Proprietor: Suheb Alam</p>
+                <p className="text-[10px] text-slate-600">Authorized Merchant Partner</p>
                 <p className="text-[9px] font-mono text-slate-500">GSTIN: {invoice.supplier.gstin}</p>
               </div>
             </div>

@@ -229,7 +229,7 @@ In keys ko copy karke Vercel Dashboard ➔ **Settings** ➔ **Environment Variab
 
 <a id="51-vercel"></a>
 ### 5.1 Vercel & Cloudflare Pages (Frontend & Edge App Router)
-1. **GitHub Connection:** Project repository (`alamwastraly-sketch/aalm-vastralay`) ko Vercel account se connect karein.
+1. **GitHub Connection:** Project repository (`your-org/aalm-vastralay`) ko Vercel account se connect karein.
 2. **Build Configuration:**
    - Framework Preset: `Next.js`
    - Build Command: `npm run build`
@@ -356,7 +356,7 @@ Har route ka live look, UI elements, aur expected behavior neeche list kiya gaya
 <a id="64-payment-engines"></a>
 ### 6.4 Dynamic UPI QR Engine & COD Doorstep Payment (`upi://pay`)
 * **Kaisa Dikhega:**
-  1. **Dynamic UPI QR Code:** NPCI-compliant real-time QR code (`upi://pay?pa=8434061342@upi&pn=Aalm+Vastralay&am=...`) with an **8-minute countdown timer**.
+  1. **Dynamic UPI QR Code:** NPCI-compliant real-time QR code (`upi://pay?pa=merchant@upi&pn=Marketplace+Store&am=...`) with an **8-minute countdown timer**.
   2. **1-Click Mobile Launch:** Google Pay, PhonePe, Paytm, aur BHIM UPI ke direct launch buttons.
   3. **12-Digit UTR Entry:** Customer transaction reference number daalta hai, celebratory audio chime bajti hai.
   4. **Cash on Delivery (COD):** ₹0 advance payment option available.

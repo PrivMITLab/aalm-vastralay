@@ -1,12 +1,11 @@
 # Aalm Vastralay (आलम वस्त्रालय) — Marketplace Platform
-> Indian Ethnic Wear & Bridal Couture Marketplace from Kalyanipur, Bihar, India.
+> Open-Source Indian Ethnic Wear & Multi-Vendor Bridal Couture Marketplace Template.
 
 ## Store Information
-- Name: Aalm Vastralay (आलम वस्त्रालय)
-- Proprietor: Suheb Alam
-- Location: Kalyanipur, Bihar, India
-- Contact / WhatsApp: +91 8434061342
-- Official Email: contact@aalmvastralay.com
+- Platform: Aalm Vastralay Multi-Vendor E-Commerce Template
+- Location: Bihar, India
+- Contact / WhatsApp: Configurable via NEXT_PUBLIC_SUPPORT_PHONE
+- Official Email: Configurable via NEXT_PUBLIC_SUPPORT_EMAIL
 - Supported Currency: INR (₹)
 - Payment Methods: Dynamic UPI QR (0% gateway fee), Cash on Delivery (COD), Online Netbanking/Cards.
 

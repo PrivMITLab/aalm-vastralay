@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-[color:var(--text)]">1. Who We Are & Governance Scope</h2>
           <p>
-            Aalm Vastralay (“we”, “us”, “our”, or “Platform”) operates an authentic Indian ethnic wear, bridal couture, silk saree, and handloom marketplace headquartered in <b>Kalyanipur, Bihar 848302, India</b>.
+            Aalm Vastralay (“we”, “us”, “our”, or “Platform”) operates an authentic Indian ethnic wear, bridal couture, silk saree, and handloom marketplace headquartered in <b>Bihar, India</b>.
           </p>
           <p>
             For the purposes of Indian data protection laws:
@@ -167,10 +167,9 @@ export default function PrivacyPage() {
           </p>
           <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-2)] p-4 text-xs sm:text-sm">
             <p className="font-semibold text-[color:var(--brand)]">Grievance Redressal Officer</p>
-            <p className="mt-1 font-medium">Aalm Vastralay Customer Protection Cell</p>
-            <p>Physical Address: Main Market, Kalyanipur, District Samastipur, Bihar – 848302, India</p>
-            <p>Official Email: <a href="mailto:grievance@aalmvastralay.com" className="text-[color:var(--brand)] font-semibold underline">grievance@aalmvastralay.com</a></p>
-            <p>Support Desk: <a href="mailto:support@aalmvastralay.in" className="text-[color:var(--brand)] font-semibold underline">support@aalmvastralay.in</a></p>
+            <p className="mt-1 font-medium">Customer Protection & Grievance Cell</p>
+            <p>Physical Address: Central Marketplace Operations, Bihar, India</p>
+            <p>Official Grievance Desk: Available via Support & Contact Desk</p>
             <p className="mt-2 text-xs text-[color:var(--text-soft)]">
               ⏱️ <b>Response SLA:</b> Acknowledgment within 48 hours; complete resolution within 15 business days.
             </p>

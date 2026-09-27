@@ -7,7 +7,7 @@
  *  - 1-Click Dispatch & Live Tracking Notification (Admin/Seller -> Customer)
  */
 
-export const DEFAULT_STORE_WHATSAPP = "918434061342";
+export const DEFAULT_STORE_WHATSAPP = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP?.replace(/\D/g, "") || "919876543210";
 
 /**
  * Standardizes any phone input into an international WhatsApp-compatible number string (91XXXXXXXXXX).
@@ -35,7 +35,8 @@ export function createWhatsAppOrderConfirmLink(params: {
 }): string {
   const targetNumber = cleanWhatsAppPhone(params.phone);
   const itemsText = params.itemsSummary ? ` (${params.itemsSummary})` : "";
-  const message = `Namaste Aalam Vastralay, maine Order #${params.orderNumber}${itemsText} book kiya hai. Total: ₹${params.total}. Please confirm kijiye.`;
+  const storeName = process.env.NEXT_PUBLIC_APP_NAME || "Store";
+  const message = `Namaste ${storeName}, maine Order #${params.orderNumber}${itemsText} book kiya hai. Total: ₹${params.total}. Please confirm kijiye.`;
 
   return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
 }
@@ -49,10 +50,11 @@ export function createWhatsAppWeddingConsultLink(params: {
   productSlug?: string;
 }): string {
   const targetNumber = cleanWhatsAppPhone(params.phone);
-  const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://aalmvastralay.in";
+  const storeName = process.env.NEXT_PUBLIC_APP_NAME || "Store";
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || "https://example.com");
   const productLink = params.productSlug ? `\nLink: ${siteUrl}/products/${params.productSlug}` : "";
 
-  const message = `Namaste Aalam Vastralay, mujhe "${params.productTitle}" ke baare mein wedding consultation / stitching measurements discuss karni hai.${productLink}`;
+  const message = `Namaste ${storeName}, mujhe "${params.productTitle}" ke baare mein wedding consultation / stitching measurements discuss karni hai.${productLink}`;
 
   return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
 }
@@ -70,8 +72,9 @@ export function createWhatsAppDispatchLink(params: {
   const customerNumber = cleanWhatsAppPhone(params.customerPhone);
   const courierText = params.courier || "Delivery Partner";
   const trackingText = params.trackingNumber ? `\nTracking No: ${params.trackingNumber}` : "";
+  const storeName = process.env.NEXT_PUBLIC_APP_NAME || "Store";
 
-  const message = `Namaste ${params.customerName}, aapka Aalam Vastralay order #${params.orderNumber} dispatch ho gaya hai! 📦\nCourier: ${courierText}${trackingText}\n\nKisi bhi sahayata ke liye yahan reply karein. Dhanyawaad!`;
+  const message = `Namaste ${params.customerName}, aapka ${storeName} order #${params.orderNumber} dispatch ho gaya hai! 📦\nCourier: ${courierText}${trackingText}\n\nKisi bhi sahayata ke liye yahan reply karein. Dhanyawaad!`;
 
   return `https://wa.me/${customerNumber}?text=${encodeURIComponent(message)}`;
 }

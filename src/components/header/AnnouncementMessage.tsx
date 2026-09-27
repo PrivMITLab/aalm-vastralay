@@ -92,7 +92,7 @@ export function parseAnnouncement(raw: string): Segment[] {
     return segments;
   }
 
-  // Pattern 3: Check for embedded URLs or phone numbers in text (e.g. Call/WhatsApp: 8434061342 or https://...)
+  // Pattern 3: Check for embedded URLs or phone numbers in text (e.g. Call/WhatsApp: 9876543210 or https://...)
   // Regex to match URLs or 10-digit Indian phone numbers
   const tokenRegex = /(https?:\/\/[^\s]+|wa\.me\/[0-9]+|(?:\+91[\s-]?)?[6-9]\d{9})/g;
   const parts: Segment[] = [];

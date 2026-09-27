@@ -22,7 +22,7 @@
 | **Accidental Data Loss** | Safe clean script explicitly protects categories, coupons, settings, and admin. | `scripts/neon-reset.sql` |
 
 ## 2. PII Protection Standards
-- Customer phone number is masked: `8434061342` -> `8434****42`.
+- Customer phone number is masked: `9876543210` -> `9876****10`.
 - Customer email is masked: `customer@gmail.com` -> `r**@gmail.com`.
 - Plain text passwords are NEVER stored or logged; Scrypt with unique salt per user is used.
 - Administrative operations are recorded in `audit_logs` with actor ID, IP address, and timestamp.

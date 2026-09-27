@@ -154,7 +154,7 @@ export default async function TrackOrderPage({
           </p>
           <div className="pt-2">
             <a
-              href={`https://wa.me/918434061342?text=Hello%20Aalm%20Vastralay,%20I%20am%20unable%20to%20track%20my%20order%20${orderNum}`}
+              href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Hello,%20I%20am%20unable%20to%20track%20my%20order%20${orderNum}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700"

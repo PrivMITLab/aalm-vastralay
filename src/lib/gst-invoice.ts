@@ -3,8 +3,8 @@
  * Compliant with Rule 46 of the Central Goods and Services Tax (CGST) Rules, 2017.
  *
  * Supplier Origin:
- * - Aalm Vastralay (Proprietor: Suheb Alam)
- * - Kalyanipur, East Champaran, Bihar - 845413 (State Code: 10)
+ * - Marketplace Fulfillment Center
+ * - Bihar, India (State Code: 10)
  *
  * Place of Supply Logic:
  * - Intra-State (Bihar delivery): Splits 5% apparel GST into CGST 2.5% + SGST 2.5%
@@ -22,19 +22,19 @@
 import { round2 } from "./utils";
 
 export const SUPPLIER_ORIGIN = {
-  legalName: "Aalm Vastralay",
-  tradeName: "Aalm Vastralay (Proprietor: Suheb Alam)",
-  proprietor: "Suheb Alam",
-  addressLine: "Main Road, Kalyanipur",
-  city: "Kalyanipur",
+  legalName: process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay",
+  tradeName: `${process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay"} (Proprietor: ${process.env.NEXT_PUBLIC_APP_OWNER || "Store Proprietor"})`,
+  proprietor: process.env.NEXT_PUBLIC_APP_OWNER || "Store Proprietor",
+  addressLine: process.env.NEXT_PUBLIC_STORE_ADDRESS || "Main Market",
+  city: process.env.NEXT_PUBLIC_STORE_CITY || "Bihar",
   district: "East Champaran",
   state: "Bihar",
   stateCode: "10",
   pincode: "845413",
-  phone: "+91 84340 61342",
-  email: "support@aalmvastralay.com",
-  defaultGstin: "10AABFA8434Q1Z5",
-  pan: "AABFA8434Q",
+  phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210",
+  email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com",
+  defaultGstin: "10AAAAA0000A1Z5",
+  pan: "AAAAA0000A",
 } as const;
 
 /**
@@ -634,9 +634,9 @@ export function buildGstInvoice(params: BuildGstInvoiceParams): GstInvoiceData {
     },
     recipient: {
       fullName: recipientAddr?.fullName || "Valued Customer",
-      addressLine: recipientAddr?.addressLine || "Kalyanipur",
+      addressLine: recipientAddr?.addressLine || "Delivery Address",
       landmark: recipientAddr?.landmark || undefined,
-      city: recipientAddr?.city || "East Champaran",
+      city: recipientAddr?.city || "Fulfillment Hub",
       state: recipientAddr?.state || SUPPLIER_ORIGIN.state,
       stateCode,
       pincode: recipientAddr?.pincode || SUPPLIER_ORIGIN.pincode,

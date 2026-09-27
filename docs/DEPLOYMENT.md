@@ -57,7 +57,7 @@ Neon दुनिया का सबसे आधुनिक सर्वर�
 | `POW_SECRET` | `aalm_pow_shield_super_secure_key_2026` | Bot defense signature key |
 | `NEXT_PUBLIC_SITE_URL` | `https://aalm-vastralay.vercel.app` (या आपका कस्टम डोमेन) | Canonical domain for SEO & Auth |
 | `COOKIE_SECURE` | `true` | Enforces HTTPS-only cookies in production |
-| `NEXT_PUBLIC_B2_WORKER_URL` | `https://aalm-b2-proxy.alamwastraly.workers.dev` | Cloudflare Worker endpoint |
+| `NEXT_PUBLIC_B2_WORKER_URL` | `https://b2-proxy.marketplace.workers.dev` | Cloudflare Worker endpoint |
 | `BOOTSTRAP_TOKEN` | `aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c` | One-time DB schema initializer token |
 | `ADMIN_EMAIL` | `admin@aalmvastralay.com` | Default admin email |
 | `ADMIN_PASSWORD` | `StrongAdminPassword@2026` | Default admin password |
@@ -102,7 +102,7 @@ Neon दुनिया का सबसे आधुनिक सर्वर�
    npx wrangler deploy --config wrangler-b2-proxy.toml
    ```
    कमांड पूरा होते ही आपको आपका वर्कर यूआरएल मिल जाएगा:  
-   `https://aalm-b2-proxy.alamwastraly.workers.dev`  
+   `https://b2-proxy.marketplace.workers.dev`  
    इसे Vercel के `NEXT_PUBLIC_B2_WORKER_URL` में पेस्ट कर दें।
 
 ---
@@ -125,7 +125,7 @@ NEXT_PUBLIC_SITE_URL="https://aalm-vastralay.vercel.app"
 NEXT_PUBLIC_USE_WSRV="true"
 
 # 4. मीडिया व B2 प्रॉक्सी
-NEXT_PUBLIC_B2_WORKER_URL="https://aalm-b2-proxy.alamwastraly.workers.dev"
+NEXT_PUBLIC_B2_WORKER_URL="https://b2-proxy.marketplace.workers.dev"
 
 # 5. सुपर एडमिन व बूटस्ट्रैप
 ADMIN_EMAIL="admin@aalmvastralay.com"

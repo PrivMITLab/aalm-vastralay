@@ -13,7 +13,7 @@ updates:
       - dependency-name: "@types/node"
         versions: [">= 23.0.0"]
     reviewers:
-      - "alamwastraly-sketch"
+      - "maintainers"
     labels:
       - "dependencies"
       - "security"

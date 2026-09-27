@@ -20,7 +20,7 @@ export const dynamic = "force-static";
 
 export const metadata: Metadata = {
   title: "Help Center & Customer Support – Aalm Vastralay",
-  description: "Get instant assistance with your ethnic wear orders, returns, size fittings, and shipping inquiries at Aalm Vastralay Kalyanipur.",
+  description: "Get instant assistance with your ethnic wear orders, returns, size fittings, and shipping inquiries.",
 };
 
 const HELP_TOPICS = [
@@ -89,7 +89,7 @@ export default function HelpPage() {
           How Can We Help You?
         </h1>
         <p className="text-sm text-[color:var(--text-soft)] max-w-xl mx-auto">
-          Need help with your bridal order, sizing consultation, or custom blouse stitching? Our dedicated support team in Kalyanipur is ready to assist.
+          Need help with your bridal order, sizing consultation, or custom blouse stitching? Our dedicated support team is ready to assist.
         </p>
       </header>
 
@@ -142,15 +142,15 @@ export default function HelpPage() {
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <a
-                href="https://wa.me/918434061342?text=Hello%20Aalm%20Vastralay,%20I%20need%20assistance%20with%20my%20order"
+                href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Hello,%20I%20need%20assistance%20with%20my%20order`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition-colors"
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp Us (+91 8434061342)
+                <MessageCircle className="h-4 w-4" /> WhatsApp Support
               </a>
               <a
-                href="tel:+918434061342"
+                href={process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210"}
                 className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-2)] px-5 py-2.5 text-xs font-bold text-[color:var(--text)] hover:bg-[color:var(--surface)] transition-colors"
               >
                 <Phone className="h-4 w-4 text-[color:var(--brand)]" /> Call Customer Care
@@ -163,12 +163,12 @@ export default function HelpPage() {
               <MapPin className="h-4 w-4 text-[color:var(--accent)]" /> Flagship Showroom
             </h4>
             <p className="text-xs text-[color:var(--text-soft)] leading-relaxed">
-              <strong>Aalm Vastralay (आलम वस्त्रालय)</strong><br />
-              Main Market Road, Kalyanipur, Jamui,<br />
-              Bihar – 811307, India.
+              <strong>{process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay"}</strong><br />
+              {process.env.NEXT_PUBLIC_STORE_ADDRESS || "Main Market Road, Bihar, India"}<br />
+              {process.env.NEXT_PUBLIC_STORE_CITY || "Bihar, India"}
             </p>
             <div className="pt-2 text-[11px] text-[color:var(--text-soft)] space-y-1">
-              <p>Email: <a href="mailto:support@aalmvastralay.com" className="text-[color:var(--brand)] hover:underline">support@aalmvastralay.com</a></p>
+              <p>Email: <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com"}`} className="text-[color:var(--brand)] hover:underline">{process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com"}</a></p>
               <p>GSTIN: Available on invoice</p>
             </div>
           </div>

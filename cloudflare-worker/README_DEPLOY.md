@@ -46,25 +46,25 @@ npx wrangler secret put B2_APP_KEY --config wrangler-b2-proxy.toml
 npx wrangler deploy --config wrangler-b2-proxy.toml
 ```
 डिप्लॉय होने के बाद Cloudflare आपको लाइव URL देगा:
-`https://aalm-b2-proxy.alamwastraly.workers.dev`
+`https://b2-proxy.your-account.workers.dev`
 
 #### चरण 7: curl से लाइव वर्कर की जांच करें (Verify with curl)
 टर्मिनल में टेस्ट करें कि वर्कर ठीक से रिस्पॉन्ड कर रहा है:
 ```bash
 # 1. Root / Invalid key test (Must return 404 Not Found)
-curl -I https://aalm-b2-proxy.alamwastraly.workers.dev/non-existent.jpg
+curl -I https://b2-proxy.your-account.workers.dev/non-existent.jpg
 
 # 2. Key traversal block test (Must return 404 Not Found)
-curl -I https://aalm-b2-proxy.alamwastraly.workers.dev/../secret.env
+curl -I https://b2-proxy.your-account.workers.dev/../secret.env
 
 # 3. Live asset test (Must return 200 OK with X-Served-From header)
-curl -I https://aalm-b2-proxy.alamwastraly.workers.dev/brand/logo.png
+curl -I https://b2-proxy.your-account.workers.dev/brand/logo.png
 ```
 
 #### चरण 8: Vercel में Environment Variable सेट करें (Configure Vercel)
 Vercel Dashboard -> Project Settings -> Environment Variables में जाएं और जोड़ें:
 - **Key:** `NEXT_PUBLIC_B2_WORKER_URL`
-- **Value:** `https://aalm-b2-proxy.alamwastraly.workers.dev`
+- **Value:** `https://b2-proxy.your-account.workers.dev`
 
 अब Vercel पर प्रोजेक्ट को रिडिप्लॉय करें (`git push origin main` or Vercel Redeploy).
 

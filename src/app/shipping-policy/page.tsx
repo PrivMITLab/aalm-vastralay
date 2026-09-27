@@ -45,7 +45,7 @@ export default function ShippingPolicyPage() {
             1. Fulfillment & Origin
           </h2>
           <p>
-            All orders placed on the Aalm Vastralay marketplace are inspected, quality-certified, and dispatched directly from our flagship fulfillment center located at Main Road, Kalyanipur, Jamui, Bihar (811307).
+            All orders placed on the marketplace are inspected, quality-certified, and dispatched directly from authorized artisan ateliers and regional fulfillment centers across Bihar and India.
           </p>
         </section>
 

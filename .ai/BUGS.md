@@ -61,7 +61,7 @@
 ### Incident 011: Unmasked PII (Phone & Email) in Public/Admin/Seller Dashboards
 - **Symptom:** Mobile numbers and email addresses of customers were shown in plaintext on administrative and vendor lists, creating risk of shoulder surfing, scraping, and accidental leakage.
 - **Root Cause:** Lack of a centralized PII masking utility for list views.
-- **Resolution:** Built `src/lib/masking.ts` with `maskPhone` (`8434061342` -> `8434****42`) and `maskEmail` (`ram@gmail.com` -> `r**@gmail.com`). Applied masking across `/admin/users`, `/admin/orders`, and `/seller/orders`.
+- **Resolution:** Built `src/lib/masking.ts` with `maskPhone` (`9876543210` -> `9876****10`) and `maskEmail` (`ram@gmail.com` -> `r**@gmail.com`). Applied masking across `/admin/users`, `/admin/orders`, and `/seller/orders`.
 
 ### Incident 012: Heavy Image Payloads & Missing Browser Cache-Control
 - **Symptom:** Product and catalog images loaded without compression on mobile networks; static logos and assets re-downloaded on every page visit.

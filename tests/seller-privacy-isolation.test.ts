@@ -96,13 +96,13 @@ export async function testSellerPrivacyIsolation() {
   }
 
   // 6. Sensitive customer data masking in seller/invoice context
-  const rawCustomerPhone = "8434061342";
+  const rawCustomerPhone = "9876543210";
   const rawCustomerEmail = "customer.bihar@gmail.com";
 
   const maskedPhone = maskPhone(rawCustomerPhone);
   const maskedEmail = maskEmail(rawCustomerEmail);
 
-  if (maskedPhone.includes("843406") && !maskedPhone.includes("***")) {
+  if (maskedPhone.includes("987654") && !maskedPhone.includes("***")) {
     throw new Error(`Failed: Customer phone was not masked properly: ${maskedPhone}`);
   }
 

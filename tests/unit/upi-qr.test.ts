@@ -18,8 +18,8 @@ export async function testUpiQrEngine() {
 
   // 1. UPI URL Generation
   const upiUrl = generateUpiUrl({
-    vpa: "8434061342@upi",
-    payeeName: "Aalm Vastralay",
+    vpa: "merchant@upi",
+    payeeName: "Marketplace Store",
     amount: 1499,
     orderNumber: "AV-2026-1082",
     note: "Order AV-2026-1082",
@@ -28,7 +28,7 @@ export async function testUpiQrEngine() {
   if (!upiUrl.startsWith("upi://pay?")) {
     throw new Error(`Failed: UPI URL must start with upi://pay? Got: ${upiUrl}`);
   }
-  if (!upiUrl.includes("pa=8434061342%40upi") && !upiUrl.includes("pa=8434061342@upi")) {
+  if (!upiUrl.includes("pa=merchant%40upi") && !upiUrl.includes("pa=merchant@upi")) {
     throw new Error(`Failed: VPA missing or not encoded properly in UPI URL: ${upiUrl}`);
   }
   if (!upiUrl.includes("am=1499.00")) {

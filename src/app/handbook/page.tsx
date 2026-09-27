@@ -32,7 +32,7 @@ export default function HandbookPage() {
           </div>
           <h3 className="font-display text-lg font-bold text-[color:var(--brand)]">Keep 100% of Your Earnings</h3>
           <p className="text-xs text-[color:var(--text-soft)] leading-relaxed">
-            All newly onboarded sellers and local weavers from Kalyanipur, Bhagalpur, Surat, and across India enjoy 0% platform commission for their first 6 months.
+            All newly onboarded sellers and local weavers from Varanasi, Bhagalpur, Surat, and across India enjoy 0% platform commission for their first 6 months.
           </p>
         </div>
 

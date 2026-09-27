@@ -37,9 +37,9 @@
 // Daily quota ceiling for free @gmail accounts (Google allows 500, we cap at 450 for safety margin)
 var DAILY_QUOTA_LIMIT = 450;
 var BRAND_NAME = "Aalm Vastralay (आलम वस्त्रालय)";
-var BRAND_PHONE = "+91 8434061342";
-var BRAND_EMAIL = "aalmvastralay@gmail.com";
-var STORE_ADDRESS = "Aalm Vastralay, Tajpur Road, Kalyanipur, Samastipur, Bihar - 848101";
+var BRAND_PHONE = "+91 9876543210";
+var BRAND_EMAIL = "support@example.com";
+var STORE_ADDRESS = "Aalm Vastralay, Main Market, Samastipur, Bihar - 848101";
 
 /**
  * Handle GET requests for health check & quota inspection
@@ -215,7 +215,7 @@ function renderEmailTemplate(type, data) {
         'आलम वस्त्रालय <span style="font-size:20px;font-weight:400;color:#f4e2a3;">(Aalm Vastralay)</span>' +
       '</h1>' +
       '<p style="color:#f3e5f5;margin:6px 0 0;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;font-weight:500;">' +
-        'WEDDING &amp; BRIDAL COUTURE · KALYANIPUR' +
+        'WEDDING &amp; BRIDAL COUTURE · LUXURY ETHNIC WEAR' +
       '</p>' +
     '</div>';
 
@@ -226,7 +226,7 @@ function renderEmailTemplate(type, data) {
         'किसी भी सहायता के लिए हमें कॉल या WhatsApp करें:' +
       '</p>' +
       '<div style="margin:0 0 14px;">' +
-        '<a href="https://wa.me/918434061342?text=Namaste!%20I%20need%20assistance%20with%20Aalm%20Vastralay" style="background:#25D366;color:#ffffff;text-decoration:none;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:bold;display:inline-block;box-shadow:0 2px 8px rgba(37,211,102,0.3);">' +
+        '<a href="https://wa.me/919876543210?text=Namaste!%20I%20need%20assistance%20with%20Aalm%20Vastralay" style="background:#25D366;color:#ffffff;text-decoration:none;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:bold;display:inline-block;box-shadow:0 2px 8px rgba(37,211,102,0.3);">' +
           '💬 WhatsApp: ' + BRAND_PHONE +
         '</a>' +
       '</div>' +

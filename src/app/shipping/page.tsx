@@ -21,7 +21,7 @@ const ZONES = [
   {
     zone: "Bihar & Neighbouring States",
     timeline: "2 – 4 Business Days",
-    desc: "Direct express dispatch from our Kalyanipur central hub.",
+    desc: "Direct express dispatch from regional fulfillment hubs.",
   },
   {
     zone: "Tier-1 Metro Cities",
@@ -132,7 +132,7 @@ export default function ShippingPage() {
             <CreditCard className="h-4 w-4 text-[color:var(--accent)]" /> Order Dispatch & Notifications
           </h3>
           <p className="text-xs text-[color:var(--text-soft)] leading-relaxed">
-            Orders are processed and dispatched within 24–48 hours from our Kalyanipur flagship warehouse. You will receive real-time SMS and WhatsApp notifications containing your tracking link (AWB) the moment your package is scanned by our logistics partners (Delhivery, BlueDart, DTDC).
+            Orders are processed and dispatched within 24–48 hours from our certified fulfillment warehouses. You will receive real-time SMS and WhatsApp notifications containing your tracking link (AWB) the moment your package is scanned by our logistics partners (Delhivery, BlueDart, DTDC).
           </p>
         </div>
       </div>

@@ -137,16 +137,16 @@ export default async function BlogPostDetailPage({ params }: Props) {
           Looking for bespoke wedding attire tailored to your exact measurements?
         </h3>
         <p className="text-xs text-[color:var(--text-soft)] leading-relaxed max-w-xl">
-          Consult with our Kalyanipur master artisans to customize your bridal lehenga embroidery, blouse cut, or groom sherwani fabric.
+          Consult with our in-house master artisans to customize your bridal lehenga embroidery, blouse cut, or groom sherwani fabric.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <a
-            href="https://wa.me/918434061342?text=Hello%20Aalm%20Vastralay,%20I%20read%20your%20article%20and%20would%20like%20a%20bridal%20consultation"
+            href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Hello,%20I%20read%20your%20article%20and%20would%20like%20a%20bridal%20consultation`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition-colors"
           >
-            <MessageCircle className="h-4 w-4" /> WhatsApp Stylist (+91 8434061342)
+            <MessageCircle className="h-4 w-4" /> WhatsApp Stylist
           </a>
           <Link
             href="/categories"

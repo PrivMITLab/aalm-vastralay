@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         ownerId: user.id,
         storeName,
         slug,
-        city: "Kalyanipur",
+        city: process.env.NEXT_PUBLIC_STORE_CITY || "Bihar",
         state: "Bihar",
         isActive: true,
       })

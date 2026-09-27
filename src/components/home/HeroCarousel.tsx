@@ -234,19 +234,19 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                     )}
                     {slide.cta2Label ? (
                       <Link
-                        href={slide.cta2Href || "tel:8434061342"}
+                        href={slide.cta2Href || (process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210")}
                         className="btn min-h-[48px] w-full sm:w-auto justify-center border border-[#D4AF37]/50 bg-black/40 text-amber-200 backdrop-blur hover:bg-[#D4AF37]/20 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-semibold inline-flex items-center gap-2"
                       >
                         <Phone className="h-4 w-4 text-[#D4AF37]" /> {slide.cta2Label}
                       </Link>
                     ) : (
                       <a
-                        href="https://wa.me/918434061342?text=Namaste%20Aalm%20Vastralay,%20I%20am%20interested%20in%20your%20bridal/ethnic%20wear%20collection."
+                        href={`https://wa.me/${(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "919876543210").replace(/\D/g, "")}?text=Namaste,%20I%20am%20interested%20in%20your%20collection.`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn min-h-[48px] w-full sm:w-auto justify-center border border-[#25D366]/60 bg-[#25D366]/20 text-white backdrop-blur hover:bg-[#25D366]/30 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-semibold inline-flex items-center gap-2"
                       >
-                        <span>WhatsApp: 8434061342</span>
+                        <span>WhatsApp Assistance</span>
                       </a>
                     )}
                   </div>

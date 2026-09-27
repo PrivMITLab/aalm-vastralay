@@ -16,7 +16,7 @@
 ## ADR 003: Zero-Code Dynamic Admin Settings
 - **Status:** Accepted
 - **Decision:** Store customizable website parameters (brand colors, hero banners, announcements, currency, shipping fees) in a relational `settings` table with in-memory caching.
-- **Rationale:** Empowers the business owner (Suheb Alam) to change promotional banners, seasonal colors, and contact info instantly without needing a developer or code deployment.
+- **Rationale:** Empowers the business owner / admin to change promotional banners, seasonal colors, and contact info instantly without needing a developer or code deployment.
 
 ## ADR 004: Strict Multi-Vendor Scoping for Sellers
 - **Status:** Accepted

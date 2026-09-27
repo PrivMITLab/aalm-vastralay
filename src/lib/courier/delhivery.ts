@@ -44,12 +44,12 @@ export async function createDelhiveryAwb(input: DelhiveryOrderInput): Promise<Aw
           },
         ],
         pickup_location: {
-          name: "Aalm Vastralay Kalyanipur",
-          add: "Main Market, Kalyanipur",
-          city: "Samastipur",
-          pin_code: 848302,
+          name: process.env.NEXT_PUBLIC_APP_NAME || "Marketplace Hub",
+          add: process.env.NEXT_PUBLIC_STORE_ADDRESS || "Main Market",
+          city: process.env.NEXT_PUBLIC_STORE_CITY || "Bihar",
+          pin_code: Number(process.env.NEXT_PUBLIC_STORE_PINCODE) || 848302,
           country: "India",
-          phone: "8434061342",
+          phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE?.replace(/\D/g, "") || "9876543210",
         },
       };
 

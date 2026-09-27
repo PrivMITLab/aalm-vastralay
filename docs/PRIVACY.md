@@ -1,14 +1,14 @@
 # 🔒 AALM VASTRALAY (आलम वस्त्रालय) — PRIVACY POLICY SPECIFICATION
 > **Document Location:** `docs/PRIVACY.md`  
 > **Statutory Compliance:** Digital Personal Data Protection Act, 2023 (DPDP Act) · Information Technology Act, 2000 · Consumer Protection (E-Commerce) Rules, 2020  
-> **Headquarters:** Kalyanipur, District Samastipur, Bihar – 848302, India  
+> **Headquarters:** Bihar, India (Configurable via `NEXT_PUBLIC_STORE_ADDRESS`)  
 > **Live Web Route:** [`https://aalm-vastralay.vercel.app/privacy`](https://aalm-vastralay.vercel.app/privacy)
 
 ---
 
 ## 1. Governance & Data Fiduciary Details
 - **Data Fiduciary:** Aalm Vastralay (आलम वस्त्रालय)
-- **Place of Business:** Kalyanipur, Bihar 848302, India
+- **Place of Business:** Bihar, India
 - **Grievance Officer:** `grievance@aalmvastralay.com` / `support@aalmvastralay.in`
 - **SLA:** Acknowledgment within 48 hours; resolution within 15 business days.
 

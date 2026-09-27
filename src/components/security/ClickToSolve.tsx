@@ -365,7 +365,7 @@ export default function ClickToSolve({
       setPhase("failed");
       notify(false);
     }
-  }, [action, phase, notify, stopWorker, retryCount]);
+  }, [action, phase, notify, stopWorker, retryCount, displayMode, widgetStyle, accentTheme, label]);
 
 
   // Auto-solve if configured as invisible

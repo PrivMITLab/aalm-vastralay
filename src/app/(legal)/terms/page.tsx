@@ -18,7 +18,7 @@ export default function TermsPage() {
             👑 Aalm Vastralay (आलम वस्त्रालय) — Marketplace Terms & Conditions
           </p>
           <p className="mt-1">
-            Welcome to Aalm Vastralay. These Terms of Service constitute a legally binding electronic agreement between you (“User”, “Buyer”, or “Seller”) and Aalm Vastralay (“Platform”, “we”, “our”), headquartered in <b>Kalyanipur, Bihar 848302, India</b>, executed in accordance with the <b>Information Technology Act, 2000</b> and the <b>Consumer Protection (E-Commerce) Rules, 2020</b>.
+            Welcome to Aalm Vastralay. These Terms of Service constitute a legally binding electronic agreement between you (“User”, “Buyer”, or “Seller”) and Aalm Vastralay (“Platform”, “we”, “our”), headquartered in <b>Bihar, India</b>, executed in accordance with the <b>Information Technology Act, 2000</b> and the <b>Consumer Protection (E-Commerce) Rules, 2020</b>.
           </p>
         </section>
 

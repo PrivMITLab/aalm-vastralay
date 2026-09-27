@@ -38,3 +38,10 @@
    - B2: Private bucket + Cloudflare Worker immutable edge caching ($0 egress).
    - UPI: Direct dynamic UPI QR (0% gateway commission).
    - WhatsApp: 1-click order confirmation & bridal consultation.
+
+6. ZERO-PII OPEN-SOURCE TURNKEY MANDATE:
+   - Source code, tests, and documentation must NEVER contain personal PII (personal names, personal mobile numbers, home village, personal UPI IDs, or private worker subdomains).
+   - All store information (name, address, city, phone, email, GSTIN, UPI VPA) must be 100% white-label and dynamically configurable via `.env.local` and Admin Settings.
+   - Universal CRUD (Add, Edit, Delete, Rename) must be supported for all roles (customers, sellers, admins).
+   - Strictly BIS IS 19000:2022 compliant: Zero fake reviews, zero dummy data.
+

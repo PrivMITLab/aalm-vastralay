@@ -2,11 +2,11 @@
 # Location: .ai/PRD.md
 
 ## 1. Product Vision & Target Audience
-- **Vision:** Bihar and India's premier ethnic wear marketplace connecting traditional artisans, weavers, and local sellers in Kalyanipur/Bihar with buyers across India.
+- **Vision:** Bihar and India's premier ethnic wear marketplace connecting traditional artisans, weavers, and multi-vendor sellers with buyers across India.
 - **Target Audience:**
   - **Shoppers:** Families shopping for weddings (Bridal Lehengas, Sherwanis), festivals (Chhath Puja, Diwali, Eid, Durga Puja), and everyday ethnic wear.
   - **Sellers:** Ethnic apparel weavers, boutique owners, and fabric merchants wanting an easy portal with zero upfront fees.
-  - **Admin:** Proprietor (Suheb Alam) having total oversight and live customization control without code modifications.
+  - **Admin:** Super Administrator having total oversight, full CRUD capability, and live customization control without code modifications.
 
 ## 2. Core Functional Requirements
 

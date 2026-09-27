@@ -25,7 +25,7 @@ export async function runHeroCarouselTests(): Promise<void> {
     ctaLabel: "Shop Sarees",
     ctaHref: "/products?category=womens-ethnic",
     cta2Label: "Call Us",
-    cta2Href: "tel:+918434061342",
+    cta2Href: "tel:+919876543210",
     alt: "Royal Banarasi Saree",
     active: true,
     order: 0,
@@ -113,12 +113,12 @@ export async function runHeroCarouselTests(): Promise<void> {
   }
 
   // --- 3b. Backblaze B2 Fallback Chain Order (worker -> wsrv -> placeholder) ---
-  if (B2_DEFAULT_WORKER_URL !== "https://aalm-b2-proxy.alamwastraly.workers.dev") {
-    throw new Error(`Default B2 worker domain must be 'https://aalm-b2-proxy.alamwastraly.workers.dev', got: ${B2_DEFAULT_WORKER_URL}`);
+  if (B2_DEFAULT_WORKER_URL !== "https://b2-proxy.marketplace.workers.dev") {
+    throw new Error(`Default B2 worker domain must be 'https://b2-proxy.marketplace.workers.dev', got: ${B2_DEFAULT_WORKER_URL}`);
   }
 
   const b2ImageFallbacks = getImageFallbackList("b2:products/test-saree.webp");
-  if (!b2ImageFallbacks[0].includes("aalm-b2-proxy.alamwastraly.workers.dev/products/test-saree.webp")) {
+  if (!b2ImageFallbacks[0].includes("b2-proxy.marketplace.workers.dev/products/test-saree.webp")) {
     throw new Error(`B2 fallback #1 must be Cloudflare Worker URL, got: ${b2ImageFallbacks[0]}`);
   }
   if (!b2ImageFallbacks[1].includes("wsrv.nl/?url=") || !b2ImageFallbacks[1].includes("test-saree.webp")) {
@@ -237,7 +237,7 @@ export async function runHeroCarouselTests(): Promise<void> {
   console.log("  ✔ Hero carousel 5-slide maximum, order & active filter verified!");
   console.log("  ✔ 4 delivery strategies (wsrv, direct, b2, auto) & fallback verified!");
   console.log("  ✔ SmartImage multi-tier fallback chain verified!");
-  console.log("  ✔ Backblaze B2 default domain (alamwastraly.workers.dev) verified!");
+  console.log("  ✔ Backblaze B2 default domain (marketplace.workers.dev) verified!");
   console.log("  ✔ Backblaze B2 fallback chain order (worker -> wsrv -> placeholder) verified!");
   console.log("  ✔ Key sanitizer path traversal (../) block verified!");
   console.log("  ✔ Media split: images to worker, videos to direct B2 stream verified!");

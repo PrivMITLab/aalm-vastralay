@@ -69,7 +69,7 @@ export default function RefundPolicyPage() {
             3. Refund Timelines & Processing Method
           </h2>
           <p>
-            Once our Kalyanipur quality control team inspects and verifies the returned package:
+            Once our central fulfillment quality control team inspects and verifies the returned package:
           </p>
           <ul className="list-disc list-inside space-y-1 pl-2">
             <li><strong>Prepaid Orders (UPI / Cards / Net Banking):</strong> Refund is initiated immediately and credited to the original source account within 5 to 7 business days.</li>
@@ -88,7 +88,7 @@ export default function RefundPolicyPage() {
 
         <div className="pt-4 border-t border-[color:var(--border)] flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[color:var(--text-soft)]">
-            Questions regarding an active return? Contact support@aalmvastralay.com
+            Questions regarding an active return? Contact our 24/7 customer support team.
           </p>
           <Link href="/returns" className="btn-gold px-4 py-2 text-xs font-bold rounded-xl shadow-sm">
             Read Returns Guide

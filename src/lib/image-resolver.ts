@@ -18,8 +18,8 @@ import type { ResolveOptions, VideoResolveResult } from "@/types/media";
 
 export const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
-export const B2_DEFAULT_WORKER_URL = "https://aalm-b2-proxy.alamwastraly.workers.dev";
-export const B2_DEFAULT_BUCKET_NAME = "aalm-vastralay-media";
+export const B2_DEFAULT_WORKER_URL = "https://b2-proxy.marketplace.workers.dev";
+export const B2_DEFAULT_BUCKET_NAME = "marketplace-media";
 export const B2_DEFAULT_DIRECT_URL = "https://f000.backblazeb2.com";
 
 const B2_WORKER_URL = (process.env.NEXT_PUBLIC_B2_WORKER_URL || B2_DEFAULT_WORKER_URL).replace(/\/$/, "");

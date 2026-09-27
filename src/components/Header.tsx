@@ -59,7 +59,7 @@ export default async function Header() {
         "बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान",
         "साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन",
         "हर अंदाज आपके लिए खास — Royal Indian Wedding & Luxury Ethnic Wear",
-        "Proprietor: Suheb Alam · Kalyanipur · Call/WhatsApp: 8434061342",
+        "Customer Support Available · Call / WhatsApp for Assistance",
       ].filter(Boolean) as string[];
 
   // Repeat enough times so each half spans full viewport, ensuring continuous gapless 50% loop
