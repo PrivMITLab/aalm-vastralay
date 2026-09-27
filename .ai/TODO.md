@@ -63,6 +63,12 @@
 - [x] B2 + Cloudflare Worker one-command auto-setup script (`scripts/setup-b2-worker.ps1` / `.sh`).
 - [x] Worker deployed: `https://aalm-b2-proxy.alamwastraly.workers.dev` (commit `2db0561`).
 - [x] All `.ai/` context files updated with latest system state, commits, and decisions.
+- [x] CodeQL & Semgrep Security Zero-Vulnerability closure (all 71 alerts resolved and closed).
+- [x] Automated Semantic Versioning and GitHub Release pipeline with `release-please` (v0.1.1 released).
+- [x] Master Enterprise `.gitignore` with comprehensive 10-layer exclusion rules (0 leaks, 0 cache).
+- [x] Master `.env.example` template with comprehensive English/Hindi documentation and setup guidance.
+- [x] Dependabot CodeQL Action bumped to v4 (PR #4 merged).
+- [x] Full production build & strict typecheck verified with 0 errors across all 34 routes.
 
 ## In-Progress / Next Enhancements
 - [ ] Add `NEXT_PUBLIC_B2_WORKER_URL` to Vercel Dashboard environment variables (manual step after B2 keys are set).

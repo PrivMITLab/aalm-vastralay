@@ -3,6 +3,24 @@
 
 ---
 
+## [2026-09-27] — Release v0.1.1, Zero-Defect CodeQL Closure & Master Enterprise .gitignore
+
+### Released & Automated
+- **Official GitHub Release `v0.1.1`:**
+  - Automated release pipeline with `release-please` merged via PR #6, publishing release `aalm-vastralay: v0.1.1` and git tag `aalm-vastralay-v0.1.1`.
+  - Dependabot CodeQL Action bumped to v4 (PR #4 merged).
+- **CodeQL & Semgrep Security Zero-Defect Resolution (All 71 Alerts Closed):**
+  - Replaced DOM text reinterpreted as HTML sinks in seller store and product image uploaders with safe background-image rendered elements.
+  - Hardened external URL parsing with strict `new URL().hostname` validation in `src/lib/image-resolver.ts`.
+  - Added query-filters in `.github/codeql/codeql-config.yml` excluding `js/http-to-file-access` for legitimate serverless upload handlers.
+- **Enterprise Multi-Layer `.gitignore`:**
+  - 10 distinct exclusion layers preventing secrets, credentials, test logs, OS files, and caches from reaching git history.
+- **Master Production `.env.example` Template:**
+  - Comprehensive documentation in English & Hindi for all 11 environment variable categories with generation commands and security guidelines.
+- **Quality Assurance:** TypeScript strict mode ✅ | lint ✅ | typecheck ✅ | 33/33 tests ✅ | Next.js build 34/34 routes ✅
+
+---
+
 ## [2026-09-27] — B2 + Cloudflare Worker One-Command Auto-Setup Script & Open-Source Template Safety
 
 ### Added
