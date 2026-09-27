@@ -1,0 +1,35 @@
+name: Deploy Verification & Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Enterprise Tests
+        run: npm test
+
+      - name: Build Application
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef' }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@aalmvastralay.com' }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'AdminPassword123!' }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://aalmvastralay.com' }}
+          NODE_ENV: production

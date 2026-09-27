@@ -1,0 +1,72 @@
+# Release Please GitHub Actions Workflow
+# =============================================================================
+# YE KYA KARTA HAI:
+#   - Har main branch push pe automatically version detect karta hai
+#   - Conventional Commits (feat/fix) ke basis pe version bump karta hai
+#   - GitHub Release + Git Tag auto-create karta hai
+#   - CHANGELOG.md auto-update karta hai
+#   - Jab tak aap manually v1.0.0 nahi karte, version 0.x.x mein rehta hai
+# =============================================================================
+# TOOL CHOICE: release-please (Google)
+# WHY:
+#   ✅ 100% Free — GitHub Actions free minutes use karta hai
+#   ✅ Solo developer ke liye perfect — koi complex setup nahi
+#   ✅ 0.x.x → never auto-jumps to 1.0.0 (aapka control)
+#   ✅ CHANGELOG.md auto-generate karta hai
+#   ✅ GitHub Release + Tag auto-create karta hai
+#   ✅ semantic-release se zyada simple — koi npm publish nahi chahiye
+# =============================================================================
+
+name: Release Please — Auto Version & Changelog
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write       # Git tag + release likhne ke liye
+  pull-requests: write  # Release PR banana ke liye
+
+jobs:
+  release-please:
+    name: Auto Release & Version Bump
+    runs-on: ubuntu-latest
+    outputs:
+      # Downstream jobs ke liye: kya release hua?
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # Google's release-please config file use karo
+          config-file: release-please-config.json
+          # Manifest file (current version track karta hai)
+          manifest-file: .release-please-manifest.json
+          # GitHub token (auto-provided, no setup needed)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==========================================================================
+  # OPTIONAL: Agar release hua to Vercel ko notify karo (redeploy trigger)
+  # ==========================================================================
+  post-release:
+    name: Post-Release Notification
+    needs: release-please
+    runs-on: ubuntu-latest
+    # Sirf tab chale jab actual release create hua ho
+    if: ${{ needs.release-please.outputs.release_created }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log Released Version
+        run: |
+          echo "🎉 New Release: ${{ needs.release-please.outputs.tag_name }}"
+          echo "📦 Version: ${{ needs.release-please.outputs.version }}"
+          echo "✅ CHANGELOG.md updated automatically by release-please"
+          echo "🔖 Git tag created: ${{ needs.release-please.outputs.tag_name }}"
