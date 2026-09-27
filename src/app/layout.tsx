@@ -10,6 +10,7 @@ import { ThemeProvider, DEFAULT_PREFS, type Prefs } from "@/components/theme/The
 import { ToastProvider } from "@/components/ui/Toast";
 import { Toaster } from "@/components/ui/sonner";
 import FormGuard from "@/components/ui/FormGuard";
+import CookieConsent from "@/components/compliance/CookieConsent";
 import { getBrand, getSettingBool, getSettings, getTheme } from "@/lib/settings";
 import "./globals.css";
 
@@ -140,6 +141,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               sellerFreeMonths={Number(settings["seller.freeMonths"] ?? 6)}
             />
             <FloatingBar whatsapp={brand.whatsapp} phone={brand.phone} showThemeToggle={theme.allowUserToggle} />
+            <CookieConsent />
             <Script id="av-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 "@context": "https://schema.org",

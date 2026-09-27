@@ -37,8 +37,8 @@ interface Props {
 export default function DynamicUpiQr({
   amount,
   orderReference = "AV-CHECKOUT",
-  upiVpa = "8434061342@upi",
-  merchantName = "Aalm Vastralay",
+  upiVpa = process.env.NEXT_PUBLIC_UPI_VPA || "8434061342@upi",
+  merchantName = process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay",
   initialSeconds = 300,
 }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
@@ -54,7 +54,7 @@ export default function DynamicUpiQr({
     payeeName: merchantName,
     amount,
     orderNumber: orderReference,
-    note: `Order ${orderReference} at Aalm Vastralay`,
+    note: `Order ${orderReference} at ${merchantName}`,
   });
 
   const qrImageUrl = generateUpiQrImageUrl(upiUrl, 280);

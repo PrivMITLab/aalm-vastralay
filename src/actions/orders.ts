@@ -536,3 +536,109 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     return { error: "Save nahi ho paya. Net check karke dobara dabao. (Could not save, please retry.)" };
   }
 }
+
+export async function editReview(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Please sign in." };
+  const reviewId = String(formData.get("reviewId") || "");
+  if (!reviewId) return { error: "Review ID required." };
+
+  const parsed = reviewSchema.safeParse({
+    productId: formData.get("productId"),
+    rating: formData.get("rating"),
+    title: formData.get("title") || undefined,
+    body: formData.get("body"),
+    images: formData.get("images") || undefined,
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid review" };
+  const { productId, rating, title, body, images } = parsed.data;
+
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    const [existing] = await db
+      .select({ id: reviews.id, userId: reviews.userId, productId: reviews.productId })
+      .from(reviews)
+      .where(and(eq(reviews.id, reviewId), eq(reviews.userId, user.id)))
+      .limit(1);
+    if (!existing) return { error: "Review not found or unauthorized." };
+
+    let parsedImages: string[] = [];
+    if (images) {
+      try {
+        const decoded = JSON.parse(images);
+        if (Array.isArray(decoded)) {
+          parsedImages = decoded.filter((img): img is string => typeof img === "string" && img.startsWith("http")).slice(0, 4);
+        }
+      } catch {
+        // ignore malformed images safely
+      }
+    }
+
+    await withDbRetry(
+      async () => {
+        await db
+          .update(reviews)
+          .set({
+            rating,
+            title: title ?? null,
+            body,
+            images: parsedImages,
+          })
+          .where(eq(reviews.id, reviewId));
+
+        await db.execute(sql`
+          UPDATE products SET
+            rating = COALESCE((SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}), 0),
+            total_reviews = (SELECT COUNT(*) FROM reviews WHERE product_id = ${productId})
+          WHERE id = ${productId}`);
+      },
+      { label: "editReview", requestId }
+    );
+
+    const [product] = await db.select({ slug: products.slug }).from(products).where(eq(products.id, productId)).limit(1);
+    if (product) revalidatePath(`/products/${product.slug}`);
+    return { success: "Review updated successfully." };
+  } catch (err) {
+    console.error(`[editReview] [${requestId}] DB operation failed:`, err);
+    return { error: "Review update nahi ho paya. Please retry." };
+  }
+}
+
+export async function deleteReview(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Please sign in." };
+  const reviewId = String(formData.get("reviewId") || "");
+  if (!reviewId) return { error: "Review ID required." };
+
+  const requestId = crypto.randomUUID().slice(0, 8);
+  try {
+    const [existing] = await db
+      .select({ id: reviews.id, productId: reviews.productId })
+      .from(reviews)
+      .where(and(eq(reviews.id, reviewId), eq(reviews.userId, user.id)))
+      .limit(1);
+    if (!existing || !existing.productId) return { error: "Review not found or unauthorized." };
+
+    const productId = existing.productId;
+
+    await withDbRetry(
+      async () => {
+        await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+        await db.execute(sql`
+          UPDATE products SET
+            rating = COALESCE((SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}), 0),
+            total_reviews = (SELECT COUNT(*) FROM reviews WHERE product_id = ${productId})
+          WHERE id = ${productId}`);
+      },
+      { label: "deleteReview", requestId }
+    );
+
+    const [product] = await db.select({ slug: products.slug }).from(products).where(eq(products.id, productId)).limit(1);
+    if (product) revalidatePath(`/products/${product.slug}`);
+    return { success: "Review removed." };
+  } catch (err) {
+    console.error(`[deleteReview] [${requestId}] DB operation failed:`, err);
+    return { error: "Review delete nahi ho paya. Please retry." };
+  }
+}

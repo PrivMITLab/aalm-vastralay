@@ -36,6 +36,8 @@
 28. NO skipping caching. Every GET API cached with invalidation.
 29. NO Markdown formatting inside code files.
 30. NO Mermaid syntax outside .md files.
+31. NO synthetic or fake reviews. Strictly adhere to BIS IS 19000:2022 (reviews require verified purchase and support edit/delete).
+32. NO hardcoded merchant identities in core components. Support turnkey open-source parameterization via .env.
 
 ---
 

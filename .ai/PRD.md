@@ -36,3 +36,16 @@
 - **Security:** Self-hosted Turnstile-style PoW bot defense, `/24` subnet binding, single-use anti-replay `pow_used` table, AES-256 encryption for PII, Scrypt password hashing, rate limiting, no secrets in client code.
 - **Accessibility:** WCAG 2.1 AA keyboard navigation, high contrast ratios, accessible forms.
 - **Mobile First:** Responsive layout optimized for smartphones (320px to 420px) through 4K displays.
+
+## 4. Open-Source Marketplace Template & Statutory Compliance
+
+### 🌐 Turnkey White-Label Template Architecture:
+- **Zero-Code Identity Customization:** Clone-and-launch capability where marketplace title, proprietor, support phone, WhatsApp hotline, email, and address are derived directly from `.env.local` (`NEXT_PUBLIC_APP_NAME`, `NEXT_PUBLIC_SUPPORT_PHONE`, etc.) with admin UI overrides.
+- **Direct UPI VPA Payment:** Dynamic NPCI QR generation with custom VPA (`NEXT_PUBLIC_UPI_VPA`) eliminating third-party gateway commissions and paperwork for new adopters.
+- **One-Command Auto-Migrate:** `npm run db:auto-migrate` deploys production tables, indexes, and settings idempotently with zero data loss.
+
+### ⚖️ Statutory Legal & Review Compliance:
+- **DPDP Act 2023 & GDPR Cookie Drawer:** Granular cookie consent categorization (Essential, Analytics, Marketing/Personalized) with persistent state and instant opt-in/opt-out.
+- **Genuine Reviews (BIS IS 19000:2022):** Zero fake or synthetic reviews. Only verified customers who completed an order can submit ratings; customers can freely edit and delete their verified reviews.
+- **Sandboxed Third-Party Embeds:** Strict iframe isolation (`ThirdPartyEmbed.tsx`) preventing DOM access or cross-site tracking.
+

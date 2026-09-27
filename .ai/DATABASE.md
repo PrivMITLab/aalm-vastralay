@@ -54,16 +54,10 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 
 ---
 
-## 3. Safe Clean Reset Rule (Demo Data Only)
-
-Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean Wipe)** hi chalana chahiye:
-- **Clean hone wali tables:** `reviews`, `order_items`, `orders`, `cart`, `wishlist`, `product_variants`, `products`, `stores`, `users WHERE role != 'admin'`.
-- **KABHI BHI DELETE NA HONE WALI TABLES (100% PRESERVED):**
-  - `categories` (Saree, Lehenga, Kurta, etc.)
-  - `coupons` (WELCOME10, FESTIVE, etc.)
-  - `settings` (Banners, UPI, Phone, Theme, Colors)
-  - `audit_logs` (Security & admin audit trail)
-  - `users WHERE role = 'admin'` (Super Admin account)
+## 3. Pure Production & Zero-Fake Data Policy
+- **No Mock / Fake Reviews:** The platform strictly enforces Indian Standard **BIS IS 19000:2022** for Online Consumer Reviews. Only verified customers who ordered and received a product (`status IN ('delivered', 'confirmed')`) can write reviews.
+- **Customer Review CRUD:** Customers have full rights to Edit and Delete their reviews at any time.
+- **1-Command Auto-Migration:** Run `npm run db:auto-migrate` to safely synchronize all 17 tables, performance indexes, and initial settings without manual SQL console access.
 
 ---
 
@@ -83,6 +77,8 @@ Jab bhi database me se testing/demo data clean karna ho, **Option 1 (Safe Clean 
 13. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'normal' NOT NULL;`
 14. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'general' NOT NULL;`
 15. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`
+16. Dynamic NPCI UPI QR engine with environment parameterization (`NEXT_PUBLIC_UPI_VPA`, `NEXT_PUBLIC_UPI_PAYEE_NAME`).
+17. DPDP Act 2023 compliant `CookieConsent` preferences and sandboxed `ThirdPartyEmbed` security wrapper.
 *Note: Existing `home.banner` settings key is 100% preserved as automatic zero-cost fallback.*
 
 

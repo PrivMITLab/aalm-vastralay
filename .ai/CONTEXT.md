@@ -256,4 +256,18 @@ ame?\, \size?\ (default 40px), \className?\.
      - Bridged `useToast().push()` directly to `sonnerToast.success`, `sonnerToast.error`, and `sonnerToast.info`, ensuring any legacy toast call seamlessly triggers a rich Sonner toast.
      - Added direct `toast.success` and `toast.error` dispatch to `src/components/admin/BroadcastManager.tsx` on marketing campaign launch.
 
+## 11. Open-Source Turnkey Template, Auto-Migrate Engine & Genuine Reviews
+1. **Automated Database Migration & Schema Healing (`scripts/db-auto-migrate.ts`, `npm run db:auto-migrate`):**
+   - Automatically executes idempotent DDL statements, applies non-destructive column additions (`ADD COLUMN IF NOT EXISTS`), builds missing indexes (`CREATE INDEX IF NOT EXISTS`), and verifies clean baseline data without manual SQL execution.
+   - Zero data loss guarantee: Never drops tables or columns. Safe to run against existing production Neon databases.
+2. **Turnkey Open-Source Marketplace Template Architecture:**
+   - Anyone can clone the repository and configure their own store name, phone, WhatsApp, email, UPI VPA, and address directly via `.env.local` without touching source code.
+   - `src/lib/settings-defs.ts` and `src/components/checkout/DynamicUpiQr.tsx` dynamically read `NEXT_PUBLIC_*` branding variables as system defaults.
+   - Comprehensive `.env.example` Section 8 documenting all open-source white-label variables.
+3. **Genuine Review Engine (BIS IS 19000:2022 Compliant):**
+   - Strictly requires verified completed orders before submitting reviews; zero synthetic or fake reviews.
+   - Added full customer review CRUD: `editReview` and `deleteReview` (`src/actions/orders.ts`) with dynamic rating and count recalculation.
+4. **Statutory Legal Compliance & Sandboxed Embeds:**
+   - DPDP Act 2023 / GDPR compliant `<CookieConsent />` preferences drawer with granular consent controls.
+   - Hardened `<ThirdPartyEmbed />` component with secure sandbox attributes (`allow-scripts allow-same-origin allow-presentation allow-popups`) and lazy loading.
 

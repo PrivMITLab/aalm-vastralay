@@ -21,7 +21,7 @@
 
 <br/>
 
-> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace engineered for Sarees, Lehengas, Sherwanis, Kurta Sets, and Bridal Jewellery. Built with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates on **permanent $0/month free tiers** with zero third-party captchas, zero recurring SaaS costs, and zero data loss.
+> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **Turnkey Open-Source Multi-Vendor E-Commerce Template**. Built with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates on **permanent $0/month free tiers** with zero third-party captchas, zero fake reviews, zero recurring SaaS costs, and zero data loss. Anyone can clone the repository, customize `.env.local`, and launch a complete production marketplace in under 3 minutes.
 
 </div>
 
@@ -31,14 +31,15 @@
 
 1. [✨ Key Architectural Innovations](#-key-architectural-innovations)
 2. [🏛️ System Architecture Blueprint](#️-system-architecture-blueprint)
-3. [👥 Marketplace Roles & Permissions](#-marketplace-roles--permissions)
-4. [🛠️ 100+ Zero-Code Live Admin Studio](#️-100-zero-code-live-admin-studio)
-5. [🛡️ Production Security & Bot Shield](#️-production-security--bot-shield)
-6. [🚀 Quick Start & Installation](#-quick-start--installation)
-7. [🔑 Environment Variables Reference](#-environment-variables-reference)
-8. [🧪 Enterprise Verification Suite (32/32 Passing)](#-enterprise-verification-suite-3232-passing)
-9. [☁️ Cloud Deployment Runbook (Vercel + Cloudflare + Neon)](#️-cloud-deployment-runbook)
-10. [📚 Master Documentation Index](#-master-documentation-index)
+3. [👥 Marketplace Roles & Universal CRUD](#-marketplace-roles--universal-crud)
+4. [🛠️ 105+ Zero-Code Live Admin Studio](#️-105-zero-code-live-admin-studio)
+5. [🛡️ Self-Hosted Bot Shield (10 Archetypes)](#️-self-hosted-bot-shield-10-archetypes)
+6. [📜 Statutory Legal Compliance & DPDP Act 2023](#-statutory-legal-compliance--dpdp-act-2023)
+7. [🚀 Turnkey 3-Minute Quick Start](#-turnkey-3-minute-quick-start)
+8. [🔑 White-Label Environment Variables Reference](#-white-label-environment-variables-reference)
+9. [🧪 Enterprise Verification Suite (32/32 Passing)](#-enterprise-verification-suite-3232-passing)
+10. [☁️ Cloud Deployment Runbook (Vercel + Cloudflare + Neon)](#️-cloud-deployment-runbook)
+11. [📚 Master Documentation Index](#-master-documentation-index)
 
 ---
 
@@ -180,22 +181,29 @@ Create a `.env.local` file in the project root:
 ```bash
 cp .env.example .env.local
 ```
-Fill in the 3 mandatory variables:
+Fill in the mandatory database and security keys, plus your brand details:
 ```env
 DATABASE_URL="postgresql://neondb_owner:PASSWORD@ep-xxx-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
 AUTH_SECRET="e9b2f4c781d0a5e38f12c67b94d183f05a76c82e91b45f3a7c2e81d094b72e15"
 ENCRYPTION_SECRET="7a1f2b641a26c9a227fbf3d59a2a45dcb945eb98a6f4e2a34d14207f6415e6c6"
+POW_SECRET="aalm_pow_shield_secret_key_change_in_production"
+
+# Open-Source White-Label Branding (Customize for your store!)
+NEXT_PUBLIC_APP_NAME="Your Boutique Name"
+NEXT_PUBLIC_BRAND_TAGLINE="Royal Indian Wedding & Luxury Ethnic Wear"
+NEXT_PUBLIC_SUPPORT_PHONE="+91 84340 61342"
+NEXT_PUBLIC_SUPPORT_WHATSAPP="+91 84340 61342"
+NEXT_PUBLIC_SUPPORT_EMAIL="support@yourstore.com"
+NEXT_PUBLIC_DEFAULT_LOGO_URL="/brand/logo.svg"
+NEXT_PUBLIC_UPI_VPA="yourname@upi"
+NEXT_PUBLIC_UPI_PAYEE_NAME="Your Boutique Name"
 ```
 *(Generate 64-character secrets via: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)*
 
-### 4. Database Bootstrap (17 Tables & Initial Settings)
-Because `/api/bootstrap` is strictly POST-only for security, run:
+### 4. 1-Command Zero-Loss Database Auto-Migration
+Synchronize all 17 tables, performance indexes, and foundational categories safely without dropping any data:
 ```bash
-# Using cURL (Git Bash / Linux / macOS)
-curl -X POST "http://localhost:3000/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
-
-# Or using PowerShell (Windows)
-Invoke-RestMethod -Method Post -Uri "http://localhost:3000/api/bootstrap?token=aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c&clean=true"
+npm run db:auto-migrate
 ```
 
 ### 5. Launch Development Server
@@ -206,7 +214,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🔑 Environment Variables Reference
+## 🔑 White-Label Environment Variables Reference
 
 | Variable | Required | Default / Description |
 | :--- | :---: | :--- |
@@ -215,12 +223,16 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 | `ENCRYPTION_SECRET` | **Yes** | 64-character random hex string for AES-256-GCM database field encryption. |
 | `POW_SECRET` | **Yes** | Secret salt for signing Proof-of-Work challenge payloads. |
 | `NEXT_PUBLIC_SITE_URL` | **Yes** | Canonical marketplace URL (e.g. `https://aalm-vastralay.vercel.app`). |
+| `NEXT_PUBLIC_APP_NAME` | Optional | Your store name (e.g. `"Aalm Vastralay"` or `"Your Brand"`). |
+| `NEXT_PUBLIC_BRAND_TAGLINE` | Optional | Store tagline displayed across headers, SEO, and meta tags. |
+| `NEXT_PUBLIC_SUPPORT_PHONE` | Optional | Customer support phone number for call links. |
+| `NEXT_PUBLIC_SUPPORT_WHATSAPP` | Optional | Customer WhatsApp support number for 1-click orders. |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | Optional | Customer support contact email. |
+| `NEXT_PUBLIC_UPI_VPA` | Optional | Store UPI Virtual Payment Address for 0% fee dynamic QR codes. |
+| `NEXT_PUBLIC_UPI_PAYEE_NAME`| Optional | Merchant name displayed in GPay, PhonePe, Paytm, and BHIM. |
 | `COOKIE_SECURE` | Optional | Set to `"true"` on production HTTPS, `"false"` for local development. |
-| `NEXT_PUBLIC_B2_WORKER_URL`| Optional | Cloudflare Worker CDN URL (e.g. `https://aalm-b2-proxy.alamwastraly.workers.dev`). |
-| `BOOTSTRAP_TOKEN` | Optional | Secret token used to authorize POST database initialization. |
 | `ADMIN_EMAIL` | Optional | Default Super Admin login email (`admin@aalmvastralay.com`). |
 | `ADMIN_PASSWORD` | Optional | Default Super Admin login password. |
-| `SKIP_SEED` | Optional | Set to `"true"` to prevent loading sample demo products. |
 
 ---
 

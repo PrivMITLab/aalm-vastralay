@@ -35,12 +35,20 @@ const SECTIONS_DEFAULT = JSON.stringify([
   { key: "stores", name: "Trusted Stores", enabled: true, order: 6, limit: 4 },
 ]);
 
+const defaultAppName = process.env.NEXT_PUBLIC_APP_NAME || "Aalm Vastralay";
+const defaultTagline = process.env.NEXT_PUBLIC_BRAND_TAGLINE || "Royal Indian Wedding & Luxury Ethnic Wear";
+const defaultPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 84340 61342";
+const defaultWhatsApp = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || defaultPhone;
+const defaultEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@aalmvastralay.com";
+const defaultLogoUrl = process.env.NEXT_PUBLIC_DEFAULT_LOGO_URL || "";
+const defaultAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS || "Kalyanipur, Bihar, India (Proprietor: Suheb Alam)";
+
 export const SETTINGS_FIELDS: SettingField[] = [
   /* ---------------- brand ---------------- */
-  { key: "site.name", group: "brand", label: "Site name", type: "text", default: "Aalm Vastralay" },
-  { key: "site.tagline", group: "brand", label: "Tagline", type: "text", default: "Royal Indian Wedding & Luxury Ethnic Wear" },
-  { key: "site.logoText", group: "brand", label: "Logo monogram", type: "text", default: "AV", help: "Shown in the header when no logo image is set." },
-  { key: "site.logoUrl", group: "brand", label: "Logo image URL", type: "text", default: "", help: "Supports all link types: ImageKit (ik:...), Backblaze B2 (b2:...), Google Drive, Dropbox, OneDrive, or direct https:// image URL." },
+  { key: "site.name", group: "brand", label: "Site name", type: "text", default: defaultAppName },
+  { key: "site.tagline", group: "brand", label: "Tagline", type: "text", default: defaultTagline },
+  { key: "site.logoText", group: "brand", label: "Logo monogram", type: "text", default: defaultAppName.slice(0, 2).toUpperCase(), help: "Shown in the header when no logo image is set." },
+  { key: "site.logoUrl", group: "brand", label: "Logo image URL", type: "text", default: defaultLogoUrl, help: "Supports all link types: ImageKit (ik:...), Backblaze B2 (b2:...), Google Drive, Dropbox, OneDrive, or direct https:// image URL." },
   { key: "site.faviconEmoji", group: "brand", label: "Favicon emoji", type: "text", default: "👑" },
   {
     key: "site.announcements",
@@ -51,11 +59,11 @@ export const SETTINGS_FIELDS: SettingField[] = [
     help: "One message per line. Supports all link types: Markdown [Text](/link), direct URLs (https://...), arrow syntax (Sale -> /products), WhatsApp (wa.me/...), or phone numbers.",
   },
   { key: "site.announcementSpeed", group: "brand", label: "Announcement scroll speed (seconds)", type: "number", default: "26", min: 8, max: 120 },
-  { key: "site.phone", group: "brand", label: "Support phone", type: "text", default: "+91 84340 61342" },
-  { key: "site.whatsapp", group: "brand", label: "WhatsApp number", type: "text", default: "+91 84340 61342" },
-  { key: "site.email", group: "brand", label: "Support email", type: "text", default: "support@aalmvastralay.com" },
-  { key: "site.address", group: "brand", label: "Registered address", type: "textarea", default: "Kalyanipur, Bihar, India (Proprietor: Suheb Alam)" },
-  { key: "site.copyright", group: "brand", label: "Footer copyright line", type: "text", default: "आलम वस्त्रालय (Aalm Vastralay) — Royal Wedding & Ethnic Wear." },
+  { key: "site.phone", group: "brand", label: "Support phone", type: "text", default: defaultPhone },
+  { key: "site.whatsapp", group: "brand", label: "WhatsApp number", type: "text", default: defaultWhatsApp },
+  { key: "site.email", group: "brand", label: "Support email", type: "text", default: defaultEmail },
+  { key: "site.address", group: "brand", label: "Registered address", type: "textarea", default: defaultAddress },
+  { key: "site.copyright", group: "brand", label: "Footer copyright line", type: "text", default: `© ${new Date().getFullYear()} ${defaultAppName}. All rights reserved.` },
   { key: "site.socialInstagram", group: "brand", label: "Instagram URL", type: "text", default: "https://instagram.com" },
   { key: "site.socialYoutube", group: "brand", label: "YouTube URL", type: "text", default: "https://youtube.com" },
   { key: "site.socialFacebook", group: "brand", label: "Facebook URL", type: "text", default: "https://facebook.com" },
