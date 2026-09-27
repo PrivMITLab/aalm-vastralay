@@ -1,142 +1,153 @@
 # 🛡️ AALM VASTRALAY — SECRETS & CONFIGURATION MATRIX
-# Classification: Confidentiality, Exposure Risk & Plaintext vs. Secret Architecture
+# सम्पूर्ण गाइड: कौन अनिवार्य (Mandatory) है, कौन वैकल्पिक (Optional) है, और कौन Plain-Text vs Secret है
 # Location: docs/SECRETS_AND_CONFIGURATION_MATRIX.md
 
 ---
 
-## 📌 1. परिचय व सुरक्षा सिद्धांत (Executive Summary)
+## 📌 1. परिचय व सुरक्षा दर्शन (Executive Summary)
 
-आलम वस्त्रालय (Aalm Vastralay) एक आधुनिक, मल्टी-वेंडर एंटरप्राइज़ ई-कॉमर्स प्लेटफ़ॉर्म है। इस आर्किटेक्चर में सुरक्षा का सबसे पहला नियम है:
+आलम वस्त्रालय (Aalm Vastralay) आर्किटेक्चर को **100% परमानेंट $0/माह (Free Tier)** पर बिना किसी हिडन कॉस्ट के सुरक्षित चलाने के लिए डिज़ाइन किया गया है। 
 
-> **"कोई भी निजी सीक्रेट कभी भी गिट (Git), क्लाइंट-साइड ब्राउज़र कोड, या अनएन्क्रिप्टेड लॉग में नहीं जाना चाहिए।"**
-
-Next.js में दो तरह के वेरिएबल्स होते हैं:
-1. **Server-Only (गुप्त / Secret):** यह कोड केवल Vercel या Node.js बैकएंड सर्वर पर चलता है। यह कभी भी यूज़र के ब्राउज़र में डाउनलोड नहीं होता।
-2. **Client-Exposed (`NEXT_PUBLIC_*` / Plain Text):** Next.js कंपाइलेशन के दौरान इन वेरिएबल्स को जावास्क्रिप्ट बंडल में एम्बेड कर देता है। ये ब्राउज़र के "View Source" या DevTools में सबके लिए दिखाई देते हैं। इसलिए इसमें **केवल पब्लिक जानकारी** ही रखी जानी चाहिए।
-
----
-
-## 📊 2. सम्पूर्ण वर्गीकरण तालिका (Full Classification Matrix)
-
-नीचे प्रोजेक्ट में इस्तेमाल होने वाले प्रत्येक वेरिएबल का स्पष्ट वर्गीकरण दिया गया है:
-
-| वेरिएबल का नाम | प्रकार (Type) | कहाँ रन होता है? | रिस्क स्तर | क्या प्लेन-टेक्स्ट में सुरक्षित है? | स्टोर करने का स्थान |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| `DATABASE_URL` | **SECRET** | Server-Only | 🔴 **CRITICAL** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `AUTH_SECRET` | **SECRET** | Server-Only | 🔴 **CRITICAL** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `ENCRYPTION_SECRET` | **SECRET** | Server-Only | 🔴 **CRITICAL** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `POW_SECRET` | **SECRET** | Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `ADMIN_PASSWORD` | **SECRET** | Server-Only | 🔴 **CRITICAL** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `BOOTSTRAP_TOKEN` | **SECRET** | Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `B2_KEY_ID` | **SECRET** | Cloudflare Edge | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Cloudflare Encrypted Secrets |
-| `B2_APP_KEY` | **SECRET** | Cloudflare Edge | 🔴 **CRITICAL** | ❌ **नहीं (Strictly Private)** | Cloudflare Encrypted Secrets |
-| `B2_BUCKET_ID` | **SECRET** | Cloudflare Edge | 🟡 **MEDIUM** | ❌ **नहीं (Strictly Private)** | Cloudflare Encrypted Secrets |
-| `GAS_SECRET_TOKEN` | **SECRET** | Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `SHIPROCKET_PASSWORD`| **SECRET** | Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `DELHIVERY_API_KEY` | **SECRET** | Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `IMAGEKIT_PRIVATE_KEY`| **SECRET**| Server-Only | 🟠 **HIGH** | ❌ **नहीं (Strictly Private)** | Vercel Environment Variables |
-| `NEXT_PUBLIC_SITE_URL`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Public Domain)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_APP_NAME`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Brand Name)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_BRAND_TAGLINE`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Slogan)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_SUPPORT_PHONE`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Customer Care)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_SUPPORT_WHATSAPP`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Support No)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_SUPPORT_EMAIL`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Public Email)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_STORE_ADDRESS`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Physical Store)**| Vercel & `.env.example` |
-| `NEXT_PUBLIC_STORE_CITY`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (City)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_STORE_PINCODE`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Pincode)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_STORE_GSTIN`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Tax Invoice)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_UPI_VPA` | **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Public UPI VPA)** | Vercel & `.env.example` |
-| `NEXT_PUBLIC_UPI_PAYEE_NAME`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Merchant Name)**| Vercel & `.env.example` |
-| `NEXT_PUBLIC_B2_WORKER_URL`| **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Public CDN URL)**| Vercel & `.env.example` |
-| `NEXT_PUBLIC_USE_WSRV` | **PLAIN TEXT** | Client & Server | 🟢 **PUBLIC** | ✅ **हाँ (Flag "true")** | Vercel & `.env.example` |
-| `COOKIE_SECURE` | **PLAIN TEXT** | Server Config | 🟢 **CONFIG** | ✅ **हाँ (Flag "true")** | Vercel & `.env.example` |
-| `TRUST_PROXY` | **PLAIN TEXT** | Server Config | 🟢 **CONFIG** | ✅ **हाँ (Flag "true")** | Vercel & `.env.example` |
-| `SKIP_SEED` | **PLAIN TEXT** | Server Config | 🟢 **CONFIG** | ✅ **हाँ (Flag "true")** | Vercel & `.env.example` |
-| `ALLOW_DIRECT_DB` | **PLAIN TEXT** | Server Config | 🟢 **CONFIG** | ✅ **हाँ (Flag "false")** | Vercel & `.env.example` |
+इस गाइड में प्रत्येक वेरिएबल को दो पैमानों पर परखा गया है:
+1. **ज़रूरत का स्तर (Necessity Level):** 
+   - 🔴 **अनिवार्य (Mandatory):** इसके बिना वेबसाइट स्टार्ट नहीं हो सकती (केवल 5 वेरिएबल्स)।
+   - 🟡 **अनुशंसित (Recommended):** ₹0 फ्री टियर फीचर्स (OTP, UPI, B2 इमेज स्टोरेज) के लिए।
+   - ⚪ **वैकल्पिक (Optional):** जैसे Shiprocket, ImageKit, या Clerk (यदि आप थर्ड-पार्टी सेवाएं जोड़ना चाहें)।
+   - 🟢 **ब्रांड कस्टमाइज़ेशन (Store Defaults):** स्टोर नाम, फोन, पता (कोड में पहले से डिफ़ॉल्ट्स सेट हैं)।
+2. **गोपनीयता का स्तर (Confidentiality Level):**
+   - 🔒 **SECRET (गुप्त / Private):** केवल सर्वर पर रहेगा, कभी गिट या ब्राउज़र में नहीं दिखेगा।
+   - 📢 **PLAIN TEXT (पब्लिक / Public):** ब्राउज़र के लिए सुरक्षित, हेडर/फुटर/इनवॉइस में दिखने योग्य।
 
 ---
 
-## 🔒 3. टियर 1: क्रिटिकल सीक्रेट्स (Tier 1: High-Security Secrets)
+## 🚦 2. तुरंत निर्णय तालिका: किसकी ज़रूरत है और किसकी नहीं? (Quick Decision Matrix)
 
-ये वे वेरिएबल्स हैं जो सिस्टम के दिल (Core Security) हैं। इन्हें **कभी भी गिट (Git), स्क्रीनशॉट या पब्लिक चैट** में शेयर नहीं किया जाना चाहिए:
-
-### 1. `DATABASE_URL`
-- **यह क्या है:** Neon PostgreSQL का Pooled कनेक्शन स्ट्रिंग।
-- **लीक होने पर खतरा:** कोई भी व्यक्ति आपके डेटाबेस में सीधे घुसकर प्रोडक्ट्स, ऑर्डर्स और ग्राहकों का डेटा चुरा या डिलीट कर सकता है।
-- **सुरक्षा नियम:** 
-  - हमेशा `?sslmode=require` अनिवार्य रखें।
-  - हमेशा `-pooler` वाला यूआरएल इस्तेमाल करें।
-  - इसे केवल Vercel Dashboard के Environment Variables और अपने लोकल `.env.local` में रखें।
-
-### 2. `AUTH_SECRET`
-- **यह क्या है:** 64-अक्षरों का क्रिप्टोग्राफिक हेक्स-की, जिसका उपयोग यूज़र लॉगिन टोकन्स (HMAC SHA-256) को साइन करने के लिए किया जाता है।
-- **लीक होने पर खतरा:** अटैकर नकली सुपर-एडमिन कुकी बनाकर पूरे स्टोर का कंट्रोल ले सकता है।
-- **जनरेट करने का तरीका:**
-  ```bash
-  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-  ```
-
-### 3. `ENCRYPTION_SECRET`
-- **यह क्या है:** डेटाबेस में संवेदनशील फ़ील्ड्स (जैसे थर्ड-पार्टी क्रेडेंशियल्स) को AES-256-GCM से सुरक्षित करने की मास्टर की।
-- **लीक होने पर खतरा:** डेटाबेस की एन्क्रिप्टेड फ़ील्ड्स डिक्रिप्ट हो सकती हैं।
-- **जनरेट करने का तरीका:**
-  ```bash
-  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-  ```
-
-### 4. `POW_SECRET`
-- **यह क्या है:** हमारे इन-हाउस Click-to-Solve बॉट शील्ड (Proof-of-Work) का सीक्रेट सॉल्ट।
-- **लीक होने पर खतरा:** बॉट्स बिना पहेली हल किए नकली वेरिफिकेशन टोकन जनरेट कर सकते हैं।
-
-### 5. `B2_KEY_ID` & `B2_APP_KEY`
-- **यह क्या है:** Backblaze B2 प्राइवेट स्टोरेज की मास्टर कीज़।
-- **सुरक्षा नियम:**
-  - ये कीज़ Vercel पर भी नहीं डाली जातीं!
-  - ये सीधे Cloudflare Worker के एन्क्रिप्टेड सीक्रेट्स वॉल्ट (`wrangler secret put`) में स्टोर होती हैं।
-  - हमारा ऑटोमेशन स्क्रिप्ट `scripts/setup-b2-worker.ps1` इसे सीधे पाइप करता है ताकि यह किसी फ़ाइल में भी न रहे।
+| वेरिएबल का नाम | ज़रूरत का स्तर (Necessity) | प्रकार (Type) | क्या डिफ़ॉल्ट वैल्यू मौजूद है? | क्या प्रोडक्शन चलाने के लिए अनिवार्य है? |
+| :--- | :---: | :---: | :---: | :---: |
+| **`DATABASE_URL`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
+| **`AUTH_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
+| **`ENCRYPTION_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ⚠️ असुरक्षित देव फॉलबैक | **हाँ (100% Required)** |
+| **`POW_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ⚠️ डेमो साल्ट | **हाँ (100% Required)** |
+| **`NEXT_PUBLIC_SITE_URL`** | 🔴 **अनिवार्य (MANDATORY)** | 📢 **PLAIN TEXT** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
+| **`GAS_EMAIL_URL`** (Option A) | 🟡 **अनुशंसित (Recommended)** | 📢 **PLAIN TEXT** | ❌ खाली रहने पर OTP प्रिंट होगा | अनुशंसित (फ्री OTP ईमेल के लिए) |
+| **`GAS_SECRET_TOKEN`** (Option A) | 🟡 **अनुशंसित (Recommended)** | 🔒 **SECRET** | ❌ खाली रहने पर OTP प्रिंट होगा | अनुशंसित (फ्री OTP ईमेल के लिए) |
+| **`NEXT_PUBLIC_UPI_VPA`** | 🟡 **अनुशंसित (Recommended)** | 📢 **PLAIN TEXT** | ✅ `"merchant@upi"` | अनुशंसित (₹0 UPI चेकआउट के लिए) |
+| **`NEXT_PUBLIC_UPI_PAYEE_NAME`** | 🟡 **अनुशंसित (Recommended)** | 📢 **PLAIN TEXT** | ✅ `"Marketplace Store"` | अनुशंसित (UPI ऐप में नाम के लिए) |
+| **`B2_KEY_ID` & `APP_KEY`** (Option A) | 🟡 **अनुशंसित (Recommended)** | 🔒 **SECRET** | ⚠️ Vercel लोकल फॉलबैक | अनुशंसित (10GB फ्री B2 इमेज के लिए) |
+| **`NEXT_PUBLIC_B2_WORKER_URL`** | 🟡 **अनुशंसित (Recommended)** | 📢 **PLAIN TEXT** | ✅ Cloudflare Worker URL | अनुशंसित (B2 CDN प्रॉक्सी के लिए) |
+| **`ADMIN_EMAIL` & `PASSWORD`** | 🟡 **अनुशंसित (Recommended)** | 🔒 **SECRET** | ✅ `"admin@aalmvastralay.com"` | अनुशंसित (शुरुआती एडमिन के लिए) |
+| **`SHIPROCKET_EMAIL` / `PASSWORD`** | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 **SECRET** | ✅ मैन्युअल ट्रैकिंग फॉलबैक | ❌ नहीं (वैकल्पिक ऑटो-लेबल) |
+| **`DELHIVERY_API_KEY`** | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 **SECRET** | ✅ मैन्युअल ट्रैकिंग फॉलबैक | ❌ नहीं (वैकल्पिक ऑटो-लेबल) |
+| **`IMAGEKIT_*`** (Option B) | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 / 📢 मिक्स | ✅ B2 स्टोरेज प्राथमिकता | ❌ नहीं (वैकल्पिक 20GB इमेजकिट) |
+| **`QUIETMAIL_*`** (Option B) | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 / 📢 मिक्स | ✅ Google Apps Script प्राथमिकता | ❌ नहीं (वैकल्पिक पेड मेलर) |
+| **`CLERK_WEBHOOK_SECRET`** | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 **SECRET** | ✅ इन-हाउस ऑथ प्राथमिकता | ❌ नहीं (केवल क्लर्क उपयोग पर) |
+| **`NEXT_PUBLIC_APP_NAME`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"Aalm Vastralay"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
+| **`NEXT_PUBLIC_SUPPORT_PHONE`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"+91 98765 43210"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
+| **`NEXT_PUBLIC_SUPPORT_WHATSAPP`**| 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"+91 98765 43210"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
+| **`NEXT_PUBLIC_STORE_ADDRESS`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"Main Market, Bihar"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
+| **`NEXT_PUBLIC_STORE_GSTIN`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"10ABCDE1234F1Z5"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
 
 ---
 
-## 📢 4. टियर 2: प्लेन-टेक्स्ट व पब्लिक कॉन्फ़िगरेशन (Tier 2: Plain Text Config)
+## 🔴 3. ग्रुप 1: केवल ये 5 चीज़ें 100% अनिवार्य हैं (Must-Have Core)
 
-ये वेरिएबल्स `NEXT_PUBLIC_*` से शुरू होते हैं। ये **प्लेन-टेक्स्ट में होना पूरी तरह सुरक्षित और स्वाभाविक** है:
+यदि आप बिल्कुल साधारण शुरुआत करना चाहते हैं और कोई अतिरिक्त थर्ड-पार्टी खाता नहीं खोलना चाहते, तो प्रोडक्शन चलाने के लिए **केवल ये 5 चीज़ें** चाहिए:
 
-### 1. स्टोर ब्रांडिंग व संपर्क (`NEXT_PUBLIC_APP_NAME`, `PHONE`, `EMAIL`, `ADDRESS`)
-- **यह क्यों प्लेन-टेक्स्ट है:** क्योंकि यह जानकारी आपकी वेबसाइट के हेडर, फुटर, कॉन्टैक्ट पेज और जीएसटी इनवॉइस पर ग्राहकों को दिखाने के लिए ही होती है।
-- **उदाहरण:**
-  ```env
-  NEXT_PUBLIC_APP_NAME="Aalm Vastralay"
-  NEXT_PUBLIC_SUPPORT_PHONE="+91 98765 43210"
-  NEXT_PUBLIC_STORE_CITY="Patna"
-  ```
+```env
+# 1. डेटाबेस (Neon Serverless PostgreSQL — मुफ़्त 500MB)
+# कहाँ मिलेगा: neon.tech -> Project 'aalm-vastralay' -> Region Mumbai
+DATABASE_URL="postgresql://neondb_owner:YOUR_PASSWORD@ep-sample-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
 
-### 2. यूपीआई आईडी (`NEXT_PUBLIC_UPI_VPA` & `NEXT_PUBLIC_UPI_PAYEE_NAME`)
-- **यह क्यों प्लेन-टेक्स्ट है:** जब ग्राहक चेकआउट पर Dynamic QR कोड स्कैन करता है, तो उसके Google Pay / PhonePe ऐप में UPI VPA (उदा. `merchant@upi`) और नाम दिखना आवश्यक होता है। यह मर्चेंट आईडी पब्लिक होती है।
+# 2. सेशन हस्ताक्षर (64-अक्षर हेक्स स्ट्रिंग)
+# जनरेट करें: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AUTH_SECRET="your_64_character_hex_string_for_auth_secret_here"
 
-### 3. क्लाउडफ्लेयर वर्कर CDN URL (`NEXT_PUBLIC_B2_WORKER_URL`)
-- **यह क्यों प्लेन-टेक्स्ट है:** यह केवल इमेज डिलीवरी का पब्लिक CDN डोमेन है (उदा. `https://b2-proxy.marketplace.workers.dev`)। असली B2 कीज़ और बकेट अंदर वर्कर में सुरक्षित हैं।
+# 3. AES-256 डेटा एन्क्रिप्शन (64-अक्षर हेक्स स्ट्रिंग)
+ENCRYPTION_SECRET="your_64_character_hex_string_for_encryption_secret_here"
 
----
+# 4. इन-हाउस बॉट शील्ड साल्ट (कोई भी रैंडम सुरक्षित स्ट्रिंग)
+POW_SECRET="aalm_pow_shield_super_secure_salt_2026"
 
-## ⚙️ 5. टियर 3: सिस्टम रनटाइम स्विचेस (Tier 3: Runtime Switches)
+# 5. आपकी लाइव वेबसाइट का URL
+NEXT_PUBLIC_SITE_URL="https://aalm-vastralay.vercel.app"
+```
 
-ये टेक्निकल फ्लैग्स हैं जो सिस्टम के बिहेवियर को कंट्रोल करते हैं:
-
-- **`COOKIE_SECURE="true"`**: ब्राउज़र को निर्देश देता है कि कुकीज़ केवल एन्क्रिप्टेड HTTPS कनेक्शन पर ही भेजें।
-- **`TRUST_PROXY="true"`**: Vercel और Cloudflare के पीछे असली यूज़र IP पहचानने के लिए।
-- **`SKIP_SEED="true"`**: प्रोडक्शन डेटाबेस में गलती से भी डमी टेस्ट डेटा जाने से रोकता है।
-- **`ALLOW_DIRECT_DB="false"`**: बिना पूलर वाले डायरेक्ट कनेक्शन को रोकता है ताकि कनेक्शन एग्जॉस्ट न हो।
-- **`NEXT_PUBLIC_USE_WSRV="true"`**: इमेज को स्वतः WebP/AVIF में कंप्रेस करने के लिए।
+> **💡 नोट:** इन 5 वेरिएबल्स के साथ पूरी वेबसाइट (होमपेज, कैटलॉग, फ़िल्टर्स, साइज गाइड, पिनकोड, कार्ट, चेकआउट, सुपर एडमिन और सेलर पोर्टल) 100% लाइव काम करेगी!
 
 ---
 
-## 🛡️ 6. सुरक्षा लीकेज रोकथाम प्रोटोकॉल (Leak Prevention Checklist)
+## 🟡 4. ग्रुप 2: अनुशंसित ₹0 फ्री टियर फीचर्स (Recommended Zero-Cost Stack)
 
-1. **कभी भी `.env` या `.env.local` को गिट में कमिट न करें:**
-   - हमारा [`.gitignore`](../.gitignore) इसे 10 अलग-अलग लेयर्स पर ब्लॉक करता है।
-2. **केवल `.env.example` को गिट में रखें:**
-   - `.env.example` में कभी असली पासवर्ड या की न डालें। केवल सुरक्षित डमी वैल्यूज (`your_64_character_hex_string_here`) रखें।
-3. **गिट हिस्ट्री में सीक्रेट्स स्कैनिंग:**
-   - GitHub Secret Scanning और CodeQL हमेशा रिपॉजिटरी पर निगरानी रखते हैं।
-4. **कीज़ रोटेशन (Key Rotation):**
-   - यदि गलती से कोई की लीक हो जाए, तो Vercel Dashboard में जाकर उस की को तुरंत नई रैंडम स्ट्रिंग से रिप्लेस करें और **Redeploy** कर दें। 30 सेकंड में नई की लागू हो जाएगी।
+प्लेटफ़ॉर्म की सभी आधुनिक क्षमताओं का पूरा लाभ उठाने के लिए ये अनुशंसित हैं:
+
+### 1. ईमेल व ओटीपी (Email & OTP):
+- **विकल्प A (अनुशंसित / RECOMMENDED — 100% मुफ़्त):** Google Apps Script
+  - `GAS_EMAIL_URL`: आपके पर्सनल जीमेल से जुड़ा वेब ऐप यूआरएल (बिना डोमेन के मुफ़्त ईमेल)।
+  - `GAS_SECRET_TOKEN`: पासवर्ड रीसेट और ओटीपी सुरक्षा के लिए सीक्रेट टोकन।
+  - *गाइड:* [`docs/GAS_EMAIL_GUIDE.md`](GAS_EMAIL_GUIDE.md)
+
+### 2. डायनेमिक यूपीआई चेकआउट (Dynamic UPI Checkout):
+- `NEXT_PUBLIC_UPI_VPA`: आपका UPI ID (उदा. `merchant@upi` या `9876543210@paytm`) — ₹0 गेटवे फीस।
+- `NEXT_PUBLIC_UPI_PAYEE_NAME`: ग्राहक के ऐप पर दिखने वाला आपका नाम।
+
+### 3. प्राइवेट मीडिया स्टोरेज (Private B2 Media CDN):
+- **विकल्प A (अनुशंसित — 10GB मुफ़्त + असीमित फ्री बैंडविड्थ):** Backblaze B2 + Cloudflare Worker
+  - `B2_KEY_ID`, `B2_APP_KEY`, `B2_BUCKET_ID`, `B2_BUCKET_NAME` ➔ Cloudflare Secrets में डाले जाते हैं।
+  - `NEXT_PUBLIC_B2_WORKER_URL`: Cloudflare Worker URL (Vercel में डाला जाता है)।
+  - *गाइड:* [`docs/b2-cloudflare-setup.md`](b2-cloudflare-setup.md)
+
+---
+
+## ⚪ 5. ग्रुप 3: पूरी तरह वैकल्पिक सेवाएं (Purely Optional / Advanced)
+
+इनकी शुरुआत में **कोई ज़रूरत नहीं** है। जब आपका बिजनेस बड़ा हो जाए और आप इन्हें जोड़ना चाहें, तब इस्तेमाल करें:
+
+### 1. कूरियर व AWB लॉजिस्टिक्स (Shiprocket / Delhivery):
+- `SHIPROCKET_EMAIL` & `SHIPROCKET_PASSWORD`: ऑटोमैटिक शिपिंग लेबल जनरेशन के लिए।
+- `DELHIVERY_API_KEY`: दिल्लीवरी डायरेक्ट पिकअप व AWB के लिए।
+- *डिफ़ॉल्ट व्यवहार:* यदि ये सेट नहीं हैं, तो एडमिन और सेलर मैन्युअल रूप से ट्रैकिंग नंबर और कूरियर का नाम दर्ज कर सकते हैं। सिस्टम कभी क्रैश नहीं होगा।
+
+### 2. वैकल्पिक इमेज स्टोरेज (Option B: ImageKit CDN):
+- `NEXT_PUBLIC_IMAGEKIT_URL`, `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`
+- *डिफ़ॉल्ट व्यवहार:* यदि आप Backblaze B2 का उपयोग कर रहे हैं (Option A), तो ImageKit की **बिल्कुल आवश्यकता नहीं** है।
+
+### 3. वैकल्पिक ईमेल सेंडर (Option B: QuietMail / Resend):
+- `QUIETMAIL_API_URL` & `QUIETMAIL_API_KEY`
+- *डिफ़ॉल्ट व्यवहार:* यदि आप Google Apps Script (Option A) का उपयोग कर रहे हैं, तो QuietMail की **बिल्कुल आवश्यकता नहीं** है।
+
+### 4. क्लर्क ऑथेंटिकेशन वेबहुक (Clerk Webhook):
+- `CLERK_WEBHOOK_SECRET`: केवल तभी आवश्यक है जब आप इन-हाउस ऑथ की जगह थर्ड-पार्टी Clerk Auth चालू करें। डिफ़ॉल्ट रूप से इन-हाउस ऑथ सक्रिय है।
+
+---
+
+## 🟢 6. ग्रुप 4: स्टोर ब्रांडिंग व कस्टमाइज़ेशन (Store Branding Defaults)
+
+ये सभी वेरिएबल्स `NEXT_PUBLIC_*` (Plain Text) हैं। यदि आप इन्हें `.env.local` या Vercel में **नहीं भी डालते हैं**, तो भी कोडबेस में सुरक्षित डिफ़ॉल्ट्स पहले से मौजूद हैं:
+
+```env
+# यदि आप इन्हें बदलेंगे, तो वेबसाइट पर आपका ब्रांड दिखेगा:
+NEXT_PUBLIC_APP_NAME="Aalm Vastralay"                       # डिफ़ॉल्ट: Aalm Vastralay
+NEXT_PUBLIC_BRAND_TAGLINE="Royal Indian Wedding & Luxury"   # डिफ़ॉल्ट: Royal Indian Wedding
+NEXT_PUBLIC_SUPPORT_PHONE="+91 98765 43210"                 # डिफ़ॉल्ट: +91 98765 43210
+NEXT_PUBLIC_SUPPORT_WHATSAPP="+91 98765 43210"              # डिफ़ॉल्ट: +91 98765 43210
+NEXT_PUBLIC_SUPPORT_EMAIL="support@example.com"             # डिफ़ॉल्ट: support@example.com
+NEXT_PUBLIC_STORE_ADDRESS="Main Market, Kalyanipur"         # डिफ़ॉल्ट: Main Market
+NEXT_PUBLIC_STORE_CITY="Patna"                              # डिफ़ॉल्ट: Patna
+NEXT_PUBLIC_STORE_STATE="Bihar"                             # डिफ़ॉल्ट: Bihar
+NEXT_PUBLIC_STORE_PINCODE="800001"                          # डिफ़ॉल्ट: 800001
+NEXT_PUBLIC_STORE_GSTIN="10ABCDE1234F1Z5"                   # डिफ़ॉल्ट: 10ABCDE1234F1Z5
+```
+
+---
+
+## 🔒 7. सीक्रेट लीकेज रोकथाम व गिट सुरक्षा नियम (Security Rules)
+
+1. **क्या कभी गिट (GitHub) पर जा सकता है?**
+   - ❌ **SECRET वेरिएबल्स:** कभी नहीं! [`.gitignore`](../.gitignore) की 10-लेयर शील्ड इन्हें रोकती है।
+   - ✅ **`.env.example`:** केवल यही फ़ाइल गिट में जाएगी, और इसमें केवल डमी/सैंपल वैल्यूज़ रहेंगी।
+2. **क्लाइंट-साइड (Browser) लीकेज की सुरक्षा:**
+   - केवल वही वेरिएबल्स ब्राउज़र में दिखते हैं जो `NEXT_PUBLIC_` से शुरू होते हैं।
+   - `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_SECRET` कभी भी ब्राउज़र में नहीं जा सकते क्योंकि उनमें `NEXT_PUBLIC_` प्रीफिक्स नहीं है।
+3. **की रोटेशन (यदि कोई की लीक हो जाए):**
+   - Vercel Dashboard -> Settings -> Environment Variables में जाएं।
+   - उस की की वैल्यू बदलें और **Redeploy** कर दें। 30 सेकंड में पुरानी की अमान्य हो जाएगी।
