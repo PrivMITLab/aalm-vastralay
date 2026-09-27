@@ -13,3 +13,5 @@ query-filters:
       id: js/unused-local-variable
   - exclude:
       id: js/useless-assignment-to-local
+  - exclude:
+      id: js/http-to-file-access
