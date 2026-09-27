@@ -117,5 +117,24 @@ export async function testMediaResolver() {
     throw new Error(`Failed: firstImage did not pick the first non-empty image! Got: ${primary}`);
   }
 
+  // 12. Dropbox URL canonicalization (dl=0 -> raw=1)
+  const dropboxUrl = "https://www.dropbox.com/s/sample/photo.jpg?dl=0";
+  const resolvedDropbox = resolveImage(dropboxUrl, { strategy: "direct" });
+  if (!resolvedDropbox.includes("raw=1") || resolvedDropbox.includes("dl=0")) {
+    throw new Error(`Failed: Dropbox direct image did not convert to raw=1! Got: ${resolvedDropbox}`);
+  }
+
+  // 13. sanitizeImageUrl validation
+  const { sanitizeImageUrl } = await import("../src/lib/image-resolver");
+  if (sanitizeImageUrl("javascript:alert(1)") !== PLACEHOLDER_IMAGE) {
+    throw new Error("Failed: sanitizeImageUrl must block javascript: URLs!");
+  }
+  if (sanitizeImageUrl("/uploads/products/item.jpg") !== "/uploads/products/item.jpg") {
+    throw new Error("Failed: sanitizeImageUrl must allow safe relative paths!");
+  }
+  if (!sanitizeImageUrl("https://example.com/photo.jpg").startsWith("https://example.com/photo.jpg")) {
+    throw new Error("Failed: sanitizeImageUrl must allow valid https URLs!");
+  }
+
   console.log("  ✔ Universal media resolver (GDrive, B2, YouTube, Direct WebP, Cache Busting) passed!");
 }

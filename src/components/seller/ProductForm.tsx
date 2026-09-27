@@ -5,7 +5,7 @@ import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
 import { saveProduct } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
 import type { Product, ProductVariant } from "@/db/schema";
-import { resolveThumbnail } from "@/lib/media-resolver";
+import { resolveThumbnail, sanitizeImageUrl } from "@/lib/media-resolver";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -40,6 +40,11 @@ export default function ProductForm({ categories, product }: { categories: Categ
         .map((s) => s.trim())
         .filter(Boolean),
     [images],
+  );
+
+  const safeThumbnails = useMemo(
+    () => imageList.map((src) => sanitizeImageUrl(resolveThumbnail(src))),
+    [imageList],
   );
   const variantStock = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
 
@@ -284,7 +289,15 @@ export default function ProductForm({ categories, product }: { categories: Categ
             <div className="grid grid-cols-4 gap-2">
               {imageList.map((src, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img key={`${src}-${i}`} src={resolveThumbnail(src)} alt="" className="aspect-[3/4] w-full rounded-lg object-cover" />
+                <img
+                  key={`${src}-${i}`}
+                  src={safeThumbnails[i] || "/images/placeholder.svg"}
+                  alt=""
+                  className="aspect-[3/4] w-full rounded-lg object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/placeholder.svg";
+                  }}
+                />
               ))}
             </div>
           )}

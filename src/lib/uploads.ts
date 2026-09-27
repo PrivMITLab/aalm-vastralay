@@ -179,7 +179,9 @@ export async function persistUpload(input: {
     if (!dir.startsWith(uploadsRoot)) throw new Error("Upload path escape");
     await mkdir(dir, { recursive: true });
 
-    const filepath = join(dir, filename);
+    const safeBaseName = pathMod.basename(filename).replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
+    const filepath = resolve(dir, safeBaseName);
+    if (!filepath.startsWith(dir)) throw new Error("Upload filepath escape");
     await writeFile(filepath, buffer);
 
     const relative = normalize(filepath)

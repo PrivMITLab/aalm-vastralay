@@ -12,6 +12,7 @@ export {
   resolveThumbnail,
   firstImage,
   resolveVideo,
+  sanitizeImageUrl,
 } from "./image-resolver";
 
 export type { ResolveOptions, VideoResolveResult, MediaItem, MediaSourceType } from "@/types/media";

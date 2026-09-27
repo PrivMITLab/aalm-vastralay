@@ -1,15 +1,25 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { saveStore } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
-import { resolveImage } from "@/lib/image-resolver";
+import { resolveImage, sanitizeImageUrl } from "@/lib/image-resolver";
 import type { Store } from "@/db/schema";
 
 export default function StoreForm({ store, states }: { store?: Store | null; states: string[] }) {
   const [state, action] = useActionState(saveStore, null);
   const [logoVal, setLogoVal] = useState(store?.logoUrl ?? "");
   const [bannerVal, setBannerVal] = useState(store?.bannerUrl ?? "");
+
+  const safeLogo = useMemo(() => {
+    if (!logoVal.trim()) return "";
+    return sanitizeImageUrl(resolveImage(logoVal));
+  }, [logoVal]);
+
+  const safeBanner = useMemo(() => {
+    if (!bannerVal.trim()) return "";
+    return sanitizeImageUrl(resolveImage(bannerVal));
+  }, [bannerVal]);
   return (
     <form onSubmit={preventDoubleSubmit} action={action} className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
@@ -81,11 +91,11 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
             onChange={(e) => setLogoVal(e.target.value)}
             placeholder="https://… or ik:path/logo.png"
           />
-          {logoVal && (
+          {safeLogo && (
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={resolveImage(logoVal)}
+                src={safeLogo}
                 alt="Logo preview"
                 className="h-full w-full object-cover"
                 onError={(e) => {
@@ -104,7 +114,7 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
           <label className="label" htmlFor="bannerUrl">
             Banner image URL (optional)
           </label>
-          {bannerVal && (
+          {safeBanner && (
             <span className="text-[10px] text-amber-500 font-medium">Live preview</span>
           )}
         </div>
@@ -117,11 +127,11 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
             onChange={(e) => setBannerVal(e.target.value)}
             placeholder="https://… or ik:path/banner.jpg"
           />
-          {bannerVal && (
+          {safeBanner && (
             <div className="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={resolveImage(bannerVal)}
+                src={safeBanner}
                 alt="Banner preview"
                 className="h-full w-full object-cover"
                 onError={(e) => {

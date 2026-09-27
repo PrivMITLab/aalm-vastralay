@@ -65,23 +65,38 @@ export function canonicalizeImageUrl(src: string | null | undefined): string {
     return `https://lh3.googleusercontent.com/d/${s}`;
   }
 
-  // 3. Dropbox links (replace dl=0 with raw=1)
-  if (s.includes("dropbox.com/")) {
-    if (s.includes("dl=0")) return s.replace("dl=0", "raw=1");
-    if (!s.includes("raw=1") && !s.includes("dl=1")) {
-      return s.includes("?") ? `${s}&raw=1` : `${s}?raw=1`;
+  // Safe URL hostname parsing for third-party hosting providers (CodeQL compliant)
+  try {
+    const parsed = new URL(s.startsWith("//") ? `https:${s}` : s);
+    const host = parsed.hostname.toLowerCase();
+
+    // 3. Dropbox links (replace dl=0 with raw=1)
+    if (host === "dropbox.com" || host.endsWith(".dropbox.com")) {
+      if (parsed.searchParams.get("dl") === "0") {
+        parsed.searchParams.delete("dl");
+      }
+      if (parsed.searchParams.get("raw") !== "1" && parsed.searchParams.get("dl") !== "1") {
+        parsed.searchParams.set("raw", "1");
+      }
+      return parsed.toString();
     }
-    return s;
-  }
 
-  // 4. GitHub repository image preview to raw
-  if (s.includes("github.com/") && s.includes("/blob/")) {
-    return s.replace("github.com/", "raw.githubusercontent.com/").replace("/blob/", "/");
-  }
+    // 4. GitHub repository image preview to raw
+    if ((host === "github.com" || host.endsWith(".github.com")) && parsed.pathname.includes("/blob/")) {
+      parsed.hostname = "raw.githubusercontent.com";
+      parsed.pathname = parsed.pathname.replace(/\/blob\//, "/");
+      return parsed.toString();
+    }
 
-  // 5. OneDrive links
-  if (s.includes("onedrive.live.com/") && !s.includes("download=1")) {
-    return s.includes("?") ? `${s}&download=1` : `${s}?download=1`;
+    // 5. OneDrive links
+    if (host === "onedrive.live.com" || host.endsWith(".onedrive.live.com")) {
+      if (parsed.searchParams.get("download") !== "1") {
+        parsed.searchParams.set("download", "1");
+      }
+      return parsed.toString();
+    }
+  } catch {
+    // If not a parseable absolute URL, continue with existing string handling
   }
 
   return s;
@@ -190,30 +205,74 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
   }
 
   // 4. Direct Google User Content / Google Drive
-  if (raw.includes("lh3.googleusercontent.com/d/")) {
-    if (!USE_WSRV) return raw;
-    return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
-  }
+  try {
+    const parsed = new URL(raw);
+    const host = parsed.hostname.toLowerCase();
 
-  // 5. External Direct URLs (http:// or https://)
-  if (/^https?:\/\//i.test(raw)) {
-    // If it's already an ImageKit URL, inject transformation params
-    if (raw.includes("ik.imagekit.io") && !raw.includes("/tr:")) {
-      const parts = raw.split("ik.imagekit.io/");
-      if (parts.length === 2) {
-        const [endpointPrefix, rest] = parts[1].split(/\/(.+)/);
-        if (endpointPrefix && rest) {
-          return `https://ik.imagekit.io/${endpointPrefix}/tr:w-${targetWidth},q-${quality},f-webp/${rest}${vParam}`;
-        }
-      }
+    if (host === "lh3.googleusercontent.com" && parsed.pathname.startsWith("/d/")) {
+      if (!USE_WSRV) return raw;
+      return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
     }
 
-    if (!USE_WSRV) return raw;
-    return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
+    // 5. External Direct URLs (http:// or https://)
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      // If it's already an ImageKit URL, inject transformation params
+      if ((host === "ik.imagekit.io" || host.endsWith(".imagekit.io")) && !parsed.pathname.includes("/tr:")) {
+        const pathSegments = parsed.pathname.replace(/^\//, "").split(/\/(.+)/);
+        if (pathSegments.length >= 2) {
+          const [endpointPrefix, rest] = pathSegments;
+          parsed.pathname = `/${endpointPrefix}/tr:w-${targetWidth},q-${quality},f-webp/${rest}`;
+          if (version) parsed.searchParams.set("v", String(version));
+          return parsed.toString();
+        }
+      }
+
+      if (!USE_WSRV) return raw;
+      return `https://wsrv.nl/?url=${encodeURIComponent(raw)}&w=${targetWidth}&q=${quality}&output=webp&fit=cover${vParam}`;
+    }
+  } catch {
+    // raw is not an absolute URL, continue to local path check
   }
 
   // 6. Local /public asset (or relative path)
-  return raw.startsWith("/") ? raw : `/${raw}`;
+  if (raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\")) {
+    return raw;
+  }
+  if (/^[a-zA-Z0-9_\-\.\/]+$/.test(raw) && !raw.includes(":") && !raw.includes("//")) {
+    return `/${raw}`;
+  }
+
+  return PLACEHOLDER_IMAGE;
+}
+
+/**
+ * Sanitizes an image URL to ensure it only uses safe protocols (http, https, safe data:image/, or safe relative /).
+ * Prevents DOM text reinterpreted as HTML / javascript: XSS in <img> src attributes.
+ */
+export function sanitizeImageUrl(url: string | null | undefined): string {
+  if (!url || typeof url !== "string") return PLACEHOLDER_IMAGE;
+  const trimmed = url.trim();
+  if (!trimmed) return PLACEHOLDER_IMAGE;
+
+  // Safe relative paths: /path (disallowing protocol-relative // or Windows-style /\)
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
+    return trimmed;
+  }
+
+  // Safe absolute URLs
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+    if (parsed.protocol === "data:" && parsed.pathname.startsWith("image/")) {
+      return trimmed;
+    }
+  } catch {
+    // Malformed URL
+  }
+
+  return PLACEHOLDER_IMAGE;
 }
 
 /**
@@ -232,11 +291,16 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
 
     // If primary is served via Cloudflare Worker proxy, add immediate wsrv fallback
     // so a dead or cold-starting worker never leaves broken image icons.
-    if (primary.includes("workers.dev")) {
-      const wsrvWorkerFallback = `https://wsrv.nl/?url=${encodeURIComponent(primary)}&output=webp`;
-      if (!list.includes(wsrvWorkerFallback)) {
-        list.push(wsrvWorkerFallback);
+    try {
+      const parsedHost = new URL(primary).hostname.toLowerCase();
+      if (parsedHost.endsWith(".workers.dev")) {
+        const wsrvWorkerFallback = `https://wsrv.nl/?url=${encodeURIComponent(primary)}&output=webp`;
+        if (!list.includes(wsrvWorkerFallback)) {
+          list.push(wsrvWorkerFallback);
+        }
       }
+    } catch {
+      // ignore
     }
   }
 
@@ -244,11 +308,16 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
     const b2Url = resolveImage(opts.mirroredUrl, { ...opts, strategy: "b2" });
     if (b2Url && b2Url !== PLACEHOLDER_IMAGE && !list.includes(b2Url)) {
       list.push(b2Url);
-      if (b2Url.includes("workers.dev")) {
-        const wsrvMirrorFallback = `https://wsrv.nl/?url=${encodeURIComponent(b2Url)}&output=webp`;
-        if (!list.includes(wsrvMirrorFallback)) {
-          list.push(wsrvMirrorFallback);
+      try {
+        const parsedHost = new URL(b2Url).hostname.toLowerCase();
+        if (parsedHost.endsWith(".workers.dev")) {
+          const wsrvMirrorFallback = `https://wsrv.nl/?url=${encodeURIComponent(b2Url)}&output=webp`;
+          if (!list.includes(wsrvMirrorFallback)) {
+            list.push(wsrvMirrorFallback);
+          }
         }
+      } catch {
+        // ignore
       }
     }
   }
