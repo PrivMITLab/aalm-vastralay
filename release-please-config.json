@@ -20,13 +20,6 @@
         { "type": "test",     "section": "✅ Tests",              "hidden": true  },
         { "type": "style",    "section": "💄 Styling",            "hidden": true  },
         { "type": "revert",   "section": "⏪ Reverts",            "hidden": false }
-      ],
-      "extra-files": [
-        {
-          "type": "json",
-          "path": "package.json",
-          "jsonpath": "$.version"
-        }
       ]
     }
   }

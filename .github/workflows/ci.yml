@@ -36,6 +36,8 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef' }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@aalmvastralay.com' }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'AdminPassword123!' }}
