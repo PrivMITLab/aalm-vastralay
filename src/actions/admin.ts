@@ -51,7 +51,16 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
       } else {
         const raw = formData.get(field.key);
         if (raw === null) continue;
-        value = String(raw).slice(0, field.type === "json" || field.type === "textarea" ? 20000 : 1000);
+        if (field.type === "list") {
+          value = String(raw)
+            .split(/\r?\n|\|/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .join("|")
+            .slice(0, 10000);
+        } else {
+          value = String(raw).slice(0, field.type === "json" || field.type === "textarea" ? 20000 : 1000);
+        }
         if (field.type === "number") {
           const n = Number(value);
           if (!Number.isFinite(n)) return { error: `${field.label} must be a number.` };
@@ -82,9 +91,13 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
     }
 
     await invalidateSettings();
+    revalidatePath("/", "layout");
     revalidatePath("/admin/banners");
     revalidatePath("/admin/settings");
     revalidatePath("/admin/theme");
+    revalidatePath("/sign-in");
+    revalidatePath("/sign-up");
+    revalidatePath("/checkout");
 
     try {
       await recordAudit({
@@ -102,6 +115,62 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
   } catch (err: unknown) {
     console.error("[updateSettings] Error writing settings to database:", err);
     return { error: "Failed to save settings. Please verify input values and try again." };
+  }
+}
+
+export async function saveBotShieldArchetypeAction(archetype: string): Promise<ActionState> {
+  const admin = await assertAdmin();
+  if (!admin) return { error: "Forbidden" };
+  const validArchetypes = [
+    "turnstile", "altcha", "mcaptcha", "slide", "biometric", "shagun", "bar", "floating", "overlay", "invisible", "standard"
+  ];
+  if (!validArchetypes.includes(archetype)) return { error: "Invalid archetype" };
+
+  let validUpdatedBy: string | null = null;
+  try {
+    const userRow = await db.select({ id: users.id }).from(users).where(eq(users.id, admin.id)).limit(1);
+    if (userRow.length > 0) validUpdatedBy = admin.id;
+  } catch {
+    validUpdatedBy = null;
+  }
+
+  try {
+    await db
+      .insert(settingsTable)
+      .values({
+        key: "security.powDisplayMode",
+        value: archetype,
+        group: "security",
+        label: "Bot shield archetype & style (10 types)",
+        updatedBy: validUpdatedBy,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: settingsTable.key,
+        set: { value: archetype, updatedAt: new Date(), updatedBy: validUpdatedBy },
+      });
+
+    await invalidateSettings();
+    revalidatePath("/", "layout");
+    revalidatePath("/admin/settings");
+    revalidatePath("/sign-in");
+    revalidatePath("/sign-up");
+    revalidatePath("/checkout");
+
+    try {
+      await recordAudit({
+        actorId: validUpdatedBy,
+        actorEmail: admin.email,
+        action: "security.archetype",
+        target: "security.powDisplayMode",
+        detail: `Switched bot shield archetype to ${archetype}`,
+      });
+    } catch {}
+
+    return { success: `Bot shield archetype "${archetype}" saved and applied live across all forms!` };
+  } catch (err: unknown) {
+    console.error("[saveBotShieldArchetypeAction] Error:", err);
+    return { error: "Failed to save archetype." };
   }
 }
 

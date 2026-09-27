@@ -151,6 +151,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 address: { "@type": "PostalAddress", streetAddress: brand.address, addressCountry: "IN" },
               }).replace(/</g, "\\u003c"),
             }} />
+            <Script
+              id="av-security-config"
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `window.__AV_SECURITY__=${JSON.stringify({
+                  displayMode: settings["security.powDisplayMode"] || "turnstile",
+                  widgetStyle: settings["security.powWidgetStyle"] || "checkbox",
+                  theme: settings["security.powTheme"] || "gold",
+                  label: settings["security.powLabel"] || "Main robot nahi hoon",
+                  sound: settings["security.powSound"] !== "false",
+                })};`,
+              }}
+            />
             {showAnalytics && analyticsSrc && analyticsDomain && (
               <Script defer data-domain={analyticsDomain} src={analyticsSrc} strategy="afterInteractive" />
             )}

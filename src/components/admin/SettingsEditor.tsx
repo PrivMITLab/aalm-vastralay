@@ -1,13 +1,15 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
-import { ExternalLink, Plus, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react";
-import { resetSettingsGroup, updateSettings } from "@/actions/admin";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ExternalLink, Loader2, Plus, RotateCcw, Save, Sparkles, Trash2, Zap } from "lucide-react";
+import { resetSettingsGroup, updateSettings, saveBotShieldArchetypeAction } from "@/actions/admin";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import SubmitButton from "@/components/SubmitButton";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { resolveImage } from "@/lib/image-resolver";
 import ClickToSolve, { type PowDisplayMode, type PowWidgetStyle, type PowTheme } from "@/components/security/ClickToSolve";
+import AnnouncementMessage from "@/components/header/AnnouncementMessage";
 import type { SettingField } from "@/lib/settings";
 
 type Group = { id: string; label: string; icon: string };
@@ -27,10 +29,28 @@ export default function SettingsEditor({
 }) {
   const [state, action] = useActionState(updateSettings, null);
   const [live, setLive] = useState<Record<string, string>>(values);
+  const [savingArchetype, setSavingArchetype] = useState(false);
   const groupFields = useMemo(() => fields.filter((f) => f.group === activeGroup), [fields, activeGroup]);
   const isPreviewable = ["brand", "theme", "home", "security"].includes(activeGroup);
 
   const setValue = (key: string, value: string) => setLive((prev) => ({ ...prev, [key]: value }));
+
+  const handleApplyArchetype = async (archetypeId: string) => {
+    setValue("security.powDisplayMode", archetypeId);
+    setSavingArchetype(true);
+    try {
+      const res = await saveBotShieldArchetypeAction(archetypeId);
+      if (res && "error" in res && res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(`⚡ Archetype saved & applied live! Active mode: ${archetypeId}`);
+      }
+    } catch {
+      toast.error("Failed to apply archetype. Please retry.");
+    } finally {
+      setSavingArchetype(false);
+    }
+  };
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -97,7 +117,9 @@ export default function SettingsEditor({
                   <p className="font-display text-lg font-semibold text-[color:var(--brand)]">{live["site.name"]}</p>
                 </div>
                 <div className="marquee-wrap overflow-hidden rounded-lg bg-[color:var(--brand)] py-1.5 text-[color:var(--brand-fg)]">
-                  <p className="truncate px-3 text-[11px]">{(live["site.announcements"] ?? "").split("|")[0]}</p>
+                  <div className="px-3 text-[11px] truncate">
+                    <AnnouncementMessage raw={(live["site.announcements"] ?? "").split(/\r?\n|\|/)[0]} />
+                  </div>
                 </div>
                 <p className="text-xs text-[color:var(--text-soft)]">{live["site.tagline"]}</p>
               </div>
@@ -162,8 +184,15 @@ export default function SettingsEditor({
 
                 {/* 1-Click Archetype Switcher */}
                 <div>
-                  <p className="text-[11px] font-semibold text-[color:var(--text-soft)] mb-1.5">Archetype Quick-Select (6+ styles):</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px]">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-[11px] font-semibold text-[color:var(--text-soft)]">10 Bot Shield Archetypes:</p>
+                    {savingArchetype && (
+                      <span className="flex items-center gap-1 text-[10px] text-[#D4AF37] font-medium">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Applying...
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px]">
                     {[
                       { id: "turnstile", label: "Turnstile Card" },
                       { id: "altcha", label: "ALTCHA PoW" },
@@ -181,19 +210,30 @@ export default function SettingsEditor({
                         <button
                           key={m.id}
                           type="button"
-                          onClick={() => setValue("security.powDisplayMode", m.id)}
+                          onClick={() => handleApplyArchetype(m.id)}
+                          disabled={savingArchetype}
                           className={cn(
-                            "rounded-lg px-2 py-1.5 font-medium transition text-left border",
+                            "rounded-lg px-2.5 py-1.5 font-medium transition text-left border flex items-center justify-between",
                             active
-                              ? "border-[#D4AF37] bg-[#D4AF37]/15 text-[#D4AF37] font-bold"
+                              ? "border-[#D4AF37] bg-[#D4AF37]/20 text-[#D4AF37] font-bold shadow-sm"
                               : "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] hover:border-[#D4AF37]/50",
                           )}
                         >
-                          {m.label}
+                          <span className="truncate">{m.label}</span>
+                          {active && <Check className="h-3 w-3 text-[#D4AF37] shrink-0 ml-1" />}
                         </button>
                       );
                     })}
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyArchetype(live["security.powDisplayMode"] || "turnstile")}
+                    disabled={savingArchetype}
+                    className="mt-2.5 w-full btn btn-sm bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black font-semibold border-0 flex items-center justify-center gap-1.5"
+                  >
+                    {savingArchetype ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+                    Save & Apply Archetype to Live Site
+                  </button>
                 </div>
 
                 {/* Live Interactive Test Widget */}
@@ -284,10 +324,7 @@ function FieldRow({ field, value, onChange }: { field: SettingField; value: stri
         ) : field.type === "textarea" ? (
           <textarea id={id} name={field.key} className="input" value={value} onChange={(e) => onChange(e.target.value)} />
         ) : field.type === "list" ? (
-          <>
-            <textarea id={id} name={field.key} className="input" value={value.replace(/\|/g, "\n")} onChange={(e) => onChange(e.target.value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).join("|"))} />
-            <p className="mt-1 text-xs text-[color:var(--text-soft)]">One entry per line.</p>
-          </>
+          <ListField id={id} name={field.key} value={value} onChange={onChange} />
         ) : field.key === "home.sections" ? (
           <SectionsEditor id={id} value={value} onChange={onChange} />
         ) : field.type === "json" ? (
@@ -395,5 +432,54 @@ function SectionsEditor({ id, value, onChange }: { id: string; value: string; on
       </div>
       <p className="text-xs text-[color:var(--text-soft)]">Tick to show a homepage section, set its order and how many products it renders. Unknown keys are ignored safely.</p>
     </div>
+  );
+}
+
+function ListField({
+  id,
+  name,
+  value,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [text, setText] = useState(() => (value ? value.split("|").join("\n") : ""));
+
+  const lastExternalValue = useRef(value);
+  useEffect(() => {
+    if (value !== lastExternalValue.current) {
+      lastExternalValue.current = value;
+      setText(value ? value.split("|").join("\n") : "");
+    }
+  }, [value]);
+
+  return (
+    <>
+      <textarea
+        id={id}
+        name={name}
+        className="input font-sans text-xs leading-relaxed min-h-[110px]"
+        rows={4}
+        value={text}
+        placeholder="One message per line..."
+        onChange={(e) => {
+          const newText = e.target.value;
+          setText(newText);
+          const normalized = newText
+            .split(/\r?\n/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .join("|");
+          lastExternalValue.current = normalized;
+          onChange(normalized);
+        }}
+      />
+      <p className="mt-1 text-xs text-[color:var(--text-soft)]">
+        One message per line. They scroll automatically in the header announcement bar across every page.
+      </p>
+    </>
   );
 }

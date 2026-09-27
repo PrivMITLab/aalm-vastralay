@@ -5,6 +5,7 @@ import { getNavCategories } from "@/lib/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { getBrand, getCommerce, getSettingBool, getSettings } from "@/lib/settings";
 import HeaderNav from "./header/HeaderNav";
+import AnnouncementMessage from "./header/AnnouncementMessage";
 
 export default async function Header() {
   const user = await getCurrentUser();
@@ -50,8 +51,22 @@ export default async function Header() {
     }
   }
 
-  const announcements = brand.announcements;
-  const marqueeItems = announcements.length ? [...announcements, ...announcements] : [];
+  const announcements = brand.announcements.length > 0
+    ? brand.announcements
+    : [
+        settings["home.announcementText"],
+        settings["home.marqueeText"],
+        "बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान",
+        "साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन",
+        "हर अंदाज आपके लिए खास — Royal Indian Wedding & Luxury Ethnic Wear",
+        "Proprietor: Suheb Alam · Kalyanipur · Call/WhatsApp: 8434061342",
+      ].filter(Boolean) as string[];
+
+  // Repeat enough times so each half spans full viewport, ensuring continuous gapless 50% loop
+  const loopCount = Math.max(3, Math.ceil(6 / Math.max(1, announcements.length)));
+  const singleHalf = Array.from({ length: loopCount }).flatMap(() => announcements);
+  const marqueeItems = [...singleHalf, ...singleHalf];
+
   const trustLine = [
     `${settings["seller.freeMonths"]} months 0% commission`,
     "Cash on Delivery",
@@ -61,13 +76,13 @@ export default async function Header() {
 
   return (
     <header className="no-print sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:var(--surface)]/95 shadow-sm backdrop-blur">
-      <div className="marquee-wrap group overflow-hidden bg-gradient-to-r from-[#7a1f2b] via-[#9a2a45] to-[#7a1f2b] py-1.5">
-        {announcements.length > 0 ? (
-          <div className="marquee-track" style={{ "--marquee-duration": `${brand.announcementSpeed}s` } as React.CSSProperties}>
+      <div className="marquee-wrap overflow-hidden bg-gradient-to-r from-[#7a1f2b] via-[#9a2a45] to-[#7a1f2b] py-1.5 select-none">
+        {marqueeItems.length > 0 ? (
+          <div className="marquee-track" style={{ "--marquee-duration": `${Math.max(12, brand.announcementSpeed || 26)}s` } as React.CSSProperties}>
             {marqueeItems.map((a, i) => (
-              <span key={`${a}-${i}`} title={a} className="max-w-[80vw] truncate text-[12px] font-medium tracking-wide text-[#f4e2a3] sm:text-[13px]">
-                {a}
-                <span className="mx-6 text-[#D4AF37]">◆</span>
+              <span key={`${a}-${i}`} className="inline-flex items-center shrink-0 text-[12px] font-medium tracking-wide text-[#f4e2a3] sm:text-[13px] whitespace-nowrap">
+                <AnnouncementMessage raw={a} />
+                <span className="mx-6 text-[#D4AF37] opacity-80" aria-hidden="true">◆</span>
               </span>
             ))}
           </div>

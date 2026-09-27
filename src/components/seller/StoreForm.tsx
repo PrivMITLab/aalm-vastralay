@@ -1,12 +1,15 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveStore } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
+import { resolveImage } from "@/lib/image-resolver";
 import type { Store } from "@/db/schema";
 
 export default function StoreForm({ store, states }: { store?: Store | null; states: string[] }) {
   const [state, action] = useActionState(saveStore, null);
+  const [logoVal, setLogoVal] = useState(store?.logoUrl ?? "");
+  const [bannerVal, setBannerVal] = useState(store?.bannerUrl ?? "");
   return (
     <form onSubmit={preventDoubleSubmit} action={action} className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
@@ -61,16 +64,76 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
         <input id="gstNumber" name="gstNumber" className="input uppercase" defaultValue={store?.gstNumber ?? ""} placeholder="15-character GST number" maxLength={15} />
       </div>
       <div>
-        <label className="label" htmlFor="logoUrl">
-          Logo image URL (optional)
-        </label>
-        <input id="logoUrl" name="logoUrl" className="input" defaultValue={store?.logoUrl ?? ""} placeholder="https://… or ik:path/logo.png" />
+        <div className="flex items-center justify-between">
+          <label className="label" htmlFor="logoUrl">
+            Logo image URL (optional)
+          </label>
+          {logoVal && (
+            <span className="text-[10px] text-amber-500 font-medium">Live preview</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            id="logoUrl"
+            name="logoUrl"
+            className="input flex-1"
+            value={logoVal}
+            onChange={(e) => setLogoVal(e.target.value)}
+            placeholder="https://… or ik:path/logo.png"
+          />
+          {logoVal && (
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolveImage(logoVal)}
+                alt="Logo preview"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/placeholder.svg";
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <p className="mt-1 text-[11px] text-[color:var(--text-soft)]">
+          Supports: Google Drive, Dropbox, OneDrive, ImageKit (ik:...), Backblaze (b2:...), or any direct https:// image URL.
+        </p>
       </div>
       <div>
-        <label className="label" htmlFor="bannerUrl">
-          Banner image URL (optional)
-        </label>
-        <input id="bannerUrl" name="bannerUrl" className="input" defaultValue={store?.bannerUrl ?? ""} placeholder="https://… or ik:path/banner.jpg" />
+        <div className="flex items-center justify-between">
+          <label className="label" htmlFor="bannerUrl">
+            Banner image URL (optional)
+          </label>
+          {bannerVal && (
+            <span className="text-[10px] text-amber-500 font-medium">Live preview</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            id="bannerUrl"
+            name="bannerUrl"
+            className="input flex-1"
+            value={bannerVal}
+            onChange={(e) => setBannerVal(e.target.value)}
+            placeholder="https://… or ik:path/banner.jpg"
+          />
+          {bannerVal && (
+            <div className="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolveImage(bannerVal)}
+                alt="Banner preview"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/placeholder.svg";
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <p className="mt-1 text-[11px] text-[color:var(--text-soft)]">
+          Supports: Google Drive, Dropbox, OneDrive, ImageKit (ik:...), Backblaze (b2:...), or any direct https:// image URL.
+        </p>
       </div>
 
       {state?.error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 sm:col-span-2">{state.error}</p>}

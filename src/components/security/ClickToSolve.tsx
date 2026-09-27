@@ -90,6 +90,22 @@ export type ClickToSolveProps = {
  * 9. overlay   - Security gate modal overlay with backdrop blur
  * 10. invisible- Background auto-solve with zero visual UI footprint
  */
+type ClientSecurityConfig = {
+  displayMode?: string;
+  widgetStyle?: string;
+  theme?: string;
+  label?: string;
+  sound?: boolean;
+};
+
+function getClientSecurity(): ClientSecurityConfig | null {
+  if (typeof window !== "undefined") {
+    const w = window as unknown as { __AV_SECURITY__?: ClientSecurityConfig };
+    if (w.__AV_SECURITY__) return w.__AV_SECURITY__;
+  }
+  return null;
+}
+
 export default function ClickToSolve({
   action,
   label,
@@ -101,12 +117,43 @@ export default function ClickToSolve({
   className,
 }: ClickToSolveProps) {
   const snap = settingsSnapshot();
-  const rawMode = displayMode ?? ((snap["security.powDisplayMode"] as PowDisplayMode) || "turnstile");
-  const resolvedMode: PowDisplayMode = rawMode === "standard" ? "turnstile" : rawMode;
-  const resolvedStyle: PowWidgetStyle = widgetStyle ?? ((snap["security.powWidgetStyle"] as PowWidgetStyle) || "checkbox");
-  const resolvedLabel = label ?? snap["security.powLabel"] ?? "Main robot nahi hoon";
-  const resolvedTheme: PowTheme = accentTheme ?? ((snap["security.powTheme"] as PowTheme) || "gold");
-  const playSound = snap["security.powSound"] !== "false";
+  const clientSec = getClientSecurity();
+
+  const [activeMode, setActiveMode] = useState<PowDisplayMode>(() => {
+    if (displayMode) return displayMode === "standard" ? "turnstile" : displayMode;
+    if (clientSec?.displayMode) return clientSec.displayMode === "standard" ? "turnstile" : (clientSec.displayMode as PowDisplayMode);
+    const m = (snap["security.powDisplayMode"] as PowDisplayMode) || "turnstile";
+    return m === "standard" ? "turnstile" : m;
+  });
+
+  const [activeStyle, setActiveStyle] = useState<PowWidgetStyle>(() => {
+    if (widgetStyle) return widgetStyle;
+    if (clientSec?.widgetStyle) return clientSec.widgetStyle as PowWidgetStyle;
+    return (snap["security.powWidgetStyle"] as PowWidgetStyle) || "checkbox";
+  });
+
+  const [activeTheme, setActiveTheme] = useState<PowTheme>(() => {
+    if (accentTheme) return accentTheme;
+    if (clientSec?.theme) return clientSec.theme as PowTheme;
+    return (snap["security.powTheme"] as PowTheme) || "gold";
+  });
+
+  const [activeLabel, setActiveLabel] = useState<string>(() => {
+    if (label) return label;
+    if (clientSec?.label) return clientSec.label;
+    return snap["security.powLabel"] || "Main robot nahi hoon";
+  });
+
+  const [activeSound, setActiveSound] = useState<boolean>(() => {
+    if (clientSec?.sound !== undefined) return Boolean(clientSec.sound);
+    return snap["security.powSound"] !== "false";
+  });
+
+  const resolvedMode = displayMode ?? activeMode;
+  const resolvedStyle = widgetStyle ?? activeStyle;
+  const resolvedTheme = accentTheme ?? activeTheme;
+  const resolvedLabel = label ?? activeLabel;
+  const playSound = activeSound;
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [payload, setPayload] = useState("");
@@ -117,6 +164,27 @@ export default function ClickToSolve({
   const [overlayDismissed, setOverlayDismissed] = useState(false);
   const workerRef = useRef<Worker | null>(null);
   const verifiedRef = useRef(false);
+
+  // Sync latest UI settings from challenge endpoint on mount if not hardcoded via props
+  useEffect(() => {
+    if (!displayMode) {
+      fetch(`/api/security/challenge?action=${encodeURIComponent(action)}&ttl=${CLICK_TTL_SECONDS}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.ui) {
+            if (data.ui.displayMode) {
+              const m = data.ui.displayMode === "standard" ? "turnstile" : data.ui.displayMode;
+              setActiveMode(m);
+            }
+            if (data.ui.widgetStyle) setActiveStyle(data.ui.widgetStyle);
+            if (data.ui.theme) setActiveTheme(data.ui.theme);
+            if (data.ui.label) setActiveLabel(data.ui.label);
+            if (data.ui.sound !== undefined) setActiveSound(Boolean(data.ui.sound));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [action, displayMode]);
 
   const notify = useCallback(
     (ok: boolean) => {
@@ -187,6 +255,17 @@ export default function ClickToSolve({
       }
 
       const data = await res.json();
+      if (data?.ui) {
+        if (!displayMode && data.ui.displayMode) {
+          const m = data.ui.displayMode === "standard" ? "turnstile" : data.ui.displayMode;
+          setActiveMode(m);
+        }
+        if (!widgetStyle && data.ui.widgetStyle) setActiveStyle(data.ui.widgetStyle);
+        if (!accentTheme && data.ui.theme) setActiveTheme(data.ui.theme);
+        if (!label && data.ui.label) setActiveLabel(data.ui.label);
+        if (data.ui.sound !== undefined) setActiveSound(Boolean(data.ui.sound));
+      }
+
       const isRequired = Boolean(data.required ?? data.enabled);
 
       if (!isRequired) {

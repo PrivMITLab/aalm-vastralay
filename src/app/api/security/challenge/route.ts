@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createChallenge, hashIp, isPowAction, shouldEnforcePow } from "@/lib/pow";
-import { getSettingNumber } from "@/lib/settings";
+import { getSetting, getSettingBool, getSettingNumber } from "@/lib/settings";
 import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -37,12 +37,29 @@ export async function GET(req: Request) {
 
   const difficulty = await getSettingNumber("security.powDifficulty", 3);
   const maxnumber = await getSettingNumber("security.powMaxIterations", 100000);
+  const displayMode = (await getSetting("security.powDisplayMode", "turnstile")) as string;
+  const widgetStyle = (await getSetting("security.powWidgetStyle", "checkbox")) as string;
+  const theme = (await getSetting("security.powTheme", "gold")) as string;
+  const label = (await getSetting("security.powLabel", "Main robot nahi hoon")) as string;
+  const sound = await getSettingBool("security.powSound", true);
+
   const challenge = createChallenge(difficulty, maxnumber, {
     ...(ttlMs ? { ttlMs } : {}),
     ...(action ? { action, ipHash: hashIp(ip) } : {}),
   });
   return NextResponse.json(
-    { enabled: true, required: true, challenge },
+    {
+      enabled: true,
+      required: true,
+      challenge,
+      ui: {
+        displayMode,
+        widgetStyle,
+        theme,
+        label,
+        sound,
+      },
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }
