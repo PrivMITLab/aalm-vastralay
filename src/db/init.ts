@@ -323,7 +323,6 @@ export async function initCleanBaseData() {
   const settingsCount = await ensureSettingsRows();
 
   // 2. Categories
-  let categoriesCount = 0;
   const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(categories);
   if (count === 0) {
     const parents = [
@@ -360,7 +359,6 @@ export async function initCleanBaseData() {
         sortOrder,
       }))
     );
-    categoriesCount = children.length + parents.length;
   }
 
   // 3. Single Super-Admin Account

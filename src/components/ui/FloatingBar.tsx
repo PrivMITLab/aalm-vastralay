@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 /** Floating helper bar: theme switch, personalisation, WhatsApp support, back-to-top. */
 export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { whatsapp: string; phone: string; showThemeToggle: boolean }) {
-  const { prefs, setPrefs, toggleMode, resolvedMode, panelOpen, setPanelOpen } = useTheme();
+  const { prefs, setPrefs, toggleMode, panelOpen, setPanelOpen } = useTheme();
   const [visible, setVisible] = useState(false);
   const [, startTransition] = useTransition();
   const router = useRouter();

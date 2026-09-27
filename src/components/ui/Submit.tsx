@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useRef } from "react";
 
 /**
  * Drop-in: prevents double-clicks on any <form> by short-circuiting the second

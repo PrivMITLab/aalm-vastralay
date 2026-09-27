@@ -4,7 +4,7 @@
  * and triggers automated dispatch push notifications.
  */
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orders, orderItems, products } from "@/db/schema";
 import { createShiprocketAwb } from "./shiprocket";

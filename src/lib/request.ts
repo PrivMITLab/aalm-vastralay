@@ -8,7 +8,7 @@ export type RequestMeta = { ip: string; userAgent: string; trustProxy: boolean }
 /** Resolves the caller IP + user agent using the admin's proxy-trust setting. */
 export async function requestMeta(): Promise<RequestMeta> {
   const h = await headers();
-  let trustProxy = true;
+  let trustProxy: boolean;
   try {
     trustProxy = await getSettingBool("security.trustProxyHeaders", true);
   } catch {

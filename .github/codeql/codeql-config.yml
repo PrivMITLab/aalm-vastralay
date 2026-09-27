@@ -7,3 +7,9 @@ paths-ignore:
   - '**/*.test.ts'
   - '**/*.test.js'
   - 'scripts/**'
+
+query-filters:
+  - exclude:
+      id: js/unused-local-variable
+  - exclude:
+      id: js/useless-assignment-to-local

@@ -20,6 +20,23 @@ const SIZE_PRESETS: Record<string, string[]> = {
 let keyCounter = 0;
 const nextKey = () => `v${++keyCounter}-${Math.random().toString(36).slice(2, 6)}`;
 
+function safeThumbnailUrl(rawUrl: string): string {
+  if (!rawUrl || typeof rawUrl !== "string") return "/images/placeholder.svg";
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return "/images/placeholder.svg";
+  const resolved = sanitizeImageUrl(resolveThumbnail(trimmed));
+  if (!resolved || resolved === "/images/placeholder.svg") return "/images/placeholder.svg";
+  try {
+    const parsed = new URL(resolved, "https://aalmvastralay.com");
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return encodeURI(parsed.toString());
+    }
+  } catch {
+    // fallback
+  }
+  return "/images/placeholder.svg";
+}
+
 export default function ProductForm({ categories, product }: { categories: CategoryOption[]; product?: (Product & { variants: ProductVariant[] }) | null }) {
   const [state, action] = useActionState(saveProduct, null);
   const [images, setImages] = useState((product?.images ?? []).join("\n"));
@@ -43,7 +60,7 @@ export default function ProductForm({ categories, product }: { categories: Categ
   );
 
   const safeThumbnails = useMemo(
-    () => imageList.map((src) => sanitizeImageUrl(resolveThumbnail(src))),
+    () => imageList.map((src) => safeThumbnailUrl(src)),
     [imageList],
   );
   const variantStock = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
@@ -285,18 +302,15 @@ export default function ProductForm({ categories, product }: { categories: Categ
           )}
           {uploadError && <p className="text-xs text-rose-700">{uploadError}</p>}
           <textarea name="images" className="input min-h-28 font-mono text-xs" value={images} onChange={(e) => setImages(e.target.value)} placeholder={"https://example.com/photo-1.jpg\nik:products/photo-2.jpg\nb2:orders/photo-3.jpg"} />
-          {imageList.length > 0 && (
+          {safeThumbnails.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
-              {imageList.map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={`${src}-${i}`}
-                  src={safeThumbnails[i] || "/images/placeholder.svg"}
-                  alt=""
-                  className="aspect-[3/4] w-full rounded-lg object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/images/placeholder.svg";
-                  }}
+              {safeThumbnails.map((safeSrc, i) => (
+                <div
+                  key={`${safeSrc}-${i}`}
+                  role="img"
+                  aria-label={`Product photo ${i + 1}`}
+                  className="aspect-[3/4] w-full rounded-lg bg-[color:var(--surface-2)] bg-cover bg-center border border-[color:var(--border)]"
+                  style={{ backgroundImage: `url("${safeSrc}")` }}
                 />
               ))}
             </div>

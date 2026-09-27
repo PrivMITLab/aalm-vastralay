@@ -179,9 +179,15 @@ export async function persistUpload(input: {
     if (!dir.startsWith(uploadsRoot)) throw new Error("Upload path escape");
     await mkdir(dir, { recursive: true });
 
-    const safeBaseName = pathMod.basename(filename).replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
+    if (buffer.length > 5 * 1024 * 1024) {
+      throw new Error("File exceeds maximum allowed upload size (5MB)");
+    }
+    const cryptoMod = await import("crypto");
+    const hash = cryptoMod.createHash("sha256").update(buffer).digest("hex").slice(0, 16);
+    const safeExt = (extFromMime(input.mime) || "jpg").replace(/[^a-z0-9]/gi, "").toLowerCase();
+    const safeBaseName = `${Date.now()}-${hash}.${safeExt}`;
     const filepath = resolve(dir, safeBaseName);
-    if (!filepath.startsWith(dir)) throw new Error("Upload filepath escape");
+    if (!filepath.startsWith(uploadsRoot)) throw new Error("Upload filepath escape");
     await writeFile(filepath, buffer);
 
     const relative = normalize(filepath)

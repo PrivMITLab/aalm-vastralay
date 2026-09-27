@@ -257,7 +257,6 @@ export async function getHomeConfig(): Promise<HomeConfig> {
   const bannerBadge = s["home.bannerBadge"] || "Aalm Vastralay · Wedding & Ethnic Wear";
   const bannerTitle = s["home.bannerTitle"] || "Royal Indian Wedding & Luxury Ethnic Wear";
   const bannerSubtitle = s["home.bannerSubtitle"] || "Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis handcrafted by master artisans. Cash on delivery & nationwide delivery.";
-  const defaultPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+91 98765 43210";
   const defaultWhatsAppClean = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP?.replace(/\D/g, "") || "919876543210";
   const defaultPhoneHref = process.env.NEXT_PUBLIC_SUPPORT_PHONE ? `tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE}` : "tel:+919876543210";
   const defaultWhatsAppHref = `https://wa.me/${defaultWhatsAppClean}`;

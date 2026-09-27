@@ -6,6 +6,23 @@ import SubmitButton from "@/components/SubmitButton";
 import { resolveImage, sanitizeImageUrl } from "@/lib/image-resolver";
 import type { Store } from "@/db/schema";
 
+function safePreviewUrl(rawUrl: string): string {
+  if (!rawUrl || typeof rawUrl !== "string") return "/images/placeholder.svg";
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return "/images/placeholder.svg";
+  const resolved = sanitizeImageUrl(resolveImage(trimmed));
+  if (!resolved || resolved === "/images/placeholder.svg") return "/images/placeholder.svg";
+  try {
+    const parsed = new URL(resolved, "https://aalmvastralay.com");
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return encodeURI(parsed.toString());
+    }
+  } catch {
+    // fallback
+  }
+  return "/images/placeholder.svg";
+}
+
 export default function StoreForm({ store, states }: { store?: Store | null; states: string[] }) {
   const [state, action] = useActionState(saveStore, null);
   const [logoVal, setLogoVal] = useState(store?.logoUrl ?? "");
@@ -13,12 +30,12 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
 
   const safeLogo = useMemo(() => {
     if (!logoVal.trim()) return "";
-    return sanitizeImageUrl(resolveImage(logoVal));
+    return safePreviewUrl(logoVal);
   }, [logoVal]);
 
   const safeBanner = useMemo(() => {
     if (!bannerVal.trim()) return "";
-    return sanitizeImageUrl(resolveImage(bannerVal));
+    return safePreviewUrl(bannerVal);
   }, [bannerVal]);
   return (
     <form onSubmit={preventDoubleSubmit} action={action} className="grid gap-4 sm:grid-cols-2">
@@ -92,17 +109,12 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
             placeholder="https://… or ik:path/logo.png"
           />
           {safeLogo && (
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={safeLogo}
-                alt="Logo preview"
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/placeholder.svg";
-                }}
-              />
-            </div>
+            <div
+              role="img"
+              aria-label="Logo preview"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)] bg-cover bg-center"
+              style={{ backgroundImage: `url("${safeLogo}")` }}
+            />
           )}
         </div>
         <p className="mt-1 text-[11px] text-[color:var(--text-soft)]">
@@ -128,17 +140,12 @@ export default function StoreForm({ store, states }: { store?: Store | null; sta
             placeholder="https://… or ik:path/banner.jpg"
           />
           {safeBanner && (
-            <div className="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={safeBanner}
-                alt="Banner preview"
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/placeholder.svg";
-                }}
-              />
-            </div>
+            <div
+              role="img"
+              aria-label="Banner preview"
+              className="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-2)] bg-cover bg-center"
+              style={{ backgroundImage: `url("${safeBanner}")` }}
+            />
           )}
         </div>
         <p className="mt-1 text-[11px] text-[color:var(--text-soft)]">
