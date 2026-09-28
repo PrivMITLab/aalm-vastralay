@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { and, desc, eq, lte, sql } from "drizzle-orm";
-import { AlertTriangle, BadgePercent, IndianRupee, Package, PlusCircle, ShoppingCart, Star } from "lucide-react";
+import { AlertTriangle, BadgePercent, BarChart3, IndianRupee, Package, PlusCircle, ShoppingCart, Star } from "lucide-react";
 import { db } from "@/db";
 import { orders, products } from "@/db/schema";
 import { commissionInfo, getSellerContext } from "@/lib/seller";
@@ -56,9 +56,18 @@ export default async function SellerOverview({ searchParams }: { searchParams: P
           <h1 className="font-display text-3xl font-semibold text-maroon-900">Overview</h1>
           <p className="text-sm text-slate-600">Welcome back – here&apos;s how {store.storeName} is doing.</p>
         </div>
-        <Link href="/seller/products/new" className="btn btn-primary">
-          <PlusCircle className="h-4 w-4" /> Add product
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/seller/analytics"
+            className="btn btn-secondary inline-flex items-center gap-1.5"
+          >
+            <BarChart3 className="h-4 w-4 text-maroon-700" />
+            Store Analytics
+          </Link>
+          <Link href="/seller/products/new" className="btn btn-primary">
+            <PlusCircle className="h-4 w-4" /> Add product
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

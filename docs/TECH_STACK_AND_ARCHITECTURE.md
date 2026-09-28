@@ -54,10 +54,11 @@ Aalm Vastralay is engineered around four non-negotiable operational principles:
 | **Object Storage** | **Backblaze B2** | `S3-compatible` | 10GB permanent free tier media storage with zero egress fees via Cloudflare. |
 | **Edge CDN Proxy** | **Cloudflare Worker** | `V8 Isolate` | Fast edge caching, CORS handling, and media streaming proxy. |
 | **Database Caching**| **Neon `media_assets`**| `Drizzle ORM` | Metadata & fileId caching in PostgreSQL eliminating B2 Class C transaction costs. |
+| **In-Memory OLAP**  | **DuckDB-Wasm**        | `^1.33.1`    | Client-side columnar SQL engine executing GMV, GST, & sales analytics in browser RAM (0% DB load). |
 | **Free AI Inference**| **Google Gemini & Groq**| `2.5 Flash / 70B`| Zero-cost luxury copywriting, sub-300ms recommendations & NLP search. |
 | **Email Relay** | **Google Apps Script**| `V8 Runtime` | Zero-domain free transactional email relay for OTPs and invoices. |
 | **Logistics Engine** | **Shiprocket & Delhivery** | `REST v2` | Automated AWB waybill generation, barcode packing slips, and pincode mapping. |
-| **Testing Framework**| **Vitest & TSX** | `Automated` | 35 enterprise automated test suites verifying security, payments, and DB rules. |
+| **Testing Framework**| **Vitest & TSX** | `Automated` | 36 enterprise automated test suites verifying security, payments, and DB rules. |
 
 ---
 

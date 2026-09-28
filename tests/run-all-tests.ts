@@ -33,6 +33,7 @@ import { testSaveChangesAndSecurityFix } from "./unit/save-changes-and-security-
 import { testOpenSourceTemplateIntegrity } from "./unit/open-source-template.test";
 import { runAiIntegrationTests } from "./ai-integration.test";
 import { runMediaManagementTests } from "./media-management.test";
+import { testDuckDbAnalytics } from "./duckdb-analytics.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -77,6 +78,7 @@ async function runAllTests() {
     { name: "Open-Source Turnkey Template & Zero-PII Integrity", fn: testOpenSourceTemplateIntegrity },
     { name: "Free AI Engine & Hinglish NLP Search Intent", fn: runAiIntegrationTests },
     { name: "Media Management & B2 Zero Class C Elimination", fn: runMediaManagementTests },
+    { name: "DuckDB In-Memory OLAP Analytics & GST Slicing", fn: testDuckDbAnalytics },
   ];
 
   for (const suite of suites) {

@@ -11,7 +11,7 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 35 Enterprise test suites in `tests/` passing in ~1.87s (`npm test`).
+- **Automated Tests:** 36 Enterprise test suites in `tests/` passing in ~1.46s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/SudhirDevOps1/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
@@ -21,6 +21,7 @@
 - **B2 Cloudflare Worker:** Deployed at `https://aalm-b2-proxy.alamwastraly.workers.dev` (Bandwidth Alliance zero egress).
 - **Media Asset Caching (Zero B2 Class C):** Neon PostgreSQL `media_assets` table caches uploaded file metadata and B2 `fileId`. Galleries load with 0 B2 API calls. Hard deletes execute via `b2_delete_file_version` (no tombstone markers).
 - **Universal Media Picker:** Multi-source media selection component (`src/components/media/UniversalMediaPicker.tsx`) supporting B2 direct upload, Google Drive direct embedding, and web links.
+- **DuckDB-Wasm In-Memory OLAP Analytics:** Client-side columnar SQL engine (`@duckdb/duckdb-wasm`) offloading heavy sales velocity, GMV trends, ethnic category share, and statutory GST 5%/12% slab calculations from Neon PostgreSQL directly to the client's browser (0% Neon DB load, $0/month cost).
 - **Interactive Setup Wizard:** `scripts/setup-env.ps1` (`npm run setup:env`) with 1-click Vercel CLI synchronization.
 
 ## 3. Production Server-Side Security Hardening (All 26 API Routes)

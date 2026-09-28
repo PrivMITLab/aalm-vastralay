@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { desc, eq, sql } from "drizzle-orm";
-import { IndianRupee, Package, ShoppingCart, Store, Users } from "lucide-react";
+import { BarChart3, IndianRupee, Package, ShoppingCart, Store, Users } from "lucide-react";
 import { db } from "@/db";
 import { categories, coupons, orders, products, stores, users } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
@@ -49,11 +49,19 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-8 overflow-x-clip px-4 py-8 sm:px-6">
-      <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+      <div className="flex flex-wrap min-w-0 items-center justify-between gap-3 overflow-hidden">
         <div className="min-w-0 flex-1">
           <p className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600">Admin</p>
           <h1 className="font-display min-w-0 flex-1 truncate text-xl font-semibold text-maroon-900 sm:text-2xl lg:text-3xl">Marketplace control panel</h1>
         </div>
+        <Link
+          href="/admin/analytics"
+          className="inline-flex items-center gap-2 rounded-xl border border-gold-300 bg-linear-to-r from-gold-50/50 to-cream-50 px-4 py-2 text-xs font-bold text-maroon-900 shadow-xs hover:border-gold-400 hover:shadow-sm transition-all"
+        >
+          <BarChart3 className="h-4 w-4 text-gold-600" />
+          <span>DuckDB Analytics</span>
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.2 text-[10px] text-emerald-800 font-semibold">OLAP</span>
+        </Link>
       </div>
 
       <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">

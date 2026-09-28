@@ -131,3 +131,9 @@
 - **Status:** Accepted
 - **Decision:** Provide `UniversalMediaPicker.tsx` supporting B2 upload, Google Drive direct share link embedding (canonicalized via `lh3.googleusercontent.com/d/{id}` for zero-cost media), web links, and DB-cached gallery with 1-click delete. Provide `scripts/setup-env.ps1` (`npm run setup:env`) with 1-click Vercel CLI synchronization.
 - **Rationale:** Gives non-technical store owners flexible media sourcing options without burning cloud storage limits, while making environment setup entirely automated and zero-friction.
+
+## ADR 022: DuckDB-Wasm Client-Side In-Memory OLAP Analytics & Statutory GST Slicing
+- **Status:** Accepted
+- **Decision:** Deploy `@duckdb/duckdb-wasm` in a dedicated Web Worker on `/admin/analytics` and `/seller/analytics`. Neon PostgreSQL serves a 5-minute cached, non-PII dataset export (`/api/admin/analytics/dataset` and `/api/seller/analytics/dataset`). DuckDB ingests rows into virtual columnar tables (`orders`, `items`) to execute GMV trends, ethnic category share, payment velocity, and statutory 5% vs 12% apparel GST slab calculations in-memory. Provide a Super Admin interactive SQL console with CSV export.
+- **Rationale:** Neon PostgreSQL free tier (0.5 GB) must be reserved for transactional OLTP writes. Running heavy multi-month `GROUP BY` aggregations repeatedly on Neon burns compute units and can starve connection pools. Offloading analytical queries to client-side DuckDB-Wasm results in **0% Neon compute load, 0 Vercel server execution costs**, and sub-millisecond query performance on the user's browser.
+
