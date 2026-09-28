@@ -1,5 +1,5 @@
 # ================================================================
-# MASTER OPTIMIZATION PROMPT — NEON + VERCEL + CLERK + B2
+# MASTER OPTIMIZATION PROMPT — NEON + VERCEL + BETTER AUTH + B2
 # Rakhna kahan hai: .ai/PROMPTS/OPTIMIZE_INFRA.md
 # Use karo jab bhi infrastructure, database, auth, ya storage optimize karna ho
 # ================================================================
@@ -9,7 +9,7 @@ I want to optimize my e-commerce platform for maximum free-tier efficiency and p
 The stack is:
 - Database: Neon (PostgreSQL with Drizzle ORM)
 - Hosting: Vercel (Edge + Node.js runtimes)
-- Auth: Clerk (50,000 MRU free tier)
+- Auth: Better Auth + GAS Email Webhook (100% Free, Zero Third-Party Cost)
 - Cold Storage: Backblaze B2 (private bucket via Cloudflare Worker)
 
 ================================================================
@@ -94,7 +94,7 @@ Goal: Stay in free tier (100 GB bandwidth, 1M Edge middleware invocations, 100K 
    - In src/middleware.ts:
      - EXCLUDE static assets from middleware matcher:
        matcher: ['/((?!_next/static|_next/image|favicon.ico|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']
-     - Don't run Clerk auth on purely static or public pages.
+     - Don't run auth checks on purely static or public pages.
      - Keep middleware execution time under 10ms.
      - No database queries inside middleware! Ever.
 
@@ -123,7 +123,7 @@ Goal: Stay in free tier (100 GB bandwidth, 1M Edge middleware invocations, 100K 
    - Use Edge runtime (`export const runtime = 'edge'`) for:
      - Health checks (/api/health)
      - Simple redirects
-     - Webhook receivers (Clerk, Razorpay, Shiprocket)
+     - Webhook receivers (Razorpay, Shiprocket)
      - Read-only cached queries
    - Use Node.js runtime for:
      - Complex business logic (checkout, payment verification)
@@ -137,37 +137,29 @@ Goal: Stay in free tier (100 GB bandwidth, 1M Edge middleware invocations, 100K 
    - Dynamic/User data: `private, no-cache, no-store, must-revalidate`
 
 ================================================================
-OPTIMIZATION 3: CLERK AUTHENTICATION
-Goal: Stay in free tier (50,000 Monthly Active Users / MRU)
+OPTIMIZATION 3: BETTER AUTH + GOOGLE APPS SCRIPT (GAS) EMAIL
+Goal: 100% Free Self-Hosted Auth with zero third-party subscription costs
 ================================================================
 
 1. SESSION & TOKEN MANAGEMENT:
-   - Free tier gives 50,000 Monthly Active Users (MRU). This is generous, BUT:
-     - Each unique user who makes an authenticated request in a month counts as 1 MRU.
-     - Bot traffic or crawling protected routes can artificially inflate MRUs!
-   - Protect against MRU inflation:
-     - Public pages (home, browse, search, product detail) MUST NOT require Clerk auth.
-     - Allow guest browsing and guest cart (localStorage).
-     - Only require Clerk auth at: Checkout, Account, Wishlist (save), and Admin/Seller.
-     - Bots/crawlers get public pages with zero Clerk tokens consumed.
+   - Self-hosted Better Auth on Neon PostgreSQL with zero MRU limits:
+     - Free tier Neon pooled connections for fast session lookups.
+     - Protect against unnecessary database hits:
+       - Public pages (home, browse, search, product detail) MUST NOT require auth.
+       - Allow guest browsing and guest cart (localStorage).
+       - Only require auth at: Checkout, Account, Wishlist (save), and Admin/Seller.
+       - Bots/crawlers get public pages with zero session overhead.
 
-2. CLERK CLIENT-SIDE OPTIMIZATION:
-   - Use `<ClerkProvider>` with `telemetry: false` (minor privacy + performance).
-   - Don't call `useUser()` or `useAuth()` in components that render on every page 
-     unless necessary (like Navbar).
-   - In Navbar: Use lightweight auth check, don't fetch full user profile on every render.
-   - Cache user role in session token (Clerk custom claims):
-     - Add `role` (admin, seller, customer) to Clerk JWT template.
-     - Read role from JWT: `auth().sessionClaims?.role` — NO DATABASE QUERY NEEDED!
-     - This eliminates 1 DB query on EVERY protected request!
+2. AUTH CLIENT-SIDE & SERVER ACTIONS:
+   - Use lightweight auth checks in UI, don't fetch full user profile on every render.
+   - Cache user role in session token / cookie where possible.
+   - Use React `cache()` for request-scoped session deduplication.
 
-3. WEBHOOKS OVER POLLING:
-   - Never poll Clerk API for user status changes.
-   - Use Clerk Webhooks:
-     - `user.created` -> Insert into local `users` table
-     - `user.updated` -> Update local `users` table
-     - `user.deleted` -> Soft-delete in local `users` table
-   - Local `users` table acts as a read replica — zero Clerk API calls for user data.
+3. GOOGLE APPS SCRIPT (GAS) WEBHOOK EMAILER:
+   - 100% Free email provider via personal/workspace Gmail webhook:
+     - Password reset OTPs, order confirmations, and notifications sent via GAS.
+     - Zero Resend / SendGrid / Mailgun credit depletion.
+     - Secured with `GAS_SECRET_TOKEN` bearer validation.
 
 ================================================================
 OPTIMIZATION 4: BACKBLAZE B2 + CLOUDFLARE WORKER (Cold Storage)
@@ -226,11 +218,11 @@ VERIFICATION CHECKLIST (AFTER OPTIMIZING)
    [ ] Cache-Control headers set on API routes
    [ ] npm run build succeeds with minimal serverless bundle sizes
 
-3. CLERK:
+3. BETTER AUTH & GAS EMAIL:
    [ ] Public pages don't require auth
    [ ] Guest cart works without login
-   [ ] Role is stored in Clerk JWT session claims
-   [ ] Webhook syncs users to local database
+   [ ] Session tokens verified securely with zero quota cost
+   [ ] GAS webhook sends password reset & transactional emails
 
 4. B2 + CLOUDFLARE:
    [ ] B2 bucket is private

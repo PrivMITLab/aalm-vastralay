@@ -50,13 +50,13 @@ function getServerSnapshot(): string {
 /**
  * 👑 AALM VASTRALAY — GUEST OR AUTHENTICATED USER HOOK
  *
- * Maximizes Clerk 50,000 MRU free tier by letting anonymous shoppers:
+ * Optimizes serverless session performance by letting anonymous shoppers:
  *  - Browse catalog & product galleries
  *  - Save items to local wishlist
  *  - Maintain a guest shopping cart in localStorage
  *
- * Only redirects or prompts for Clerk authentication at Checkout or Account pages,
- * preventing bots and casual window shoppers from consuming Clerk monthly active user quotas.
+ * Only redirects or prompts for authentication at Checkout or Account pages,
+ * preventing bots and casual window shoppers from consuming unnecessary session resources.
  */
 export function useGuestOrAuth(initialUserId?: string | null): GuestOrAuthState {
   const [userId] = useState<string | null>(initialUserId ?? null);

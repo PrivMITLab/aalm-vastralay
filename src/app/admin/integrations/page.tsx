@@ -110,7 +110,7 @@ export default async function AdminIntegrationsPage() {
             </li>
             <li className="flex justify-between border-b border-[color:var(--border)] pb-1">
               <span>Auth</span>
-              <span className="text-[color:var(--text-soft)]">sessions now · Clerk 50k MAU when swapped in</span>
+              <span className="text-[color:var(--text-soft)]">Better Auth (Neon DB) · 100% Free Unlimited</span>
             </li>
             <li className="flex justify-between border-b border-[color:var(--border)] pb-1">
               <span>Cold images</span>

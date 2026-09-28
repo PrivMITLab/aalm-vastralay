@@ -55,9 +55,9 @@
 - **Validation:** MIME whitelist (`image/jpeg`, `image/png`, `image/webp`), max 5MB, SHA-256 filename hashing.
 - **Access:** Authenticated Sellers and Admins.
 
-### `POST /api/webhooks/clerk`
-- **Purpose:** User synchronization webhook.
-- **Protection:** HMAC Svix signature verification.
+### `POST /api/auth/[...all]`
+- **Purpose:** Better Auth core authentication endpoints (sign in, sign up, session, password reset via GAS).
+- **Protection:** CSRF origin validation, rate limited, secure session cookies.
 
 ### `GET /api/categories`
 - **Purpose:** Hierarchical category tree with subcategories and live product counts.

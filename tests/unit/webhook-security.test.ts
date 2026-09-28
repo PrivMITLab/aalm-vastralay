@@ -1,5 +1,5 @@
 /**
- * 👑 AALM VASTRALAY — UNIT TEST: CLERK WEBHOOK SECURITY
+ * 👑 AALM VASTRALAY — UNIT TEST: SVIX WEBHOOK SECURITY
  * Validates Optimization 3.5:
  *  - Svix HMAC signature generation & verification
  *  - Tampered payload rejection
@@ -34,11 +34,11 @@ function verifySvixSignature(
   }
 }
 
-export async function testClerkWebhookSecurity() {
-  console.log("  ▶ Running Clerk Webhook Signature Security Tests...");
+export async function testWebhookSecurity() {
+  console.log("  ▶ Running Svix Webhook Signature Security Tests...");
 
   // Use mock_sec_ prefix with safe test string — prevents false positive in GitHub Secret Scanner
-  const secret = `mock_sec_${Buffer.from("aalm_vastralay_mock_clerk_svix_test_secret_key_32b").toString("base64")}`;
+  const secret = `mock_sec_${Buffer.from("aalm_vastralay_mock_svix_test_secret_key_32b_token").toString("base64")}`;
   const id = "msg_2XyZaBcDeFgHiJkLmNoP";
   const timestamp = String(Math.floor(Date.now() / 1000));
   const payload = JSON.stringify({
@@ -76,5 +76,5 @@ export async function testClerkWebhookSecurity() {
     throw new Error("Failed: Forged signature was incorrectly verified!");
   }
 
-  console.log("  ✔ Clerk webhook signature verification & tamper resistance verified!");
+  console.log("  ✔ Svix webhook signature verification & tamper resistance verified!");
 }

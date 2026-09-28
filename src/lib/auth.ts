@@ -19,9 +19,8 @@ export { auth } from "./better-auth";
  * per-user secret is a hash of the stored password hash. Rotating the password
  * instantly invalidates every existing session for that account – a stolen cookie
  * cannot be replayed after a reset, and tampering breaks the HMAC.
- *
- * The public API (getCurrentUser / requireUser / requireRole) mirrors Clerk so the
- * provider can be swapped without touching the pages.
+ * The public API (getCurrentUser / requireUser / requireRole) provides clean,
+ * type-safe session access across Server Components and Server Actions.
  */
 
 export const SESSION_COOKIE = "av_session";

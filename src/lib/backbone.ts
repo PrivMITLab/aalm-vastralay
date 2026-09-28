@@ -16,11 +16,11 @@ export const BACKBONE: Array<{
     check: (env) => Boolean(env.DATABASE_URL),
   },
   {
-    name: "Session auth (Clerk-ready)",
-    purpose: "Scrypt + HMAC signed cookies now; drop-in Clerk swap",
-    envKeys: ["AUTH_SECRET", "CLERK_SECRET_KEY"],
-    docs: "https://clerk.com/docs",
-    check: (env) => Boolean(env.AUTH_SECRET),
+    name: "Better Auth + GAS Email",
+    purpose: "Session auth, magic links & email OTP via 100% free Gmail webhook",
+    envKeys: ["AUTH_SECRET", "GAS_WEBHOOK_URL", "GAS_SECRET_TOKEN"],
+    docs: "https://better-auth.com",
+    check: (env) => Boolean(env.AUTH_SECRET || env.BETTER_AUTH_SECRET),
   },
   {
     name: "ImageKit CDN",
@@ -93,5 +93,5 @@ export const OPS_ENDPOINTS = [
   { path: "/api/products", purpose: "Public catalogue JSON (cacheable at the edge)" },
   { path: "/api/search/suggest", purpose: "Autocomplete JSON (rate limited)" },
   { path: "/api/security/challenge", purpose: "Proof-of-work challenge issuer" },
-  { path: "/api/webhooks/clerk", purpose: "Clerk user sync webhook" },
+  { path: "/api/auth/[...all]", purpose: "Better Auth endpoints (magic link, OTP, sessions)" },
 ];

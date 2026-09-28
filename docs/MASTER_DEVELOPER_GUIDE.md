@@ -79,7 +79,7 @@ Aalm Vastralay (आलम वस्त्रालय) ek **Ultra-Resilient, Hig
 | **Frontend UI & Styling**| **Tailwind CSS 3.4 + Tailwind Animate** | Indian ethnic royal luxury theme, custom responsive grid, dark/light mode toggle, Bento Grid 2.0. |
 | **Icons & Typography** | **Lucide React + Google Fonts (Rozha One / Noto Sans)** | 53-icon matrix, Hindi/Devanagari typography support, multi-color SVG branding. |
 | **Database & ORM** | **Neon Serverless PostgreSQL + Drizzle ORM** | Relational ACID storage hosted in Mumbai (`ap-south-1`), PgBouncer connection pooling, zero-loss migrations. |
-| **Authentication & RBAC**| **Scrypt + HMAC-SHA256 Cookies (Clerk-Ready)** | Secure password hashing with unique salts, role-based protection (`customer`, `seller`, `admin`), guest session mode. |
+| **Authentication & RBAC**| **Better Auth + Drizzle ORM (Neon DB)** | Full-featured session auth, magic links, email OTP, role-based protection (`customer`, `seller`, `admin`). |
 | **Media Resolution Tier**| **Universal Media Engine (`src/lib/image-resolver.ts`)**| Multi-pipeline resolver auto-handling ImageKit, wsrv.nl, Backblaze B2, Google Drive, YouTube, and local assets. |
 | **Edge Compute Tier** | **Cloudflare Workers (`workers/b2-proxy`)** | V8 serverless isolate caching B2 auth tokens in Cloudflare KV and streaming media with $0 egress bandwidth. |
 | **Transactional Email** | **Google Apps Script + QuietMail Fallback** | 100% Free OTP emails, order confirmations, and password resets directly via Gmail API without monthly subscriptions. |
@@ -109,7 +109,7 @@ Marketplace ke andar kai external tools aur CDNs integrate hain. Yahan har servi
 | Google Apps Script (GAS) | Free Email OTP Engine | Gmail API Webhook Relay  | ⭐ Mandatory for Free OTP|
 | QuietMail                | Email Relay Fallback  | Secondary SMTP Bridge    | 🟡 Backup / Optional    |
 | Shiprocket & Delhivery   | Logistics & AWB       | Shipping Labels & Barcode| 🟢 Optional / Ready     |
-| Clerk Auth               | Drop-in Auth Provider | Webhook sync user auth   | 🟡 Ready / Swappable    |
+| Better Auth              | Modern Auth Provider  | Magic Links, Email OTP, Sessions | ⭐ Primary Engine       |
 | Loglyuk / Plausible      | Privacy Analytics     | Cookieless Pageview Track| 🟢 Optional (10k Free)  |
 +--------------------------+-----------------------+--------------------------+-------------------------+
 ```

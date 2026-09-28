@@ -42,7 +42,7 @@
    - API 401 JSON Response: Direct API calls without valid authentication receive `{ success: false, error: "Unauthorized access" }` (401) instead of HTML redirects.
 4. **Upload, Webhook & Database Hygiene:**
    - Path Traversal & MIME Hardening: `validateUploadMetadata()` strictly rejects directory traversal (`..`, `/`, `\`), enforces MIME allowlist, and caps uploads to 5MB.
-   - Webhook Freshness & Soft Delete: `/api/webhooks/clerk` validates Svix signatures, enforces timestamp freshness (≤ 5 minutes), parses payloads safely with Zod, and performs soft deletion (`is_active = false`) to guarantee zero data loss.
+   - Webhook & Auth Freshness: Validates Svix signatures and Better Auth session cookies, enforces timestamp freshness (≤ 5 minutes), parses payloads safely with Zod, and performs soft deletion (`is_active = false`) to guarantee zero data loss.
    - Database Optimization: Full-text search index `idx_products_fts` added to DDL; immutable audit logs preserved permanently from deletion.
 5. **Self-Hosted Bot Shield (10 Archetypes) & Header Architecture (`src/components/security/ClickToSolve.tsx`, `src/components/header/HeaderNav.tsx`):**
    - 100% self-hosted, zero-cost, zero-third-party (no Google reCAPTCHA, no Cloudflare Turnstile). Web Worker PBKDF2/SHA-256 solving.
@@ -121,12 +121,12 @@
   - Replaced indiscriminate `revalidatePath("/", "layout")` calls with targeted `updateTag()` invalidation (`site-settings`, `products`, `categories`, `cart-${userId}`).
 - **Neon Database:** Pooled connection string (`-pooler`) enforcement with 10s connection timeout and 30s idle timeout; composite indexes on frequently filtered columns.
 - **Vercel Edge:** Lightweight middleware skipping static assets and public routes; zero database queries in middleware.
-- **Clerk Auth:** `useGuestOrAuth` React 19 hook for guest browsing/cart without burning 50,000 MRU quotas; React `cache()` request-scoped deduplication.
+- **Better Auth & Guest Session:** `useGuestOrAuth` React 19 hook for guest browsing/cart without unnecessary database hits; React `cache()` request-scoped deduplication.
 - **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://aalm-b2-proxy.alamwastraly.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments. **Auto-setup script:** `pwsh scripts/setup-b2-worker.ps1` (Windows) or `bash scripts/setup-b2-worker.sh` (Mac/Linux).
 - **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
 ## 5. Database Schema (17 Tables)
-1. `users`: Customers, Sellers, and Admins (`clerk_id`, `email`, `role`, `password_hash`).
+1. `users`: Customers, Sellers, and Admins (`id`, `email`, `role`, `password_hash`).
 2. `stores`: Multi-vendor stores with Bihar/Indian address, GSTIN, ratings, and sales.
 3. `categories`: 18 hierarchical ethnic categories (Women, Men, Kids, Accessories).
 4. `products`: Catalog items with generated discount percentages, stock, weight, tags, SKU.

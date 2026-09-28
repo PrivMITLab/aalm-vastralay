@@ -12,8 +12,8 @@ test.describe("Storefront Core Experience", () => {
     // 1. Verify title or main header contains branding
     await expect(page).toHaveTitle(/Aalm Vastralay|आलम वस्त्रालय/i);
 
-    // 2. Verify search bar is accessible
-    const searchInput = page.locator('input[type="search"], input[placeholder*="Search" i], input[placeholder*="खोजें" i]').first();
+    // 2. Verify search bar is accessible (visible on desktop or mobile)
+    const searchInput = page.locator('input[type="search"]:visible, input[placeholder*="Search" i]:visible, input[placeholder*="खोजें" i]:visible').first();
     await expect(searchInput).toBeVisible();
 
     // 3. Verify main content area loaded

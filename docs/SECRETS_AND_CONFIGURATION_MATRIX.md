@@ -12,7 +12,7 @@
 1. **ज़रूरत का स्तर (Necessity Level):** 
    - 🔴 **अनिवार्य (Mandatory):** इसके बिना वेबसाइट स्टार्ट नहीं हो सकती (केवल 5 वेरिएबल्स)।
    - 🟡 **अनुशंसित (Recommended):** ₹0 फ्री टियर फीचर्स (OTP, UPI, B2 इमेज स्टोरेज) के लिए।
-   - ⚪ **वैकल्पिक (Optional):** जैसे Shiprocket, ImageKit, या Clerk (यदि आप थर्ड-पार्टी सेवाएं जोड़ना चाहें)।
+   - ⚪ **वैकल्पिक (Optional):** जैसे Shiprocket, ImageKit, या Razorpay (यदि आप थर्ड-पार्टी सेवाएं जोड़ना चाहें)।
    - 🟢 **ब्रांड कस्टमाइज़ेशन (Store Defaults):** स्टोर नाम, फोन, पता (कोड में पहले से डिफ़ॉल्ट्स सेट हैं)।
 2. **गोपनीयता का स्तर (Confidentiality Level):**
    - 🔒 **SECRET (गुप्त / Private):** केवल सर्वर पर रहेगा, कभी गिट या ब्राउज़र में नहीं दिखेगा।
@@ -40,7 +40,7 @@
 | **`DELHIVERY_API_KEY`** | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 **SECRET** | ✅ मैन्युअल ट्रैकिंग फॉलबैक | ❌ नहीं (वैकल्पिक ऑटो-लेबल) |
 | **`IMAGEKIT_*`** (Option B) | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 / 📢 मिक्स | ✅ B2 स्टोरेज प्राथमिकता | ❌ नहीं (वैकल्पिक 20GB इमेजकिट) |
 | **`QUIETMAIL_*`** (Option B) | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 / 📢 मिक्स | ✅ Google Apps Script प्राथमिकता | ❌ नहीं (वैकल्पिक पेड मेलर) |
-| **`CLERK_WEBHOOK_SECRET`** | ⚪ **वैकल्पिक (OPTIONAL)** | 🔒 **SECRET** | ✅ इन-हाउस ऑथ प्राथमिकता | ❌ नहीं (केवल क्लर्क उपयोग पर) |
+| **`BETTER_AUTH_SECRET`** | 🟡 **अनुशंसित (Recommended)** | 🔒 **SECRET** | ✅ `AUTH_SECRET` फॉलबैक | ❌ नहीं (वैकल्पिक सिंक) |
 | **`NEXT_PUBLIC_APP_NAME`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"Aalm Vastralay"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
 | **`NEXT_PUBLIC_SUPPORT_PHONE`** | 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"+91 98765 43210"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
 | **`NEXT_PUBLIC_SUPPORT_WHATSAPP`**| 🟢 **कस्टमाइज़ेशन (BRAND)** | 📢 **PLAIN TEXT** | ✅ `"+91 98765 43210"` | ❌ नहीं (स्वतः डिफ़ॉल्ट लागू होगा) |
@@ -115,8 +115,8 @@ NEXT_PUBLIC_SITE_URL="https://aalm-vastralay.vercel.app"
 - `QUIETMAIL_API_URL` & `QUIETMAIL_API_KEY`
 - *डिफ़ॉल्ट व्यवहार:* यदि आप Google Apps Script (Option A) का उपयोग कर रहे हैं, तो QuietMail की **बिल्कुल आवश्यकता नहीं** है।
 
-### 4. क्लर्क ऑथेंटिकेशन वेबहुक (Clerk Webhook):
-- `CLERK_WEBHOOK_SECRET`: केवल तभी आवश्यक है जब आप इन-हाउस ऑथ की जगह थर्ड-पार्टी Clerk Auth चालू करें। डिफ़ॉल्ट रूप से इन-हाउस ऑथ सक्रिय है।
+### 4. Better Auth कॉन्फ़िगरेशन (Better Auth Secret & URL):
+- `BETTER_AUTH_SECRET` & `BETTER_AUTH_URL`: Better Auth session token encryption और canonical callback URL के लिए। डिफ़ॉल्ट रूप से `AUTH_SECRET` से सिंक रहता है।
 
 ---
 

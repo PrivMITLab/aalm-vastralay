@@ -9,7 +9,7 @@ import { testMediaResolver } from "./media-resolver.test";
 import { testDbPooledValidation } from "./unit/db-pooled.test";
 import { testMiddlewareSkip } from "./unit/middleware-skip.test";
 import { testGuestMode } from "./unit/guest-mode.test";
-import { testClerkWebhookSecurity } from "./unit/clerk-webhook.test";
+import { testWebhookSecurity } from "./unit/webhook-security.test";
 import { testUploadPresign } from "./unit/presign.test";
 import { testAuthCache } from "./unit/auth-cache.test";
 import { testUpiQrEngine } from "./unit/upi-qr.test";
@@ -53,8 +53,8 @@ async function runAllTests() {
     { name: "Universal Media Resolver & CDN Engine", fn: testMediaResolver },
     { name: "Neon Pooled Connection Enforcement", fn: testDbPooledValidation },
     { name: "Vercel Middleware Static Skipping & Route Logic", fn: testMiddlewareSkip },
-    { name: "Clerk 50K MRU Guest Mode Session Logic", fn: testGuestMode },
-    { name: "Clerk Webhook Security & Tamper Resistance", fn: testClerkWebhookSecurity },
+    { name: "Guest Mode & Anonymous Session Isolation", fn: testGuestMode },
+    { name: "Webhook Signature Security & Tamper Resistance", fn: testWebhookSecurity },
     { name: "B2 Presigned Upload & Metadata Security", fn: testUploadPresign },
     { name: "Server Component Request-Scoped Auth Caching", fn: testAuthCache },
     { name: "Dynamic UPI QR & 12-Digit UTR Verification", fn: testUpiQrEngine },

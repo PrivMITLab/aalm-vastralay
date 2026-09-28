@@ -347,8 +347,8 @@ npm test
   ✔ Universal media resolver (GDrive, B2, YouTube, Direct WebP) passed!
   ✔ Neon pooled connection validation passed!
   ✔ Middleware static skip & route logic verified!
-  ✔ Clerk 50K MRU Guest Mode Session Logic passed!
-  ✔ Clerk Webhook Signature Security & Tamper Resistance verified!
+  ✔ Guest Mode & Anonymous Session Isolation passed!
+  ✔ Webhook Signature Security & Tamper Resistance verified!
   ✔ Upload Presign & Metadata Security Thresholds verified!
   ✔ Server Component Request-Scoped Auth Caching verified!
   ✔ Dynamic UPI QR generation, UTR validation & timer formatting verified!

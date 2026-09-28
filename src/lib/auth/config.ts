@@ -24,7 +24,7 @@ export const PUBLIC_ROUTES = [
   "/api/health",
   "/api/newsletter",
   "/api/search/suggest",
-  "/api/webhooks/clerk",
+  "/api/auth",
 ] as const;
 
 /** Protected path prefixes that require an authenticated user */

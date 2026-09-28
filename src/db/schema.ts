@@ -31,7 +31,7 @@ export const users = pgTable(
     phone: text("phone"),
     role: text("role").notNull().default("customer"),
     avatarUrl: text("avatar_url"),
-    // Local credential fallback (Clerk handles this in production).
+    // Scrypt-hashed password for self-hosted Better Auth credentials.
     passwordHash: text("password_hash"),
     resetOtp: text("reset_otp"),
     resetOtpExpiresAt: timestamp("reset_otp_expires_at", { withTimezone: true }),

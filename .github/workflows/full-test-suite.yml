@@ -72,6 +72,9 @@ jobs:
       - name: Run Playwright E2E & Accessibility Tests
         run: npx playwright test
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
           NODE_ENV: production
 
       - name: Upload Test Report Artifact

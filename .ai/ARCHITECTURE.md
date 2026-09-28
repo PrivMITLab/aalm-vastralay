@@ -9,7 +9,7 @@ flowchart TD
     Cloudflare --> NextApp["Next.js 16 (App Router + Server Actions)"]
     
     subgraph Server_Tier["Next.js Server & Application Tier"]
-        NextApp --> AuthEngine["Auth Engine (Scrypt + JWT / Clerk)"]
+        NextApp --> AuthEngine["Auth Engine (Better Auth + Scrypt Sessions)"]
         NextApp --> SecurityGuard["Security Guard (Rate Limit + Audit + CSRF)"]
         NextApp --> SettingsEngine["Zero-Code Settings Engine"]
         NextApp --> ActionsEngine["Server Actions (Commerce, Seller, Admin)"]

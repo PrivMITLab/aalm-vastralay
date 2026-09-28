@@ -92,7 +92,7 @@
 ### Authentication:
 - Strong password (min 8-12 chars, mixed case, number, symbol).
 - Scrypt / Argon2 / Bcrypt cost 12 for passwords.
-- MFA / Clerk / JWT support.
+- Better Auth / Multi-Factor / Email OTP / Magic Link support.
 - Session expiry (24h access, 30d refresh).
 - Session rotation on sensitive actions.
 - Logout from all devices option.

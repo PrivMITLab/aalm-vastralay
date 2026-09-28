@@ -105,4 +105,4 @@ curl -fsS https://<site>/robots.txt | head
 | ImageKit CDN Bandwidth | 20 GB / month | ImageKit Starter ($25/mo) |
 | Cloudflare Pages Edge | Unlimited requests | Stays free |
 | Cloudflare Worker B2 Proxy | 100k requests / day | Cloudflare R2 or Worker Paid ($5/mo) |
-| Authentication | Built-in PBKDF2 / Clerk | Scalable up to 50k MAU |
+| Authentication | Better Auth + Neon DB | Scalable unlimited free sessions |

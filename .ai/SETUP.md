@@ -17,22 +17,24 @@
 
 ---
 
-## 2. CLERK AUTHENTICATION (50,000 MRU Optimization)
-
-### Session Lifetime Setup (Clerk Dashboard)
-1. Navigate to: **Clerk Dashboard > Configure > Sessions**.
-2. Set **Session lifetime** to: `30 days` (prevents frequent re-authentications).
-3. Set **Inactivity timeout** to: `7 days`.
-4. Add custom claims in JWT Template if role-based claims are needed (`role: "{{user.public_metadata.role}}"`) to eliminate database queries for auth checks.
-
-### Networkless JWT Verification
-- In Clerk Dashboard > API Keys, copy the **JWT verification public key** (PEM format).
-- Add to `.env.local`: `CLERK_JWT_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"`.
-
+## 2. BETTER AUTH & GOOGLE APPS SCRIPT (GAS) EMAIL WEBHOOK
+ 
+### Free Self-Hosted Auth Configuration
+1. Authentication engine runs completely self-hosted via Better Auth with Neon PostgreSQL persistence.
+2. Zero monthly active user (MRU) caps, zero credit card requirement, zero third-party subscription lock-in.
+3. Secure cryptographic session cookies with HMAC SHA-256 verification and timing-safe token checks.
+ 
+### 100% Free Email Webhook via Google Apps Script (GAS)
+- Deploy Google Apps Script webhook using your personal/business Gmail account.
+- Add to `.env.local`:
+  - `GAS_WEBHOOK_URL="https://script.google.com/macros/s/.../exec"`
+  - `GAS_SECRET_TOKEN="your_random_secret_token"`
+- GAS sends password reset OTPs, order updates, and marketing emails with zero third-party fees.
+ 
 ### Guest Browsing Policy
 - Public pages, search, catalog, and cart require zero authentication.
 - Authentication is strictly required only at Checkout and Account areas.
-
+ 
 ---
 
 ## 3. BACKBLAZE B2 + CLOUDFLARE WORKER (Cold Storage)

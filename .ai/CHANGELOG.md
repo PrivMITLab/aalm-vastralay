@@ -485,14 +485,14 @@
 - **Vercel & Edge Runtime Optimization (`src/middleware.ts`, `src/lib/auth/config.ts`):**
   - Lightweight Edge middleware skipping static assets, brand images, and public routes.
   - Zero database queries in middleware.
-- **Clerk 50,000 MRU Optimization (`src/hooks/useGuestOrAuth.ts`, `src/lib/auth/cached.ts`):**
-  - `useGuestOrAuth` React 19 hook with `useSyncExternalStore` for guest shopping without burning Clerk quotas.
+- **Better Auth & Guest Session Optimization (`src/hooks/useGuestOrAuth.ts`, `src/lib/auth/cached.ts`):**
+  - `useGuestOrAuth` React 19 hook with `useSyncExternalStore` for guest shopping without server roundtrips.
   - React `cache()` request-scoped auth deduplication.
 - **Backblaze B2 Private Storage Optimization (`cloudflare-worker/b2-proxy.js`, `workers/b2-proxy/worker.js`, `src/lib/b2.ts`, `src/lib/upload-client.ts`):**
   - Cloudflare Worker proxy script with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching.
   - Presigned direct-to-B2 client upload pipeline bypassing Vercel 4.5MB serverless limits.
 - **16 Enterprise Test Suites (`tests/run-all-tests.ts`):**
-  - Added unit test suites: `db-pooled.test.ts`, `middleware-skip.test.ts`, `guest-mode.test.ts`, `clerk-webhook.test.ts`, `presign.test.ts`, `auth-cache.test.ts`, `upi-qr.test.ts`, and `whatsapp-integration.test.ts`.
+  - Added unit test suites: `db-pooled.test.ts`, `middleware-skip.test.ts`, `guest-mode.test.ts`, `webhook-security.test.ts`, `presign.test.ts`, `auth-cache.test.ts`, `upi-qr.test.ts`, and `whatsapp-integration.test.ts`.
 
 ---
 
