@@ -1,9 +1,9 @@
+import type React from "react";
 import Link from "next/link";
 import { Truck, Flame } from "lucide-react";
 import type { Product } from "@/db/schema";
 import { firstImage } from "@/lib/media-resolver";
 import { formatINR, freeShippingThreshold } from "@/lib/utils";
-import Watermark from "@/components/Watermark";
 import { RatingPill } from "./Rating";
 
 export type ProductCardData = Pick<
@@ -26,9 +26,11 @@ export type ProductCardData = Pick<
 export default function ProductCard({
   product,
   priority = false,
+  watermark,
 }: {
   product: ProductCardData;
   priority?: boolean;
+  watermark?: React.ReactNode;
 }) {
   const discount = Math.round(Number(product.discountPercent ?? 0));
   const mrp = product.mrp ?? product.price;
@@ -78,7 +80,7 @@ export default function ProductCard({
           </span>
         ) : null}
 
-        <Watermark variant="card" />
+        {watermark}
       </div>
 
       <div className="flex flex-1 flex-col justify-between p-3 sm:p-3.5">
