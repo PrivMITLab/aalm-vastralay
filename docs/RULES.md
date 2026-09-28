@@ -1,6 +1,6 @@
 # ==============================================================================
 # 👑 AALM VASTRALAY (आलम वस्त्रालय) — MASTER ARCHITECTURAL LAWS & AGENT BLUEPRINT
-# File: RULES.md (Canonical Master Rulebook for All Sessions & Agents)
+# Location: docs/RULES.md (Canonical Master Rulebook for All Sessions & AI Agents)
 # ==============================================================================
 
 > **CRITICAL DIRECTIVE FOR ALL AI CODING SESSIONS:**
@@ -16,6 +16,7 @@
 Reading this section gives any agent instant 100% context across the entire repository:
 
 ### Core Governance & Documentation Hub:
+- 📜 [docs/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
 - 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 36 Golden Rules, Code Quality, Client/Server Security Standards.
 - 📡 [.ai/CONTEXT.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CONTEXT.md) — Live system state, test suite count, verified verification matrix.
 - 🗄️ [.ai/DATABASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
