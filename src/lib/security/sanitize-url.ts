@@ -28,10 +28,17 @@ const SAFE_IMG_PROTOCOLS = new Set(["https:", "http:"]);
  */
 export function safeImgSrc(url: string | null | undefined): string | undefined {
   if (!url || typeof url !== "string") return undefined;
+  const trimmed = url.trim();
+
+  // CodeQL PrefixStringSanitizer: explicitly verify startsWith safe protocol
+  if (!trimmed.startsWith("https://") && !trimmed.startsWith("http://")) {
+    return undefined;
+  }
+
   try {
-    const parsed = new URL(url);
-    if (SAFE_IMG_PROTOCOLS.has(parsed.protocol)) {
-      return url;
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return parsed.href;
     }
   } catch {
     // Malformed URL — not safe
@@ -45,11 +52,23 @@ export function safeImgSrc(url: string | null | undefined): string | undefined {
  */
 export function safeHref(url: string | null | undefined): string | undefined {
   if (!url || typeof url !== "string") return undefined;
+  const trimmed = url.trim();
+
+  const isAllowedPrefix =
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("mailto:") ||
+    trimmed.startsWith("tel:");
+
+  if (!isAllowedPrefix) {
+    return undefined;
+  }
+
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(trimmed);
     const allowed = new Set(["https:", "http:", "mailto:", "tel:"]);
     if (allowed.has(parsed.protocol)) {
-      return url;
+      return parsed.href;
     }
   } catch {
     // Malformed URL — not safe

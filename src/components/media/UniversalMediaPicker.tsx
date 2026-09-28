@@ -1,10 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { UploadCloud, Link as LinkIcon, HardDrive, Images, Trash2, Check, Loader2, AlertCircle } from "lucide-react";
-import { canonicalizeImageUrl, resolveImage } from "@/lib/image-resolver";
+import { canonicalizeImageUrl } from "@/lib/image-resolver";
 import { safeImgSrc } from "@/lib/security/sanitize-url";
+import { SmartImage } from "@/components/media/SmartImage";
 
 export interface MediaSelectResult {
   url: string;
@@ -56,14 +56,12 @@ export default function UniversalMediaPicker({
   const [isSavingUrl, setIsSavingUrl] = useState(false);
 
   // gdrivePreview: canonicalize first, then enforce safe protocol
-  const gdrivePreview = gdriveInput.trim()
-    ? safeImgSrc(canonicalizeImageUrl(gdriveInput.trim()) ?? null)
-    : null;
+  const gdriveCleanUrl = gdriveInput.trim() ? canonicalizeImageUrl(gdriveInput.trim()) : "";
+  const gdrivePreview = safeImgSrc(gdriveCleanUrl) ?? null;
 
   // urlPreview: canonicalize if possible, fallback to raw only if safe protocol
-  const urlPreview = urlInput.trim()
-    ? safeImgSrc(canonicalizeImageUrl(urlInput.trim()) ?? urlInput.trim())
-    : null;
+  const rawUrl = urlInput.trim();
+  const urlPreview = safeImgSrc(rawUrl ? canonicalizeImageUrl(rawUrl) || rawUrl : "") ?? null;
 
   // Tab 4: Media Library
   const [libraryAssets, setLibraryAssets] = useState<MediaAssetItem[]>([]);
@@ -369,11 +367,11 @@ export default function UniversalMediaPicker({
                     </p>
                   </div>
 
-                  {gdrivePreview && (
+                  {gdrivePreview && (gdrivePreview.startsWith("https://") || gdrivePreview.startsWith("http://")) && (
                     <div className="space-y-2">
                       <p className="text-xs font-semibold text-slate-400">Live Preview:</p>
                       <div className="w-40 h-40 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
-                        <img
+                        <SmartImage
                           src={gdrivePreview}
                           alt="Drive Preview"
                           className="w-full h-full object-cover"
@@ -411,11 +409,11 @@ export default function UniversalMediaPicker({
                     />
                   </div>
 
-                  {urlPreview && (
+                  {urlPreview && (urlPreview.startsWith("https://") || urlPreview.startsWith("http://")) && (
                     <div className="space-y-2">
                       <p className="text-xs font-semibold text-slate-400">Live Preview:</p>
                       <div className="w-40 h-40 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
-                        <img
+                        <SmartImage
                           src={urlPreview}
                           alt="URL Preview"
                           className="w-full h-full object-cover"
@@ -465,8 +463,8 @@ export default function UniversalMediaPicker({
                           }}
                           className="group relative aspect-square rounded-xl overflow-hidden border border-slate-800 hover:border-indigo-500 bg-slate-950 cursor-pointer transition-all"
                         >
-                          <img
-                            src={resolveImage(asset.servableUrl)}
+                          <SmartImage
+                            src={asset.servableUrl}
                             alt={asset.fileName}
                             className="w-full h-full object-cover transition-transform group-hover:scale-105"
                           />
