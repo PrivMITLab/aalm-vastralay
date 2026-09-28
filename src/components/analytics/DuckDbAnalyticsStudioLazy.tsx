@@ -1,5 +1,7 @@
+"use client";
 /**
  * DuckDbAnalyticsStudioLazy.tsx
+ * "use client" REQUIRED — next/dynamic with ssr:false only works in Client Components.
  * Yeh file ek thin wrapper hai jo next/dynamic ke saath ssr:false use karti hai.
  * Alag file mein rakhne se admin/seller analytics pages mein
  * `export const dynamic = "force-dynamic"` ke saath naam ka conflict nahi hoga.
