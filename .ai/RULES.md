@@ -42,6 +42,9 @@
 34. MANDATORY 6-STEP EXECUTION: Plan & Research -> Add/Edit Code -> Local Compile (typecheck + lint) -> Automated Test (100% pass) -> Report Changes & Step-by-Step Test Guide -> Local Commit.
 35. MANDATORY SKELETON STATES (CLS = 0): Every async page, product grid, cart, and recommendations carousel must render exact-dimension skeletons using Tailwind animate-pulse.
 36. ADVANCED PLATFORM TOPOLOGY: Maintain architectural alignment for OpenPanel (cookieless product telemetry), DuckDB (in-process analytical OLAP offloading), and Typesense (sub-50ms instant typo-tolerant search).
+37. PROJECT-CENTRIC DEEP THINKING & REAL-LIFE HONEST EXPLANATIONS: Always analyze and design from Aalm Vastralay's real production perspective. Speak the plain technical truth politely with concrete real-life production examples (no fake demos, no vaporware).
+38. ZERO-TOUCH AUTO-DATABASE & NON-DESTRUCTIVE MIGRATION: Database must be 100% self-healing. Tables and columns must auto-migrate via `initCleanBaseData` and `db:auto-migrate` with `CREATE/ALTER TABLE IF NOT EXISTS`. Zero manual SQL required by user; zero data loss.
+39. IRONCLAD PRIVACY & ZERO-LEAK SECURITY: Strictly zero leak of credentials, API keys, secrets, or customer PII in code, logs, or client payloads. Hardened for OWASP ZAP: `poweredByHeader: false`, anti-CSRF token inputs in forms, restrictive CSP/CORP/COEP headers, and timing-safe crypto comparisons.
 
 ---
 
