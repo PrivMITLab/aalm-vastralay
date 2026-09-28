@@ -10,6 +10,19 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.5](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.4...aalm-vastralay-v0.1.5) (2026-09-28)
+
+
+### ✨ Features
+
+* **ui:** skeleton loaders, kpi bento, product card wishlist, rules build step ([5f6df25](https://github.com/SudhirDevOps1/aalm-vastralay/commit/5f6df25ccc3faab55a4a6c890c67bd9e85aa3a9d))
+
+
+### 🐛 Bug Fixes
+
+* **analytics:** add use client to duckdb lazy wrapper for ssr:false ([2de1b72](https://github.com/SudhirDevOps1/aalm-vastralay/commit/2de1b7227980f0954f569745dd9879e2633ee648))
+* **security:** patch codeql url-hostname and dom-xss alerts ([57cceb0](https://github.com/SudhirDevOps1/aalm-vastralay/commit/57cceb07868ba04ceb2f816b17b9f277adf996e9))
+
 ## [0.1.4](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.3...aalm-vastralay-v0.1.4) (2026-09-28)
 
 
