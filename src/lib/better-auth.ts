@@ -50,6 +50,7 @@ export const auth = betterAuth({
     fields: {
       name: "fullName",
       image: "avatarUrl",
+      emailVerified: "isActive",
     },
   },
   socialProviders: {

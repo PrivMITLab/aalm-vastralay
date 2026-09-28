@@ -28,12 +28,9 @@ export const users = pgTable(
     clerkId: text("clerk_id").notNull().unique().default(sql`'local_' || gen_random_uuid()::text`),
     email: text("email").notNull().unique(),
     fullName: text("full_name"),
-    name: text("name"),
     phone: text("phone"),
     role: text("role").notNull().default("customer"),
     avatarUrl: text("avatar_url"),
-    image: text("image"),
-    emailVerified: boolean("email_verified").default(false).notNull(),
     // Scrypt-hashed password for self-hosted Better Auth credentials.
     passwordHash: text("password_hash"),
     resetOtp: text("reset_otp"),
