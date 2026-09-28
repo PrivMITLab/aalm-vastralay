@@ -10,6 +10,13 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.8](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.7...aalm-vastralay-v0.1.8) (2026-09-28)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** add AUTH_SECRET fallback to playwright and zap ([a27c530](https://github.com/SudhirDevOps1/aalm-vastralay/commit/a27c5304de9c7bcfc72cce697f0b70b1e2e578c5))
+
 ## [0.1.7](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.6...aalm-vastralay-v0.1.7) (2026-09-28)
 
 
