@@ -10,6 +10,21 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.7](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.6...aalm-vastralay-v0.1.7) (2026-09-28)
+
+
+### ✨ Features
+
+* **devops:** add zap security scan, visual regression, and db testing ([780e56c](https://github.com/SudhirDevOps1/aalm-vastralay/commit/780e56c8c9c2626df780e0ed26ca4fc0787c94f0))
+* **qa:** implement complete testing suite and ci pipeline ([4fb7ea4](https://github.com/SudhirDevOps1/aalm-vastralay/commit/4fb7ea4da7df5349054875ee66add1cbbf208e35))
+* **test:** add a11y audit, load test, and carousel fix ([bb5849a](https://github.com/SudhirDevOps1/aalm-vastralay/commit/bb5849ab4ef9c1bf9708abc46df79bfdb56a2b87))
+* **testing:** add playwright e2e browser test suite and configuration ([3e31314](https://github.com/SudhirDevOps1/aalm-vastralay/commit/3e313140803ab65e094e04b50859b60c5a885623))
+
+
+### 🐛 Bug Fixes
+
+* **security:** resolve codeql dom-xss via smart-image and prefix guard ([d59c3f9](https://github.com/SudhirDevOps1/aalm-vastralay/commit/d59c3f9234ec9a77bf48a1c2eb3faf6af9d7c4b7))
+
 ## [0.1.6](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.5...aalm-vastralay-v0.1.6) (2026-09-28)
 
 
