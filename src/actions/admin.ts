@@ -118,13 +118,28 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
   }
 }
 
-export async function saveBotShieldArchetypeAction(archetype: string): Promise<ActionState> {
+export type BotShieldStudioPayload = {
+  mode: string;
+  style?: string;
+  label?: string;
+  theme?: string;
+};
+
+export async function saveBotShieldArchetypeAction(
+  payload: string | BotShieldStudioPayload
+): Promise<ActionState> {
   const admin = await assertAdmin();
   if (!admin) return { error: "Forbidden" };
+
+  const mode = typeof payload === "string" ? payload : payload.mode;
+  const style = typeof payload === "object" ? payload.style : undefined;
+  const label = typeof payload === "object" ? payload.label : undefined;
+  const theme = typeof payload === "object" ? payload.theme : undefined;
+
   const validArchetypes = [
     "turnstile", "altcha", "mcaptcha", "slide", "biometric", "shagun", "bar", "floating", "overlay", "invisible", "standard"
   ];
-  if (!validArchetypes.includes(archetype)) return { error: "Invalid archetype" };
+  if (!validArchetypes.includes(mode)) return { error: "Invalid archetype" };
 
   let validUpdatedBy: string | null = null;
   try {
@@ -135,20 +150,59 @@ export async function saveBotShieldArchetypeAction(archetype: string): Promise<A
   }
 
   try {
-    await db
-      .insert(settingsTable)
-      .values({
+    const now = new Date();
+    const rowsToUpsert: { key: string; value: string; group: string; label: string }[] = [
+      {
         key: "security.powDisplayMode",
-        value: archetype,
+        value: mode,
         group: "security",
         label: "Bot shield archetype & style (10 types)",
-        updatedBy: validUpdatedBy,
-        updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: settingsTable.key,
-        set: { value: archetype, updatedAt: new Date(), updatedBy: validUpdatedBy },
+      },
+    ];
+
+    if (style && (style === "checkbox" || style === "switch")) {
+      rowsToUpsert.push({
+        key: "security.powWidgetStyle",
+        value: style,
+        group: "security",
+        label: "Bot shield control style",
       });
+    }
+
+    if (label && typeof label === "string") {
+      rowsToUpsert.push({
+        key: "security.powLabel",
+        value: label.slice(0, 100),
+        group: "security",
+        label: "Bot shield prompt label",
+      });
+    }
+
+    if (theme && ["gold", "royal-maroon", "emerald", "neutral"].includes(theme)) {
+      rowsToUpsert.push({
+        key: "security.powTheme",
+        value: theme,
+        group: "security",
+        label: "Bot shield accent theme",
+      });
+    }
+
+    for (const r of rowsToUpsert) {
+      await db
+        .insert(settingsTable)
+        .values({
+          key: r.key,
+          value: r.value,
+          group: r.group,
+          label: r.label,
+          updatedBy: validUpdatedBy,
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: settingsTable.key,
+          set: { value: r.value, updatedAt: now, updatedBy: validUpdatedBy },
+        });
+    }
 
     await invalidateSettings();
     revalidatePath("/", "layout");
@@ -163,11 +217,11 @@ export async function saveBotShieldArchetypeAction(archetype: string): Promise<A
         actorEmail: admin.email,
         action: "security.archetype",
         target: "security.powDisplayMode",
-        detail: `Switched bot shield archetype to ${archetype}`,
+        detail: `Saved bot shield configuration (mode=${mode}, style=${style || "default"})`,
       });
     } catch {}
 
-    return { success: `Bot shield archetype "${archetype}" saved and applied live across all forms!` };
+    return { success: `Bot shield archetype "${mode}" saved and applied live across all forms!` };
   } catch (err: unknown) {
     console.error("[saveBotShieldArchetypeAction] Error:", err);
     return { error: "Failed to save archetype." };

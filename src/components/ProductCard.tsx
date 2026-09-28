@@ -38,7 +38,7 @@ export default function ProductCard({
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="card card-lift card-luxe group flex w-full max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[#D4AF37]/50 hover:shadow-[0_12px_36px_-10px_rgba(212,175,55,0.25)] active:scale-[0.97]"
+      className="card group flex w-full max-w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D4AF37]/60 hover:shadow-[0_16px_36px_-12px_rgba(122,31,43,0.18)] dark:hover:shadow-[0_16px_36px_-12px_rgba(212,175,55,0.22)] active:scale-[0.98]"
       aria-label={`${product.title} - ${formatINR(product.price)}`}
     >
       <div className="relative aspect-[3/4] w-full max-w-full overflow-hidden bg-cream-100 dark:bg-stone-900">
@@ -81,24 +81,26 @@ export default function ProductCard({
         <Watermark variant="card" />
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5 sm:p-3.5">
-        {product.storeName && (
-          <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">
-            {product.storeName}
-          </p>
-        )}
+      <div className="flex flex-1 flex-col justify-between p-3 sm:p-3.5">
+        <div className="space-y-1">
+          {product.storeName && (
+            <p className="truncate text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-gold-400">
+              {product.storeName}
+            </p>
+          )}
 
-        <h3 className="line-clamp-2 min-h-[2.5em] text-xs sm:text-sm font-medium capitalize leading-snug text-slate-900 transition-colors group-hover:text-maroon-700 dark:text-stone-100 dark:group-hover:text-rose-400">
-          {product.title}
-        </h3>
+          <h3 className="line-clamp-2 min-h-[2.6em] text-xs sm:text-sm font-semibold capitalize leading-snug text-[color:var(--text)] transition-colors duration-200 group-hover:text-[color:var(--brand)]">
+            {product.title}
+          </h3>
+        </div>
 
-        <div className="mt-auto flex flex-wrap items-baseline gap-1.5 sm:gap-2 pt-1.5">
-          <span className="text-sm sm:text-base font-bold text-maroon-900 dark:text-rose-300">
+        <div className="mt-3 flex flex-wrap items-baseline gap-1.5 sm:gap-2 pt-1">
+          <span className="text-sm sm:text-base font-bold text-maroon-800 dark:text-rose-300">
             {formatINR(product.price)}
           </span>
           {mrp > product.price && (
             <>
-              <span className="text-[11px] sm:text-xs text-slate-400 line-through dark:text-stone-500">
+              <span className="text-[11px] sm:text-xs text-[color:var(--text-soft)] line-through">
                 {formatINR(mrp)}
               </span>
               <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
@@ -108,7 +110,7 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="mt-1 flex flex-wrap items-center justify-between gap-1 border-t border-[color:var(--border)]/40 pt-2 text-xs">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-1 border-t border-[color:var(--border)]/50 pt-2 pb-0.5 text-xs">
           <RatingPill value={product.rating} count={product.totalReviews} />
           {product.price >= freeShippingThreshold() && (
             <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">

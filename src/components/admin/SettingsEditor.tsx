@@ -39,11 +39,16 @@ export default function SettingsEditor({
     setValue("security.powDisplayMode", archetypeId);
     setSavingArchetype(true);
     try {
-      const res = await saveBotShieldArchetypeAction(archetypeId);
+      const res = await saveBotShieldArchetypeAction({
+        mode: archetypeId,
+        style: live["security.powWidgetStyle"] || "checkbox",
+        label: live["security.powLabel"] || "Main robot nahi hoon",
+        theme: live["security.powTheme"] || "gold",
+      });
       if (res && "error" in res && res.error) {
         toast.error(res.error);
       } else {
-        toast.success(`⚡ Archetype saved & applied live! Active mode: ${archetypeId}`);
+        toast.success(`⚡ Archetype saved & applied live! Active mode: ${archetypeId}, style: ${live["security.powWidgetStyle"] || "checkbox"}`);
       }
     } catch {
       toast.error("Failed to apply archetype. Please retry.");
@@ -308,10 +313,20 @@ function FieldRow({ field, value, onChange }: { field: SettingField; value: stri
       </div>
       <div className="mt-3">
         {field.type === "boolean" ? (
-          <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+          <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm select-none">
             <input type="hidden" name={`${field.key}__present`} value="1" />
-            <input id={id} type="checkbox" name={field.key} defaultChecked={value === "true"} value="on" className="h-4 w-4 accent-[color:var(--brand)]" />
-            Enabled
+            <input
+              id={id}
+              type="checkbox"
+              name={field.key}
+              checked={value === "true"}
+              onChange={(e) => onChange(e.target.checked ? "true" : "false")}
+              value="on"
+              className="h-4 w-4 rounded accent-[color:var(--brand)] cursor-pointer"
+            />
+            <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full transition-colors", value === "true" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300" : "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300")}>
+              {value === "true" ? "Enabled (सक्रिय)" : "Disabled (निष्क्रिय)"}
+            </span>
           </label>
         ) : field.type === "select" ? (
           <select id={id} name={field.key} className="input" value={value} onChange={(e) => onChange(e.target.value)}>
