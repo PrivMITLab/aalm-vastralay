@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { UploadCloud, Link as LinkIcon, HardDrive, Images, Trash2, Check, Loader2, AlertCircle } from "lucide-react";
 import { canonicalizeImageUrl, resolveImage } from "@/lib/image-resolver";
+import { safeImgSrc } from "@/lib/security/sanitize-url";
 
 export interface MediaSelectResult {
   url: string;
@@ -53,25 +54,6 @@ export default function UniversalMediaPicker({
   // Tab 3: External URL
   const [urlInput, setUrlInput] = useState("");
   const [isSavingUrl, setIsSavingUrl] = useState(false);
-
-  /**
-   * safeImgSrc — CodeQL fix: Prevents "DOM text reinterpreted as HTML".
-   * Only allows https:// and http:// protocols in img src.
-   * Blocks javascript:, data:, vbscript: and other XSS vectors.
-   * Raw user input is NEVER passed to img src without this guard.
-   */
-  function safeImgSrc(url: string | null): string | null {
-    if (!url) return null;
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-        return url;
-      }
-    } catch {
-      // Malformed URL — not safe to display
-    }
-    return null;
-  }
 
   // gdrivePreview: canonicalize first, then enforce safe protocol
   const gdrivePreview = gdriveInput.trim()

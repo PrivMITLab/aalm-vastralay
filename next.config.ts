@@ -6,14 +6,43 @@ const pkg = require("./package.json") as { version: string; name: string };
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://upload.imagekit.io https://*.imagekit.io https://loglyuk.com https://plausible.io",
+
+  // Scripts — DuckDB-Wasm CDN (jsdelivr) required for in-browser OLAP
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'" +
+    " https://cdn.jsdelivr.net" +
+    " https://upload.imagekit.io https://*.imagekit.io" +
+    " https://loglyuk.com https://plausible.io",
+
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https: http:",
+
+  // Images — specific domains only (was too broad with http:)
+  "img-src 'self' data: blob:" +
+    " https://*.backblazeb2.com" +
+    " https://lh3.googleusercontent.com https://*.googleusercontent.com" +
+    " https://wsrv.nl" +
+    " https://*.imagekit.io" +
+    " https://i.imgur.com https://images.unsplash.com" +
+    " https://*.githubusercontent.com" +
+    " https://placehold.co",
+
   "media-src 'self' blob: https:",
-  "worker-src 'self' blob:",
-  "child-src 'self' blob:",
-  "connect-src 'self' https://*.imagekit.io https://wsrv.nl https://*.workers.dev https://*.neon.tech https://loglyuk.com https://*.backblazeb2.com https://api.backblazeb2.com",
+
+  // Workers — DuckDB-Wasm Web Worker needs jsdelivr + blob
+  "worker-src 'self' blob: https://cdn.jsdelivr.net",
+  "child-src 'self' blob: https://cdn.jsdelivr.net",
+
+  // Network fetch — DuckDB-Wasm CDN fetches its own WASM bundles
+  "connect-src 'self'" +
+    " https://cdn.jsdelivr.net" +
+    " https://*.imagekit.io" +
+    " https://wsrv.nl" +
+    " https://*.workers.dev" +
+    " https://*.neon.tech" +
+    " https://loglyuk.com" +
+    " https://*.backblazeb2.com https://api.backblazeb2.com" +
+    " https://www.googleapis.com https://oauth2.googleapis.com",
+
   "frame-src 'self' https://www.youtube.com https://youtube.com https://player.vimeo.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -24,6 +53,8 @@ const csp = [
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
+  // HSTS — browser ko force karo sirf HTTPS use kare (Phase 1 quick win)
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -31,6 +62,7 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
 ];
+
 
 const nextConfig: NextConfig = {
   // 0. App Version — package.json se version client-side env var mein inject karo
