@@ -28,6 +28,8 @@
 ### 👑 Admin Control Suite (`/admin`):
 - **Live Site Settings (`/admin/settings`):** 100+ zero-code configurations for brand name, logo, announcement marquee, hero banner slides, CTA buttons, theme palette, payment settings, and Turnstile-style bot defense customization (5 modes, 2 widget styles, 4 themes).
 - **Marketing Broadcast Center (`/admin/marketing`):** 1-Click festival and coupon blast dispatch across Email, In-App Notifications, and Web Push with live preview.
+- **Universal Media Management:** Multi-source media upload and registration (`/api/media/upload`, `/api/media`) with Backblaze B2, Google Drive, and Web link embedding. Database caching in Neon PostgreSQL ensures **zero Class C B2 transactions** on gallery views. Hard deletion via `b2_delete_file_version` purges files without tombstone markers.
+- **Free AI Intelligence Engine:** Google Gemini 2.5 Flash for Hinglish ethnic descriptions and NLP search intent extraction; Groq Cloud LPU (Llama 3.3 70B) for sub-300ms personalized recommendations.
 - **Audit Logging (`/admin/security`):** Complete immutable security log of every administrative edit with actor email and IP.
 - **Integrations & Diagnostics (`/admin/integrations`):** Live database health check, table counts, and safe demo clean wiping.
 

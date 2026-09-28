@@ -206,16 +206,24 @@ aalm-vastralay-media/
 
 ---
 
-## 📊 Free Tier Limits
+## 📊 Free Tier Limits & Zero Class C Optimization
 
-| Service | Free Limit |
-|---|---|
-| Backblaze B2 Storage | **10 GB** |
-| B2 Download via Cloudflare | **₹0** (Bandwidth Alliance) |
-| Cloudflare Workers requests | **100,000/day** |
-| Cloudflare KV reads | **100,000/day** |
+| Service / Resource | Free Limit | Hamara Optimization |
+|---|---|---|
+| Backblaze B2 Storage | **10 GB** | High-efficiency WebP/AVIF compression |
+| B2 Download via Cloudflare | **₹0** (Bandwidth Alliance) | Cloudflare CDN Edge Cache (1-year immutable) |
+| Cloudflare Workers requests | **100,000/day** | 0 cost global media streaming |
+| Cloudflare KV reads | **100,000/day** | 23-hour B2 download token caching |
+| B2 Class C Transactions | **2,500/day** | **0 calls on listing!** Cached in Neon DB (`media_assets`) |
 
----
+### 🛡️ How We Eliminated Class C Quota Exhaustion
+1. **Database Caching:** All uploaded files and their unique B2 `fileId` are saved in Neon PostgreSQL. Browsing media or rendering galleries calls PostgreSQL directly with **zero calls to B2**.
+2. **Hard Permanent Delete:** We call `b2_delete_file_version` using the stored `fileId`, immediately purging files without creating hidden tombstone markers.
+3. **B2 Lifecycle Rule (Crucial One-Time Step):**
+   - Backblaze Dashboard me jaayein: **Buckets → aalm-vastralay-media → Lifecycle Rules**.
+   - Rule select karein: **Custom Lifecycle Rule**.
+   - **Days from hiding to deleting:** `1` set karein.
+   - Yeh rule kisi bhi accidental hidden version ko 24 ghante me delete kar deta hai.
 
 ## 🔗 Links
 

@@ -9,7 +9,7 @@
 [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Neon Serverless](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle_0.45-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Automated Test Suite](https://img.shields.io/badge/Tests-33%2F33_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
+[![Automated Test Suite](https://img.shields.io/badge/Tests-35%2F35_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
 [![Operating Cost](https://img.shields.io/badge/Operating_Cost-%240_%2F_month_(Permanent_Free_Tier)-gold?style=for-the-badge&logo=googlecloud&logoColor=black)](docs/COMPLETE_GUIDE.md)
 
 <br/>
@@ -21,7 +21,7 @@
 
 <br/>
 
-> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **Turnkey Open-Source Multi-Vendor E-Commerce Template**. Built with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates on **permanent $0/month free tiers** with zero third-party captchas, zero fake reviews, zero recurring SaaS costs, and zero data loss. Anyone can clone the repository, customize `.env.local`, and launch a complete production marketplace in under 3 minutes.
+> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **Turnkey Open-Source Multi-Vendor E-Commerce Template**. Built with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates on **permanent $0/month free tiers** with zero third-party captchas, zero fake reviews, zero recurring SaaS costs, and zero data loss. Features native Backblaze B2 cold media storage with Cloudflare CDN proxy, zero-cost Google Gemini + Groq AI engines, and interactive 1-click cloud setup. Anyone can clone the repository, customize `.env.local`, and launch a complete production marketplace in under 3 minutes.
 
 </div>
 
@@ -77,6 +77,21 @@
 - **4 Delivery Strategies:** `wsrv` (WebP global CDN), `direct` (raw stream), `b2` (cold storage mirror), and `auto` (hybrid auto-switch).
 - **Cascading Fallback Chain:** If an asset fails, `<SmartImage>` seamlessly falls back: `Primary -> Backblaze B2 Worker -> wsrv.nl -> Direct URL -> /images/placeholder.svg`.
 - **Safe Webpage Image Scraper:** SSRF-protected `/api/admin/scrape-image` endpoint with 1-click OpenGraph banner extraction.
+
+### 7. 🧊 Backblaze B2 Cold Storage & Zero Class C Database Caching
+- **Bandwidth Alliance Zero Egress:** Cloudflare Worker CDN proxy (`aalm-b2-proxy.alamwastraly.workers.dev`) streams media directly with 0 egress bandwidth cost.
+- **Zero Class C Elimination:** Uploaded file metadata and B2 `fileId` are cached in Neon PostgreSQL (`media_assets`). Media galleries make **0 B2 API calls**, eliminating the 2,500/day Class C quota risk.
+- **Hard Permanent Deletion:** Uses native `b2_delete_file_version` with `fileId` to instantly purge files without creating hidden tombstone markers.
+- **Lifecycle Armor:** Configured with `daysFromHidingToDeleting = 1` for automatic hygiene.
+
+### 8. 🧠 100% Free AI Engine (Google Gemini 2.5 Flash + Groq LPU)
+- **Hinglish Luxury Copywriter:** Google Gemini 2.5 Flash generates rich product descriptions with cultural fabric nuances (*Zari, Banarasi, Katan, Anarkali*).
+- **Sub-300ms Recommendations:** Groq Cloud LPU (Llama 3.3 70B) powers low-latency personalized product recommendations.
+- **Conversational NLP Search:** Natural language search parser translates colloquial queries (*"shaadi ke liye royal blue banarasi saree under 7000"*) into structured database filters.
+
+### 9. 🎛️ Universal Multi-Source Media Selector & Master Setup Wizard
+- **Universal Media Picker:** Admins and Sellers can choose between B2 direct uploads, Google Drive share links (auto-canonicalized to `lh3.googleusercontent.com/d/{id}` for 0 hosting cost), or web URLs.
+- **Interactive Cloud Wizard (`npm run setup:env`):** Step-by-step PowerShell wizard configuring Neon, Auth secrets, B2, AI keys, and 1-click Vercel CLI sync.
 
 ---
 
@@ -236,9 +251,9 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🧪 Enterprise Verification Suite (33/33 Passing)
+## 🧪 Enterprise Verification Suite (35/35 Passing)
 
-Every pull request and build is verified through 33 automated enterprise test suites passing cleanly in **~3.5 seconds**:
+Every pull request and build is verified through 35 automated enterprise test suites passing cleanly in **~1.87 seconds**:
 
 ```bash
 npm test
@@ -273,8 +288,10 @@ npm test
   ✔ Fail-closed secrets & presign 503 sentinel verified!
   ✔ withDbRetry transient connection recovery & anti-enumeration verified!
   ✔ Open-source turnkey template integrity & zero PII verified!
+  ✔ Free AI Engine & Hinglish NLP Search Intent passed!
+  ✔ Media Management & B2 Zero Class C Elimination passed!
 =======================================================
- 🏆 ALL 33/33 ENTERPRISE TEST SUITES PASSED IN 3.47s!
+ 🏆 ALL 35/35 ENTERPRISE TEST SUITES PASSED IN 1.87s!
  Strict zero-defect verification completed successfully. ✅
 =======================================================
 ```

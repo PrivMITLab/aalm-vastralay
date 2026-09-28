@@ -11,14 +11,17 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 33 Enterprise test suites in `tests/` passing in ~2.50s (`npm test`).
+- **Automated Tests:** 35 Enterprise test suites in `tests/` passing in ~1.87s (`npm test`).
 - **Git Branch:** `main` (Remote: `https://github.com/SudhirDevOps1/aalm-vastralay.git`).
 - **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
 - **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
 - **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
 - **Self-Hosted Avatars:** DiceBear Lorelei SVG generator at `/api/avatar` (1-year immutable cache, 0 upload friction).
 - **UserAvatar in Header:** `<UserAvatar seed={user.id} />` in desktop trigger, dropdown, and mobile drawer (commit `bd3e365`).
-- **B2 Cloudflare Worker:** Deployed at `https://aalm-b2-proxy.alamwastraly.workers.dev` with KV namespace `edb6eeb23e5745bb9dfc1a357463601e`.
+- **B2 Cloudflare Worker:** Deployed at `https://aalm-b2-proxy.alamwastraly.workers.dev` (Bandwidth Alliance zero egress).
+- **Media Asset Caching (Zero B2 Class C):** Neon PostgreSQL `media_assets` table caches uploaded file metadata and B2 `fileId`. Galleries load with 0 B2 API calls. Hard deletes execute via `b2_delete_file_version` (no tombstone markers).
+- **Universal Media Picker:** Multi-source media selection component (`src/components/media/UniversalMediaPicker.tsx`) supporting B2 direct upload, Google Drive direct embedding, and web links.
+- **Interactive Setup Wizard:** `scripts/setup-env.ps1` (`npm run setup:env`) with 1-click Vercel CLI synchronization.
 
 ## 3. Production Server-Side Security Hardening (All 26 API Routes)
 1. **Rate-Limit Bypass & Anti-Spoof Defense (`src/lib/rate-limit.ts`, `src/lib/request.ts`):**

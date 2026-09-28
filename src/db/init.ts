@@ -259,6 +259,20 @@ const TABLE_DDL_STATEMENTS = [
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
+
+  `CREATE TABLE IF NOT EXISTS "media_assets" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    "file_id" text UNIQUE,
+    "file_name" text NOT NULL UNIQUE,
+    "servable_url" text NOT NULL,
+    "size_bytes" integer DEFAULT 0 NOT NULL,
+    "mime_type" text DEFAULT 'image/webp' NOT NULL,
+    "source" text DEFAULT 'b2' NOT NULL,
+    "folder" text DEFAULT 'products' NOT NULL,
+    "uploaded_by" uuid REFERENCES "users"("id") ON DELETE SET NULL,
+    "metadata" jsonb DEFAULT '{}'::jsonb,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
 ];
 
 const INDEX_DDL_STATEMENTS = [
@@ -286,6 +300,10 @@ const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_user_activity_product" ON "user_activity" ("product_id")`,
   `CREATE INDEX IF NOT EXISTS "idx_user_activity_created" ON "user_activity" ("created_at")`,
   `CREATE INDEX IF NOT EXISTS "idx_ai_cache_key" ON "ai_cache" ("cache_key")`,
+  `CREATE INDEX IF NOT EXISTS "idx_media_assets_uploader" ON "media_assets" ("uploaded_by")`,
+  `CREATE INDEX IF NOT EXISTS "idx_media_assets_source" ON "media_assets" ("source")`,
+  `CREATE INDEX IF NOT EXISTS "idx_media_assets_folder" ON "media_assets" ("folder")`,
+  `CREATE INDEX IF NOT EXISTS "idx_media_assets_created" ON "media_assets" ("created_at")`,
 ];
 
 /**

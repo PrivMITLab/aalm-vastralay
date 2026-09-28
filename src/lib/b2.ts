@@ -153,3 +153,111 @@ export async function getB2DirectUploadCredentials(
     maxBytes: MAX_IMAGE_BYTES,
   };
 }
+
+export function b2IsConfigured(): boolean {
+  const keyId = process.env.B2_KEY_ID;
+  const appKey = process.env.B2_APP_KEY || process.env.B2_APPLICATION_KEY;
+  const bucketId = process.env.B2_BUCKET_ID;
+  return Boolean(keyId && appKey && bucketId);
+}
+
+/**
+ * Uploads a binary buffer directly to Backblaze B2 cold storage.
+ * Returns the unique fileId required for hard deletion without tombstone markers.
+ */
+export async function b2UploadBuffer(
+  buffer: Buffer,
+  fileName: string,
+  contentType: string
+): Promise<{
+  fileId: string;
+  fileName: string;
+  contentLength: number;
+  contentType: string;
+}> {
+  const creds = await getB2DirectUploadCredentials(fileName);
+  const cryptoMod = await import("node:crypto");
+  const sha1 = cryptoMod.createHash("sha1").update(buffer).digest("hex");
+
+  const b2Res = await fetch(creds.uploadUrl, {
+    method: "POST",
+    headers: {
+      Authorization: creds.authorizationToken,
+      "X-Bz-File-Name": encodeURIComponent(fileName),
+      "Content-Type": contentType,
+      "Content-Length": String(buffer.length),
+      "X-Bz-Content-Sha1": sha1,
+    },
+    body: new Uint8Array(buffer),
+  });
+
+  if (!b2Res.ok) {
+    const errText = await b2Res.text().catch(() => "");
+    throw new Error(`B2 upload failed [${b2Res.status}]: ${errText}`);
+  }
+
+  const result = (await b2Res.json()) as {
+    fileId: string;
+    fileName: string;
+    contentLength: number;
+    contentType: string;
+  };
+
+  return {
+    fileId: result.fileId,
+    fileName: result.fileName,
+    contentLength: result.contentLength,
+    contentType: result.contentType,
+  };
+}
+
+/**
+ * Permanently hard-deletes a specific file version from Backblaze B2 using its unique fileId.
+ * Does NOT generate tombstone / hide markers, conserving Class C transactions and storage.
+ */
+export async function b2DeleteFileVersion(
+  fileName: string,
+  fileId: string
+): Promise<{ success: boolean; fileId: string; fileName: string }> {
+  const keyId = process.env.B2_KEY_ID;
+  const appKey = process.env.B2_APP_KEY || process.env.B2_APPLICATION_KEY;
+
+  if (!keyId || !appKey) {
+    throw new B2StorageNotConfiguredError();
+  }
+
+  // 1. Authorize with Backblaze B2
+  const authRes = await fetch("https://api.backblazeb2.com/b2api/v2/b2_authorize_account", {
+    headers: {
+      Authorization: "Basic " + Buffer.from(`${keyId}:${appKey}`).toString("base64"),
+    },
+  });
+
+  if (!authRes.ok) {
+    throw new Error(`Failed to authorize with B2: ${authRes.status}`);
+  }
+
+  const authJson = (await authRes.json()) as { apiUrl: string; authorizationToken: string };
+
+  // 2. Permanently delete the specific file version
+  const deleteRes = await fetch(`${authJson.apiUrl}/b2api/v2/b2_delete_file_version`, {
+    method: "POST",
+    headers: {
+      Authorization: authJson.authorizationToken,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fileName, fileId }),
+  });
+
+  if (!deleteRes.ok) {
+    const errBody = await deleteRes.json().catch(() => ({}));
+    // If already deleted or file_not_present, consider idempotent success
+    if (errBody && (errBody.code === "file_not_present" || deleteRes.status === 404)) {
+      return { success: true, fileId, fileName };
+    }
+    throw new Error(`Failed to delete B2 file version [${deleteRes.status}]: ${JSON.stringify(errBody)}`);
+  }
+
+  return { success: true, fileId, fileName };
+}
+

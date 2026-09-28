@@ -15,6 +15,8 @@
     "deploy:bootstrap": "tsx scripts/deploy-bootstrap.ts",
     "icons:generate": "tsx scripts/generate-all-icons.ts",
     "icons:verify": "node scripts/verify-icons.js",
+    "setup:env": "pwsh scripts/setup-env.ps1",
+    "setup:b2": "pwsh scripts/setup-b2-worker.ps1",
     "commitlint": "commitlint --edit",
     "prepare": "husky"
   },

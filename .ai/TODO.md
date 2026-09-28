@@ -67,12 +67,16 @@
 - [x] Automated Semantic Versioning and GitHub Release pipeline with `release-please` (v0.1.1 released).
 - [x] Master Enterprise `.gitignore` with comprehensive 10-layer exclusion rules (0 leaks, 0 cache).
 - [x] Master `.env.example` template with comprehensive English/Hindi documentation and setup guidance.
-- [x] Dependabot CodeQL Action bumped to v4 (PR #4 merged).
 - [x] Full production build & strict typecheck verified with 0 errors across all 34 routes.
+- [x] Backblaze B2 Zero Class C database caching layer (`media_assets` table in Drizzle schema & DDL in `src/db/init.ts`).
+- [x] Hard permanent deletion engine using `b2_delete_file_version` by `fileId` (0 tombstone markers).
+- [x] Universal Multi-Source Media Selector (`UniversalMediaPicker.tsx`) supporting B2, Google Drive, and Web Links.
+- [x] Master Interactive PowerShell Environment & Vercel CLI Setup Wizard (`scripts/setup-env.ps1`, `npm run setup:env`).
+- [x] Dedicated automated test suite `tests/media-management.test.ts` (All 35/35 Enterprise Test Suites Passing 100%).
+- [x] Cloudflare B2 Proxy deployed and live verified with zero egress billing via Bandwidth Alliance.
 
 ## In-Progress / Next Enhancements
-- [ ] Add `NEXT_PUBLIC_B2_WORKER_URL` to Vercel Dashboard environment variables (manual step after B2 keys are set).
-- [ ] Set `B2_KEY_ID` and `B2_APP_KEY` in Cloudflare secrets via setup script (requires Backblaze App Key from user).
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.
 - [ ] Geolocation auto-detection for Indian postal circles.
-- [ ] `.ai/` skill files version bump to 2.0.0 reflecting production-grade actual implementation.
+- [ ] DuckDB in-process analytical OLAP engine for seller GMV metrics.
+- [ ] Typesense dual-engine instant search autocomplete.

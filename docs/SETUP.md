@@ -36,7 +36,15 @@ cd aalm-vastralay
 npm install
 ```
 
-### Step 2: Configure Local Environment Variables
+### Step 2: Configure Environment Variables (Interactive Wizard or Manual)
+
+**Option A: 1-Command Interactive Setup Wizard (Recommended)**
+```bash
+npm run setup:env
+```
+*(This PowerShell wizard steps through configuring Neon PostgreSQL, generating cryptographic secrets, Backblaze B2 storage, and Google Gemini / Groq AI keys, with an optional 1-click sync to Vercel!)*
+
+**Option B: Manual Configuration**
 Copy the dedicated local development template to `.env.local`:
 ```bash
 cp .env.development.example .env.local
@@ -96,7 +104,7 @@ Or simply visit `https://aalm-vastralay.vercel.app/admin` and log in with your s
 Before pushing any changes, always run the full verification matrix:
 
 ```bash
-# 1. Run all 33 automated enterprise test suites
+# 1. Run all 35 automated enterprise test suites
 npm test
 
 # 2. Strict TypeScript typechecking (0 errors, 0 any types)

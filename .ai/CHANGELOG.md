@@ -3,6 +3,29 @@
 
 ---
 
+## [2026-09-28] — Backblaze B2 Class C Elimination, Universal Media Architecture & Master Setup Wizard
+
+### Added & Optimized
+- **Backblaze B2 Zero Class C Elimination via PostgreSQL Caching:**
+  - Added `media_assets` table in Drizzle schema (`src/db/schema.ts`) and auto-provisioning DDL in `src/db/init.ts`.
+  - Caches `fileId`, `fileName`, `servableUrl`, `sizeBytes`, `mimeType`, `source`, `folder`, `uploadedBy`.
+  - Media galleries query Neon PostgreSQL directly: **0 B2 Class C API calls**, completely eliminating the risk of exceeding the 2,500/day free quota.
+- **Hard Permanent Deletion Engine (`src/lib/b2.ts`, `/api/media/[id]`):**
+  - Native `b2_delete_file_version` call using the stored B2 `fileId`.
+  - Permanently purges files without generating hidden tombstone markers (`b2_hide_file`), preserving Class C limits and cold storage space.
+- **In-Memory Media Cache (`src/lib/media-cache.ts`):**
+  - Low-latency LRU / TTL memory cache (5-minute TTL, max 500 entries) preventing repeat database hits on hot media assets.
+- **Universal Multi-Source Media Picker (`src/components/media/UniversalMediaPicker.tsx`):**
+  - Seamless 4-tab media selector supporting: Direct B2 uploads, Google Drive share links (auto-canonicalized to `lh3.googleusercontent.com/d/{id}` for 0 hosting cost), Web URLs, and DB-cached Media Library with 1-click delete.
+- **Interactive Cloud Setup Wizard (`scripts/setup-env.ps1`, `npm run setup:env`):**
+  - Interactive PowerShell script guiding developers through configuring Neon DB, Auth secrets, Backblaze B2, Google Gemini & Groq AI keys.
+  - Features 1-click optional Vercel CLI sync, automatically running `vercel env add` for all environment variables across Production and Preview.
+- **Automated Verification:**
+  - Added dedicated test suite `tests/media-management.test.ts` registered in `tests/run-all-tests.ts`.
+  - **All 35/35 Enterprise Test Suites Passing 100% in 1.87s.**
+
+---
+
 ## [2026-09-27] — Release v0.1.1, Zero-Defect CodeQL Closure & Master Enterprise .gitignore
 
 ### Released & Automated

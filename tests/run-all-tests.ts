@@ -32,6 +32,7 @@ import { testFailClosedSecrets } from "./unit/fail-closed-secrets.test";
 import { testSaveChangesAndSecurityFix } from "./unit/save-changes-and-security-fix.test";
 import { testOpenSourceTemplateIntegrity } from "./unit/open-source-template.test";
 import { runAiIntegrationTests } from "./ai-integration.test";
+import { runMediaManagementTests } from "./media-management.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -75,6 +76,7 @@ async function runAllTests() {
     { name: "DB Transient Retry Armor, PoW Agreement & Anti-Enumeration", fn: testSaveChangesAndSecurityFix },
     { name: "Open-Source Turnkey Template & Zero-PII Integrity", fn: testOpenSourceTemplateIntegrity },
     { name: "Free AI Engine & Hinglish NLP Search Intent", fn: runAiIntegrationTests },
+    { name: "Media Management & B2 Zero Class C Elimination", fn: runMediaManagementTests },
   ];
 
   for (const suite of suites) {

@@ -61,10 +61,11 @@ cloudflare-worker/wrangler-b2-proxy.toml
 # ------------------------------------------------------------------------------
 # 5. User Uploads, Media & Local Databases
 # ------------------------------------------------------------------------------
-public/uploads/
-uploads/
-storage/
-media/
+/public/uploads/
+/uploads/
+/storage/
+/media/
+/public/media/
 *.sqlite
 *.sqlite3
 *.db

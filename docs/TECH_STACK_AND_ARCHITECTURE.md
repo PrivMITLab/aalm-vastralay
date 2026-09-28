@@ -53,9 +53,11 @@ Aalm Vastralay is engineered around four non-negotiable operational principles:
 | **Data Encryption** | **AES-256-GCM** | `crypto` | Authenticated symmetric encryption for sensitive API keys and tokens. |
 | **Object Storage** | **Backblaze B2** | `S3-compatible` | 10GB permanent free tier media storage with zero egress fees via Cloudflare. |
 | **Edge CDN Proxy** | **Cloudflare Worker** | `V8 Isolate` | Fast edge caching, CORS handling, and media streaming proxy. |
+| **Database Caching**| **Neon `media_assets`**| `Drizzle ORM` | Metadata & fileId caching in PostgreSQL eliminating B2 Class C transaction costs. |
+| **Free AI Inference**| **Google Gemini & Groq**| `2.5 Flash / 70B`| Zero-cost luxury copywriting, sub-300ms recommendations & NLP search. |
 | **Email Relay** | **Google Apps Script**| `V8 Runtime` | Zero-domain free transactional email relay for OTPs and invoices. |
 | **Logistics Engine** | **Shiprocket & Delhivery** | `REST v2` | Automated AWB waybill generation, barcode packing slips, and pincode mapping. |
-| **Testing Framework**| **Vitest & TSX** | `Automated` | 33 enterprise automated test suites verifying security, payments, and DB rules. |
+| **Testing Framework**| **Vitest & TSX** | `Automated` | 35 enterprise automated test suites verifying security, payments, and DB rules. |
 
 ---
 
@@ -149,14 +151,16 @@ flowchart TD
 ```
 
 - **Tier 1 (Private B2 + Cloudflare Worker):** 10GB free Backblaze B2 storage paired with Cloudflare Workers (Bandwidth Alliance = ₹0 egress fee).
-- **Tier 2 (Global wsrv.nl Proxy):** Automatic on-the-fly WebP conversion, resizing, and caching.
-- **Tier 3 (Local Fallback Asset):** Built-in SVGs and local placeholders guarantee zero broken image icons on the live storefront.
+- **Tier 2 (Database-Cached Metadata - Zero Class C):** Neon PostgreSQL `media_assets` table caches fileId and metadata, dropping B2 listing operations to 0 calls. Hard-delete utilizes `b2_delete_file_version` (zero tombstone markers).
+- **Tier 3 (Universal Multi-Source Support):** B2 direct uploads, Google Drive share links (`lh3.googleusercontent.com/d/{id}` for zero-cost hosting), and web URLs.
+- **Tier 4 (Global wsrv.nl Proxy):** Automatic on-the-fly WebP conversion, resizing, and caching.
+- **Tier 5 (Local Fallback Asset):** Built-in SVGs and local placeholders guarantee zero broken image icons on the live storefront.
 
 ---
 
 ## 8. 🧪 Enterprise Verification & Test Matrix
 
-The platform includes **33 comprehensive automated test suites** (`tests/run-all-tests.ts`):
+The platform includes **35 comprehensive automated test suites** (`tests/run-all-tests.ts`):
 
 ```bash
 npm test
@@ -178,6 +182,8 @@ npm test
 13. Statutory GST Rule 46 tax calculations (intra/inter splits).
 14. Bot Shield Proof-of-Work challenge agreement & replay defense.
 15. Open-source turnkey compliance & BIS IS 19000:2022 standards.
+16. Free AI Engine & Hinglish NLP search intent extraction.
+17. Media Management & B2 Zero Class C Elimination.
 
 ---
 
@@ -185,10 +191,12 @@ npm test
 
 | Task | Command | Purpose |
 | :--- | :--- | :--- |
+| **Interactive Setup** | `npm run setup:env` | Master CLI wizard: Neon DB, Auth, B2, AI keys & 1-click Vercel sync. |
+| **B2 Worker Setup** | `npm run setup:b2` | Auto-configures Cloudflare KV, secrets, and deploys B2 proxy. |
 | **Start Local Dev** | `npm run dev` | Boots Next.js Turbopack dev server on `http://localhost:3000`. |
 | **Production Build** | `npm run build` | Compiles production assets and typechecks all 34 routes. |
 | **Start Production**| `npm start` | Runs compiled Next.js standalone server. |
-| **Run All Tests** | `npm test` | Runs all 33 automated enterprise test suites (Vitest/TSX). |
+| **Run All Tests** | `npm test` | Runs all 35 automated enterprise test suites (100% green in < 2s). |
 | **Typecheck** | `npm run typecheck` | Validates TypeScript strict mode (0 errors, 0 `any`). |
 | **Lint Code** | `npm run lint` | Runs ESLint 9 across all components and actions. |
 | **Auto-Migrate DB** | `npm run db:auto-migrate`| Zero-data-loss safe table creation & column additions. |

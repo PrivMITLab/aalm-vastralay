@@ -372,6 +372,29 @@ export const aiCache = pgTable(
   (t) => [index("idx_ai_cache_key").on(t.cacheKey)],
 );
 
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fileId: text("file_id").unique(), // B2 fileId for hard deletion without tombstone
+    fileName: text("file_name").notNull().unique(), // e.g. "products/1727520000-abc.webp"
+    servableUrl: text("servable_url").notNull(),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    mimeType: text("mime_type").notNull().default("image/webp"),
+    source: text("source").notNull().default("b2"), // 'b2' | 'gdrive' | 'external' | 'local'
+    folder: text("folder").notNull().default("products"), // 'products' | 'brand' | 'avatars' | 'banners'
+    uploadedBy: uuid("uploaded_by").references(() => users.id, { onDelete: "set null" }),
+    metadata: jsonb("metadata").default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("idx_media_assets_uploader").on(t.uploadedBy),
+    index("idx_media_assets_source").on(t.source),
+    index("idx_media_assets_folder").on(t.folder),
+    index("idx_media_assets_created").on(t.createdAt),
+  ],
+);
+
 /* ---------------------------- relations ---------------------------- */
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -447,6 +470,8 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type PowUsed = typeof powUsed.$inferSelect;
 export type UserActivity = typeof userActivity.$inferSelect;
 export type AiCache = typeof aiCache.$inferSelect;
+export type MediaAsset = typeof mediaAssets.$inferSelect;
+export type NewMediaAsset = typeof mediaAssets.$inferInsert;
 
 export const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];

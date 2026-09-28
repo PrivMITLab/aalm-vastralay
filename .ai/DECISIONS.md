@@ -121,3 +121,13 @@
 - **Status:** Accepted
 - **Decision:** The committed `cloudflare-worker/wrangler-b2-proxy.toml` uses placeholder values (`SETUP_SCRIPT_WILL_FILL_THIS`) for `account_id` and KV namespace `id`. Actual values are written at runtime by `scripts/setup-b2-worker.ps1` (Windows) / `.sh` (Mac/Linux). B2 credentials (`B2_KEY_ID`, `B2_APP_KEY`) are piped directly to `wrangler secret put` — never stored in any file, shell variable, log, or git history.
 - **Rationale:** Committing a real `account_id` allows enumerating or targeting specific Cloudflare accounts. The one-command script approach makes the project safe to open-source while maintaining zero-friction setup for new operators. All secrets live exclusively in Cloudflare's encrypted secrets vault.
+
+## ADR 020: Backblaze B2 Class C Elimination via PostgreSQL `media_assets` Caching & Hard Delete
+- **Status:** Accepted
+- **Decision:** Cache uploaded asset metadata and B2 version ID (`fileId`) in Neon PostgreSQL table `media_assets`. Gallery listing queries read directly from PostgreSQL with zero B2 API invocations. File deletions call native `b2_delete_file_version` using `fileId` instead of standard S3 `DeleteObject`.
+- **Rationale:** Backblaze B2 free tier permits 2,500 Class C calls/day. Calling `b2_list_file_names` or creating hidden tombstone markers rapidly exhausts this limit. Database caching drops Class C listing calls to absolute zero, while `b2_delete_file_version` permanently purges objects without creating tombstones.
+
+## ADR 021: Universal Multi-Source Media Selector & Master Setup Wizard
+- **Status:** Accepted
+- **Decision:** Provide `UniversalMediaPicker.tsx` supporting B2 upload, Google Drive direct share link embedding (canonicalized via `lh3.googleusercontent.com/d/{id}` for zero-cost media), web links, and DB-cached gallery with 1-click delete. Provide `scripts/setup-env.ps1` (`npm run setup:env`) with 1-click Vercel CLI synchronization.
+- **Rationale:** Gives non-technical store owners flexible media sourcing options without burning cloud storage limits, while making environment setup entirely automated and zero-friction.
