@@ -6,8 +6,8 @@ import AuthForm from "@/components/auth/AuthForm";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Sign in" };
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string }> }) {
-  const { redirect_url } = await searchParams;
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; error?: string }> }) {
+  const { redirect_url, error } = await searchParams;
   const user = await getCurrentUser();
   if (user) redirect(redirect_url && redirect_url.startsWith("/") ? redirect_url : "/dashboard");
 
@@ -27,9 +27,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
 
       <div className="card mx-auto w-full max-w-md p-8">
         <h1 className="font-display text-2xl font-semibold text-[color:var(--brand)]">Sign in to Aalm Vastralay</h1>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">Use your registered email and password to continue.</p>
+        <p className="mt-1 text-sm text-[color:var(--text-muted)]">Use Google 1-Click or your registered email to continue.</p>
         <div className="mt-6">
-          <AuthForm mode="sign-in" redirectUrl={redirect_url} />
+          <AuthForm mode="sign-in" redirectUrl={redirect_url} oauthError={error} />
         </div>
       </div>
     </div>

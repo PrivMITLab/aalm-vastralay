@@ -34,6 +34,7 @@ import { testOpenSourceTemplateIntegrity } from "./unit/open-source-template.tes
 import { runAiIntegrationTests } from "./ai-integration.test";
 import { runMediaManagementTests } from "./media-management.test";
 import { testDuckDbAnalytics } from "./duckdb-analytics.test";
+import { testGoogleOAuth } from "./unit/google-oauth.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -79,6 +80,7 @@ async function runAllTests() {
     { name: "Free AI Engine & Hinglish NLP Search Intent", fn: runAiIntegrationTests },
     { name: "Media Management & B2 Zero Class C Elimination", fn: runMediaManagementTests },
     { name: "DuckDB In-Memory OLAP Analytics & GST Slicing", fn: testDuckDbAnalytics },
+    { name: "Google 1-Click OAuth 2.0 Security & Mapping", fn: testGoogleOAuth },
   ];
 
   for (const suite of suites) {

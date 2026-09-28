@@ -7,8 +7,8 @@ import AuthForm from "@/components/auth/AuthForm";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Create account" };
 
-export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; intent?: string }> }) {
-  const { redirect_url, intent } = await searchParams;
+export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; intent?: string; error?: string }> }) {
+  const { redirect_url, intent, error } = await searchParams;
   const user = await getCurrentUser();
   if (user) redirect(intent === "seller" ? "/onboarding" : "/dashboard");
   const seller = intent === "seller";
@@ -41,7 +41,7 @@ export default async function SignUpPage({ searchParams }: { searchParams: Promi
         <h1 className="font-display text-2xl font-semibold text-maroon-900">{seller ? "Create your seller account" : "Create your account"}</h1>
         <p className="mt-1 text-sm text-slate-600">{seller ? "Step 1 of 2 – you'll set up your store next." : "It only takes a minute."}</p>
         <div className="mt-6">
-          <AuthForm mode="sign-up" redirectUrl={redirect_url} intent={intent} />
+          <AuthForm mode="sign-up" redirectUrl={redirect_url} intent={intent} oauthError={error} />
         </div>
       </div>
     </div>

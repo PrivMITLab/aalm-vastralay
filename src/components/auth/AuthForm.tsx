@@ -6,10 +6,37 @@ import { Eye, EyeOff } from "lucide-react";
 import { signIn, signUp } from "@/actions/auth";
 import SubmitButton from "@/components/SubmitButton";
 import ClickToSolve from "@/components/security/ClickToSolve";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { passwordScore } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in" | "sign-up"; redirectUrl?: string; intent?: string }) {
+function getOAuthErrorMessage(code?: string): string | null {
+  if (!code) return null;
+  switch (code) {
+    case "google_oauth_not_configured":
+      return "Google Sign-In is not configured yet. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local.";
+    case "oauth_state_mismatch":
+      return "Security check expired. Please click Continue with Google again.";
+    case "account_suspended":
+      return "Your account has been deactivated. Please contact support.";
+    case "no_email_provided":
+      return "Google did not share a verified email address. Please sign up with email.";
+    default:
+      return "Google Sign-In could not be completed. Please try again or use email & password.";
+  }
+}
+
+export default function AuthForm({
+  mode,
+  redirectUrl,
+  intent,
+  oauthError,
+}: {
+  mode: "sign-in" | "sign-up";
+  redirectUrl?: string;
+  intent?: string;
+  oauthError?: string;
+}) {
   const [state, action] = useActionState(mode === "sign-in" ? signIn : signUp, null);
   const isSignUp = mode === "sign-up";
   const [form, setForm] = useState({ email: "", password: "", confirm: "", fullName: "", phone: "" });
@@ -17,6 +44,7 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
   const [show, setShow] = useState(false);
   const [verified, setVerified] = useState(false);
   const score = passwordScore(form.password);
+  const oauthMsg = getOAuthErrorMessage(oauthError);
 
   function set(k: keyof typeof form, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -42,11 +70,30 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
   const fieldCls = (k: string) => cn("input", errors[k] && "border-rose-500 ring-1 ring-rose-300");
 
   return (
-    <form action={action} onSubmit={validate} className="space-y-4" noValidate>
-      {redirectUrl && <input type="hidden" name="redirect_url" value={redirectUrl} />}
-      {intent && <input type="hidden" name="intent" value={intent} />}
-      {/* Honeypot – hidden from humans, bots fill it and get rejected */}
-      <input type="text" name="company_website" tabIndex={-1} autoComplete="off" className="absolute -left-[9999px] h-0 w-0 opacity-0" aria-hidden />
+    <div className="space-y-5">
+      {oauthMsg && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-800/40 dark:bg-amber-950/20 dark:text-amber-200">
+          ⚠️ {oauthMsg}
+        </div>
+      )}
+
+      {/* 1-Click Google OAuth Sign-In */}
+      <GoogleSignInButton redirectUrl={redirectUrl} mode={mode} />
+
+      {/* Divider */}
+      <div className="relative my-3 flex items-center justify-center">
+        <span className="h-px w-full bg-[color:var(--border)]" />
+        <span className="bg-[color:var(--surface)] px-3 text-xs text-[color:var(--text-soft)]">
+          or
+        </span>
+        <span className="h-px w-full bg-[color:var(--border)]" />
+      </div>
+
+      <form action={action} onSubmit={validate} className="space-y-4" noValidate>
+        {redirectUrl && <input type="hidden" name="redirect_url" value={redirectUrl} />}
+        {intent && <input type="hidden" name="intent" value={intent} />}
+        {/* Honeypot – hidden from humans, bots fill it and get rejected */}
+        <input type="text" name="company_website" tabIndex={-1} autoComplete="off" className="absolute -left-[9999px] h-0 w-0 opacity-0" aria-hidden />
 
       {isSignUp && (
         <div>
@@ -59,7 +106,7 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
       )}
       <div>
         <label className="label" htmlFor="email">
-          Email
+          Email address
         </label>
         <input id="email" name="email" type="email" className={fieldCls("email")} placeholder="you@example.com" required autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email}</p>}
@@ -156,6 +203,7 @@ export default function AuthForm({ mode, redirectUrl, intent }: { mode: "sign-in
           </>
         )}
       </p>
-    </form>
+      </form>
+    </div>
   );
 }
