@@ -42,17 +42,29 @@
 
 ---
 
-## 🎬 18-Second Launch Video & Interactive Demo
+## 🎬 Official Launch Video & Interactive Product Tour (1080p)
 
 <div align="center">
 
-[![Aalm Vastralay Launch Video Demo](brag-output/brag.jpg)](brag-output/brag.mp4)
+<!-- Live Playable Animated Video Preview -->
+<a href="brag-output/brag.mp4" title="Click to watch full 1080p video with audio">
+  <img src="brag-output/brag.gif" alt="Aalm Vastralay Live Launch Video Demo" width="880" style="border-radius: 12px; border: 2px solid #d4af37;" />
+</a>
 
-<br/>
+<br/><br/>
 
-**[▶ Click to Watch / Download 18s 1080p Launch Video Demo (with Audio)](brag-output/brag.mp4)**
+<a href="https://github.com/SudhirDevOps1/aalm-vastralay/raw/main/brag-output/brag.mp4">
+  <img src="https://img.shields.io/badge/▶_Click_to_Play_Full_Video_(1080p_with_Audio)-7A1F2B?style=for-the-badge&logoColor=f5c542&labelColor=1a050d" alt="Play Full 1080p Video" />
+</a>
+&nbsp;
+<a href="https://aalm-vastralay.vercel.app">
+  <img src="https://img.shields.io/badge/🌐_Visit_Live_Marketplace-D4AF37?style=for-the-badge&logoColor=1a050d&labelColor=ffffff" alt="Live Store" />
+</a>
 
-*Pure Banarasi Handloom • Sub-50ms Catalog Speed • 1-Click WhatsApp Direct Artisan Connect*
+<p align="center">
+  <strong>“बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान”</strong><br/>
+  <em>Royal Bridal Lehengas • Pure Banarasi Handloom • Regal Groom Sherwanis • Live WhatsApp Video Call • COD</em>
+</p>
 
 </div>
 
