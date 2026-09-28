@@ -1,8 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import nextDynamic from "next/dynamic";
 import { getSellerContext } from "@/lib/seller";
-import DuckDbAnalyticsStudio from "@/components/analytics/DuckDbAnalyticsStudio";
 import { ArrowLeft, Store, ShieldCheck } from "lucide-react";
+
+// Dynamic import with ssr: false ensures DuckDB-Wasm runs purely client-side
+const DuckDbAnalyticsStudio = nextDynamic(
+  () => import("@/components/analytics/DuckDbAnalyticsStudio"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-96 items-center justify-center rounded-2xl border border-cream-200 bg-white p-8 shadow-xs">
+        <div className="text-center space-y-3">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-maroon-800 border-t-transparent" />
+          <p className="text-sm font-semibold text-maroon-900">Loading Store Analytics Engine...</p>
+          <p className="text-xs text-slate-500">Preparing isolated DuckDB tables in browser memory</p>
+        </div>
+      </div>
+    ),
+  }
+);
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
