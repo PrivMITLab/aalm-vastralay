@@ -145,3 +145,12 @@ logs/
 *.zip
 *.tar.gz
 
+# ------------------------------------------------------------------------------
+# 11. Hyperframes & Launch Video Intermediates
+# Keep rendered launch video (brag.mp4), poster (brag.jpg), and share copy
+# Ignore intermediate composition working trees, fonts, audio caches, and temporary renders
+# ------------------------------------------------------------------------------
+brag-output/composition/
+brag-output/*.tmp
+brag-output/*.poster.mp4
+brag-output-*/

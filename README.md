@@ -13,7 +13,7 @@
 [![Neon Serverless](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle_0.45.2-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
 [![DuckDB OLAP](https://img.shields.io/badge/Analytics-DuckDB--Wasm_In--Memory-FFF000?style=for-the-badge&logo=duckdb&logoColor=black)](docs/TECH_STACK_AND_ARCHITECTURE.md)
-[![Automated Test Suite](https://img.shields.io/badge/Tests-36%2F36_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
+[![Automated Test Suite](https://img.shields.io/badge/Tests-37%2F37_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
 [![Cloudflare Workers](https://img.shields.io/badge/CDN-Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Backblaze B2](https://img.shields.io/badge/Cold_Storage-Backblaze_B2-E01E37?style=for-the-badge&logo=backblaze&logoColor=white)](https://www.backblaze.com/b2/)
 [![Google Gemini](https://img.shields.io/badge/AI_Engine-Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
@@ -32,11 +32,27 @@
 
 | ⚡ Production Readiness | 💰 Operating Cost | 🛡️ Security Architecture | 🧊 Cold Storage | 🦆 In-Memory OLAP | 🧪 Automated Tests |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **36/36 Test Suites (100%)** |
+| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **37/37 Test Suites (100%)** |
 
 <br/>
 
 > **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **Turnkey Open-Source Multi-Vendor E-Commerce Template**. Engineered with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates perpetually on **$0/month free tiers** with zero third-party captchas, zero fake reviews, zero recurring SaaS costs, and zero data loss. Features native Backblaze B2 cold media storage with Cloudflare CDN proxy, zero-cost Google Gemini + Groq AI engines, and interactive 1-click cloud setup.
+
+</div>
+
+---
+
+## 🎬 18-Second Launch Video & Interactive Demo
+
+<div align="center">
+
+[![Aalm Vastralay Launch Video Demo](brag-output/brag.jpg)](brag-output/brag.mp4)
+
+<br/>
+
+**[▶ Click to Watch / Download 18s 1080p Launch Video Demo (with Audio)](brag-output/brag.mp4)**
+
+*Pure Banarasi Handloom • Sub-50ms Catalog Speed • 1-Click WhatsApp Direct Artisan Connect*
 
 </div>
 
