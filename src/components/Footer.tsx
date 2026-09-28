@@ -119,13 +119,12 @@ export default async function Footer() {
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <p className="text-center text-xs text-[color:var(--text-soft)]">
-                © {new Date().getFullYear()} {brand.name}. {brand.copyright}
+                {brand.copyright.startsWith("©")
+                  ? brand.copyright
+                  : `© ${new Date().getFullYear()} ${brand.name}. ${brand.copyright}`}
               </p>
-              <span className="hidden sm:inline text-xs text-[color:var(--text-soft)]/50">·</span>
-              <span className="text-[10px] font-mono text-[color:var(--text-soft)]/60" title="Deploy build version. Hard reload: Ctrl+Shift+R">
-                Build: {process.env.NEXT_PUBLIC_BUILD_ID || "v2.6-prod"}
-              </span>
-              <VersionBadge className="ml-1" />
+              <span className="hidden sm:inline text-xs text-[color:var(--text-soft)]/40">·</span>
+              <VersionBadge className="ml-0.5" />
             </div>
             <p className="text-center text-xs text-[color:var(--text-soft)]">UPI · Cards · Net banking · Cash on Delivery · Prices {commerce.gstInclusive ? "incl." : "excl."} GST</p>
           </div>

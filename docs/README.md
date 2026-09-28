@@ -10,11 +10,12 @@ Welcome to the comprehensive documentation hub for **Aalm Vastralay (आलम �
 | Document | Purpose & Description |
 | :--- | :--- |
 | ⭐ **[MASTER_DEVELOPER_GUIDE.md](MASTER_DEVELOPER_GUIDE.md)** | **PRIMARY REFERENCE** — Full 2000+ word developer & operations manual: architecture diagram, complete `.env` blueprint, cryptographic key generation, step-by-step cloud deployment (Vercel, Neon, Cloudflare Worker, GAS Email, ImageKit), live route & UI catalog, 10-feature E2E test matrix, and troubleshooting runbook. |
+| 🏛️ **[TECH_STACK_AND_ARCHITECTURE.md](TECH_STACK_AND_ARCHITECTURE.md)** | **Deep Technology Stack & Architecture Breakdown** — Layer-by-layer analysis of Next.js 16, React 19, Tailwind 4, Neon, Drizzle, Backblaze B2, PoW Shield, and execution environments. |
 | **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** | Complete end-to-end platform guide: features, architecture, stores, payment methods, and admin customization. |
 | **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** | Step-by-step `.env` configuration guide with Neon, ImageKit, Cloudflare, and Vercel setup. |
 | 🛡️ **[SECRETS_AND_CONFIGURATION_MATRIX.md](SECRETS_AND_CONFIGURATION_MATRIX.md)** | **Master Data & Secret Classification** — Comprehensive plain text vs. private secret matrix, risk levels, and leak prevention. |
 | **[GAS_EMAIL_GUIDE.md](GAS_EMAIL_GUIDE.md)** | 100% Free zero-domain Google Apps Script OTP & email notification engine setup. |
-| **[SETUP.md](SETUP.md)** | Quick-start development setup, local database initialization, and port bindings. |
+| **[SETUP.md](SETUP.md)** | Complete local development (`npm run dev`) and live production setup runbook. |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment manual for Vercel, Cloudflare, and Neon PostgreSQL. |
 | **[ICONS.md](ICONS.md)** | Complete 53-icon matrix, 20 SVG logos (4 colorways), 3 watermarks, and PWA manifest system. |
 | **[BRAND.md](BRAND.md)** | Complete 12-section brand identity specification, typography, usage rules, and voice. |
