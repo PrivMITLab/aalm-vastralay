@@ -70,6 +70,10 @@ cloudflare-worker/wrangler-b2-proxy.toml
 *.sqlite3
 *.db
 *.db-journal
+*.duckdb
+*.duckdb.*
+*.parquet
+.duckdb/
 
 # ------------------------------------------------------------------------------
 # 6. TypeScript, Linter & Tool Caches
@@ -89,6 +93,8 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+playwright-results/
+*.lcov
 
 # ------------------------------------------------------------------------------
 # 8. Operating System Junk & Thumbnails
@@ -136,3 +142,6 @@ tmp/
 temp/
 logs/
 *.log
+*.zip
+*.tar.gz
+
