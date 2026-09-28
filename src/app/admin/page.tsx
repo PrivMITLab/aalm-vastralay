@@ -9,6 +9,7 @@ import { toggleCoupon, toggleStoreActive, updateUserRole } from "@/actions/admin
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
 import SubmitButton from "@/components/SubmitButton";
 import { CategoryForm, CouponForm } from "@/components/admin/AdminForms";
+import KpiCard from "@/components/ui/KpiCard";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin Panel" };
@@ -64,12 +65,44 @@ export default async function AdminPage() {
         </Link>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <Stat icon={<Users className="h-5 w-5" />} label="Users" value={String(stats.users)} sub={`${stats.sellers} sellers`} />
-        <Stat icon={<Store className="h-5 w-5" />} label="Stores" value={String(stats.stores)} sub="registered" />
-        <Stat icon={<Package className="h-5 w-5" />} label="Live products" value={String(stats.products)} sub="active listings" />
-        <Stat icon={<ShoppingCart className="h-5 w-5" />} label="Orders" value={String(stats.orders)} sub={`${stats.pending} in progress`} />
-        <Stat icon={<IndianRupee className="h-5 w-5" />} label="GMV" value={formatINR(stats.gmv)} sub={`≈ ${formatINR(stats.gmv * commissionRate)} at 2.5% post-launch`} />
+      {/* 📊 Bento KPI Grid — hero GMV spans 2 cols on sm+ */}
+      <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+        <KpiCard
+          icon={<IndianRupee className="h-5 w-5" />}
+          label="Total GMV"
+          value={formatINR(stats.gmv)}
+          subLabel={`≈ ${formatINR(stats.gmv * commissionRate)} platform revenue`}
+          accent="gold"
+          colSpan2={true}
+        />
+        <KpiCard
+          icon={<Users className="h-5 w-5" />}
+          label="Users"
+          value={String(stats.users)}
+          subLabel={`${stats.sellers} sellers`}
+          accent="maroon"
+        />
+        <KpiCard
+          icon={<Store className="h-5 w-5" />}
+          label="Stores"
+          value={String(stats.stores)}
+          subLabel="registered"
+          accent="purple"
+        />
+        <KpiCard
+          icon={<Package className="h-5 w-5" />}
+          label="Live Products"
+          value={String(stats.products)}
+          subLabel="active listings"
+          accent="emerald"
+        />
+        <KpiCard
+          icon={<ShoppingCart className="h-5 w-5" />}
+          label="Orders"
+          value={String(stats.orders)}
+          subLabel={`${stats.pending} in progress`}
+          accent="blue"
+        />
       </div>
 
       <section className="card">
@@ -222,16 +255,3 @@ export default async function AdminPage() {
   );
 }
 
-function Stat({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
-  return (
-    <div className="card flex items-center gap-3 p-4">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-maroon-50 text-maroon-700">{icon}</span>
-      <div className="min-w-0">
-        <p className="truncate text-xl font-bold text-maroon-900">{value}</p>
-        <p className="truncate text-xs text-slate-500">
-          {label} · {sub}
-        </p>
-      </div>
-    </div>
-  );
-}

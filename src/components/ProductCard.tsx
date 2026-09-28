@@ -1,6 +1,6 @@
 import type React from "react";
 import Link from "next/link";
-import { Truck, Flame } from "lucide-react";
+import { Heart, ShoppingCart, Truck, Flame } from "lucide-react";
 import type { Product } from "@/db/schema";
 import { firstImage } from "@/lib/media-resolver";
 import { formatINR, freeShippingThreshold } from "@/lib/utils";
@@ -79,6 +79,31 @@ export default function ProductCard({
             <Flame className="h-3 w-3 fill-current animate-pulse" /> केवल {product.stock} शेष!
           </span>
         ) : null}
+
+        {/* ❤️ Wishlist Heart — 44px tap target, top-right overlay */}
+        {!outOfStock && (
+          <button
+            type="button"
+            aria-label={`${product.title} wishlist mein add karein`}
+            className="absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110 hover:bg-white active:scale-95 dark:bg-zinc-900/80 dark:hover:bg-zinc-800 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700 motion-reduce:transition-none"
+          >
+            <Heart className="h-5 w-5 text-maroon-700 dark:text-rose-400" />
+          </button>
+        )}
+
+        {/* 🛒 Quick Add-to-Cart — slides up on desktop hover (hidden on touch/mobile) */}
+        {!outOfStock && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 ease-out group-hover:translate-y-0 group-hover:pointer-events-auto motion-reduce:hidden sm:block hidden">
+            <button
+              type="button"
+              aria-label={`${product.title} cart mein add karein`}
+              className="flex w-full items-center justify-center gap-2 bg-maroon-800 py-3 text-sm font-bold tracking-wide text-amber-100 transition-colors duration-150 hover:bg-maroon-900 active:bg-maroon-950"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Cart Mein Dalein
+            </button>
+          </div>
+        )}
 
         {watermark}
       </div>

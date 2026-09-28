@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { orders, products } from "@/db/schema";
 import { commissionInfo, getSellerContext } from "@/lib/seller";
 import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import KpiCard from "@/components/ui/KpiCard";
 
 export const metadata: Metadata = { title: "Seller Hub" };
 
@@ -70,11 +71,39 @@ export default async function SellerOverview({ searchParams }: { searchParams: P
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat icon={<IndianRupee className="h-5 w-5" />} label="Revenue" value={formatINR(orderStats?.revenue ?? 0)} sub="excl. cancelled/returned" />
-        <Stat icon={<ShoppingCart className="h-5 w-5" />} label="Orders" value={String(orderStats?.total ?? 0)} sub={`${orderStats?.pending ?? 0} need action`} highlight={(orderStats?.pending ?? 0) > 0} />
-        <Stat icon={<Package className="h-5 w-5" />} label="Products" value={String(productStats?.total ?? 0)} sub={`${productStats?.active ?? 0} live`} />
-        <Stat icon={<Star className="h-5 w-5" />} label="Store rating" value={Number(store.rating ?? 0).toFixed(1)} sub={`${store.totalSales} total sales`} />
+      {/* 📊 Bento KPI Grid — Revenue hero spans 2 cols */}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+        <KpiCard
+          icon={<IndianRupee className="h-5 w-5" />}
+          label="Revenue"
+          value={formatINR(orderStats?.revenue ?? 0)}
+          subLabel="excl. cancelled/returned"
+          accent="gold"
+          colSpan2={true}
+        />
+        <KpiCard
+          icon={<ShoppingCart className="h-5 w-5" />}
+          label="Orders"
+          value={String(orderStats?.total ?? 0)}
+          subLabel={`${orderStats?.pending ?? 0} need action`}
+          accent={(orderStats?.pending ?? 0) > 0 ? "maroon" : "blue"}
+          delta={(orderStats?.pending ?? 0) > 0 ? `${orderStats?.pending} pending` : undefined}
+          deltaPositive={false}
+        />
+        <KpiCard
+          icon={<Package className="h-5 w-5" />}
+          label="Products"
+          value={String(productStats?.total ?? 0)}
+          subLabel={`${productStats?.active ?? 0} live`}
+          accent="emerald"
+        />
+        <KpiCard
+          icon={<Star className="h-5 w-5" />}
+          label="Store Rating"
+          value={Number(store.rating ?? 0).toFixed(1)}
+          subLabel={`${store.totalSales} total sales`}
+          accent="purple"
+        />
       </div>
 
       <div className={cn("flex flex-wrap items-center gap-3 rounded-2xl border p-4 text-sm", commission.isFree ? "border-gold-300 bg-gold-100/40" : "border-cream-200 bg-white")}>
@@ -145,16 +174,4 @@ export default async function SellerOverview({ searchParams }: { searchParams: P
   );
 }
 
-function Stat({ icon, label, value, sub, highlight }: { icon: React.ReactNode; label: string; value: string; sub: string; highlight?: boolean }) {
-  return (
-    <div className={cn("card flex items-center gap-4 p-4", highlight && "border-amber-300")}>
-      <span className="grid h-11 w-11 place-items-center rounded-full bg-maroon-50 text-maroon-700">{icon}</span>
-      <div>
-        <p className="text-2xl font-bold text-maroon-900">{value}</p>
-        <p className="text-xs text-slate-500">
-          {label} · {sub}
-        </p>
-      </div>
-    </div>
-  );
-}
+

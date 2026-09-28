@@ -55,12 +55,12 @@ Reading this section gives any agent instant 100% context across the entire repo
 
 ---
 
-## ⚡ SECTION 3: THE 6-STEP EXECUTION LIFECYCLE (MANDATORY DISCIPLINE)
+## ⚡ SECTION 3: THE 7-STEP EXECUTION LIFECYCLE (MANDATORY DISCIPLINE)
 
-Every single feature, bug fix, or refactor MUST follow this exact 6-step lifecycle without skipping:
+Every single feature, bug fix, or refactor MUST follow this exact 7-step lifecycle without skipping:
 
 ```
-[1. Plan & Research] ➔ [2. Add/Edit Code] ➔ [3. Local Compile & Typecheck] ➔ [4. Automated Tests] ➔ [5. Report & Test Instructions] ➔ [6. Commit Locally]
+[1. Plan & Research] ➔ [2. Add/Edit Code] ➔ [3. Local Compile & Typecheck] ➔ [4. Build Verification] ➔ [5. Automated Tests] ➔ [6. Report & Test Instructions] ➔ [7. Commit Locally]
 ```
 
 ### Step 1: Plan & Research
@@ -82,14 +82,41 @@ npm run typecheck    # Must output 0 errors (tsc --noEmit)
 npm run lint         # Must output 0 errors and 0 warnings (eslint .)
 ```
 
-### Step 4: Comprehensive Automated Testing
+### Step 4: Build Verification ⚠️ MANDATORY after every major change
+> **WHY THIS EXISTS:** `tsc --noEmit` only catches TypeScript type errors. It does NOT catch:
+> - Next.js SWC bundler ECMAScript parse errors (e.g., `import dynamic` name collision with `export const dynamic`)
+> - Server / Client boundary violations (`"use client"` on wrong component)
+> - Dynamic `import()` resolution failures at bundle time
+> - Missing `"use client"` directives on components using browser APIs
+>
+> **Lesson (2026-09-28):** CI build failed with SWC ECMAScript error at `page.tsx:8:31` even though local `tsc --noEmit` passed 0 errors. `npm run build` would have caught it before push.
+
+**Run `npm run build` when ANY of these are true:**
+- New `next/dynamic()` or `import()` added
+- New API route (`src/app/api/*/route.ts`) created
+- `"use client"` or `"use server"` directive added/removed
+- New page/layout file (`page.tsx`, `layout.tsx`) added
+- Import renamed or `@/` path alias changed
+- Large refactor touching 3+ files
+- Before every push to remote
+
+```bash
+npm run build        # Must complete with 0 errors
+                     # Verifies SWC compilation + route segment config
+                     # Verifies dynamic import resolution
+                     # Verifies server/client boundary contracts
+```
+
+> **Performance Note:** `npm run build` takes ~30–60s. For tiny isolated CSS/copy changes, typecheck + lint is acceptable. Use judgment.
+
+### Step 5: Comprehensive Automated Testing
 Execute the enterprise test runner:
 ```bash
 npm test             # Must pass 100% of test suites (tests/run-all-tests.ts)
 ```
 - For every new feature or critical fix, **a dedicated test must be written in `tests/`** and registered in `tests/run-all-tests.ts`.
 
-### Step 5: Transparent Change Report & How-To-Test Guide
+### Step 6: Transparent Change Report & How-To-Test Guide
 After completing the changes, you MUST provide the user with:
 1. **Change Inventory:** Exactly what files were **Added**, **Modified**, or **Deleted**, with the precise engineering rationale.
 2. **Step-by-Step Local Testing Instructions:**
@@ -98,7 +125,7 @@ After completing the changes, you MUST provide the user with:
    - Specific user actions to perform (e.g., "Click AI Copywriter button in `/seller/products/new`").
    - Expected behavior and visual verification checklist.
 
-### Step 6: Git Discipline — Atomic Logical Batched Commits (Local Only)
+### Step 7: Git Discipline — Atomic Logical Batched Commits (Local Only)
 > **USER DIRECTIVE: "Tum bs add commit krna main push kr dunga."**
 > **BATCHING DIRECTIVE: "Har chhote change pe alag commit na karo — 2-3 related changes pura hone ke baad logical atomic commit karo."**
 
@@ -157,7 +184,8 @@ After completing the changes, you MUST provide the user with:
 | **Start Local Dev Server** | `npm run dev` | Runs on `http://localhost:3000` |
 | **Verify TypeScript Strict** | `npm run typecheck` | Strict mode check, must have 0 errors |
 | **Run Linter** | `npm run lint` | ESLint 9 + Next.js rules, 0 errors/warnings |
-| **Run All Test Suites** | `npm test` | Runs all 34+ automated enterprise tests |
+| **⚠️ Build Verification** | `npm run build` | SWC + SWC bundler check — MANDATORY before push |
+| **Run All Test Suites** | `npm test` | Runs all 36+ automated enterprise tests |
 | **Run Auto-Migration** | `npm run db:auto-migrate` | Safe zero-loss schema auto-sync |
 | **Verify Brand Icons** | `npm run icons:verify` | Verifies 53-icon matrix and vector logos |
 | **Stage Local Changes** | `git add .` | Stages code locally |

@@ -1,30 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import nextDynamic from "next/dynamic";
 import { getSellerContext } from "@/lib/seller";
 import { ArrowLeft, Store, ShieldCheck } from "lucide-react";
-
-// Dynamic import with ssr: false ensures DuckDB-Wasm runs purely client-side
-const DuckDbAnalyticsStudio = nextDynamic(
-  () => import("@/components/analytics/DuckDbAnalyticsStudio"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-96 items-center justify-center rounded-2xl border border-cream-200 bg-white p-8 shadow-xs">
-        <div className="text-center space-y-3">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-maroon-800 border-t-transparent" />
-          <p className="text-sm font-semibold text-maroon-900">Loading Store Analytics Engine...</p>
-          <p className="text-xs text-slate-500">Preparing isolated DuckDB tables in browser memory</p>
-        </div>
-      </div>
-    ),
-  }
-);
+// Lazy wrapper: next/dynamic + ssr:false defined in separate file to avoid
+// naming collision with `export const dynamic = "force-dynamic"` below.
+import { SellerDuckDbStudio } from "@/components/analytics/DuckDbAnalyticsStudioLazy";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Store Analytics | Seller Hub",
-  description: "Real-time store performance analytics powered by DuckDB in-memory OLAP.",
+  description:
+    "Real-time store performance analytics powered by DuckDB in-memory OLAP.",
 };
 
 export default async function SellerAnalyticsPage() {
@@ -56,7 +42,7 @@ export default async function SellerAnalyticsPage() {
       </div>
 
       {/* DuckDB In-Browser Analytical Studio */}
-      <DuckDbAnalyticsStudio
+      <SellerDuckDbStudio
         apiEndpoint="/api/seller/analytics/dataset"
         portalTitle={`${store.storeName} — Sales Analytics`}
         isSuperAdmin={false}
