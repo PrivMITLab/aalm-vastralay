@@ -10,6 +10,13 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.6](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.5...aalm-vastralay-v0.1.6) (2026-09-28)
+
+
+### 🐛 Bug Fixes
+
+* **security:** module-level safeImgSrc, csp duckdb cdn, hsts header ([6f32e3b](https://github.com/SudhirDevOps1/aalm-vastralay/commit/6f32e3b7140229c2fc25061db429a74ce3c4204f))
+
 ## [0.1.5](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.4...aalm-vastralay-v0.1.5) (2026-09-28)
 
 
