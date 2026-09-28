@@ -10,6 +10,31 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.2](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.1...aalm-vastralay-v0.1.2) (2026-09-28)
+
+
+### ✨ Features
+
+* **ai:** integrate free gemini & groq features with mobile ux overhaul ([e0fa4c5](https://github.com/SudhirDevOps1/aalm-vastralay/commit/e0fa4c52465d4a8955641690a064ca2e75010773))
+
+
+### 🐛 Bug Fixes
+
+* **build:** decouple ProductCard from server-only Watermark ([f0ee65b](https://github.com/SudhirDevOps1/aalm-vastralay/commit/f0ee65b124d22e2fd8c7fa31d1591b0d78c7d0fd))
+* **db:** decouple init from settings server-only, improve bootstrap diagnostics ([306d5e9](https://github.com/SudhirDevOps1/aalm-vastralay/commit/306d5e989c16e07e3451499916bb3f25a397634b))
+* **ui:** resolve product card contrast on hover and controlled admin checkbox ([f6c2cd3](https://github.com/SudhirDevOps1/aalm-vastralay/commit/f6c2cd35d102f6559f8de209a859d006954e9353))
+
+
+### 📖 Documentation
+
+* add tech stack guide and separate env templates ([6512a4f](https://github.com/SudhirDevOps1/aalm-vastralay/commit/6512a4f26c880ef633e200c1c13eb8959b527437))
+* consolidate master RULES.md and remove legacy txt files ([a196110](https://github.com/SudhirDevOps1/aalm-vastralay/commit/a196110293548987552ac9cecb9ca2dd6e5a2408))
+* **env:** update comprehensive master production environment template ([51e9e34](https://github.com/SudhirDevOps1/aalm-vastralay/commit/51e9e34e6d1b0725d71fc174bfa6792f04714ff7))
+* **matrix:** clarify mandatory vs optional variables and service options ([bc8a6ae](https://github.com/SudhirDevOps1/aalm-vastralay/commit/bc8a6ae0f8b1b5e797171185e75101cd44d1dbf2))
+* relocate master RULES.md to docs and purge assistant files ([d2addb1](https://github.com/SudhirDevOps1/aalm-vastralay/commit/d2addb1257d2e4aeecbc23a786d71ce10141fd01))
+* **security:** add comprehensive secrets and configuration matrix ([18d6fb7](https://github.com/SudhirDevOps1/aalm-vastralay/commit/18d6fb7af205db13bdadb40637ce88f19716c52a))
+* synchronize system context, security audit and readme with release 0.1.1 ([d53f18c](https://github.com/SudhirDevOps1/aalm-vastralay/commit/d53f18cfafb3bcd8c88356d23a438db3e2bb436a))
+
 ## [0.1.1](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.0...aalm-vastralay-v0.1.1) (2026-09-27)
 
 
