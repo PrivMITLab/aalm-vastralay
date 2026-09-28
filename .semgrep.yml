@@ -1,0 +1,16 @@
+rules:
+  - id: react-no-dangerously-set-inner-html
+    languages: [typescript, javascript]
+    message: "CAUTION: dangerouslySetInnerHTML bina strict sanitization ke XSS vulnerability create karta hai! DOMPurify ya safe text rendering use karein."
+    severity: ERROR
+    patterns:
+      - pattern: |
+          <$TAG dangerouslySetInnerHTML={{ __html: $EXPR }} />
+      - pattern-not: |
+          <$TAG dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(...) }} />
+
+  - id: no-hardcoded-jwt-secrets
+    languages: [typescript, javascript]
+    message: "CRITICAL: Hardcoded secret key detected! process.env.AUTH_SECRET ya process.env.ENCRYPTION_SECRET use karein."
+    severity: ERROR
+    pattern-regex: '(?i)(secret|jwt_secret|api_key)\s*[:=]\s*["''][a-zA-Z0-9_\-]{16,}["'']'
