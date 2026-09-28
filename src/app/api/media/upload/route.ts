@@ -67,8 +67,23 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ success: false, error: "Invalid or unsupported media URL." }, { status: 400 });
         }
 
-        const isGdrive = canonicalUrl.includes("lh3.googleusercontent.com") || rawUrl.includes("drive.google.com");
-        const detectedSource = isGdrive ? "gdrive" : "external";
+        // CodeQL fix: use URL.hostname instead of .includes() to prevent
+        // substring bypass attacks like "evil.com/lh3.googleusercontent.com"
+        let detectedSource: "gdrive" | "external" = "external";
+        try {
+          const parsed = new URL(canonicalUrl);
+          const hostname = parsed.hostname.toLowerCase();
+          const isGdrive =
+            hostname === "lh3.googleusercontent.com" ||
+            hostname.endsWith(".googleusercontent.com") ||
+            hostname === "drive.google.com" ||
+            hostname === "docs.google.com";
+          detectedSource = isGdrive ? "gdrive" : "external";
+        } catch {
+          // canonicalizeImageUrl already validated this — safe fallback
+          detectedSource = "external";
+        }
+
         const dummyFileName = `${folder}/${detectedSource}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
         const [newAsset] = await db

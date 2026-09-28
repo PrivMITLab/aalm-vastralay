@@ -49,12 +49,39 @@ export default function UniversalMediaPicker({
   // Tab 2: Google Drive
   const [gdriveInput, setGdriveInput] = useState("");
   const [isSavingGdrive, setIsSavingGdrive] = useState(false);
-  const gdrivePreview = gdriveInput.trim() ? canonicalizeImageUrl(gdriveInput.trim()) || null : null;
 
   // Tab 3: External URL
   const [urlInput, setUrlInput] = useState("");
   const [isSavingUrl, setIsSavingUrl] = useState(false);
-  const urlPreview = urlInput.trim() ? canonicalizeImageUrl(urlInput.trim()) || urlInput.trim() : null;
+
+  /**
+   * safeImgSrc — CodeQL fix: Prevents "DOM text reinterpreted as HTML".
+   * Only allows https:// and http:// protocols in img src.
+   * Blocks javascript:, data:, vbscript: and other XSS vectors.
+   * Raw user input is NEVER passed to img src without this guard.
+   */
+  function safeImgSrc(url: string | null): string | null {
+    if (!url) return null;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+        return url;
+      }
+    } catch {
+      // Malformed URL — not safe to display
+    }
+    return null;
+  }
+
+  // gdrivePreview: canonicalize first, then enforce safe protocol
+  const gdrivePreview = gdriveInput.trim()
+    ? safeImgSrc(canonicalizeImageUrl(gdriveInput.trim()) ?? null)
+    : null;
+
+  // urlPreview: canonicalize if possible, fallback to raw only if safe protocol
+  const urlPreview = urlInput.trim()
+    ? safeImgSrc(canonicalizeImageUrl(urlInput.trim()) ?? urlInput.trim())
+    : null;
 
   // Tab 4: Media Library
   const [libraryAssets, setLibraryAssets] = useState<MediaAssetItem[]>([]);
