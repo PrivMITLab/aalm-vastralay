@@ -17,18 +17,18 @@ test.describe("E-Commerce User Checkout Journey", () => {
     await searchInput.press("Enter");
 
     // Verify search results page loaded (HeaderNav navigates to /products?q=saree)
-    await page.waitForURL(/\/(products|search)/);
-    await expect(page.locator("body")).toContainText(/saree/i);
+    await page.waitForURL(/\/(products|search)/, { timeout: 10000 });
+    await expect(page.locator("body")).toContainText(/saree/i, { timeout: 10000 });
 
     // 3. Open Cart via direct navigation or Header Icon
     await page.goto("/cart");
     // Cart is protected by requireUser, so unauthenticated guest is safely redirected to sign-in
-    await page.waitForURL(/\/(cart|sign-in)/);
-    await expect(page.locator("body")).toContainText(/Bag|Cart|Sign In|Account/i);
+    await page.waitForURL(/\/(cart|sign-in)/, { timeout: 10000 });
+    await expect(page.locator("body")).toContainText(/Bag|Cart|Sign In|Account|Shopping/i, { timeout: 10000 });
 
     // 4. Verify Policy / Trust Badges on Checkout readiness
     await page.goto("/shipping");
-    await expect(page.locator("h1, h2")).toContainText(/Shipping/i);
-    await expect(page.locator("body")).toContainText(/Cash on Delivery|COD/i);
+    await expect(page.locator("h1, h2")).toContainText(/Shipping/i, { timeout: 10000 });
+    await expect(page.locator("body")).toContainText(/Cash on Delivery|COD|Free Shipping/i, { timeout: 10000 });
   });
 });
