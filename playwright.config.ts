@@ -42,5 +42,10 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: true,
     timeout: 120 * 1000,
+    env: {
+      AUTH_SECRET: process.env.AUTH_SECRET || "ci-mock-auth-secret-key-32-characters-minimum-length",
+      DATABASE_URL: process.env.DATABASE_URL || "postgresql://mock:mock@localhost:5432/mock",
+      ENCRYPTION_SECRET: process.env.ENCRYPTION_SECRET || "ci-mock-encryption-secret-key-32-characters",
+    },
   },
 });
