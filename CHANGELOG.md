@@ -10,6 +10,21 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.4](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.3...aalm-vastralay-v0.1.4) (2026-09-28)
+
+
+### ✨ Features
+
+* **analytics:** add duckdb-wasm in-memory olap analytics engine ([867f406](https://github.com/SudhirDevOps1/aalm-vastralay/commit/867f40650f9645755fd0f6dc0c833e5d2c4a5c27))
+* **analytics:** add next/dynamic ssr-false isolation for duckdb-wasm ([f5f38ae](https://github.com/SudhirDevOps1/aalm-vastralay/commit/f5f38aef862cc5abd88caac5df9a961bcf4b4a57))
+* **media:** b2 zero class c elimination, universal media picker & setup wizard ([7e261ff](https://github.com/SudhirDevOps1/aalm-vastralay/commit/7e261ff3d44c18d916a68255a1cf6a84670516bf))
+* **security:** lock B2 worker toml in gitignore and add template ([f268dd0](https://github.com/SudhirDevOps1/aalm-vastralay/commit/f268dd06ff1d3e23df58b32a0f0c441cabceb8c8))
+
+
+### 📖 Documentation
+
+* **readme:** polish enterprise presentation and visual layout ([6a07ca0](https://github.com/SudhirDevOps1/aalm-vastralay/commit/6a07ca09cbfc107323bfea17f4142dc804e3f8ef))
+
 ## [0.1.3](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.2...aalm-vastralay-v0.1.3) (2026-09-28)
 
 
