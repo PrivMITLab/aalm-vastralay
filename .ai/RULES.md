@@ -38,6 +38,10 @@
 30. NO Mermaid syntax outside .md files.
 31. NO synthetic or fake reviews. Strictly adhere to BIS IS 19000:2022 (reviews require verified purchase and support edit/delete).
 32. NO hardcoded merchant identities in core components. Support turnkey open-source parameterization via .env.
+33. NO YES-MAN BEHAVIOR ("Haan mein haan mat milana"). When changes/suggestions are proposed, perform live real-time research, weigh objective trade-offs without fluff ("no bakwas"), and select the true professional production-grade approach.
+34. MANDATORY 6-STEP EXECUTION: Plan & Research -> Add/Edit Code -> Local Compile (typecheck + lint) -> Automated Test (100% pass) -> Report Changes & Step-by-Step Test Guide -> Local Commit.
+35. MANDATORY SKELETON STATES (CLS = 0): Every async page, product grid, cart, and recommendations carousel must render exact-dimension skeletons using Tailwind animate-pulse.
+36. ADVANCED PLATFORM TOPOLOGY: Maintain architectural alignment for OpenPanel (cookieless product telemetry), DuckDB (in-process analytical OLAP offloading), and Typesense (sub-50ms instant typo-tolerant search).
 
 ---
 
