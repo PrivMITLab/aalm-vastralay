@@ -1,4 +1,4 @@
-name: CI Verification
+name: 👑 Aalm Vastralay CI & Security Pipeline
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    name: Test, Lint, Typecheck & Build
+    name: 1. Quality, Lint, Typecheck & Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -23,23 +23,102 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Enterprise Tests
-        run: npm test
-
       - name: TypeScript Typecheck
         run: npm run typecheck
 
-      - name: ESLint Check
+      - name: ESLint Standards Check
         run: npm run lint
 
-      - name: Build Verification
+      - name: Run Vitest Unit Tests
+        run: npm run test:unit
+
+      - name: Run Enterprise Test Suite (36/36)
+        run: npm test
+
+      - name: Run Database Tests (Neon / Drizzle)
+        run: npm run test:db
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          NODE_ENV: test
+
+  e2e:
+    name: 2. Playwright E2E & Visual Regression Tests
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Next.js Production App
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
           ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef' }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@aalmvastralay.com' }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'AdminPassword123!' }}
-          NEXT_PUBLIC_SITE_URL: "https://aalmvastralay.com"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
           NODE_ENV: production
+
+      - name: Run Playwright E2E & Accessibility Tests
+        run: npx playwright test tests/e2e/storefront.spec.ts tests/e2e/accessibility.spec.ts
+        env:
+          NODE_ENV: production
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  zap-scan:
+    name: 3. OWASP ZAP Dynamic Security Pentest
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Production App for Local Security Audit
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NODE_ENV: production
+
+      # Background me production server start karke scan karenge (Zero Vercel quota consumed)
+      - name: Start Local Production Server in Background
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      # OWASP ZAP Baseline Scanner (100% Free DAST Security Scanner)
+      - name: OWASP ZAP Baseline Security Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: "http://localhost:3000"
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-a"
+          fail_action: false

@@ -5,21 +5,25 @@
 
 ## 📐 Testing Pyramid Samajhiye (Simple Hinglish)
 
-Testing Pyramid ek strategy hai jo batati hai ki software testing me kaunsa test kitna likhna chahiye:
+Testing Pyramid ek quality strategy hai jo batati hai ki software development me kaunsa test kitna likhna chahiye:
 
-1. **Base Layer (Unit Tests - Sabse Zyada & Fastest):**
-   - Ye pure functions (jaise GST calculation, cart total, email validation) ko test karta hai.
-   - Execution time: < 2 seconds. Memory: Very low.
+1. **Base Layer (Unit Tests - Sabse Fast & Zyada):**
+   - Pure functions (jaise GST calculation, cart total, email validation) ko in-memory test karta hai.
+   - Speed: < 500ms. Cost: ₹0.
 
-2. **Middle Layer (API / Integration Tests):**
-   - Next.js ke API routes ko Drizzle ORM ke mock ke saath test karta hai bina real database ko pollute kiye.
+2. **Integration & Database Layer (API & Neon DB Tests):**
+   - API endpoints ko Drizzle ORM ke saath test karta hai. Real database operations (insert, select, delete) Neon test branch par verify hoti hain.
 
-3. **Performance Layer (Load / Stress Tests):**
-   - k6 engine se 100 concurrent shoppers ek sath simulate karke dekhta hai ki server crash toh nahi hota.
+3. **Performance Layer (Load & Stress Tests):**
+   - Built-in concurrent runners aur k6 engine se 100 simultaneous virtual users ka stress test karta hai.
 
-4. **Top Layer (E2E & Accessibility Tests - Deepest):**
-   - Playwright real Chromium browser kholkar click, search aur checkout journey test karta hai.
-   - `@axe-core/playwright` screen reader accessibility (WCAG 2.1 AA) verify karta hai.
+4. **Top Layer (E2E, Visual & Accessibility Tests):**
+   - Playwright real Chromium browser me poora checkout flow test karta hai.
+   - Visual Regression snapshots se unintentional CSS/UI bugs pakde jaate hain.
+   - `@axe-core/playwright` WCAG 2.1 AA accessibility standards verify karta hai.
+
+5. **Security Layer (OWASP ZAP Dynamic Pentest & CodeQL):**
+   - Running application par automated attack simulation karke injection, XSS aur missing headers scan karta hai.
 
 ---
 
@@ -28,7 +32,7 @@ Testing Pyramid ek strategy hai jo batati hai ki software testing me kaunsa test
 Terminal me direct run karne ke commands:
 
 ```powershell
-# 1. Sabhi 36 Unit & Business Logic Tests:
+# 1. Sabhi 36 Enterprise Business & Security Suites:
 npm test
 
 # 2. Vitest Isolated Unit Tests:
@@ -37,33 +41,67 @@ npm run test:unit
 # 3. Vitest API Integration Tests:
 npm run test:api
 
-# 4. Playwright E2E Real Browser Tests:
+# 4. Drizzle Database Integration Test (Neon Test Branch):
+npm run test:db
+
+# 5. V8 Test Coverage Report:
+npm run test:coverage
+
+# 6. Playwright E2E Storefront Journey:
 npm run test:e2e
 
-# 5. Interactive Playwright UI (Visual Inspector):
-npm run test:e2e:ui
+# 7. Playwright Visual Regression Snapshots:
+npm run test:visual
 
-# 6. Accessibility (WCAG 2.1 AA) Audit:
+# 8. Visual Snapshots Update (Design change hone par baseline update karein):
+npm run test:visual:update
+
+# 9. Accessibility (WCAG 2.1 AA) Audit:
 npm run test:a11y
 
-# 7. Built-in Load & Stress Concurrency Test:
+# 10. Concurrency Load & Stress Test:
 npm run test:load
 
-# 8. k6 High-Load Simulation (100 Users):
-k6 run tests/load/k6-load-test.js
+# 11. k6 High-Load 100-User Simulation:
+npm run test:k6
 ```
 
 ---
 
-## 🛡️ OWASP ZAP Local Pentest Guide (Zero Cost)
+## 🌿 Neon Test Database Branch Setup Guide
 
-Apne local Next.js app par security vulnerability scan karne ke liye:
+Agar aap testing ko production data se 100% isolate rakhna chahte hain:
 
-1. [OWASP ZAP Download](https://www.zaproxy.org/download/) karein (100% Free).
-2. Pehle apna production build start karein:
+1. [Neon Console](https://console.neon.tech) me login karein aur apna **Aalm Vastralay** project select karein.
+2. Left sidebar me **Branches** par click karein -> **Create Branch** button dabayein.
+3. Branch Name me `test-ci` ya `staging` likhein. Base branch `main` select karein (Neon instant zero-cost copy-on-write branch bana deta hai).
+4. `Connection Details` se `postgres://...-pooler...` connection string copy karein.
+5. GitHub Repository me jayein:
+   - **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**.
+   - Name: `DATABASE_URL`
+   - Value: Neon test branch ka connection string paste karein.
+6. Ab CI pipeline automatically test branch use karegi aur production database 100% safe rahega!
+
+---
+
+## 📸 Visual Regression (Playwright Snapshots) Workflow
+
+Jab aap design ya CSS intentionally change karte hain:
+1. Agar aapne header, button, ya typography update ki hai toh visual test baseline difference ki wajah se fail hoga.
+2. Baseline image update karne ke liye ye command chalayein:
    ```powershell
-   npm run start
+   npm run test:visual:update
    ```
-3. OWASP ZAP open karein -> **Automated Scan** select karein.
-4. Target URL me `http://localhost:3000` enter karein aur **Attack** par click karein.
-5. ZAP automated attacks simulate karega (SQL Injection, XSS, Missing Headers) aur complete PDF/HTML report generate kar dega!
+3. Naye golden images save ho jayenge aur future test runs unhi se compare karenge.
+
+---
+
+## 🛡️ OWASP ZAP Dynamic Security Scan (DAST)
+
+GitHub Actions CI me `.github/workflows/ci.yml` automatic baseline scanner run karta hai:
+- Background me local production build start karta hai (`http://localhost:3000`).
+- `zaproxy/action-baseline@v0.14.0` automated attack simulation run karta hai (Zero Vercel quota used).
+- Agar local machine par manually test karna ho toh:
+  1. [OWASP ZAP Download](https://www.zaproxy.org/download/) karein.
+  2. `npm run start` se app start karein.
+  3. ZAP me target `http://localhost:3000` dekar **Attack** click karein.
