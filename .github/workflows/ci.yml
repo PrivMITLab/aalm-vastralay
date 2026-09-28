@@ -71,7 +71,7 @@ jobs:
           NODE_ENV: production
 
       - name: Run Playwright E2E & Accessibility Tests
-        run: npx playwright test tests/e2e/storefront.spec.ts tests/e2e/accessibility.spec.ts
+        run: npx playwright test tests/e2e/storefront.spec.ts tests/e2e/checkout-flow.spec.ts tests/e2e/accessibility.spec.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
