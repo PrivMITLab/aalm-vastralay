@@ -1,0 +1,24 @@
+# ==============================================================================
+# 👑 AALM VASTRALAY — BACKBLAZE B2 PROXY CLOUDFLARE WORKER CONFIGURATION TEMPLATE
+# Location: cloudflare-worker/wrangler-b2-proxy.example.toml
+#
+# ⚠️  DO NOT put real credentials or personal account IDs in this file.
+#     Copy this file to wrangler-b2-proxy.toml (which is gitignored) or run:
+#       Windows:  pwsh scripts/setup-b2-worker.ps1
+#       Mac/Linux: bash scripts/setup-b2-worker.sh
+# ==============================================================================
+
+name = "aalm-b2-proxy"
+main = "b2-proxy.js"
+compatibility_date = "2026-09-20"
+compatibility_flags = ["nodejs_compat"]
+
+# Public Non-Secret Environment Variables
+[vars]
+B2_BUCKET_NAME = "aalm-vastralay-media"
+
+# Cloudflare KV Namespace Binding for B2 Auth Token Caching (23 Hours)
+# Auto-filled by scripts/setup-b2-worker.ps1 or set manually from Cloudflare Dashboard
+[[kv_namespaces]]
+binding = "B2_TOKEN_KV"
+id = "YOUR_KV_NAMESPACE_ID"

@@ -45,7 +45,12 @@ function Write-Info { param([string]$Msg) Write-Host "   ℹ️  $Msg" -Foregrou
 
 $ErrorActionPreference = "Stop"
 $TOML_PATH = "cloudflare-worker/wrangler-b2-proxy.toml"
+$TOML_EXAMPLE = "cloudflare-worker/wrangler-b2-proxy.example.toml"
 $WORKER_DIR = "cloudflare-worker"
+
+if (-not (Test-Path $TOML_PATH) -and (Test-Path $TOML_EXAMPLE)) {
+    Copy-Item $TOML_EXAMPLE $TOML_PATH
+}
 
 Write-Host ""
 Write-Host "╔══════════════════════════════════════════════════════╗" -ForegroundColor Magenta
@@ -99,70 +104,66 @@ if ($accountMatch.Success) {
     }
 }
 
-if ($OnlySecrets) {
-    # Jump straight to secrets
-    goto_secrets
-}
+if (-not $OnlySecrets) {
+    # ─────────────────────────────────────────────
+    # STEP 3: Check/Create KV Namespace
+    # ─────────────────────────────────────────────
+    Write-Step "Checking KV Namespace (B2_TOKEN_KV)..."
+    $kvListJson = npx wrangler kv namespace list --config $TOML_PATH 2>&1 | Select-String "^\[" -Context 0,1000 | Select-Object -First 1
+    $kvListRaw  = npx wrangler kv namespace list --config $TOML_PATH 2>&1 | Out-String
 
-# ─────────────────────────────────────────────
-# STEP 3: Check/Create KV Namespace
-# ─────────────────────────────────────────────
-Write-Step "Checking KV Namespace (B2_TOKEN_KV)..."
-$kvListJson = npx wrangler kv namespace list --config $TOML_PATH 2>&1 | Select-String "^\[" -Context 0,1000 | Select-Object -First 1
-$kvListRaw  = npx wrangler kv namespace list --config $TOML_PATH 2>&1 | Out-String
-
-# Try to parse KV namespace ID from JSON output
-$kvId = ""
-$kvMatches = [regex]::Matches($kvListRaw, '"id"\s*:\s*"([0-9a-f]{32})"')
-$kvTitleMatches = [regex]::Matches($kvListRaw, '"title"\s*:\s*"([^"]+)"')
-for ($i = 0; $i -lt $kvTitleMatches.Count; $i++) {
-    $title = $kvTitleMatches[$i].Groups[1].Value
-    if ($title -like "*B2_TOKEN_KV*" -or $title -eq "B2_TOKEN_KV") {
-        if ($i -lt $kvMatches.Count) {
-            $kvId = $kvMatches[$i].Groups[1].Value
-            Write-Ok "Found existing KV namespace: $kvId"
-            break
+    # Try to parse KV namespace ID from JSON output
+    $kvId = ""
+    $kvMatches = [regex]::Matches($kvListRaw, '"id"\s*:\s*"([0-9a-f]{32})"')
+    $kvTitleMatches = [regex]::Matches($kvListRaw, '"title"\s*:\s*"([^"]+)"')
+    for ($i = 0; $i -lt $kvTitleMatches.Count; $i++) {
+        $title = $kvTitleMatches[$i].Groups[1].Value
+        if ($title -like "*B2_TOKEN_KV*" -or $title -eq "B2_TOKEN_KV") {
+            if ($i -lt $kvMatches.Count) {
+                $kvId = $kvMatches[$i].Groups[1].Value
+                Write-Ok "Found existing KV namespace: $kvId"
+                break
+            }
         }
     }
-}
 
-if (-not $kvId) {
-    Write-Info "KV namespace not found. Creating..."
-    $createOutput = npx wrangler kv namespace create B2_TOKEN_KV --config $TOML_PATH 2>&1 | Out-String
-    $kvIdMatch = [regex]::Match($createOutput, 'id\s*=\s*"([0-9a-f]{32})"')
-    if ($kvIdMatch.Success) {
-        $kvId = $kvIdMatch.Groups[1].Value
-        Write-Ok "KV Namespace created: $kvId"
-    } else {
-        Write-Fail "Could not create KV namespace. Output was:`n$createOutput"
+    if (-not $kvId) {
+        Write-Info "KV namespace not found. Creating..."
+        $createOutput = npx wrangler kv namespace create B2_TOKEN_KV --config $TOML_PATH 2>&1 | Out-String
+        $kvIdMatch = [regex]::Match($createOutput, 'id\s*=\s*"([0-9a-f]{32})"')
+        if ($kvIdMatch.Success) {
+            $kvId = $kvIdMatch.Groups[1].Value
+            Write-Ok "KV Namespace created: $kvId"
+        } else {
+            Write-Fail "Could not create KV namespace. Output was:`n$createOutput"
+        }
     }
+
+    # ─────────────────────────────────────────────
+    # STEP 4: Update wrangler-b2-proxy.toml safely
+    # ─────────────────────────────────────────────
+    Write-Step "Updating wrangler-b2-proxy.toml with account_id and KV id..."
+
+    $tomlContent = Get-Content $TOML_PATH -Raw
+
+    # Update or add account_id
+    if ($tomlContent -match 'account_id\s*=\s*"[^"]*"') {
+        $tomlContent = $tomlContent -replace 'account_id\s*=\s*"[^"]*"', "account_id = `"$accountId`""
+    } else {
+        $tomlContent = $tomlContent -replace '(name\s*=\s*"[^"]*"\s*\n)', "`$1account_id = `"$accountId`"`n"
+    }
+
+    # Update KV namespace id (ensure we do not match account_id)
+    $tomlContent = $tomlContent -replace '(?<!account_)id\s*=\s*"[^"]*"', "id = `"$kvId`""
+
+    Set-Content $TOML_PATH $tomlContent -NoNewline -Encoding UTF8
+    Write-Ok "wrangler-b2-proxy.toml updated (account_id + KV id)"
+    Write-Info "Note: These are non-secret identifiers — safe to commit"
 }
-
-# ─────────────────────────────────────────────
-# STEP 4: Update wrangler-b2-proxy.toml safely
-# ─────────────────────────────────────────────
-Write-Step "Updating wrangler-b2-proxy.toml with account_id and KV id..."
-
-$tomlContent = Get-Content $TOML_PATH -Raw
-
-# Update or add account_id
-if ($tomlContent -match 'account_id\s*=\s*"[^"]*"') {
-    $tomlContent = $tomlContent -replace 'account_id\s*=\s*"[^"]*"', "account_id = `"$accountId`""
-} else {
-    $tomlContent = $tomlContent -replace '(name\s*=\s*"[^"]*"\s*\n)', "`$1account_id = `"$accountId`"`n"
-}
-
-# Update KV namespace id
-$tomlContent = $tomlContent -replace 'id\s*=\s*"[^"]*"', "id = `"$kvId`""
-
-Set-Content $TOML_PATH $tomlContent -NoNewline -Encoding UTF8
-Write-Ok "wrangler-b2-proxy.toml updated (account_id + KV id)"
-Write-Info "Note: These are non-secret identifiers — safe to commit"
 
 # ─────────────────────────────────────────────
 # STEP 5: Set B2 Secrets (Securely)
 # ─────────────────────────────────────────────
-:goto_secrets
 if (-not $SkipSecrets) {
     Write-Step "Setting Backblaze B2 Secrets..."
     Write-Host ""

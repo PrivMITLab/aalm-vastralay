@@ -20,6 +20,10 @@ for arg in "$@"; do
 done
 
 TOML_PATH="cloudflare-worker/wrangler-b2-proxy.toml"
+TOML_EXAMPLE="cloudflare-worker/wrangler-b2-proxy.example.toml"
+if [ ! -f "$TOML_PATH" ] && [ -f "$TOML_EXAMPLE" ]; then
+  cp "$TOML_EXAMPLE" "$TOML_PATH"
+fi
 WORKER_URL=""
 ACCOUNT_ID=""
 KV_ID=""

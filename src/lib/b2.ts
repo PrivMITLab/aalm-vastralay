@@ -105,7 +105,7 @@ export async function getB2DirectUploadCredentials(
   key: string
 ): Promise<PresignResult> {
   const keyId = process.env.B2_KEY_ID;
-  const appKey = process.env.B2_APP_KEY;
+  const appKey = process.env.B2_APP_KEY || process.env.B2_APPLICATION_KEY;
   const bucketId = process.env.B2_BUCKET_ID;
 
   // Fail explicitly — never return a fake token in any environment

@@ -55,6 +55,8 @@ dist/
 # ------------------------------------------------------------------------------
 .wrangler/
 wrangler.log
+cloudflare-worker/wrangler-b2-proxy.toml
+!cloudflare-worker/wrangler-b2-proxy.example.toml
 
 # ------------------------------------------------------------------------------
 # 5. User Uploads, Media & Local Databases

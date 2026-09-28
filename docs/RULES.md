@@ -98,14 +98,19 @@ After completing the changes, you MUST provide the user with:
    - Specific user actions to perform (e.g., "Click AI Copywriter button in `/seller/products/new`").
    - Expected behavior and visual verification checklist.
 
-### Step 6: Git Discipline (Local Commit Only — Never Push)
+### Step 6: Git Discipline — Atomic Logical Batched Commits (Local Only)
 > **USER DIRECTIVE: "Tum bs add commit krna main push kr dunga."**
-- Stage changes: `git add .`
-- Commit locally using Conventional Commits:
+> **BATCHING DIRECTIVE: "Har chhote change pe alag commit na karo — 2-3 related changes pura hone ke baad logical atomic commit karo."**
+
+- **No Micro-Commits:** Do NOT commit on every single tiny line edit, typo fix, or isolated file touch. Running Husky (`tsc` + `eslint` + `commitlint`) on every tiny tweak wastes time and litters the Git history.
+- **Batch Related Changes (Logical Unit of Work):** Complete the cohesive task (e.g., Code + Unit Test + Schema/Docs), verify everything via `npm run typecheck` and `npm test`, then make a clean, meaningful, atomic commit.
+- **Do NOT Create "Mega-Dumps":** Batch related work only. Do not mix unrelated domains (e.g., an AI endpoint fix should not be lumped into an unrelated auth or database schema overhaul).
+- **Commit Format:**
   ```bash
+  git add .
   git commit -m "type(scope): concise subject <= 72 characters" -m "- Detailed bullet point 1`n- Detailed bullet point 2"
   ```
-- **NEVER execute `git push` directly.** The user will review and run `git push target main` themselves.
+- **NEVER execute `git push` directly.** The user will review and run `git push origin main` (or `git push`) themselves.
 
 ---
 
@@ -157,7 +162,7 @@ After completing the changes, you MUST provide the user with:
 | **Verify Brand Icons** | `npm run icons:verify` | Verifies 53-icon matrix and vector logos |
 | **Stage Local Changes** | `git add .` | Stages code locally |
 | **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks |
-| **Remote Push (User Only)** | `git push target main` | Always executed by user, never by agent |
+| **Remote Push (User Only)** | `git push origin main` | Always executed by user, never by agent |
 
 ---
 
