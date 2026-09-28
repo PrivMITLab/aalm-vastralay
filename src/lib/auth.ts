@@ -9,6 +9,7 @@ import { loginAttempts, users, type User } from "@/db/schema";
 import { getSettingBool, getSettingNumber } from "./settings";
 
 export { hashPassword, verifyPassword } from "./password";
+export { auth } from "./better-auth";
 
 /**
  * Session layer with hardened tokens.

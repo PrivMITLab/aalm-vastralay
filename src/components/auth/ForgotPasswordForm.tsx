@@ -1,221 +1,124 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Mail, RefreshCw, ShieldCheck } from "lucide-react";
-import { requestPasswordReset, verifyOtpAndResetPassword } from "@/actions/auth";
-import SubmitButton from "@/components/SubmitButton";
-import BotShield from "@/components/security/BotShield";
-import ClickToSolve from "@/components/security/ClickToSolve";
-import { cn } from "@/lib/utils";
+import React, { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { Mail, ArrowRight, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 
+/**
+ * 👑 AALM VASTRALAY — FORGOT PASSWORD FORM (BETTER AUTH + TAILWIND CSS)
+ *
+ * Interacts with Better Auth client to send a password reset link or OTP.
+ * Styled with luxury Indian ethnic aesthetic (Burgundy #7a1f2b & warm sand).
+ */
 export default function ForgotPasswordForm() {
-  const [step, setStep] = useState<"request" | "reset">("request");
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  /** Click-to-solve gate for the OTP-request step (email-bombing vector). */
-  const [verified, setVerified] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [reqState, reqAction, reqPending] = useActionState(async (prev: unknown, fd: FormData) => {
-    const res = await requestPasswordReset(null, fd);
-    if (res?.success) {
-      setStep("reset");
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setErrorMessage("कृपया एक मान्य ईमेल दर्ज करें (Please enter a valid email address).");
+      return;
     }
-    return res;
-  }, null);
 
-  const [resetState, resetAction, resetPending] = useActionState(verifyOtpAndResetPassword, null);
+    setLoading(true);
+    try {
+      // Calls Better Auth password reset endpoint
+      const { error } = await authClient.forgetPassword.emailOtp({
+        email: cleanEmail,
+      });
+
+      if (error) {
+        setErrorMessage(error.message || "अनुरोध पूरा नहीं हो सका। कृपया पुनः प्रयास करें।");
+      } else {
+        setSuccessMessage(
+          "यदि यह ईमेल हमारे रिकॉर्ड में है, तो पासवर्ड रीसेट लिंक भेज दिया गया है। अपना इनबॉक्स चेक करें।"
+        );
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "अज्ञात त्रुटि हुई (Unexpected error).";
+      setErrorMessage(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Step Indicator Tabs */}
-      <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[color:var(--text-muted)]">
-        <span
-          className={cn(
-            "flex items-center gap-1.5 rounded-full px-3 py-1 transition-all",
-            step === "request"
-              ? "bg-[color:var(--brand)] text-white shadow-xs"
-              : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-          )}
-        >
-          {step === "reset" ? <CheckCircle2 className="h-3.5 w-3.5" /> : "1"}
-          <span>1. OTP भेजें</span>
-        </span>
-        <span className="text-[color:var(--text-soft)]">→</span>
-        <span
-          className={cn(
-            "flex items-center gap-1.5 rounded-full px-3 py-1 transition-all",
-            step === "reset"
-              ? "bg-[color:var(--brand)] text-white shadow-xs"
-              : "bg-[color:var(--surface-2)] text-[color:var(--text-soft)]",
-          )}
-        >
-          2. नया पासवर्ड
-        </span>
+    <div className="w-full max-w-md mx-auto p-6 sm:p-8 bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-xl shadow-stone-900/5">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-serif font-bold text-[#7a1f2b]">पासवर्ड भूल गए?</h2>
+        <p className="text-xs sm:text-sm text-stone-600 mt-1">
+          अपना रजिस्टर्ड ईमेल दर्ज करें, हम आपको पासवर्ड रीसेट करने का लिंक भेजेंगे।
+        </p>
       </div>
 
-      {step === "request" ? (
-        /* STEP 1: Enter email to request 6-digit OTP */
-        <form action={reqAction} className="space-y-4">
+      {successMessage ? (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <div>
-            <label className="label" htmlFor="reset-email">
-              पंजीकृत ईमेल (Registered Email)
+            <p className="font-medium">लिंक भेज दिया गया है!</p>
+            <p className="text-xs text-emerald-700 mt-0.5">{successMessage}</p>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {errorMessage && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs sm:text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="forgot-email" className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
+              ईमेल पता (Email Address)
             </label>
             <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
               <input
-                id="reset-email"
-                name="email"
+                id="forgot-email"
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="input pl-10"
+                placeholder="customer@example.com"
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7a1f2b]/20 focus:border-[#7a1f2b] transition-all"
               />
-              <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[color:var(--text-soft)]" />
             </div>
-            <p className="mt-1.5 text-xs text-[color:var(--text-soft)]">
-              हम आपके ईमेल पर 6-अंकों का गुप्त OTP कोड भेजेंगे (15 मिनट के लिए मान्य)।
-            </p>
           </div>
 
-          <ClickToSolve action="auth" onVerified={setVerified} />
-
-          {reqState?.error && (
-            <div className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-              {reqState.error}
-            </div>
-          )}
-
-          <SubmitButton
-            className="btn btn-primary w-full py-2.5 text-sm font-bold shadow-md"
-            pendingText="OTP भेजा जा रहा है…"
-            disabled={!verified}
-            lockHint="Pehle robot-check verify karo (Verify first)"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-2 py-3 px-4 bg-[#7a1f2b] hover:bg-[#601620] active:scale-[0.99] text-white font-medium text-sm rounded-xl shadow-md shadow-[#7a1f2b]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            6-अंकों का OTP प्राप्त करें →
-          </SubmitButton>
-
-          <div className="text-center pt-2">
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--brand)] hover:underline"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> वापस साइन-इन पर जाएं (Back to Sign in)
-            </Link>
-          </div>
-        </form>
-      ) : (
-        /* STEP 2: Enter 6-digit OTP and new password */
-        <form action={resetAction} className="space-y-4">
-          <input type="hidden" name="email" value={email} />
-
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-xs text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/30 dark:text-emerald-300">
-            <p className="font-semibold">✓ OTP आपके ईमेल पर भेज दिया गया है:</p>
-            <p className="font-mono text-emerald-900 dark:text-emerald-200 truncate">{email}</p>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="label mb-0" htmlFor="reset-otp">
-                6-अंकों का OTP (Enter OTP)
-              </label>
-              <button
-                type="button"
-                onClick={() => setStep("request")}
-                className="text-xs font-semibold text-[color:var(--brand)] hover:underline inline-flex items-center gap-1"
-              >
-                <RefreshCw className="h-3 w-3" /> ईमेल बदलें / Resend
-              </button>
-            </div>
-            <div className="relative mt-1">
-              <input
-                id="reset-otp"
-                name="otp"
-                type="text"
-                required
-                maxLength={6}
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                placeholder="123456"
-                className="input pl-10 text-center tracking-widest font-mono text-lg font-bold"
-              />
-              <KeyRound className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[color:var(--text-soft)]" />
-            </div>
-          </div>
-
-          <div>
-            <label className="label" htmlFor="new-password">
-              नया पासवर्ड (New Password)
-            </label>
-            <div className="relative">
-              <input
-                id="new-password"
-                name="password"
-                type={showPass ? "text" : "password"}
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="कम से कम 6 अक्षर"
-                className="input pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 p-1 text-[color:var(--text-soft)]"
-                aria-label={showPass ? "Hide password" : "Show password"}
-              >
-                {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="label" htmlFor="confirm-password">
-              पासवर्ड की पुष्टि करें (Confirm Password)
-            </label>
-            <input
-              id="confirm-password"
-              name="confirmPassword"
-              type={showPass ? "text" : "password"}
-              required
-              minLength={6}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="पासवर्ड दोबारा दर्ज करें"
-              className="input"
-            />
-          </div>
-
-          <BotShield label="Security Check" />
-
-          {resetState?.error && (
-            <div className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-              {resetState.error}
-            </div>
-          )}
-
-          <SubmitButton className="btn btn-primary w-full py-2.5 text-sm font-bold shadow-md" pendingText="पासवर्ड बदला जा रहा है…">
-            पासवर्ड रीसेट करें और लॉगिन करें →
-          </SubmitButton>
-
-          <div className="text-center pt-2">
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--brand)] hover:underline"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> वापस साइन-इन पर जाएं
-            </Link>
-          </div>
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>भेज रहे हैं...</span>
+              </>
+            ) : (
+              <>
+                <span>रीसेट लिंक भेजें</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
         </form>
       )}
+
+      <div className="mt-6 pt-4 border-t border-stone-100 text-center">
+        <a href="/sign-in" className="text-xs font-medium text-[#7a1f2b] hover:underline">
+          ← साइन इन पर वापस जाएं (Back to Sign In)
+        </a>
+      </div>
     </div>
   );
 }
