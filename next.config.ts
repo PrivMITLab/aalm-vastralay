@@ -26,7 +26,7 @@ const csp = [
     " https://*.githubusercontent.com" +
     " https://placehold.co",
 
-  "media-src 'self' blob: https:",
+  "media-src 'self' blob: https://*.backblazeb2.com https://*.youtube.com https://youtube.com https://player.vimeo.com https://upload.imagekit.io https://*.imagekit.io",
 
   // Workers — DuckDB-Wasm Web Worker needs jsdelivr + blob
   "worker-src 'self' blob: https://cdn.jsdelivr.net",
@@ -60,11 +60,16 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
 ];
 
 
 const nextConfig: NextConfig = {
+  // Disable X-Powered-By header to prevent server technology disclosure (OWASP ZAP 10037)
+  poweredByHeader: false,
+
   // 0. App Version — package.json se version client-side env var mein inject karo
   //    VersionBadge component isko NEXT_PUBLIC_APP_VERSION se read karta hai
   env: {
