@@ -1,111 +1,44 @@
-# Brag Plan: Aalm Vastralay
+# Brag Plan: Aalm Vastralay (आलम वस्त्रालय)
 
 ## What is this app?
-Aalm Vastralay is a luxury, cultural-first Indian ethnic wear B2B/B2C marketplace connecting rural handloom master weavers from Varanasi and Bihar directly to global buyers with sub-50ms catalog speed, 1-click WhatsApp checkout, and zero middlemen markup.
+Aalm Vastralay is a luxury Indian wedding and cultural ethnic wear marketplace connecting families and buyers directly to authentic weavers and boutique collections across Varanasi, Surat, and Bihar. Built with sub-50ms catalog performance, live WhatsApp video viewing, cash on delivery (COD), complimentary fall/pico finishing, and 0% commission for weavers.
 
 ## The angle
-"Real Banarasi heritage is handwoven over weeks, not printed in factories." We deliver a cinematic luxury launch contrasting soulless polyester mass-production with the sacred artistry of Varanasi handloom—backed by radical sub-50ms modern web engineering and direct weaver empowerment.
+**"बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान"**
+A cinematic royal luxury showcase reflecting the real live store: pure handloom Banarasi sarees, opulent bridal lehengas, regal groom sherwanis, and authentic Indian wedding traditions backed by trust, COD, and personalized video-call shopping.
 
-## Hook (first 2-3 seconds)
-Deep royal maroon canvas with shimmering antique gold zari lines framing bold typography:
-**"Stop buying factory-printed ethnic wear."**
-A dramatic audio swell and instant transition into authentic pure silk handloom.
+## Hook (Scene 1: 0.0s – 4.0s)
+- **Top Marquee Ribbon**: Real store banner marquee streaming across: *"बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान ◆ साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन ◆ Call / WhatsApp for Assistance"*
+- **Center**: Grand AV Royal Crest, title **AALM VASTRALAY** (आलम वस्त्रालय), and subtitle **Royal Indian Wedding & Luxury Ethnic Wear**.
+- **Trust Bar**: 100% शुद्ध व प्रामाणिक · कैश ऑन डिलीवरी (COD) · 7-दिन में आसान वापसी · पूरे भारत में सुपरफास्ट डिलीवरी.
 
-## Key moments (the middle)
-1. **Authentic GI-Certified Catalog**: Pure Katan Silk Banarasi Saree (Handwoven 28 days, ₹18,500) with authentic Silk Mark verification badge.
-2. **1-Click WhatsApp Direct Checkout**: Real user flow—tapping "Order on WhatsApp", direct weaver connect, zero checkout friction or login roadblocks.
-3. **Radical Artisan Impact Counter**: DuckDB-powered metrics animating dynamically: 500+ master weavers onboarded, ₹0 platform commissions, 100% genuine weaves.
+## Highlights (Scene 2: 4.0s – 9.5s)
+- **त्योहार व शादी की खरीदारी (Shop by Occasion)**:
+  - Occasion Chips: शादी व बारात, हल्दी सेरेमनी, मेहंदी उत्सव, तिलक व संगीत, रॉयल रिसेप्शन.
+  - **Trio Product Showcase**:
+    1. *Royal Bridal Lehengas & Sets* (Handcrafted Zardozi, Velvet & Heritage Silk) — ₹28,500
+    2. *Regal Groom Sherwanis & Kurtas* (Royal Silhouettes, Stoles & Brooches) — ₹18,900
+    3. *Pure Banarasi & Anarkali Suits* (Authentic Gold Zari Motifs by Varanasi Artisans) — ₹12,800
 
-## Outro / punchline
-The golden Aalm Vastralay royal crest lands with glowing gold aura:
-**"Pure Weaves. Sacred Heritage. Directly from Varanasi."**
-URL & CTA: `aalm-vastralay.vercel.app` · **Shop Handloom Now**.
+## Trust & Experience (Scene 3: 9.5s – 15.0s)
+- **Aalm Vastralay Bharosa (आलम वस्त्रालय का भरोसा)**:
+  - *"हमारे हर कपड़े में शामिल है भारतीय संस्कृति और असली बुनकरी की पहचान"*
+  - **4 Pillars Bento Grid**:
+    1. 🥻 **100% शुद्ध व प्रामाणिक (Pure Fabric)**: Varanasi, Surat aur Bhagalpur ke kushal bunkaron dwara.
+    2. 💵 **कैश ऑन डिलीवरी (Zero Risk COD)**: Pay at Doorstep / UPI (GPay, PhonePe, Cards).
+    3. 📹 **वीडियो कॉल पर देखें (Live WhatsApp Viewing)**: Ghar baithe video call par fabric aur zari ka asli rang dekhein.
+    4. 🪡 **फ्री फॉल, पीको व लटकन (Complimentary Finishing)**: Ready-to-wear finishing compliments aur 7-day hassle-free exchange.
+  - **Artisan Hub**: Boutiques & Weavers: Sell on Aalm Vastralay with 6 Months 0% Commission.
 
-## User flow worth showing
-Browse Handloom Silk Collection → Inspect Pure Katan Silk Banarasi Saree → Tap "Order on WhatsApp" → Instant Order Dispatch Confirmation.
+## Grand Finale & CTA (Scene 4: 15.0s – 20.0s)
+- Shimmering golden royal crest landing with resonant chime.
+- **AALM VASTRALAY** (आलम वस्त्रालय)
+- **“बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान”**
+- Royal Indian Wedding & Luxury Ethnic Wear Marketplace.
+- URL: `aalm-vastralay.vercel.app`
+- Direct Support: `Call / WhatsApp: +91 98765 43210`
 
-## Tone
-- Preset: `polished`
-- Creative direction: Royal Indian luxury heritage meets high-performance sub-50ms engineering
-- Interpretation: Deep reverence for handloom craft with sharp, confident pacing, gold and crimson accents, and clean modern UI elements.
-
-## Format: landscape — 1920x1080
-## Duration: 18.0 seconds
-
-## Visual identity (from the project)
-- Background: Royal Midnight Maroon `#14080e` with warm Silk Cream `#fdfbf7` card surfaces
-- Accent: Regal Antique Gold `#d4af37` / `#b8860b`
-- Text: Pure Silk White `#ffffff` and Charcoal `#1a1a1a`
-- Display font: `Cinzel, 'Playfair Display', serif`
-- Body font: `Inter, -apple-system, sans-serif`
-- Strongest visual element: Handcrafted gold border detailing, verified GI Silk Mark badge, and rich product cards with authentic handloom tags.
-
-## Share copy (draft)
-We built Aalm Vastralay to connect Varanasi's master weavers directly to the world. Pure handloom, 1-click WhatsApp checkout, ₹0 middlemen markup. 🥻✨
-
-## Audio direction
-- Role: Warm, regal corporate bed with modern rhythmic groove
-- Music: `happy-beats-business-moves-vol-1-by-ende-dot-app.mp3`
-- Music treatment: Low swell opening, energetic beat drop on UI reveal, smooth fade under final logo
-- Music cue guidance: Detect cues at composition via Hyperframes beats
-- Audio-reactive treatment: Subtle gold border luminescence reacting to low/mid frequencies
-- SFX posture: Moderate, polished UI clicks, smooth card slide whooshes, and a resonant bell/shimmer on final logo
-- Audio-coupled moments:
-  - 0.0s: Dramatic intro swell
-  - 3.0s: Card slide-in with light UI snap
-  - 8.5s: WhatsApp order button press with tactile click
-  - 14.0s: Metric counter tally ticks
-  - 16.5s: Regal gold crest chime
-- Restraint rule: No harsh buzzers, sirens, or jarring synth noises; maintain luxury Indian aesthetic
-
-## Storyboard
-
-### Scene 1 — The Provocation (Hook) — 3.0s
-Deep maroon canvas with subtle woven zari pattern. Bold gold typography slides in:
-"Stop buying factory-printed ethnic wear."
-Followed by the subtitle:
-"Discover authentic handloom from Varanasi master weavers."
-Sequential/interaction: Text reveals with staggered gold shimmer.
-Audio intent: Intense, cinematic curiosity hook.
-Audio-coupled idea: Subdued ambient pad with gentle chime.
-Music: Building intro.
-Transition mood: Dramatic gold flash cut → Scene 2.
-
-### Scene 2 — The Artisan Showcase — 5.5s
-The Aalm Vastralay digital storefront appears. A luxury product card glides to the center:
-- Title: "Pure Katan Silk Banarasi Saree"
-- Tags: "GI Certified" · "28 Days Handwoven"
-- Price: "₹18,500"
-- Artisan: "Master Weaver Ramnarayan, Varanasi"
-Sequential/interaction: Saree image reveals, gold Silk Mark badge stamps in with high-satisfaction pop.
-Audio intent: Delight, luxury, authenticity.
-Audio-coupled idea: Card slide whoosh + badge stamp SFX.
-Music: Upbeat groove enters.
-Transition mood: Smooth push slide → Scene 3.
-
-### Scene 3 — 1-Click WhatsApp Checkout — 5.5s
-Close-up of the checkout flow.
-Cursor hovers and clicks "Order via WhatsApp".
-An elegant modal slides in instantly:
-"Direct Weaver Connect · WhatsApp Order Initiated · 0% Middlemen Cut"
-A green verified badge pulses with instant delivery dispatch estimate.
-Sequential/interaction: Tap animation → green button state change → instant order summary slide-in.
-Audio intent: Seamless velocity, zero friction.
-Audio-coupled idea: Tactile button click + confirmation chime.
-Music: Energetic rhythm continues.
-Transition mood: Elegant dissolve → Scene 4.
-
-### Scene 4 — The Grand Finale & Call to Action — 4.0s
-Royal Aalm Vastralay golden emblem and crest animates into center:
-"AALM VASTRALAY"
-"Varanasi's Sacred Weaves, Reimagined for the World."
-Badges: "Sub-50ms Speed" · "DuckDB Analytics" · "Zero Middlemen"
-CTA: "Explore the Collection · aalm-vastralay.vercel.app"
-Sequential/interaction: Crest scales in, glowing gold particle aura, badges settle in grid.
-Audio intent: Grand, memorable, trustworthy closure.
-Audio-coupled idea: Resonant gold shimmer chime + final beat resolve.
-Music: Smooth musical fade-out with sustained chord.
-Transition mood: Final hold into poster frame.
-
-**Music mood for this video:** Polished upbeat cultural luxury groove.
-**Audio summary:** From an evocative opening hook into a confident rhythmic demonstration of Varanasi handloom and 1-tap checkout, ending in a regal crest payoff.
+## Format & Timing
+- Format: landscape (1920x1080)
+- Duration: 20.0s @ 30fps (600 frames rendered)
+- Audio: Royal rhythmic Indian soundbed with whoosh, tactile click, and finale chime cues.
