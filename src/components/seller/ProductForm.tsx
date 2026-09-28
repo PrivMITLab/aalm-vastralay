@@ -6,6 +6,7 @@ import { saveProduct } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
 import type { Product, ProductVariant } from "@/db/schema";
 import { resolveThumbnail, sanitizeImageUrl } from "@/lib/media-resolver";
+import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionButton";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -40,6 +41,8 @@ function safeThumbnailUrl(rawUrl: string): string {
 export default function ProductForm({ categories, product }: { categories: CategoryOption[]; product?: (Product & { variants: ProductVariant[] }) | null }) {
   const [state, action] = useActionState(saveProduct, null);
   const [images, setImages] = useState((product?.images ?? []).join("\n"));
+  const [description, setDescription] = useState(product?.description ?? "");
+  const [tags, setTags] = useState((product?.tags ?? []).join(", "));
   const [variants, setVariants] = useState<VariantRow[]>(
     (product?.variants ?? []).map((v) => ({ key: nextKey(), id: v.id, size: v.size ?? "", color: v.color ?? "", stock: v.stock, priceAdjustment: v.priceAdjustment, sku: v.sku ?? "" })),
   );
@@ -175,16 +178,55 @@ export default function ProductForm({ categories, product }: { categories: Categ
             </div>
           </div>
           <div>
-            <label className="label" htmlFor="description">
-              Description
-            </label>
-            <textarea id="description" name="description" className="input min-h-36" defaultValue={product?.description ?? ""} placeholder="Fabric, work, what's included, care instructions, blouse details…" maxLength={5000} />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="label mb-0" htmlFor="description">
+                Description
+              </label>
+              <GenerateDescriptionButton
+                getTitle={() => {
+                  const el = document.getElementById("title") as HTMLInputElement | null;
+                  return el?.value ?? "";
+                }}
+                getCategoryName={() => {
+                  const el = document.getElementById("categoryId") as HTMLSelectElement | null;
+                  return el?.selectedOptions?.[0]?.text ?? "";
+                }}
+                getPrice={() => {
+                  const el = document.getElementById("price") as HTMLInputElement | null;
+                  return el?.value ? Number(el.value) : undefined;
+                }}
+                onApplyDescription={(text) => setDescription(text)}
+                onApplyTags={(newTags) => {
+                  setTags((prev) => {
+                    const existing = prev.split(",").map((s) => s.trim()).filter(Boolean);
+                    const merged = Array.from(new Set([...existing, ...newTags]));
+                    return merged.join(", ");
+                  });
+                }}
+              />
+            </div>
+            <textarea
+              id="description"
+              name="description"
+              className="input min-h-36"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Fabric, work, what's included, care instructions, blouse details…"
+              maxLength={5000}
+            />
           </div>
           <div>
             <label className="label" htmlFor="tags">
               Tags (comma separated)
             </label>
-            <input id="tags" name="tags" className="input" defaultValue={(product?.tags ?? []).join(", ")} placeholder="bridal, lehenga, zardozi, red" />
+            <input
+              id="tags"
+              name="tags"
+              className="input"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="bridal, lehenga, zardozi, red"
+            />
           </div>
         </section>
 

@@ -13,6 +13,7 @@ import { formatINR, gridClass } from "@/lib/utils";
 import FestiveOccasionsBar from "@/components/home/FestiveOccasionsBar";
 import IndiaTrustStrip from "@/components/home/IndiaTrustStrip";
 import HeroCarousel from "@/components/home/HeroCarousel";
+import PersonalizedRecommendations from "@/components/home/PersonalizedRecommendations";
 
 export const revalidate = 120;
 
@@ -243,6 +244,14 @@ export default async function HomePage() {
 
       {/* ---------------- Indian Authenticity & Trust Badges Strip ---------------- */}
       <IndiaTrustStrip />
+
+      {/* ---------------- AI Personalized Recommendations ---------------- */}
+      <section className="mx-auto max-w-7xl px-4">
+        <PersonalizedRecommendations
+          title="खास आपके लिए — Curated For You"
+          subtitle="Based on your taste, festive aesthetics, and recent interest"
+        />
+      </section>
 
       {/* ---------------- seller CTA ---------------- */}
       {sectionOn("sellerCta") && (

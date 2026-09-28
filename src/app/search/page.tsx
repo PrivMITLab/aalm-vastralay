@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, lte, or, sql, type SQL } from "drizzle-orm";
 import { ChevronRight, Search, SearchX, Sparkles, Tag } from "lucide-react";
 import { db } from "@/db";
 import { products, stores } from "@/db/schema";
 import ProductCard from "@/components/ProductCard";
+import { parseEthnicQueryDeterministic, type ParsedSearchIntent } from "@/lib/ai/search-parser";
 
 export const revalidate = 300;
 
@@ -52,6 +53,10 @@ export default async function SearchPage({
 }) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
+  const intent: ParsedSearchIntent | null = q ? parseEthnicQueryDeterministic(q) : null;
+  const hasAiFilters = Boolean(
+    intent && (intent.maxPrice || intent.minPrice || intent.occasion || intent.color || intent.fabric || intent.categorySlug)
+  );
 
   let results: {
     product: typeof products.$inferSelect;
@@ -61,16 +66,42 @@ export default async function SearchPage({
 
   if (q) {
     try {
-      const conditions: SQL[] = [eq(products.isActive, true)];
+      const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
 
-      conditions.push(
-        or(
-          sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
-          ilike(products.title, `%${q}%`),
-          ilike(products.description, `%${q}%`),
-          sql`${q.toLowerCase()} = ANY(${products.tags})`
-        )!
-      );
+      if (intent?.maxPrice) {
+        conditions.push(lte(products.price, intent.maxPrice));
+      }
+      if (intent?.minPrice) {
+        conditions.push(gte(products.price, intent.minPrice));
+      }
+
+      const searchTerms = [
+        ...(intent?.color ? [intent.color.toLowerCase()] : []),
+        ...(intent?.fabric ? [intent.fabric.toLowerCase()] : []),
+        ...(intent?.occasion ? [intent.occasion.toLowerCase()] : []),
+        ...(intent?.categoryName ? [intent.categoryName.toLowerCase()] : []),
+        ...(intent?.keywords ?? []).map((k) => k.toLowerCase()),
+      ];
+
+      if (searchTerms.length > 0) {
+        const termOrs: SQL[] = [];
+        for (const t of searchTerms.slice(0, 6)) {
+          termOrs.push(
+            ilike(products.title, `%${t}%`),
+            ilike(products.description, `%${t}%`),
+            sql`${t} = ANY(${products.tags})`
+          );
+        }
+        conditions.push(or(...termOrs)!);
+      } else {
+        conditions.push(
+          or(
+            ilike(products.title, `%${q}%`),
+            ilike(products.description, `%${q}%`),
+            sql`${q.toLowerCase()} = ANY(${products.tags})`
+          )!
+        );
+      }
 
       results = await db
         .select({
@@ -83,6 +114,21 @@ export default async function SearchPage({
         .where(and(...conditions))
         .orderBy(desc(products.isFeatured), desc(products.createdAt))
         .limit(48);
+
+      // Fallback if 0 results were found
+      if (results.length === 0) {
+        results = await db
+          .select({
+            product: products,
+            storeName: stores.storeName,
+            storeSlug: stores.slug,
+          })
+          .from(products)
+          .leftJoin(stores, eq(products.storeId, stores.id))
+          .where(and(eq(products.isActive, true), eq(stores.isActive, true), or(ilike(products.title, `%${q}%`), ilike(products.description, `%${q}%`))))
+          .orderBy(desc(products.isFeatured), desc(products.createdAt))
+          .limit(48);
+      }
     } catch (err) {
       console.warn("[SearchPage] Search query error:", err);
     }
@@ -128,6 +174,40 @@ export default async function SearchPage({
                 ? `Found ${results.length} authentic products matching your criteria.`
                 : "Type keywords or select a popular ethnic search term below."}
             </p>
+
+            {/* Smart AI Filter Intent Chips */}
+            {hasAiFilters && intent && (
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60">
+                  <Sparkles className="h-3 w-3" /> AI Filters:
+                </span>
+                {intent.occasion && (
+                  <span className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] text-[color:var(--text)]">
+                    🎉 {intent.occasion}
+                  </span>
+                )}
+                {intent.categoryName && (
+                  <span className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] text-[color:var(--text)]">
+                    👗 {intent.categoryName}
+                  </span>
+                )}
+                {intent.color && (
+                  <span className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] text-[color:var(--text)]">
+                    🎨 {intent.color}
+                  </span>
+                )}
+                {intent.fabric && (
+                  <span className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] text-[color:var(--text)]">
+                    🧵 {intent.fabric}
+                  </span>
+                )}
+                {intent.maxPrice && (
+                  <span className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                    💰 Max: ₹{intent.maxPrice.toLocaleString("en-IN")}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Search form in page */}

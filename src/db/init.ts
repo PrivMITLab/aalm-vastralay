@@ -238,6 +238,27 @@ const TABLE_DDL_STATEMENTS = [
     "challenge_hash" text PRIMARY KEY NOT NULL,
     "used_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
+
+  `CREATE TABLE IF NOT EXISTS "user_activity" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE,
+    "guest_id" text,
+    "activity_type" text NOT NULL,
+    "product_id" uuid REFERENCES "products"("id") ON DELETE CASCADE,
+    "search_query" text,
+    "metadata" jsonb DEFAULT '{}'::jsonb,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS "ai_cache" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    "cache_key" text NOT NULL UNIQUE,
+    "feature" text NOT NULL,
+    "response" jsonb NOT NULL,
+    "hit_count" integer DEFAULT 1 NOT NULL,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
 ];
 
 const INDEX_DDL_STATEMENTS = [
@@ -260,6 +281,11 @@ const INDEX_DDL_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "idx_reviews_product_verified" ON "reviews" ("product_id", "is_verified")`,
   `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')))`,
   `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at")`,
+  `CREATE INDEX IF NOT EXISTS "idx_user_activity_user" ON "user_activity" ("user_id")`,
+  `CREATE INDEX IF NOT EXISTS "idx_user_activity_guest" ON "user_activity" ("guest_id")`,
+  `CREATE INDEX IF NOT EXISTS "idx_user_activity_product" ON "user_activity" ("product_id")`,
+  `CREATE INDEX IF NOT EXISTS "idx_user_activity_created" ON "user_activity" ("created_at")`,
+  `CREATE INDEX IF NOT EXISTS "idx_ai_cache_key" ON "ai_cache" ("cache_key")`,
 ];
 
 /**
@@ -301,6 +327,8 @@ export async function autoEnsureTables() {
     await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'info' NOT NULL;`));
     await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL;`));
     await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`));
+    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "user_activity" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "guest_id" text, "activity_type" text NOT NULL, "product_id" uuid REFERENCES "products"("id") ON DELETE CASCADE, "search_query" text, "metadata" jsonb DEFAULT '{}'::jsonb, "created_at" timestamptz DEFAULT now());`));
+    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "ai_cache" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "cache_key" text NOT NULL UNIQUE, "feature" text NOT NULL, "response" jsonb NOT NULL, "hit_count" integer DEFAULT 1 NOT NULL, "created_at" timestamptz DEFAULT now(), "updated_at" timestamptz DEFAULT now());`));
   } catch {
     // Non-fatal if columns/indexes exist
   }

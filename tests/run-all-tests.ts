@@ -31,6 +31,7 @@ import { runHeroCarouselTests } from "./unit/hero-carousel.test";
 import { testFailClosedSecrets } from "./unit/fail-closed-secrets.test";
 import { testSaveChangesAndSecurityFix } from "./unit/save-changes-and-security-fix.test";
 import { testOpenSourceTemplateIntegrity } from "./unit/open-source-template.test";
+import { runAiIntegrationTests } from "./ai-integration.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -73,6 +74,7 @@ async function runAllTests() {
     { name: "Fail-Closed Secrets, Presign 503 & Courier Label 400", fn: testFailClosedSecrets },
     { name: "DB Transient Retry Armor, PoW Agreement & Anti-Enumeration", fn: testSaveChangesAndSecurityFix },
     { name: "Open-Source Turnkey Template & Zero-PII Integrity", fn: testOpenSourceTemplateIntegrity },
+    { name: "Free AI Engine & Hinglish NLP Search Intent", fn: runAiIntegrationTests },
   ];
 
   for (const suite of suites) {

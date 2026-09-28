@@ -22,6 +22,7 @@ import PincodeEstimator from "@/components/product/PincodeEstimator";
 import WhatsAppShare from "@/components/product/WhatsAppShare";
 import WhatsAppConsultButton from "@/components/product/WhatsAppConsultButton";
 import MobileStickyBar from "@/components/product/MobileStickyBar";
+import PersonalizedRecommendations from "@/components/home/PersonalizedRecommendations";
 
 export const revalidate = 60;
 
@@ -432,6 +433,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
       )}
+
+      {/* AI Personalized Recommendations based on this item and user views */}
+      <PersonalizedRecommendations
+        currentProductId={product.id}
+        title="मिलते-जुलते अन्य विकल्प (You May Also Love)"
+        subtitle="AI-curated recommendations based on your preferences and this collection"
+        limit={4}
+      />
 
       {/* Mobile Sticky Action Bar for quick purchase & WhatsApp consultation */}
       <MobileStickyBar

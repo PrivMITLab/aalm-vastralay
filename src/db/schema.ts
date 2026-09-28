@@ -338,6 +338,40 @@ export const powUsed = pgTable(
   (t) => [index("idx_pow_used_at").on(t.usedAt)],
 );
 
+export const userActivity = pgTable(
+  "user_activity",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    guestId: text("guest_id"),
+    activityType: text("activity_type").notNull(), // 'view' | 'search' | 'cart'
+    productId: uuid("product_id").references(() => products.id, { onDelete: "cascade" }),
+    searchQuery: text("search_query"),
+    metadata: jsonb("metadata").default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("idx_user_activity_user").on(t.userId),
+    index("idx_user_activity_guest").on(t.guestId),
+    index("idx_user_activity_product").on(t.productId),
+    index("idx_user_activity_created").on(t.createdAt),
+  ],
+);
+
+export const aiCache = pgTable(
+  "ai_cache",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cacheKey: text("cache_key").notNull().unique(), // sha256 hash of prompt/payload
+    feature: text("feature").notNull(), // 'description' | 'search' | 'recommendation'
+    response: jsonb("response").notNull(),
+    hitCount: integer("hit_count").default(1).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("idx_ai_cache_key").on(t.cacheKey)],
+);
+
 /* ---------------------------- relations ---------------------------- */
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -411,6 +445,8 @@ export type Address = typeof addresses.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type PowUsed = typeof powUsed.$inferSelect;
+export type UserActivity = typeof userActivity.$inferSelect;
+export type AiCache = typeof aiCache.$inferSelect;
 
 export const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
