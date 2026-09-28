@@ -154,3 +154,10 @@ brag-output/composition/
 brag-output/*.tmp
 brag-output/*.poster.mp4
 brag-output-*/
+
+# ------------------------------------------------------------------------------
+# 12. Local Agent Skills & Large Tool Assets
+# Ignore large audio assets, sound effects, and scripts installed via skill add
+# ------------------------------------------------------------------------------
+.agents/skills/brag/
+.agents/
