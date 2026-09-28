@@ -28,7 +28,7 @@ test.describe("E-Commerce User Checkout Journey", () => {
 
     // 4. Verify Policy / Trust Badges on Checkout readiness
     await page.goto("/shipping");
-    await expect(page.locator("h1, h2")).toContainText(/Shipping/i, { timeout: 10000 });
+    await expect(page.locator("h1").first()).toContainText(/Shipping/i, { timeout: 10000 });
     await expect(page.locator("body")).toContainText(/Cash on Delivery|COD|Free Shipping/i, { timeout: 10000 });
   });
 });

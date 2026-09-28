@@ -25,12 +25,15 @@ export const users = pgTable(
   "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    clerkId: text("clerk_id").notNull().unique(),
+    clerkId: text("clerk_id").notNull().unique().default(sql`'local_' || gen_random_uuid()::text`),
     email: text("email").notNull().unique(),
     fullName: text("full_name"),
+    name: text("name"),
     phone: text("phone"),
     role: text("role").notNull().default("customer"),
     avatarUrl: text("avatar_url"),
+    image: text("image"),
+    emailVerified: boolean("email_verified").default(false).notNull(),
     // Scrypt-hashed password for self-hosted Better Auth credentials.
     passwordHash: text("password_hash"),
     resetOtp: text("reset_otp"),
@@ -41,6 +44,46 @@ export const users = pgTable(
   },
   (t) => [check("users_role_check", sql`${t.role} IN ('customer','seller','admin')`)],
 );
+
+/* ------------------------------------------------------------------ */
+/*  Better Auth Core Tables (session, account, verification)          */
+/* ------------------------------------------------------------------ */
+
+export const session = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const account = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const verification = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const stores = pgTable("stores", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -38,10 +38,38 @@ export const auth = betterAuth({
     provider: "pg",
     schema: {
       ...schema,
-      // Map Better Auth user entity to existing users table
+      // Map Better Auth entities to Drizzle tables
       user: schema.users,
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification,
     },
   }),
+  user: {
+    modelName: "users",
+    fields: {
+      name: "fullName",
+      image: "avatarUrl",
+    },
+  },
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? {
+          github: {
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          },
+        }
+      : {}),
+  },
   secret:
     process.env.AUTH_SECRET ||
     process.env.BETTER_AUTH_SECRET ||

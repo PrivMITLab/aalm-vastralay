@@ -273,6 +273,42 @@ const TABLE_DDL_STATEMENTS = [
     "metadata" jsonb DEFAULT '{}'::jsonb,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
+
+  `CREATE TABLE IF NOT EXISTS "session" (
+    "id" text PRIMARY KEY NOT NULL,
+    "expires_at" timestamp with time zone NOT NULL,
+    "token" text NOT NULL UNIQUE,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "ip_address" text,
+    "user_agent" text,
+    "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS "account" (
+    "id" text PRIMARY KEY NOT NULL,
+    "account_id" text NOT NULL,
+    "provider_id" text NOT NULL,
+    "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+    "access_token" text,
+    "refresh_token" text,
+    "id_token" text,
+    "access_token_expires_at" timestamp with time zone,
+    "refresh_token_expires_at" timestamp with time zone,
+    "scope" text,
+    "password" text,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS "verification" (
+    "id" text PRIMARY KEY NOT NULL,
+    "identifier" text NOT NULL,
+    "value" text NOT NULL,
+    "expires_at" timestamp with time zone NOT NULL,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+  )`,
 ];
 
 const INDEX_DDL_STATEMENTS = [
@@ -329,11 +365,15 @@ export async function autoEnsureTables() {
     }
   }
 
-  // Safe zero-loss migration for password reset OTP, users is_active, and UPI UTR fields
+  // Safe zero-loss migration for password reset OTP, users is_active, Better Auth fields, and UPI UTR fields
   try {
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
     await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "is_active" boolean DEFAULT true NOT NULL;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "name" text;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "image" text;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false NOT NULL;`));
+    await db.execute(sql.raw(`ALTER TABLE "users" ALTER COLUMN "clerk_id" SET DEFAULT ('local_' || gen_random_uuid()::text);`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`));
     await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`));
