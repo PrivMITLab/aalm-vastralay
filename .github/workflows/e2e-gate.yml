@@ -1,0 +1,231 @@
+# ==============================================================================
+# ⚠️ ETHICAL USAGE NOTICE
+# ==============================================================================
+# Yeh workflow sirf legitimate CI/CD ke liye hai:
+#   ✅ Code build, test, lint, security scan
+#   ✅ Release automation, dependency audit
+#
+# 🚫 PROHIBITED USES (GitHub Account Ban Ho Jayega):
+#   ❌ Crypto mining
+#   ❌ Spam/unauthorized automation
+#   ❌ Any use violating GitHub Terms of Service
+#
+# Public repo hone ki wajah se GitHub Actions unlimited FREE hai, lekin
+# misuse par GitHub turant account suspend kar sakta hai.
+# ==============================================================================
+
+# ============================================================================
+# DARWAZA 2 — HEAVY MERGE GATE
+# Triggered ONLY on pull_request to main (runs before merge is allowed)
+# Jobs: Playwright E2E (screenshots/video/trace artifacts) +
+#        OWASP ZAP DAST (local server scan, report artifact) +
+#        CodeQL AST (semantic SAST, GitHub Security tab)
+#
+# Branch Protection Required Status Checks (GitHub Settings → Branches → main):
+#   • "🎭 Playwright E2E (Desktop Chrome + Mobile)"
+#   • "🕷️ ZAP DAST Merge Scan"
+#   • "🔬 CodeQL Merge Scan"
+#
+# fail_action: false on ZAP → PR ne sirf report dega, hard-block nahi karega
+# (ZAP report Advisory hoga; real block Playwright + CodeQL karte hain)
+# ============================================================================
+
+name: 🚀 E2E + ZAP + CodeQL — PR Merge Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'public/brand/**'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '22'
+
+# Cancel previous runs on same PR — naye push ka run hi chalega
+concurrency:
+  group: e2e-gate-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write  # CodeQL SARIF → GitHub Security tab
+  issues: write           # ZAP auto Issue creation
+
+jobs:
+  # ============================================================================
+  # JOB 1: PLAYWRIGHT E2E (Real Browser Tests — Screenshot + Video + Trace)
+  # ============================================================================
+  playwright-e2e:
+    name: 🎭 Playwright E2E (Desktop Chrome + Mobile)
+    runs-on: ubuntu-latest   # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'   # 👈 Rule 2: Always enable npm cache
+
+      - name: 📦 Clean Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🌐 Install Playwright Browsers (Chromium + WebKit)
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: 🏗️ Build Production App
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NEXT_PUBLIC_SITE_URL: 'http://localhost:3000'
+          NODE_ENV: production
+
+      - name: 🎭 Run Playwright E2E Test Suite
+        run: npx playwright test --reporter=list,html
+        env:
+          CI: true
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NEXT_PUBLIC_SITE_URL: 'http://localhost:3000'
+          NODE_ENV: production
+
+      - name: 📊 Upload Playwright Report (Screenshots + Video + Trace)
+        uses: actions/upload-artifact@v4
+        if: always()   # Fail hone pe bhi artifacts milein
+        with:
+          name: playwright-report-pr-${{ github.event.pull_request.number }}
+          path: playwright-report/
+          retention-days: 30
+
+  # ============================================================================
+  # JOB 2: OWASP ZAP DAST (Dynamic Pentest — Local Server Scan)
+  # ============================================================================
+  zap-merge-scan:
+    name: 🕷️ ZAP DAST Merge Scan
+    runs-on: ubuntu-latest   # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 25
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'   # 👈 Rule 2: Always enable npm cache
+
+      - name: 📦 Clean Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build Production App for ZAP Scan
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NEXT_PUBLIC_SITE_URL: 'http://127.0.0.1:3000'
+          NODE_ENV: production
+
+      - name: 🚀 Start Local Production Server
+        run: |
+          nohup npm run start > /tmp/next-zap.log 2>&1 &
+          npx wait-on http://127.0.0.1:3000 --timeout 90000
+          curl -sf http://127.0.0.1:3000 > /dev/null || (cat /tmp/next-zap.log && exit 1)
+          echo "✅ Server is live and responding"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NODE_ENV: production
+
+      - name: 🕷️ OWASP ZAP Baseline DAST Scan (PR Advisory — Non-Blocking)
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'http://127.0.0.1:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-m 3 -T 5 -P 8090'
+          fail_action: false   # Report milti hai, PR block nahi hoga (advisory mode)
+
+      - name: 📄 Upload ZAP HTML Security Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-report-pr-${{ github.event.pull_request.number }}
+          path: report_html.html
+          retention-days: 30
+
+  # ============================================================================
+  # JOB 3: CODEQL DEEP SEMANTIC AST ANALYSIS (SAST — GitHub Security Tab)
+  # ============================================================================
+  codeql-merge-scan:
+    name: 🔬 CodeQL Merge Scan
+    runs-on: ubuntu-latest   # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript']
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔬 Initialize CodeQL Engine
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'   # 👈 Rule 2: Always enable npm cache
+
+      - name: 📦 Install Dependencies for CodeQL Scan
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Perform Deep CodeQL AST Security Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
+
+  # ============================================================================
+  # JOB 4: MERGE GATE SUMMARY (GitHub Actions Tab mein beautiful dashboard)
+  # ============================================================================
+  merge-gate-summary:
+    name: 📊 PR Merge Gate Summary
+    needs: [playwright-e2e, zap-merge-scan, codeql-merge-scan]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📝 Post PR Gate Summary
+        run: |
+          echo "## 🚀 PR Merge Gate — Aalm Vastralay" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🎭 Playwright E2E (Desktop Chrome + Mobile) | ${{ needs.playwright-e2e.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🕷️ ZAP DAST Merge Scan | ${{ needs.zap-merge-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔬 CodeQL Merge Scan | ${{ needs.codeql-merge-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> 🔐 **Branch Protection Required:** Playwright E2E + CodeQL must be green before merge is permitted." >> $GITHUB_STEP_SUMMARY
+          echo "> 📄 **Artifacts:** Download \`playwright-report\` + \`zap-report\` from Actions → Artifacts." >> $GITHUB_STEP_SUMMARY
