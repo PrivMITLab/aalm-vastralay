@@ -53,17 +53,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Run Release Please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v4.7.1
         with:
           # Google's release-please config file use karo
           config-file: release-please-config.json
           # Manifest file (current version track karta hai)
           manifest-file: .release-please-manifest.json
-          # Try custom PAT if configured, otherwise fallback to standard GITHUB_TOKEN
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN != '' && secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # Use native repository GITHUB_TOKEN with granted contents:write & pull-requests:write
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # ==========================================================================
   # OPTIONAL: Agar release hua to Vercel ko notify karo (redeploy trigger)
