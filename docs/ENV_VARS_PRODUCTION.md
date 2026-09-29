@@ -90,11 +90,16 @@ node -e "console.log('aalm_gas_mail_' + require('crypto').randomBytes(16).toStri
 | `B2_BUCKET_ID` | **Yes** | Vercel | `4a5b6c7d8e9f0123456789ab` | Backblaze Console -> Buckets -> Bucket ID |
 | `B2_BUCKET_NAME` | **Yes** | Vercel, CF Worker | `aalm-vastralay-media` | Backblaze Bucket Name |
 
-### 5. Transactional Email & Notifications (Google Apps Script)
+### 5. Transactional Email Engine (Dual Hybrid: SMTP 500/day + GAS 100/day)
 | Variable | Required | Scope | Description & Production Example | Where to Obtain |
 |:---|:---:|:---|:---|:---|
-| `GAS_WEBHOOK_URL` | **Yes** | Vercel, Local Prod | `https://script.google.com/macros/s/AKfycb.../exec` | [Google Apps Script](https://script.google.com) -> Deploy -> Web app URL |
-| `GAS_SECRET_TOKEN` | **Yes** | Vercel, GAS Script | `aalm_gas_mail_9988224411` | Matching secret in `Code.gs` and Next.js `.env` |
+| `SMTP_USER` | **Recommended** | Vercel, Local Prod | `aalmvastralay@gmail.com` (Gmail address for 500/day SMTP) | Your dedicated Gmail account |
+| `SMTP_PASSWORD` | **Recommended** | Vercel, Local Prod | 16-character Google App Password (e.g. `abcd efgh ijkl mnop`) | [Google Account](https://myaccount.google.com/apppasswords) -> Security -> App passwords |
+| `SMTP_HOST` | No | Vercel | `smtp.gmail.com` (Default) | Default SMTP host |
+| `SMTP_PORT` | No | Vercel | `587` (Default TLS) or `465` (SSL) | Default SMTP port |
+| `EMAIL_FROM` | No | Vercel | `"Aalm Vastralay <aalmvastralay@gmail.com>"` | Sender display name & address |
+| `GAS_WEBHOOK_URL` | **Yes** (Fallback) | Vercel, Local Prod | `https://script.google.com/macros/s/AKfycb.../exec` | [Google Apps Script](https://script.google.com) -> Deploy -> Web app URL |
+| `GAS_SECRET_TOKEN` | **Yes** (Fallback) | Vercel, GAS Script | `aalm_gas_mail_9988224411` | Matching secret in `Code.gs` and Next.js `.env` |
 
 ### 6. Super Admin & Database Initialization
 | Variable | Required | Scope | Description & Production Example | Where to Obtain |
@@ -139,7 +144,16 @@ B2_APP_KEY="K004xYz123456789AbCdEfGhIjKlMn"
 B2_BUCKET_ID="4a5b6c7d8e9f0123456789ab"
 B2_BUCKET_NAME="aalm-vastralay-media"
 
-# 5. TRANSACTIONAL EMAIL ENGINE (GOOGLE APPS SCRIPT WEBHOOK)
+# 5. DUAL HYBRID TRANSACTIONAL EMAIL ENGINE
+# A. Primary: Direct Gmail SMTP (500 emails/day)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="aalmvastralay@gmail.com"
+SMTP_PASSWORD="your-16-char-app-password"
+EMAIL_FROM="Aalm Vastralay <aalmvastralay@gmail.com>"
+
+# B. Secondary: Google Apps Script Webhook Fallback (100 emails/day)
 GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycbzAbCdEf123456789_xYz/exec"
 GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
 

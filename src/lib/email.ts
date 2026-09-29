@@ -1,18 +1,22 @@
+import nodemailer, { type Transporter } from "nodemailer";
 
 /**
- * 👑 AALM VASTRALAY — Transactional Email Utility (Google Apps Script Webhook)
+ * 👑 AALM VASTRALAY — DUAL HYBRID TRANSACTIONAL EMAIL ENGINE
+ * Location: src/lib/email.ts
  *
- * 100% Free Transactional Email Provider powered by Google Apps Script (Gmail).
+ * HYBRID DUAL-ENGINE ARCHITECTURE:
+ * 1. Primary: Direct Gmail SMTP (smtp.gmail.com) via Nodemailer
+ *    - Quota: 500 emails / day (Free @gmail.com) | 2,000 emails / day (Workspace)
+ *    - Latency: ~300-600ms direct TLS socket
+ *    - Activated when: `SMTP_USER` and `SMTP_PASSWORD` / `EMAIL_SERVER_PASSWORD` are set.
  *
- * SECURITY DESIGN:
- * 1. GAS Secret Token: The GAS Webhook URL is public on the web. We must attach
- *    `token: process.env.GAS_SECRET_TOKEN` in every payload. The Google Apps Script
- *    validates this secret before sending emails to prevent unauthorized spam.
- * 2. Timing Attack Mitigation: Better Auth and authentication callbacks MUST call
- *    this function using `void sendEmail(...)` without `await`. Awaiting email dispatch
- *    allows attackers to measure server latency differences to enumerate valid accounts.
- * 3. HTML Escaping: Dynamic user inputs (e.g. name, email, OTP) MUST be sanitized
- *    using `escapeHtml(...)` to prevent HTML injection / email template XSS.
+ * 2. Fallback / Alternative: Google Apps Script (GAS) Webhook
+ *    - Quota: 100 emails / day (Free @gmail.com) | 1,500 emails / day (Workspace)
+ *    - Zero-credential mode: No email password stored on Vercel; authenticated via GAS_SECRET_TOKEN.
+ *    - Activated when: SMTP is not configured OR if SMTP encounters an operational error/quota limit.
+ *
+ * 3. Offline / Dev Simulation:
+ *    - Safely logs simulated dispatch in non-production environments when no credentials exist.
  */
 
 export type SendEmailOptions = {
@@ -22,8 +26,54 @@ export type SendEmailOptions = {
   text?: string;
 };
 
+export type SendEmailResult = {
+  ok: boolean;
+  delivered?: boolean;
+  provider?: "smtp" | "gas" | "simulated";
+  error?: string;
+};
+
+// Cached SMTP connection pool for serverless reuse
+let cachedTransporter: Transporter | null = null;
+
 /**
- * Escapes special HTML characters to prevent email HTML injection attacks.
+ * Creates or retrieves the cached Nodemailer SMTP transporter.
+ */
+function getSmtpTransporter(): Transporter | null {
+  const user = process.env.SMTP_USER?.trim() || process.env.EMAIL_SERVER_USER?.trim();
+  const pass = process.env.SMTP_PASSWORD?.trim() || process.env.SMTP_PASS?.trim() || process.env.EMAIL_SERVER_PASSWORD?.trim();
+
+  if (!user || !pass) {
+    return null;
+  }
+
+  if (!cachedTransporter) {
+    const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const secure = process.env.SMTP_SECURE === "true" || port === 465;
+
+    cachedTransporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+      pool: true,
+      maxConnections: 3,
+      maxMessages: 50,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
+    });
+  }
+
+  return cachedTransporter;
+}
+
+/**
+ * Escapes special HTML characters to prevent email template HTML injection (XSS).
  */
 export function escapeHtml(str: string | null | undefined): string {
   if (!str) return "";
@@ -36,22 +86,41 @@ export function escapeHtml(str: string | null | undefined): string {
 }
 
 /**
- * Sends transactional email via Google Apps Script (GAS) Webhook.
- * Handles errors gracefully without throwing to the caller so client auth flows
- * never crash due to transient email network blips.
+ * Sends email via Direct Gmail SMTP (500 limit).
  */
-export async function sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<{ ok: boolean; delivered?: boolean; error?: string }> {
-  // Support both GAS_WEBHOOK_URL and existing GAS_EMAIL_URL for seamless zero-config backward compatibility
-  const webhookUrl = process.env.GAS_WEBHOOK_URL?.trim() || process.env.GAS_EMAIL_URL?.trim() || process.env.QUIETMAIL_API_URL?.trim();
-  const token = process.env.GAS_SECRET_TOKEN?.trim() || "aalm_gas_mail_secret_9988224411";
+async function sendViaSmtp(
+  transporter: Transporter,
+  { to, subject, html, text }: SendEmailOptions
+): Promise<{ ok: boolean; error?: string }> {
+  const fromAddress =
+    process.env.EMAIL_FROM?.trim() ||
+    process.env.SMTP_FROM?.trim() ||
+    `"Aalm Vastralay (आलम वस्त्रालय)" <${process.env.SMTP_USER?.trim() || process.env.EMAIL_SERVER_USER?.trim()}>`;
 
-  // Development/Offline Mock fallback
-  if (!webhookUrl) {
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[EMAIL SIMULATED - GAS_WEBHOOK_URL not set] To: ${to} | Subject: "${subject}"`);
-    }
-    return { ok: true, delivered: false };
+  try {
+    await transporter.sendMail({
+      from: fromAddress,
+      to: to.trim().toLowerCase(),
+      subject,
+      html,
+      text: text || subject,
+    });
+    return { ok: true };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("[email:smtp] Failed to send email via SMTP:", errorMsg);
+    return { ok: false, error: errorMsg };
   }
+}
+
+/**
+ * Sends email via Google Apps Script (GAS) Webhook (100 limit).
+ */
+async function sendViaGas(
+  webhookUrl: string,
+  { to, subject, html, text }: SendEmailOptions
+): Promise<{ ok: boolean; error?: string }> {
+  const token = process.env.GAS_SECRET_TOKEN?.trim() || "aalm_gas_mail_secret_9988224411";
 
   try {
     const controller = new AbortController();
@@ -77,21 +146,59 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
     clearTimeout(timeout);
 
     if (!res.ok) {
-      console.error(`[email] GAS Webhook returned HTTP ${res.status}`);
-      return { ok: false, delivered: false, error: `HTTP ${res.status}` };
+      return { ok: false, error: `GAS returned HTTP ${res.status}` };
     }
 
-    return { ok: true, delivered: true };
-  } catch (error) {
-    // Log gracefully, do not throw to the caller
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("[email] Failed to send email via GAS Webhook:", message);
-    return { ok: false, delivered: false, error: message };
+    return { ok: true };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("[email:gas] Failed to send email via GAS Webhook:", errorMsg);
+    return { ok: false, error: errorMsg };
   }
 }
 
 /**
- * Order confirmation email template (Preserved for backward compatibility)
+ * Master Hybrid Dispatcher.
+ * Automatically tries Gmail SMTP first (500 emails/day), then gracefully falls back
+ * to Google Apps Script (100 emails/day) if SMTP is unavailable or exhausts quota.
+ */
+export async function sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<SendEmailResult> {
+  const cleanTo = to.trim().toLowerCase();
+
+  // 1. Primary Engine: Try Direct Gmail SMTP (500 emails/day)
+  const smtp = getSmtpTransporter();
+  if (smtp) {
+    const smtpRes = await sendViaSmtp(smtp, { to: cleanTo, subject, html, text });
+    if (smtpRes.ok) {
+      return { ok: true, delivered: true, provider: "smtp" };
+    }
+    console.warn(`[email] SMTP primary failed (${smtpRes.error}). Initiating automatic fallback to GAS...`);
+  }
+
+  // 2. Secondary Engine: Try Google Apps Script Webhook (100 emails/day)
+  const gasWebhookUrl =
+    process.env.GAS_WEBHOOK_URL?.trim() ||
+    process.env.GAS_EMAIL_URL?.trim() ||
+    process.env.QUIETMAIL_API_URL?.trim();
+
+  if (gasWebhookUrl) {
+    const gasRes = await sendViaGas(gasWebhookUrl, { to: cleanTo, subject, html, text });
+    if (gasRes.ok) {
+      return { ok: true, delivered: true, provider: "gas" };
+    }
+    console.error(`[email] GAS secondary fallback failed: ${gasRes.error}`);
+    return { ok: false, delivered: false, provider: "gas", error: gasRes.error };
+  }
+
+  // 3. Fallback: Simulation mode for local dev / offline testing
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[EMAIL SIMULATED - No SMTP or GAS configured] To: ${cleanTo} | Subject: "${subject}"`);
+  }
+  return { ok: true, delivered: false, provider: "simulated" };
+}
+
+/**
+ * Order confirmation email template (Preserved for full backward compatibility)
  */
 export function orderConfirmationHtml(params: {
   name: string;

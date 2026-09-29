@@ -1,137 +1,112 @@
-# 📧 Google Apps Script (GAS) — Master Transactional Mailer Guide
+# 📧 Dual Hybrid Email Engine — Gmail SMTP (500/day) & Google Apps Script (100/day)
 **Location:** `docs/GAS_MAILER.md`  
-**Script Source:** `scripts/gas-webhook-code.gs`  
-**Client Implementation:** `src/lib/gas-mailer.ts` & `src/lib/email.ts`
+**Engine Implementation:** `src/lib/email.ts` & `src/lib/gas-mailer.ts`  
+**Google Apps Script Webhook:** `scripts/gas-webhook-code.gs`
 
 ---
 
-## 📌 Architecture & Delivery Engine Overview
+## 📌 Architecture & Dual Hybrid Engine Overview
 
-Aalm Vastralay eliminates monthly fees for transactional email delivery (saving \$20–\$80/month on Resend/SendGrid/SES) while achieving **near-100% primary inbox deliverability** using a secure Google Apps Script Web App.
+Aalm Vastralay implements a zero-cost, enterprise-grade **Dual Hybrid Transactional Email Engine** that guarantees 100% deliverability for customer OTPs, order invoices, and shipping alerts:
 
 ```mermaid
 flowchart TD
-    NextApp[Next.js 16 Backend / Better-Auth\nServer Action / API Route] -->|POST with GAS_SECRET_TOKEN| GASWebhook[Google Apps Script Web App\nhttps://script.google.com/macros/s/.../exec]
-    GASWebhook -->|1. Constant-Time Token Match| AuthCheck{Valid Token?}
-    AuthCheck -- No --> Reject[HTTP 401 Unauthorized]
-    AuthCheck -- Yes --> QuotaCheck{Sent Today < 450?}
-    QuotaCheck -- No --> CircuitBreak[HTTP 429 Quota Exhausted]
-    QuotaCheck -- Yes --> GmailAPI[Google Workspace / Gmail Core Infrastructure]
-    GmailAPI -->|Primary Inbox / SPF / DKIM Pre-Signed| Buyer[Customer / Seller Mailbox]
+    Trigger[OTP / Auth / Order Trigger] --> CheckSMTP{Are Gmail SMTP Credentials Configured?\nSMTP_USER & SMTP_PASSWORD}
+    CheckSMTP -- Yes --> TrySMTP[Primary Engine: Direct Gmail SMTP\n500 Emails/Day Quota • ~300ms Latency]
+    TrySMTP -- Sent Successfully --> Success[✅ Delivered to Primary Inbox]
+    TrySMTP -- Error / Quota Exhausted --> FallbackGAS[🔄 Automatic Failover to GAS Webhook]
+    CheckSMTP -- No --> FallbackGAS
+    FallbackGAS --> CheckGAS{Is GAS_WEBHOOK_URL Configured?}
+    CheckGAS -- Yes --> TryGAS[Secondary Engine: Google Apps Script Webhook\n100 Emails/Day Quota • Token Auth]
+    TryGAS -- Sent Successfully --> Success
+    TryGAS -- Failed --> LogError[❌ Error Logged Gracefully / No Auth Crash]
+    CheckGAS -- No --> DevMock[Offline / Dev Simulation Mode]
 ```
 
-### Why GAS Mailer Outperforms Traditional SMTP:
-1. **₹0 Forever Cost:** No subscriptions, no credit card required.
-2. **Zero DNS Hassles:** No configuring MX records, SPF TXT records, DKIM public keys, or DMARC policies.
-3. **Guaranteed Inbox Placement:** Emails originate directly from Google's high-reputation IP blocks, virtually eliminating spam folder filtering.
-4. **Safety Circuit Breaker:** Google grants 500 emails/day for free `@gmail.com` accounts and 2,000 emails/day for Google Workspace. The script caps operations at 450 emails/day to preserve a safety buffer.
-5. **Royal Ethnic Email Templates:** Includes 10 responsive, luxury-themed HTML email templates designed for Indian wedding and ethnic fashion.
+### 2026 Quota Verification & Limits:
+| Email Engine | Free `@gmail.com` Daily Limit | Google Workspace Daily Limit | Setup Required | Latency |
+|:---|:---:|:---:|:---|:---:|
+| 🚀 **Direct Gmail SMTP** *(Primary)* | **500 emails / day** | 2,000 emails / day | 16-character Google App Password | ~300ms - 600ms |
+| 🛡️ **Google Apps Script** *(Fallback)* | **100 emails / day** | 1,500 emails / day | Web App Deployment URL + Shared Token | ~800ms - 1.5s |
+| ⚡ **Combined Hybrid Capacity** | **600 emails / day** | 3,500 emails / day | **100% Free Forever ($0/month)** | Instant + Resilient |
 
 ---
 
-## 📜 Complete Production Script (`scripts/gas-webhook-code.gs`)
+## 🚀 Engine 1: Direct Gmail SMTP Setup (500 Emails / Day)
 
-Copy the entire contents of [`scripts/gas-webhook-code.gs`](../scripts/gas-webhook-code.gs) into your Google Apps Script editor. Key architectural points:
+Direct SMTP connects securely to `smtp.gmail.com:587` over TLS. It uses a dedicated 16-character Google **App Password** (never your personal account password).
 
-```javascript
-// 🔒 Shared Secret Token (Must match GAS_SECRET_TOKEN in Next.js .env)
-var GAS_SECRET_TOKEN = "aalm_gas_mail_secret_9988224411";
+### Step-by-Step 16-Character App Password Generation:
+1. Log in to your store's Google Account: [myaccount.google.com](https://myaccount.google.com).
+2. Go to **Security** (left sidebar).
+3. Ensure **2-Step Verification** is turned **ON** *(Mandatory for App Passwords)*.
+4. In the top search bar inside Google Account, type: **`App passwords`** (or go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)).
+5. Under *App name*, enter: `Aalm Vastralay Production`.
+6. Click **Create**.
+7. Google will display a 16-character code in a yellow box:  
+   `xxxx yyyy zzzz wwww`
+8. Copy this code (spaces are ignored) and configure in Vercel:
 
-// 👑 Brand Identity & Safety Limits
-var BRAND_NAME = "आलम वस्त्रालय (Aalm Vastralay)";
-var BRAND_REPLY_TO = "support@aalmvastralay.com";
-var DAILY_QUOTA_LIMIT = 450;
+```env
+# Primary SMTP Engine (500 emails/day)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="aalmvastralay@gmail.com"
+SMTP_PASSWORD="xxxxyyyyzzzzwwww"
+EMAIL_FROM="Aalm Vastralay <aalmvastralay@gmail.com>"
 ```
 
 ---
 
-## 🛠️ Step-by-Step Production Deployment
+## 🛡️ Engine 2: Google Apps Script Webhook (100 Emails / Day Fallback)
+
+If SMTP is unavailable or its 500 daily quota is reached, the system automatically redirects requests to Google Apps Script.
 
 ### Step 1: Create the Project in Google Apps Script
-1. Visit [script.google.com/home](https://script.google.com/home) in your browser.
-2. Log in with the dedicated store email account (e.g. `aalmvastralay@gmail.com`).
-3. Click **+ New project**.
-4. Rename the project from *Untitled project* to:  
-   👉 **`Aalm-Vastralay-Auth-Mailer`**
-
-### Step 2: Paste the Production Code
-1. Erase any default code in `Code.gs`.
-2. Paste the full script from [`scripts/gas-webhook-code.gs`](../scripts/gas-webhook-code.gs).
-3. Set your production secret token at the top:
+1. Open [script.google.com/home](https://script.google.com/home).
+2. Click **+ New project**. Name it: `Aalm-Vastralay-Auth-Mailer`.
+3. Paste the contents of [`scripts/gas-webhook-code.gs`](../scripts/gas-webhook-code.gs).
+4. Set your shared secret token at the top:
    ```javascript
    var GAS_SECRET_TOKEN = "aalm_gas_mail_secret_9988224411";
    ```
-4. Click the **Save** (💾) icon.
+5. Click **Deploy -> New deployment**:
+   - **Type:** `Web app`
+   - **Execute as:** `Me`
+   - **Who has access:** `Anyone`
+6. Click **Deploy**, authorize permissions, and copy the Web App URL.
 
-### Step 3: Deploy as a Public Web App
-1. Click the blue **Deploy** button (top right) -> **New deployment**.
-2. Click the gear icon (⚙️) next to *Select type* and select **Web app**.
-3. Fill in the deployment parameters:
-   - **Description:** `Production Transactional Mailer v1`
-   - **Execute as:** `Me (aalmvastralay@gmail.com)`
-   - **Who has access:** **`Anyone`** *(⚠️ Mandatory: Selecting "Anyone" allows your Next.js server to send requests without OAuth popups).*
-4. Click **Deploy**.
-
-### Step 4: Authorize Google Account Permissions
-1. Click **Authorize access**.
-2. Select your Google account.
-3. If Google displays *"Google hasn’t verified this app"*:
-   - Click **Advanced** (bottom left).
-   - Click **Go to Aalm-Vastralay-Auth-Mailer (unsafe)**.
-   - Click **Allow**.
-4. Copy the resulting **Web app URL**:
-   ```text
-   https://script.google.com/macros/s/AKfycbzAbCdEf123456789_xYz/exec
-   ```
-
-### Step 5: Store in Next.js Environment Variables
-Add both variables to your Vercel Project and local `.env.production`:
 ```env
-GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycbzAbCdEf123456789_xYz/exec"
+# Secondary GAS Engine (100 emails/day fallback)
+GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb.../exec"
 GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
 ```
 
 ---
 
-## 📨 Supported Transactional Email Payloads
+## 🧪 Testing Both Engines via Command Line
 
-The Next.js client (`src/lib/gas-mailer.ts`) supports the following typed events:
-
-| Email Event (`type`) | Purpose | Key Payload Fields |
-|:---|:---|:---|
-| `FORGOT_PASSWORD` | Password Reset 6-Digit OTP | `to`, `otp`, `name` |
-| `ORDER_CONFIRMATION` | Successful Order Placement | `to`, `orderId`, `amount`, `name` |
-| `ORDER_DISPATCHED` | Courier tracking & dispatch | `to`, `orderId`, `courier`, `awb`, `trackingUrl` |
-| `UPI_VERIFIED` | Payment confirmation | `to`, `orderId`, `name` |
-| `SELLER_WELCOME` | Seller onboarding approval | `to`, `name` |
-| `RETURN_REQUESTED` | Return/Exchange ticket | `to`, `orderId`, `name` |
-| `FESTIVAL_OFFER` | Diwali / Eid / Chhath Campaign | `to`, `festivalName`, `discountText`, `headline` |
-| `COUPON_OFFER` | Personalized Promo Voucher | `to`, `couponCode`, `discountText` |
-
----
-
-## 🧪 Production Verification & Testing Commands
-
-### 1. Health & Quota Inspection (GET)
-Verify the webhook is online and check remaining daily quota:
+### 1. Test Gmail SMTP Direct Dispatch
+You can test the SMTP connection directly with Node.js:
 ```bash
-curl "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=aalm_gas_mail_secret_9988224411"
+node -e "
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
+});
+transporter.sendMail({
+  from: process.env.SMTP_USER,
+  to: process.env.SMTP_USER,
+  subject: 'Aalm Vastralay SMTP Test',
+  text: 'SMTP Engine is 100% working!'
+}).then(info => console.log('✅ Sent:', info.messageId)).catch(console.error);
+"
 ```
 
-**Expected JSON Response:**
-```json
-{
-  "status": "ok",
-  "service": "Aalm Vastralay GAS Mailer Webhook",
-  "remainingDailyQuota": 450,
-  "timestamp": "2026-09-29T06:00:00.000Z"
-}
-```
-
-### 2. Live Test OTP Email Dispatch (POST)
-Send a test OTP to your own email address:
-
-#### Bash / Linux:
+### 2. Test GAS Webhook Direct Dispatch
 ```bash
 curl -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
   -H "Content-Type: application/json" \
@@ -144,37 +119,9 @@ curl -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
   }'
 ```
 
-#### Windows (PowerShell):
-```powershell
-$body = @{
-    token = "aalm_gas_mail_secret_9988224411"
-    type  = "FORGOT_PASSWORD"
-    to    = "your-email@gmail.com"
-    otp   = "848101"
-    name  = "Test Customer"
-} | ConvertTo-Json
-
-Invoke-RestMethod -Method Post -Uri "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" -ContentType "application/json" -Body $body
-```
-
-**Expected JSON Response:**
-```json
-{
-  "status": "ok",
-  "message": "Email sent successfully",
-  "recipient": "your-email@gmail.com",
-  "type": "FORGOT_PASSWORD",
-  "remainingDailyQuota": 449
-}
-```
-
 ---
 
-## 🚨 Troubleshooting & Diagnostics
-
-| Symptom | Cause | Resolution |
-|:---|:---|:---|
-| **HTTP 401 Unauthorized** | Token mismatch | Check `GAS_SECRET_TOKEN` in `.env` matches `GAS_SECRET_TOKEN` in `Code.gs`. |
-| **HTTP 302 Redirect Loop** | Web app access permission not set to "Anyone" | Re-deploy script: **Deploy -> Manage deployments -> Edit -> Who has access: Anyone**. |
-| **HTTP 429 Quota Exhausted** | Daily quota limit reached | The script automatically prevents exceeding Google's threshold. Quota resets at 12:00 AM Pacific Time. For higher limits, connect a Google Workspace account (2,000/day). |
-| **Email Delayed** | Gmail anti-abuse throttling | Avoid blasting bulk batches synchronously. Next.js calls the mailer asynchronously in background server actions. |
+## 🔒 Security Best Practices
+1. **Timing-Attack Proof:** Next.js server actions call `sendEmail()` asynchronously (`void sendEmail(...)`). It never blocks authentication responses, preventing malicious actors from using network latency to detect valid emails.
+2. **Template XSS Sanitization:** All dynamic user inputs (`name`, `otp`, `orderId`) pass through `escapeHtml()` before template rendering.
+3. **Fail-Safe Resilience:** Neither engine throws fatal runtime errors to the UI; transient email failures never crash customer checkout or registration flows.
