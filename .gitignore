@@ -161,3 +161,11 @@ brag-output-*/
 # ------------------------------------------------------------------------------
 .agents/skills/brag/
 .agents/
+
+# ------------------------------------------------------------------------------
+# 13. Private AI Prompts & Local Meta-Prompts
+# Keep all-rounder architect prompts, secret templates, and local meta-prompts private
+# ------------------------------------------------------------------------------
+ALLROUNDER_PROMPT.md
+*.private-prompt.md
+
