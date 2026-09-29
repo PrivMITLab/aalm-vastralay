@@ -13,7 +13,7 @@
 [![Neon Serverless](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle_0.45.2-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
 [![DuckDB OLAP](https://img.shields.io/badge/Analytics-DuckDB--Wasm_In--Memory-FFF000?style=for-the-badge&logo=duckdb&logoColor=black)](docs/TECH_STACK_AND_ARCHITECTURE.md)
-[![Automated Test Suite](https://img.shields.io/badge/Tests-38%2F38_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
+[![Automated Test Suite](https://img.shields.io/badge/Tests-40%2F40_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
 [![Cloudflare Workers](https://img.shields.io/badge/CDN-Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Backblaze B2](https://img.shields.io/badge/Cold_Storage-Backblaze_B2-E01E37?style=for-the-badge&logo=backblaze&logoColor=white)](https://www.backblaze.com/b2/)
 [![Google Gemini](https://img.shields.io/badge/AI_Engine-Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
@@ -32,7 +32,7 @@
 
 | ⚡ Production Readiness | 💰 Operating Cost | 🛡️ Security Architecture | 🧊 Cold Storage | 🦆 In-Memory OLAP | 🧪 Automated Tests |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **38/38 Test Suites (100%)** |
+| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **40/40 Test Suites (100%)** |
 
 <br/>
 
@@ -333,7 +333,7 @@ Generate production secrets per [ENV_VARS_PRODUCTION.md](docs/ENV_VARS_PRODUCTIO
 
 ## 🧪 Verification Suite
 
-**38/38 enterprise suites, ~1.5 seconds.** Every change is verified before it ships:
+**40/40 enterprise suites, ~3.7 seconds.** Every change is verified before it ships:
 
 ```bash
 npm test            # full enterprise suite (tests/run-all-tests.ts)
