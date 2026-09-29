@@ -7,22 +7,22 @@ import { categories, products, stores } from "@/db/schema";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/ui/Reveal";
 import { getHomeConfig, getSettingNumber } from "@/lib/settings";
-import { cn, gridClass } from "@/lib/utils";
+import { cn, getSingleParam, gridClass, sanitizeSearchQuery } from "@/lib/utils";
 import { CATALOG_COLORS, CATALOG_OCCASIONS, CATALOG_FABRICS } from "@/lib/catalog-filters";
 
 export const revalidate = 300;
 
 type SP = {
-  q?: string;
-  category?: string;
-  sort?: string;
-  min?: string;
-  max?: string;
-  page?: string;
-  store?: string;
-  occasion?: string;
-  color?: string;
-  fabric?: string;
+  q?: string | string[];
+  category?: string | string[];
+  sort?: string | string[];
+  min?: string | string[];
+  max?: string | string[];
+  page?: string | string[];
+  store?: string | string[];
+  occasion?: string | string[];
+  color?: string | string[];
+  fabric?: string | string[];
 };
 
 const SORTS: [string, string][] = [
@@ -44,24 +44,28 @@ const PRICE_BANDS: [string, string, string][] = [
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
   const sp = await searchParams;
-  if (sp.q) {
-    const cleanQ = sp.q.replace(/[<>"'/\\{}]/g, "").slice(0, 80);
+  const cleanQ = sanitizeSearchQuery(sp.q).slice(0, 80);
+  if (cleanQ) {
     return { title: `"${cleanQ}" – Search results` };
   }
-  if (sp.occasion) {
-    const occ = CATALOG_OCCASIONS.find((o) => o.slug === sp.occasion);
-    return { title: `${occ?.name ?? sp.occasion.replace(/[^a-zA-Z0-9_-]/g, "")} Wear – Aalm Vastralay` };
+  const occParam = getSingleParam(sp.occasion);
+  if (occParam) {
+    const occ = CATALOG_OCCASIONS.find((o) => o.slug === occParam);
+    return { title: `${occ?.name ?? occParam.replace(/[^a-zA-Z0-9_-]/g, "")} Wear – Aalm Vastralay` };
   }
-  if (sp.color) {
-    const col = CATALOG_COLORS.find((c) => c.slug === sp.color);
-    return { title: `${col?.name ?? sp.color.replace(/[^a-zA-Z0-9_-]/g, "")} Ethnic Wear – Aalm Vastralay` };
+  const colParam = getSingleParam(sp.color);
+  if (colParam) {
+    const col = CATALOG_COLORS.find((c) => c.slug === colParam);
+    return { title: `${col?.name ?? colParam.replace(/[^a-zA-Z0-9_-]/g, "")} Ethnic Wear – Aalm Vastralay` };
   }
-  if (sp.fabric) {
-    const fab = CATALOG_FABRICS.find((f) => f.slug === sp.fabric);
-    return { title: `${fab?.name ?? sp.fabric.replace(/[^a-zA-Z0-9_-]/g, "")} Sarees & Suits – Aalm Vastralay` };
+  const fabParam = getSingleParam(sp.fabric);
+  if (fabParam) {
+    const fab = CATALOG_FABRICS.find((f) => f.slug === fabParam);
+    return { title: `${fab?.name ?? fabParam.replace(/[^a-zA-Z0-9_-]/g, "")} Sarees & Suits – Aalm Vastralay` };
   }
-  if (sp.category) {
-    const cleanCat = sp.category.replace(/[^a-zA-Z0-9_-]/g, "").replace(/-/g, " ").slice(0, 60);
+  const catParam = getSingleParam(sp.category);
+  if (catParam) {
+    const cleanCat = catParam.replace(/[^a-zA-Z0-9_-]/g, "").replace(/-/g, " ").slice(0, 60);
     return { title: `${cleanCat} – Shop ethnic wear` };
   }
   return { title: "All Products – Wedding & Ethnic Wear" };
@@ -80,20 +84,27 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     getSettingsDefaultSort(),
   ]);
 
-  // Sanitize & validate search params against injection and attribute reflections (OWASP ZAP 10031)
-  const q = (sp.q ?? "").replace(/[<>"'/\\{}]/g, "").trim().slice(0, 100);
-  const rawSort = sp.sort ?? defaultSort;
+  // Sanitize & validate search params against injection and attribute reflections (OWASP ZAP 10031 & 90022)
+  const q = sanitizeSearchQuery(sp.q).slice(0, 100);
+  const rawSort = getSingleParam(sp.sort) || defaultSort;
   const sort = SORTS.some(([k]) => k === rawSort) ? rawSort : defaultSort;
-  const safeCategory = sp.category && /^[a-zA-Z0-9_-]{1,64}$/.test(sp.category) ? sp.category : undefined;
-  const safeOccasion = sp.occasion && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.occasion) ? sp.occasion : undefined;
-  const safeColor = sp.color && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.color) ? sp.color : undefined;
-  const safeFabric = sp.fabric && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.fabric) ? sp.fabric : undefined;
-  const safeStore = sp.store && /^[a-zA-Z0-9_-]{1,64}$/.test(sp.store) ? sp.store : undefined;
-  const safeMin = sp.min && /^\d{1,8}$/.test(sp.min) ? sp.min : undefined;
-  const safeMax = sp.max && /^\d{1,8}$/.test(sp.max) ? sp.max : undefined;
-  const page = Math.max(1, Math.min(1000, Number(sp.page) || 1));
+  const rawCat = getSingleParam(sp.category);
+  const safeCategory = rawCat && /^[a-zA-Z0-9_-]{1,64}$/.test(rawCat) ? rawCat : undefined;
+  const rawOcc = getSingleParam(sp.occasion);
+  const safeOccasion = rawOcc && /^[a-zA-Z0-9_-]{1,32}$/.test(rawOcc) ? rawOcc : undefined;
+  const rawCol = getSingleParam(sp.color);
+  const safeColor = rawCol && /^[a-zA-Z0-9_-]{1,32}$/.test(rawCol) ? rawCol : undefined;
+  const rawFab = getSingleParam(sp.fabric);
+  const safeFabric = rawFab && /^[a-zA-Z0-9_-]{1,32}$/.test(rawFab) ? rawFab : undefined;
+  const rawStore = getSingleParam(sp.store);
+  const safeStore = rawStore && /^[a-zA-Z0-9_-]{1,64}$/.test(rawStore) ? rawStore : undefined;
+  const rawMin = getSingleParam(sp.min);
+  const safeMin = rawMin && /^\d{1,8}$/.test(rawMin) ? rawMin : undefined;
+  const rawMax = getSingleParam(sp.max);
+  const safeMax = rawMax && /^\d{1,8}$/.test(rawMax) ? rawMax : undefined;
+  const page = Math.max(1, Math.min(1000, Number(getSingleParam(sp.page)) || 1));
 
-  const cleanSp: SP = {
+  const cleanSp: Record<string, string | undefined> = {
     q: q || undefined,
     category: safeCategory,
     sort: sort !== defaultSort ? sort : undefined,

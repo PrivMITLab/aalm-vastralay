@@ -7,13 +7,14 @@ import { categories, products } from "@/db/schema";
 import { getSellerContext } from "@/lib/seller";
 import { deleteProduct, toggleProductActive } from "@/actions/seller";
 import { resolveThumbnail } from "@/lib/media-resolver";
-import { cn, formatINR } from "@/lib/utils";
+import { cn, formatINR, getSingleParam } from "@/lib/utils";
 import SubmitButton from "@/components/SubmitButton";
 
 export const metadata: Metadata = { title: "My Products" };
 
-export default async function SellerProductsPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const { saved } = await searchParams;
+export default async function SellerProductsPage({ searchParams }: { searchParams: Promise<{ saved?: string | string[] }> }) {
+  const sp = await searchParams;
+  const saved = getSingleParam(sp.saved);
   const { store } = await getSellerContext();
   const rows = await db
     .select({

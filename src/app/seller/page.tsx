@@ -5,13 +5,14 @@ import { AlertTriangle, BadgePercent, BarChart3, IndianRupee, Package, PlusCircl
 import { db } from "@/db";
 import { orders, products } from "@/db/schema";
 import { commissionInfo, getSellerContext } from "@/lib/seller";
-import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import { cn, formatDate, formatINR, getSingleParam, statusStyle } from "@/lib/utils";
 import KpiCard from "@/components/ui/KpiCard";
 
 export const metadata: Metadata = { title: "Seller Hub" };
 
-export default async function SellerOverview({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
-  const { welcome } = await searchParams;
+export default async function SellerOverview({ searchParams }: { searchParams: Promise<{ welcome?: string | string[] }> }) {
+  const sp = await searchParams;
+  const welcome = getSingleParam(sp.welcome);
   const { store } = await getSellerContext();
 
   const [[productStats], [orderStats], recentOrders, lowStock] = await Promise.all([

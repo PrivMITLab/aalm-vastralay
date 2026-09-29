@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { orders, ORDER_STATUSES } from "@/db/schema";
 import { getSellerContext } from "@/lib/seller";
 import { updateOrderStatus } from "@/actions/seller";
-import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import { cn, formatDate, formatINR, getSingleParam, statusStyle } from "@/lib/utils";
 import { maskPhone } from "@/lib/masking";
 import SubmitButton from "@/components/SubmitButton";
 
@@ -14,8 +14,9 @@ export const metadata: Metadata = { title: "Seller Orders" };
 
 const COURIERS = ["Delhivery", "Bluedart", "DTDC", "Ekart", "XpressBees", "India Post", "Self-ship"];
 
-export default async function SellerOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status } = await searchParams;
+export default async function SellerOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string | string[] }> }) {
+  const sp = await searchParams;
+  const status = getSingleParam(sp.status);
   const { store } = await getSellerContext();
   const filter = status && (ORDER_STATUSES as readonly string[]).includes(status) ? status : undefined;
 

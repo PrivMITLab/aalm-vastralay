@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BadgePercent, RotateCcw, Wallet } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
+import { getSingleParam } from "@/lib/utils";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Create account" };
 
-export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; intent?: string; error?: string }> }) {
-  const { redirect_url, intent, error } = await searchParams;
+export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string | string[]; intent?: string | string[]; error?: string | string[] }> }) {
+  const sp = await searchParams;
+  const redirect_url = getSingleParam(sp.redirect_url);
+  const intent = getSingleParam(sp.intent);
+  const error = getSingleParam(sp.error);
   const safeRedirectUrl =
     redirect_url && /^\/[a-zA-Z0-9_\-\/]{0,200}$/.test(redirect_url) && !redirect_url.startsWith("//")
       ? redirect_url

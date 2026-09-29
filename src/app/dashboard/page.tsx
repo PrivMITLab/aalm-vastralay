@@ -5,7 +5,7 @@ import { Bell, ChevronRight, Heart, Package, ShieldCheck, Store } from "lucide-r
 import { db } from "@/db";
 import { addresses, notifications, orders, stores, wishlist } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import { cn, formatDate, formatINR, getSingleParam, statusStyle } from "@/lib/utils";
 import ProfileForm from "@/components/account/ProfileForm";
 import UserAvatar from "@/components/UserAvatar";
 import AddressBook from "@/components/account/AddressBook";
@@ -14,8 +14,9 @@ import SecurityForm from "@/components/account/SecurityForm";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Account" };
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ error?: string | string[] }> }) {
+  const sp = await searchParams;
+  const error = getSingleParam(sp.error);
   const user = await requireUser("/dashboard");
 
   const [[orderStats], [wishCount], [unread], recent, [store], savedAddresses] = await Promise.all([

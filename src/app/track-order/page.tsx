@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { db } from "@/db";
 import { orders, orderItems, products } from "@/db/schema";
-import { formatINR } from "@/lib/utils";
+import { formatINR, sanitizeSearchQuery } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 type SP = {
-  orderNumber?: string;
+  orderNumber?: string | string[];
 };
 
 const ORDER_STEPS = [
@@ -59,7 +59,7 @@ export default async function TrackOrderPage({
   searchParams: Promise<SP>;
 }) {
   const sp = await searchParams;
-  const orderNum = (sp.orderNumber ?? "").trim();
+  const orderNum = sanitizeSearchQuery(sp.orderNumber);
 
   let orderData: (typeof orders.$inferSelect) | null = null;
   let itemsData: { item: typeof orderItems.$inferSelect; productTitle: string | null }[] = [];

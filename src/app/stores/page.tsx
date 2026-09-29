@@ -7,6 +7,7 @@ import { stores } from "@/db/schema";
 import { Rating } from "@/components/Rating";
 import { resolveImage } from "@/lib/media-resolver";
 import { getSettingNumber } from "@/lib/settings";
+import { sanitizeSearchQuery } from "@/lib/utils";
 
 export const revalidate = 600;
 export const metadata: Metadata = {
@@ -17,11 +18,11 @@ export const metadata: Metadata = {
 export default async function StoresPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string }>;
+  searchParams?: Promise<{ q?: string | string[] }>;
 }) {
   const freeMonths = await getSettingNumber("seller.freeMonths", 6);
-  const { q } = (await searchParams) ?? {};
-  const query = q?.trim().toLowerCase() ?? "";
+  const sp = (await searchParams) ?? {};
+  const query = sanitizeSearchQuery(sp.q).toLowerCase();
 
   const rows = await db
     .select({

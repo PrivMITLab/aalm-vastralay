@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { getSingleParam } from "@/lib/utils";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Sign in" };
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; error?: string }> }) {
-  const { redirect_url, error } = await searchParams;
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string | string[]; error?: string | string[] }> }) {
+  const sp = await searchParams;
+  const redirect_url = getSingleParam(sp.redirect_url);
+  const error = getSingleParam(sp.error);
   const safeRedirectUrl =
     redirect_url && /^\/[a-zA-Z0-9_\-\/]{0,200}$/.test(redirect_url) && !redirect_url.startsWith("//")
       ? redirect_url

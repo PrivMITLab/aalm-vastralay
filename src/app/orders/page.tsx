@@ -5,15 +5,16 @@ import { CheckCircle2, ChevronRight, Package } from "lucide-react";
 import { db } from "@/db";
 import { orders, stores } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { cn, formatDate, formatINR, statusStyle } from "@/lib/utils";
+import { cn, formatDate, formatINR, getSingleParam, statusStyle } from "@/lib/utils";
 
 import WhatsAppOrderButton from "@/components/orders/WhatsAppOrderButton";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Orders" };
 
-export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ placed?: string }> }) {
-  const { placed } = await searchParams;
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ placed?: string | string[] }> }) {
+  const sp = await searchParams;
+  const placed = getSingleParam(sp.placed);
   const user = await requireUser("/orders");
   const rows = await db
     .select({

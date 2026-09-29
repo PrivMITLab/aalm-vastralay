@@ -6,14 +6,15 @@ import { db } from "@/db";
 import { products, stores } from "@/db/schema";
 import ProductCard from "@/components/ProductCard";
 import { parseEthnicQueryDeterministic, type ParsedSearchIntent } from "@/lib/ai/search-parser";
+import { sanitizeSearchQuery } from "@/lib/utils";
 
 export const revalidate = 300;
 
 type SP = {
-  q?: string;
-  category?: string;
-  sort?: string;
-  page?: string;
+  q?: string | string[];
+  category?: string | string[];
+  sort?: string | string[];
+  page?: string | string[];
 };
 
 export async function generateMetadata({
@@ -22,7 +23,7 @@ export async function generateMetadata({
   searchParams: Promise<SP>;
 }): Promise<Metadata> {
   const sp = await searchParams;
-  const q = (sp.q ?? "").trim();
+  const q = sanitizeSearchQuery(sp.q);
   if (q) {
     return {
       title: `Search: "${q}" – Ethnic & Bridal Collection | Aalm Vastralay`,
@@ -52,7 +53,7 @@ export default async function SearchPage({
   searchParams: Promise<SP>;
 }) {
   const sp = await searchParams;
-  const q = (sp.q ?? "").trim();
+  const q = sanitizeSearchQuery(sp.q);
   const intent: ParsedSearchIntent | null = q ? parseEthnicQueryDeterministic(q) : null;
   const hasAiFilters = Boolean(
     intent && (intent.maxPrice || intent.minPrice || intent.occasion || intent.color || intent.fabric || intent.categorySlug)

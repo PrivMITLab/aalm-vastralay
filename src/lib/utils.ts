@@ -26,6 +26,25 @@ export function formatDay(value: Date | string | null | undefined) {
   return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
 }
 
+/**
+ * Safely extracts a single string query parameter from Next.js Page searchParams
+ * which can be string | string[] | undefined (e.g. ?q=1&q=2).
+ */
+export function getSingleParam(param: string | string[] | undefined | null): string {
+  if (Array.isArray(param)) return param[0] ?? "";
+  if (typeof param === "string") return param;
+  return "";
+}
+
+/**
+ * Strips dangerous HTML attribute breakout characters and limits query string length.
+ * Prevents XSS reflection and OWASP ZAP 10031 / 90022 injection alerts.
+ */
+export function sanitizeSearchQuery(param: string | string[] | undefined | null, maxLength = 100): string {
+  const raw = getSingleParam(param);
+  return raw.replace(/[<>"'/\\{}]/g, "").trim().slice(0, maxLength);
+}
+
 export function slugify(input: string) {
   return input
     .toLowerCase()
