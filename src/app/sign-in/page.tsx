@@ -8,8 +8,14 @@ export const metadata: Metadata = { title: "Sign in" };
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; error?: string }> }) {
   const { redirect_url, error } = await searchParams;
+  const safeRedirectUrl =
+    redirect_url && /^\/[a-zA-Z0-9_\-\/]{0,200}$/.test(redirect_url) && !redirect_url.startsWith("//")
+      ? redirect_url
+      : undefined;
+  const safeError = error && /^[a-zA-Z0-9_]{1,50}$/.test(error) ? error : undefined;
+
   const user = await getCurrentUser();
-  if (user) redirect(redirect_url && redirect_url.startsWith("/") ? redirect_url : "/dashboard");
+  if (user) redirect(safeRedirectUrl || "/dashboard");
 
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 lg:grid-cols-2 lg:items-center">
@@ -29,7 +35,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <h1 className="font-display text-2xl font-semibold text-[color:var(--brand)]">Sign in to Aalm Vastralay</h1>
         <p className="mt-1 text-sm text-[color:var(--text-muted)]">Use Google 1-Click or your registered email to continue.</p>
         <div className="mt-6">
-          <AuthForm mode="sign-in" redirectUrl={redirect_url} oauthError={error} />
+          <AuthForm mode="sign-in" redirectUrl={safeRedirectUrl} oauthError={safeError} />
         </div>
       </div>
     </div>

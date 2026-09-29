@@ -13,7 +13,6 @@ export const PUBLIC_ROUTES = [
   "/browse",
   "/products",
   "/categories",
-  "/cart",
   "/sign-in",
   "/sign-up",
   "/about",
@@ -30,7 +29,13 @@ export const PUBLIC_ROUTES = [
 /** Protected path prefixes that require an authenticated user */
 export const PROTECTED_ROUTES = [
   "/account",
+  "/cart",
   "/checkout",
+  "/dashboard",
+  "/notifications",
+  "/onboarding",
+  "/orders",
+  "/wishlist",
   "/admin",
   "/seller",
 ] as const;

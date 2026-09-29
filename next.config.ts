@@ -7,35 +7,35 @@ const pkg = require("./package.json") as { version: string; name: string };
 const csp = [
   "default-src 'self'",
 
-  // Scripts — DuckDB-Wasm CDN (jsdelivr) required for in-browser OLAP
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'" +
+  // Scripts — DuckDB-Wasm WebAssembly in-browser OLAP + Analytics
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'" +
     " https://cdn.jsdelivr.net" +
-    " https://upload.imagekit.io https://*.imagekit.io" +
+    " https://upload.imagekit.io https://ik.imagekit.io" +
     " https://loglyuk.com https://plausible.io",
 
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
 
-  // Images — specific domains only (was too broad with http:)
+  // Images — specific domains (Backblaze B2 uses dynamic bucket subdomains)
   "img-src 'self' data: blob:" +
     " https://*.backblazeb2.com" +
-    " https://lh3.googleusercontent.com https://*.googleusercontent.com" +
+    " https://lh3.googleusercontent.com" +
     " https://wsrv.nl" +
-    " https://*.imagekit.io" +
+    " https://ik.imagekit.io https://upload.imagekit.io" +
     " https://i.imgur.com https://images.unsplash.com" +
-    " https://*.githubusercontent.com" +
+    " https://avatars.githubusercontent.com" +
     " https://placehold.co",
 
-  "media-src 'self' blob: https://*.backblazeb2.com https://*.youtube.com https://youtube.com https://player.vimeo.com https://upload.imagekit.io https://*.imagekit.io",
+  "media-src 'self' blob: https://*.backblazeb2.com https://www.youtube.com https://youtube.com https://player.vimeo.com https://upload.imagekit.io https://ik.imagekit.io",
 
   // Workers — DuckDB-Wasm Web Worker needs jsdelivr + blob
   "worker-src 'self' blob: https://cdn.jsdelivr.net",
   "child-src 'self' blob: https://cdn.jsdelivr.net",
 
-  // Network fetch — DuckDB-Wasm CDN fetches its own WASM bundles
+  // Network fetch — DuckDB-Wasm CDN fetches its own WASM bundles + Cloud APIs
   "connect-src 'self'" +
     " https://cdn.jsdelivr.net" +
-    " https://*.imagekit.io" +
+    " https://ik.imagekit.io https://upload.imagekit.io" +
     " https://wsrv.nl" +
     " https://*.workers.dev" +
     " https://*.neon.tech" +

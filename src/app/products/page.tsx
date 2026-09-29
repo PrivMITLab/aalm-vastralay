@@ -44,20 +44,26 @@ const PRICE_BANDS: [string, string, string][] = [
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
   const sp = await searchParams;
-  if (sp.q) return { title: `"${sp.q}" – Search results` };
+  if (sp.q) {
+    const cleanQ = sp.q.replace(/[<>"'/\\{}]/g, "").slice(0, 80);
+    return { title: `"${cleanQ}" – Search results` };
+  }
   if (sp.occasion) {
     const occ = CATALOG_OCCASIONS.find((o) => o.slug === sp.occasion);
-    return { title: `${occ?.name ?? sp.occasion} Wear – Aalm Vastralay` };
+    return { title: `${occ?.name ?? sp.occasion.replace(/[^a-zA-Z0-9_-]/g, "")} Wear – Aalm Vastralay` };
   }
   if (sp.color) {
     const col = CATALOG_COLORS.find((c) => c.slug === sp.color);
-    return { title: `${col?.name ?? sp.color} Ethnic Wear – Aalm Vastralay` };
+    return { title: `${col?.name ?? sp.color.replace(/[^a-zA-Z0-9_-]/g, "")} Ethnic Wear – Aalm Vastralay` };
   }
   if (sp.fabric) {
     const fab = CATALOG_FABRICS.find((f) => f.slug === sp.fabric);
-    return { title: `${fab?.name ?? sp.fabric} Sarees & Suits – Aalm Vastralay` };
+    return { title: `${fab?.name ?? sp.fabric.replace(/[^a-zA-Z0-9_-]/g, "")} Sarees & Suits – Aalm Vastralay` };
   }
-  if (sp.category) return { title: `${sp.category.replace(/-/g, " ")} – Shop ethnic wear` };
+  if (sp.category) {
+    const cleanCat = sp.category.replace(/[^a-zA-Z0-9_-]/g, "").replace(/-/g, " ").slice(0, 60);
+    return { title: `${cleanCat} – Shop ethnic wear` };
+  }
   return { title: "All Products – Wedding & Ethnic Wear" };
 }
 
@@ -73,9 +79,32 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     getSettingNumber("products.pageSize", 24),
     getSettingsDefaultSort(),
   ]);
-  const q = (sp.q ?? "").trim();
-  const page = Math.max(1, Number(sp.page) || 1);
-  const sort = sp.sort ?? defaultSort;
+
+  // Sanitize & validate search params against injection and attribute reflections (OWASP ZAP 10031)
+  const q = (sp.q ?? "").replace(/[<>"'/\\{}]/g, "").trim().slice(0, 100);
+  const rawSort = sp.sort ?? defaultSort;
+  const sort = SORTS.some(([k]) => k === rawSort) ? rawSort : defaultSort;
+  const safeCategory = sp.category && /^[a-zA-Z0-9_-]{1,64}$/.test(sp.category) ? sp.category : undefined;
+  const safeOccasion = sp.occasion && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.occasion) ? sp.occasion : undefined;
+  const safeColor = sp.color && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.color) ? sp.color : undefined;
+  const safeFabric = sp.fabric && /^[a-zA-Z0-9_-]{1,32}$/.test(sp.fabric) ? sp.fabric : undefined;
+  const safeStore = sp.store && /^[a-zA-Z0-9_-]{1,64}$/.test(sp.store) ? sp.store : undefined;
+  const safeMin = sp.min && /^\d{1,8}$/.test(sp.min) ? sp.min : undefined;
+  const safeMax = sp.max && /^\d{1,8}$/.test(sp.max) ? sp.max : undefined;
+  const page = Math.max(1, Math.min(1000, Number(sp.page) || 1));
+
+  const cleanSp: SP = {
+    q: q || undefined,
+    category: safeCategory,
+    sort: sort !== defaultSort ? sort : undefined,
+    occasion: safeOccasion,
+    color: safeColor,
+    fabric: safeFabric,
+    store: safeStore,
+    min: safeMin,
+    max: safeMax,
+    page: page > 1 ? String(page) : undefined,
+  };
 
   let allCats: typeof categories.$inferSelect[] = [];
   let rows: { product: typeof products.$inferSelect; storeName: string | null; storeSlug: string | null }[] = [];
@@ -85,7 +114,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     allCats = await db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder, categories.name);
     const parents = allCats.filter((c) => !c.parentId);
     const childrenOf = (id: string) => allCats.filter((c) => c.parentId === id);
-    const selectedCat = sp.category ? allCats.find((c) => c.slug === sp.category) : undefined;
+    const selectedCat = safeCategory ? allCats.find((c) => c.slug === safeCategory) : undefined;
     const selectedParent = selectedCat?.parentId ? allCats.find((c) => c.id === selectedCat.parentId) : selectedCat;
 
     const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
@@ -102,13 +131,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         )!,
       );
     }
-    if (sp.min && !Number.isNaN(Number(sp.min))) conditions.push(gte(products.price, Number(sp.min)));
-    if (sp.max && !Number.isNaN(Number(sp.max))) conditions.push(lte(products.price, Number(sp.max)));
-    if (sp.store) conditions.push(eq(stores.slug, sp.store));
+    if (safeMin) conditions.push(gte(products.price, Number(safeMin)));
+    if (safeMax) conditions.push(lte(products.price, Number(safeMax)));
+    if (safeStore) conditions.push(eq(stores.slug, safeStore));
 
     // Smart Occasion Filter
-    if (sp.occasion) {
-      const occ = sp.occasion.toLowerCase();
+    if (safeOccasion) {
+      const occ = safeOccasion.toLowerCase();
       conditions.push(
         or(
           sql`${occ} = ANY(${products.tags})`,
@@ -119,8 +148,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     }
 
     // Smart Color Dots Filter
-    if (sp.color) {
-      const col = sp.color.toLowerCase();
+    if (safeColor) {
+      const col = safeColor.toLowerCase();
       conditions.push(
         or(
           sql`${col} = ANY(${products.tags})`,
@@ -131,8 +160,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     }
 
     // Smart Fabric Filter
-    if (sp.fabric) {
-      const fab = sp.fabric.toLowerCase();
+    if (safeFabric) {
+      const fab = safeFabric.toLowerCase();
       conditions.push(
         or(
           sql`${fab} = ANY(${products.tags})`,
@@ -182,22 +211,22 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const PAGE_SIZE = Math.max(6, Math.min(60, Math.round(pageSize || 24)));
   const parents = allCats.filter((c) => !c.parentId);
   const childrenOf = (id: string) => allCats.filter((c) => c.parentId === id);
-  const selectedCat = sp.category ? allCats.find((c) => c.slug === sp.category) : undefined;
+  const selectedCat = safeCategory ? allCats.find((c) => c.slug === safeCategory) : undefined;
   const selectedParent = selectedCat?.parentId ? allCats.find((c) => c.id === selectedCat.parentId) : selectedCat;
   const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
 
   const buildUrl = (overrides: Partial<SP>) => {
     const params = new URLSearchParams();
-    const merged: SP = { ...sp, ...overrides };
+    const merged: SP = { ...cleanSp, ...overrides };
     for (const [k, v] of Object.entries(merged)) if (v) params.set(k, String(v));
     if (!overrides.page) params.delete("page");
     const s = params.toString();
     return `/products${s ? `?${s}` : ""}`;
   };
 
-  const activeOccasion = CATALOG_OCCASIONS.find((o) => o.slug === sp.occasion);
-  const activeColor = CATALOG_COLORS.find((c) => c.slug === sp.color);
-  const activeFabric = CATALOG_FABRICS.find((f) => f.slug === sp.fabric);
+  const activeOccasion = safeOccasion ? CATALOG_OCCASIONS.find((o) => o.slug === safeOccasion) : undefined;
+  const activeColor = safeColor ? CATALOG_COLORS.find((c) => c.slug === safeColor) : undefined;
+  const activeFabric = safeFabric ? CATALOG_FABRICS.find((f) => f.slug === safeFabric) : undefined;
 
   const heading = q
     ? `Results for “${q}”`

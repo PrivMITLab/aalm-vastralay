@@ -9,9 +9,16 @@ export const metadata: Metadata = { title: "Create account" };
 
 export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ redirect_url?: string; intent?: string; error?: string }> }) {
   const { redirect_url, intent, error } = await searchParams;
+  const safeRedirectUrl =
+    redirect_url && /^\/[a-zA-Z0-9_\-\/]{0,200}$/.test(redirect_url) && !redirect_url.startsWith("//")
+      ? redirect_url
+      : undefined;
+  const safeIntent = intent === "seller" ? "seller" : undefined;
+  const safeError = error && /^[a-zA-Z0-9_]{1,50}$/.test(error) ? error : undefined;
+
   const user = await getCurrentUser();
-  if (user) redirect(intent === "seller" ? "/onboarding" : "/dashboard");
-  const seller = intent === "seller";
+  if (user) redirect(safeIntent === "seller" ? "/onboarding" : (safeRedirectUrl || "/dashboard"));
+  const seller = safeIntent === "seller";
 
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 lg:grid-cols-2 lg:items-center">
@@ -41,7 +48,7 @@ export default async function SignUpPage({ searchParams }: { searchParams: Promi
         <h1 className="font-display text-2xl font-semibold text-maroon-900">{seller ? "Create your seller account" : "Create your account"}</h1>
         <p className="mt-1 text-sm text-slate-600">{seller ? "Step 1 of 2 – you'll set up your store next." : "It only takes a minute."}</p>
         <div className="mt-6">
-          <AuthForm mode="sign-up" redirectUrl={redirect_url} intent={intent} oauthError={error} />
+          <AuthForm mode="sign-up" redirectUrl={safeRedirectUrl} intent={safeIntent} oauthError={safeError} />
         </div>
       </div>
     </div>

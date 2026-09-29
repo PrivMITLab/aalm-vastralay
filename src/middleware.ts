@@ -63,12 +63,25 @@ export function middleware(request: NextRequest) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json(
           { success: false, error: "Unauthorized access" },
-          { status: 401 }
+          {
+            status: 401,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "Cache-Control": "no-store",
+            },
+          }
         );
       }
-      const signInUrl = new URL("/sign-in", request.url);
-      signInUrl.searchParams.set("redirect_url", pathname);
-      return NextResponse.redirect(signInUrl);
+      const signInUrl = pathname === "/onboarding"
+        ? new URL("/sign-up?intent=seller&redirect_url=%2Fonboarding", request.url)
+        : new URL("/sign-in", request.url);
+      if (pathname !== "/onboarding") {
+        signInUrl.searchParams.set("redirect_url", pathname);
+      }
+      const redirectRes = NextResponse.redirect(signInUrl, 307);
+      redirectRes.headers.set("Content-Type", "text/plain; charset=utf-8");
+      redirectRes.headers.set("Cache-Control", "no-store, max-age=0");
+      return redirectRes;
     }
   }
 
