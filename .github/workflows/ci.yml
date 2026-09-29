@@ -90,6 +90,9 @@ jobs:
     name: 3. OWASP ZAP Dynamic Security Pentest
     needs: e2e
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -114,7 +117,7 @@ jobs:
       # Background me production server start karke scan karenge (Zero Vercel quota consumed)
       - name: Start Local Production Server in Background
         run: |
-          npm run start &
+          nohup npm run start > /tmp/next.log 2>&1 &
           npx wait-on http://localhost:3000 --timeout 60000
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
@@ -128,5 +131,5 @@ jobs:
         with:
           target: "http://localhost:3000"
           rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a"
+          cmd_options: "--autooff -a"
           fail_action: false
