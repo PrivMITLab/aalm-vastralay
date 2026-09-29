@@ -10,6 +10,25 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.10](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.9...v0.1.10) (2026-09-29)
+
+
+### ✨ Features
+
+* **platform:** implement openpanel tracker, typesense search and skeletons ([ae6c9a0](https://github.com/SudhirDevOps1/aalm-vastralay/commit/ae6c9a026b869fb0f5328c4d698a84675470e5d6))
+
+
+### 🐛 Bug Fixes
+
+* **security:** suppress harmless Next.js features in ZAP baseline ([7631288](https://github.com/SudhirDevOps1/aalm-vastralay/commit/7631288f0d6592675c4af109903bb649d2e75d32))
+
+
+### 📖 Documentation
+
+* **rules:** add section 9 for autonomous task decomposition loop ([217831d](https://github.com/SudhirDevOps1/aalm-vastralay/commit/217831d8ea1b071b52008ffebd280e9856492eba))
+* **rules:** codify 3 golden laws of GitHub Actions in master rulebooks ([d91af3a](https://github.com/SudhirDevOps1/aalm-vastralay/commit/d91af3a835999bc524fe8a5a591720a98a4206d4))
+* **rules:** enforce user-command lock on docs/RULES.md ([65da3b7](https://github.com/SudhirDevOps1/aalm-vastralay/commit/65da3b75b6c481b92dfbef35f899354f8c8b0b34))
+
 ## [0.1.9](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.8...v0.1.9) (2026-09-29)
 
 
