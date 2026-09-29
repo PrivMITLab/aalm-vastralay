@@ -12,8 +12,8 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 38 Enterprise test suites in `tests/` passing in ~1.46s (`npm test`).
-  - *New Suites:* `Google 1-Click OAuth 2.0 Security & Mapping` (Suite 37) and `Fail-Closed Required Env & Zero-Default Secrets` (Suite 38).
+- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.24s (`npm test`).
+  - *New Suites:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
 - **Git & Release Management:**
   - `release.yml`: 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `38 test suites`, `next build`) before release evaluation.
   - Native `GITHUB_TOKEN` integration, auto tag creation (`v0.1.8`), auto `CHANGELOG.md` generation, and optional Vercel deploy hook.

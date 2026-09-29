@@ -36,6 +36,8 @@ import { runMediaManagementTests } from "./media-management.test";
 import { testDuckDbAnalytics } from "./duckdb-analytics.test";
 import { testGoogleOAuth } from "./unit/google-oauth.test";
 import { testRequiredEnv } from "./unit/required-env.test";
+import { testAnalyticsTracker } from "./unit/analytics-tracker.test";
+import { testTypesenseSearchFallback } from "./unit/typesense-search.test";
 
 async function runAllTests() {
   console.log("\n=======================================================");
@@ -83,6 +85,8 @@ async function runAllTests() {
     { name: "DuckDB In-Memory OLAP Analytics & GST Slicing", fn: testDuckDbAnalytics },
     { name: "Google 1-Click OAuth 2.0 Security & Mapping", fn: testGoogleOAuth },
     { name: "Fail-Closed Required Env & Zero-Default Secrets", fn: testRequiredEnv },
+    { name: "OpenPanel Cookieless Client Analytics & PII Stripping", fn: testAnalyticsTracker },
+    { name: "Typesense Instant Search & Postgres Fallback Engine", fn: testTypesenseSearchFallback },
   ];
 
   for (const suite of suites) {
