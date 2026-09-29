@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx tests/run-all-tests.ts",
+    "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:api": "vitest run tests/api",
     "test:db": "vitest run tests/db",
@@ -30,7 +31,8 @@
     "setup:env": "pwsh scripts/setup-env.ps1",
     "setup:b2": "pwsh scripts/setup-b2-worker.ps1",
     "commitlint": "commitlint --edit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "release-please release-pr --config-file=release-please-config.json --manifest-file=.release-please-manifest.json"
   },
   "dependencies": {
     "@dicebear/core": "^9.4.0",
