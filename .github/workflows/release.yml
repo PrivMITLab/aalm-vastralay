@@ -25,19 +25,13 @@ on:
       - main
   workflow_dispatch: # Allows manual release trigger from GitHub Actions UI anytime
 
-permissions:
-  contents: write       # Git tag + release likhne ke liye
-  pull-requests: write  # Release PR banana ke liye
-  issues: write
+permissions: write-all
 
 jobs:
   release-please:
     name: Auto Release & Version Bump
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+    permissions: write-all
     outputs:
       # Downstream jobs ke liye: kya release hua?
       release_created: ${{ steps.release.outputs.release_created }}
@@ -58,8 +52,8 @@ jobs:
           config-file: release-please-config.json
           # Manifest file (current version track karta hai)
           manifest-file: .release-please-manifest.json
-          # GitHub token (auto-provided, with fallback to PAT if present)
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # GitHub token with write-all permissions
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # ==========================================================================
   # OPTIONAL: Agar release hua to Vercel ko notify karo (redeploy trigger)
