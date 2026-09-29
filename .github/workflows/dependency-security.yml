@@ -1,12 +1,15 @@
 name: Dependency Security & Audit
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: '0 22 * * *' # Har raat 3:30 AM IST (22:00 UTC) — Deep Nightly Dependency Audit
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-audit-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   audit:

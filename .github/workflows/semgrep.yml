@@ -1,10 +1,13 @@
 name: Semgrep Security Scan
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: semgrep-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   semgrep:

@@ -302,3 +302,15 @@ Every AI session must follow this order:
 - Never remove features without permission.
 - Never change database schema without migration.
 - Never deploy without tests passing.
+
+---
+
+## SECTION 13: TIERED CI/CD PIPELINE & NIGHTLY SECURITY SCANS LAW
+
+1. **Tier 1 (Fast Gate — Every Push/PR):** `ci.yml` runs Typecheck (`tsc`), ESLint 9, Vitest tests (`npm test`), DB tests (`npm run test:db`), and Next.js build. Target: under 90–120 seconds.
+2. **Tier 2 (Release Gate):** `release.yml` maintains a single draft Release PR silently. Merging triggers automated version bump, git tag, and changelog.
+3. **Tier 3 (Deep Nightly Scans — Runs Every Night at Off-Peak Hours):**
+   - `zap-nightly.yml`: OWASP ZAP DAST crawl runs nightly at 02:00 AM IST (20:30 UTC).
+   - `codeql.yml`: CodeQL AST semantic analysis runs nightly at 03:00 AM IST (21:30 UTC) + on PRs.
+   - `dependency-security.yml`: NPM security audit runs nightly at 03:30 AM IST (22:00 UTC) + on PRs.
+

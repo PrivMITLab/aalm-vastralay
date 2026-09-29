@@ -1,12 +1,15 @@
-name: Deploy Verification & Build
+name: Deploy Verification & Build (Manual / On-Demand)
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: deploy-verification
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: Build & Smoke Verification
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

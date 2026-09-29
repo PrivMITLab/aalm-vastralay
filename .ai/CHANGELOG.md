@@ -3,6 +3,26 @@
 
 ---
 
+## [2026-09-29] — Tiered CI/CD Pipeline & Nightly Security Scans Architecture (30 Min -> 90 Sec)
+
+### Performance & DevOps Optimization
+- **Tier 1 Fast Developer Gate (`.github/workflows/ci.yml`):**
+  - Streamlined `ci.yml` to a unified 90-second quality and build gate (Typecheck, Lint, 38 Test Suites, DB tests, Next.js production build).
+  - Added `paths-ignore` for markdown, documentation, and IDE configs to prevent redundant runs.
+  - Decoupled slow dynamic security crawlers from everyday code pushes.
+- **Tier 2 Automated Release (`.github/workflows/release.yml`):**
+  - Retained Google Release-Please automation with clean release titles (`v0.1.9+`).
+  - Supports release batching across multiple daily commits.
+- **Tier 3 Deep Nightly Security Pentests & Audits:**
+  - Created `.github/workflows/zap-nightly.yml`: Runs OWASP ZAP DAST crawl nightly at 02:00 AM IST (20:30 UTC).
+  - Updated `.github/workflows/codeql.yml`: Runs CodeQL semantic AST scan nightly at 03:00 AM IST (21:30 UTC) + on PRs.
+  - Updated `.github/workflows/dependency-security.yml`: Runs NPM vulnerability audit nightly at 03:30 AM IST (22:00 UTC) + on PRs.
+- **Duplicate Workflow Elimination:**
+  - Removed duplicate `.github/workflows/full-test-suite.yml` (100% redundant with `ci.yml`).
+  - Set `.github/workflows/deploy.yml` and `semgrep.yml` to `workflow_dispatch` / PRs to prevent duplicate builds.
+
+---
+
 ## [2026-09-29] — Enterprise Automated Release Management System & Quality Gate (Release v0.1.8)
 
 ### Added & Automated

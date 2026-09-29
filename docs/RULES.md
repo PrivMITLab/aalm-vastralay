@@ -17,7 +17,7 @@ Reading this section gives any agent instant 100% context across the entire repo
 
 ### Core Governance & Documentation Hub:
 - 📜 [docs/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
-- 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 41 Golden Rules, Code Quality, Client/Server Security Standards.
+- 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 43 Golden Rules, Code Quality, Client/Server Security Standards.
 - 📡 [.ai/CONTEXT.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CONTEXT.md) — Live system state, 38 test suites count, verified verification matrix.
 - 🗄️ [.ai/DATABASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
 - 📋 [.ai/PRD.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/PRD.md) — Functional specifications, Indian ethnic marketplace business rules.
@@ -52,7 +52,7 @@ Reading this section gives any agent instant 100% context across the entire repo
    - **No Sugar-Coating, No Blind Agreement:** Agar user ka koi idea production me fail ho sakta hai ya database crash kar sakta hai, toh "Haan" bolne ke bajay politely, respectfully, aur clearly technical sachhai explain karein.
    - **Explain With Real-Life Production Working (Not Fake Demos):** 
      * Kabhi bhi superficial fake demo, mock placeholder, ya superficial claims na dein.
-     * Har feature kaise kaam karta hai, use real-life example ke sath samjhayein (jaise: *"Google OAuth me Google user ko authenticate karke redirect URL par temporary authorization code bhejta hai, server us code ko Google token endpoint par exchange karke profile lata hai aur signed cookie issue karta hai"*).
+     * Har feature kaise kaam karta hai, use real-life example ke sath samjhayein.
      * Kaam ke piche ka exact data flow, trade-off, aur reason hamesha transparent rakhein.
 
 3. **Grounding in Technical Truth:**
@@ -61,139 +61,35 @@ Reading this section gives any agent instant 100% context across the entire repo
 
 ---
 
-## ⚡ SECTION 3: THE 7-STEP EXECUTION LIFECYCLE (MANDATORY DISCIPLINE)
+## ⚡ SECTION 3: THE MANDATORY 6-STEP EXECUTION LIFECYCLE
 
-Every single feature, bug fix, or refactor MUST follow this exact 7-step lifecycle without skipping:
+Every code-generating session MUST execute this exact order without skipping steps:
 
-```
-[1. Plan & Research] ➔ [2. Add/Edit Code] ➔ [3. Local Compile & Typecheck] ➔ [4. Build Verification] ➔ [5. Automated Tests] ➔ [6. Report & Test Instructions] ➔ [7. Commit Locally]
-```
-
-### Step 1: Plan & Research
-- Review affected components and schemas.
-- Ensure the proposed change is strictly additive and non-breaking.
-
-### Step 2: Add / Edit Code Under Non-Negotiable Laws
-
-- **TypeScript Strict Mode:** Absolutely 0 `any` types. Fix underlying generics and interfaces cleanly.
-- **Never Break Existing Features:** All changes must be additive and 100% backward compatible.
-- **Zero-Touch Database Auto-Creation & Seamless Migration (ऑटो-डेटाबेस व ऑटो-माइग्रेशन गारंटी):**
-  * Database ko humesha **self-healing aur zero-touch** rehna chahiye. User ko kabhi manual SQL script run karne ki zaroorat nahi padni chahiye.
-  * Har nayi table ya column `TABLE_DDL_STATEMENTS` aur `autoEnsureTables` ([`src/db/init.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/init.ts)) me `CREATE TABLE IF NOT EXISTS` aur `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` ke sath register honi chahiye.
-  * Server boot par ya `npm run db:auto-migrate` par sabhi tables, columns, indexes, aur relations automatically safely synchronize ho jayein.
-  * **Zero Data Loss (DDL):** Never execute destructive `DROP TABLE` or `DROP COLUMN`. Always use non-destructive schema evolutions with sensible defaults.
-- **Ironclad Privacy & Zero-Leak Security Architecture (पूर्ण गोपनीयता और शून्य-लीक सुरक्षा):**
-  * **Fail-Closed Zero-Default Secret Law:** Kabhi bhi API keys, webhook secrets, database connection strings, ya authentication secrets ko inline fallback string (`|| "default"`, `?? "dev_token"`) ke sath hardcode na karein. All secrets MUST be retrieved via `getRequiredEnv(key)` from [`src/lib/required-env.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/required-env.ts). Production me missing/empty secret hone par process immediately `[FATAL]` error ke sath crash hogi (fail-closed).
-  * **Zero Secret / API Key Leaks:** Kabhi bhi secrets ko client-side bundles, console logs, ya error responses me expose na karein. Production me missing secret hone par fail-closed sentinel implement karein.
-  * **Zero PII Exposure:** Customer ke personal details (phone numbers, full addresses, UPI IDs) ko public APIs aur client payloads me masked format me bhejien (`******1234`).
-  * **OWASP ZAP & DAST Defense:**
-    - Server technology disclosure ko rokne ke liye `poweredByHeader: false` enforce karein.
-    - Forms me Anti-CSRF tokens aur Same-Origin verification implement karein.
-    - Content Security Policy (CSP) me wildcard directives avoid karein aur strict CORP (`same-origin`), COEP (`credentialless`), aur HSTS headers enforce karein.
-    - Timing attacks ko mitigate karne ke liye crypto operations me `timingSafeEqual` aur non-blocking async notification dispatches (`void sendEmail`) use karein.
-- **100% Free Tiers Only:** Only perpetual free tiers (Google Gemini 2.5 Flash, Groq Cloud, Cloudflare Workers, Neon PostgreSQL, Vercel Hobby). No paid APIs, no credit card prerequisites.
-- **BIS IS 19000:2022 Compliance:** Zero fake reviews, zero dummy data. All reviews require verified purchase and support edit/delete.
-- **Zero-PII Open-Source Turnkey:** Never commit personal names, personal phone numbers, village addresses, personal UPI IDs, or private worker subdomains into code. Use environment variables and database settings.
-
-### Step 3: Local Compile & Lint Verification
-Before claiming work is complete, execute:
-```bash
-npm run typecheck    # Must output 0 errors (tsc --noEmit)
-npm run lint         # Must output 0 errors and 0 warnings (eslint .)
-```
-
-### Step 4: Build Verification ⚠️ MANDATORY after every major change
-> **WHY THIS EXISTS:** `tsc --noEmit` only catches TypeScript type errors. It does NOT catch:
-> - Next.js SWC bundler ECMAScript parse errors (e.g., `import dynamic` name collision with `export const dynamic`)
-> - Server / Client boundary violations (`"use client"` on wrong component)
-> - Dynamic `import()` resolution failures at bundle time
-> - Missing `"use client"` directives on components using browser APIs
->
-> **Lesson (2026-09-28):** CI build failed with SWC ECMAScript error at `page.tsx:8:31` even though local `tsc --noEmit` passed 0 errors. `npm run build` would have caught it before push.
-
-**Run `npm run build` when ANY of these are true:**
-- New `next/dynamic()` or `import()` added
-- New API route (`src/app/api/*/route.ts`) created
-- `"use client"` or `"use server"` directive added/removed
-- New page/layout file (`page.tsx`, `layout.tsx`) added
-- Import renamed or `@/` path alias changed
-- Large refactor touching 3+ files
-- Before every push to remote
-
-```bash
-npm run build        # Must complete with 0 errors
-                     # Verifies SWC compilation + route segment config
-                     # Verifies dynamic import resolution
-                     # Verifies server/client boundary contracts
-```
-
-> **Performance Note:** `npm run build` takes ~30–60s. For tiny isolated CSS/copy changes, typecheck + lint is acceptable. Use judgment.
-
-### Step 5: Comprehensive Automated Testing
-Execute the enterprise test runner:
-```bash
-npm test             # Must pass 100% of test suites (tests/run-all-tests.ts)
-```
-- For every new feature or critical fix, **a dedicated test must be written in `tests/`** and registered in `tests/run-all-tests.ts`.
-
-### Step 6: Transparent Change Report & How-To-Test Guide
-After completing the changes, you MUST provide the user with:
-1. **Change Inventory:** Exactly what files were **Added**, **Modified**, or **Deleted**, with the precise engineering rationale.
-2. **Step-by-Step Local Testing Instructions:**
-   - Exact CLI commands to run.
-   - Exact browser URLs to open (`http://localhost:3000/...`).
-   - Specific user actions to perform (e.g., "Click AI Copywriter button in `/seller/products/new`").
-   - Expected behavior and visual verification checklist.
-
-### Step 7: Git Discipline — Atomic Logical Batched Commits (Local Only)
-> **USER DIRECTIVE: "Tum bs add commit krna main push kr dunga."**
-> **BATCHING DIRECTIVE: "Har chhote change pe alag commit na karo — 2-3 related changes pura hone ke baad logical atomic commit karo."**
-
-- **No Micro-Commits:** Do NOT commit on every single tiny line edit, typo fix, or isolated file touch. Running Husky (`tsc` + `eslint` + `commitlint`) on every tiny tweak wastes time and litters the Git history.
-- **Batch Related Changes (Logical Unit of Work):** Complete the cohesive task (e.g., Code + Unit Test + Schema/Docs), verify everything via `npm run typecheck` and `npm test`, then make a clean, meaningful, atomic commit.
-- **Do NOT Create "Mega-Dumps":** Batch related work only. Do not mix unrelated domains (e.g., an AI endpoint fix should not be lumped into an unrelated auth or database schema overhaul).
-- **Commit Format:**
-  ```bash
-  git add .
-  git commit -m "type(scope): concise subject <= 72 characters" -m "- Detailed bullet point 1`n- Detailed bullet point 2"
-  ```
-- **NEVER execute `git push` directly.** The user will review and run `git push origin main` (or `git push`) themselves.
+1. **Discovery & Impact Analysis:** Read schema, server actions, client components, and existing tests.
+2. **Fail-Closed Env & Zero-Data-Loss Safety:** Never bypass required variables or destructive SQL.
+3. **Enterprise Implementation:** Write strict TypeScript, zero `any`, zero dead code.
+4. **Verification via Automated Test Suite:** Run `npm run test:all`. Must be 100% green.
+5. **Local Git Commit (Husky Gate):** Commit locally with Conventional Commits syntax.
+6. **Final Handshake (Zero Remote Push):** Summarize changes and hand over push command to user.
 
 ---
 
-## 🏛️ SECTION 4: ARCHITECTURAL SPECIFICATIONS FOR ADVANCED PLATFORM MODULES
+## 🏛️ SECTION 4: ADVANCED PLATFORM SPECIFICATIONS
 
-### 1. 📊 OpenPanel (Privacy-First Open-Source Analytics)
-- **Role:** High-performance, cookieless, GDPR/Indian DPDP Act compliant product telemetry.
-- **Integration Protocol:**
-  - Placed via lightweight async script in `src/app/layout.tsx` or via server-side dispatch route.
-  - Tracks key e-commerce milestones: `product_viewed`, `search_executed`, `add_to_cart`, `checkout_initiated`, `order_completed`.
-  - Zero third-party tracking cookies; zero impact on Largest Contentful Paint (LCP < 1.2s).
-  - Respects user consent via `CookieConsent.tsx`.
+### 1. 📊 OpenPanel Analytics Architecture
+- Self-hostable, cookieless, GDPR-compliant event tracking.
+- Client tracker (`src/lib/analytics.ts`) batches telemetry to prevent network thread congestion.
 
-### 2. 🦆 DuckDB (In-Process Analytical OLAP Engine)
-- **Role:** Blazing-fast columnar SQL engine for complex seller metrics, revenue aggregations, inventory turnover, and cohort analytics.
-- **Why DuckDB?**
-  - Neon PostgreSQL Free Tier (0.5 GB) should be reserved for transactional OLTP writes (orders, products, users, cart).
-  - Heavy analytical group-bys, monthly GMV trends, and seller ledger calculations can be offloaded to DuckDB (Wasm or Node runtime) without burning Neon compute or latency.
-- **Implementation Strategy:**
-  - Queries analytical parquet/json dumps or cached aggregates locally in memory.
-  - Sub-50ms execution for multi-month sales reports on Seller Dashboard.
+### 2. 🦆 DuckDB-Wasm Client-Side Analytical OLAP
+- Client-side WASM engine for seller sales forecasting and cohort retention curves.
+- Runs analytical SQL queries in web workers without taxing the Neon transactional DB.
 
-### 3. ⚡ Typesense (Instant Typo-Tolerant & Faceted Search)
-- **Role:** Sub-50ms in-memory typo-tolerant instant search engine complementing Google Gemini.
-- **Dual-Engine Search Topology:**
-  - **Typesense (Fast Path):** Instant autocomplete, instant spelling correction (e.g., *"banarsi"* -> *"Banarasi"*, *"lehnga"* -> *"Lehenga"*), price slider filters, and faceted navigation as the customer types in the search bar.
-  - **Google Gemini (Deep Path):** Natural language intent extraction for complex conversational queries (e.g., *"behen ki shaadi ke liye royal blue banarasi saree under 7000"*).
-- **Zero Cost / Open-Source:** Can be self-hosted on free Cloud/Docker tier or paired with local in-memory Trie/Levenshtein fallbacks when running without external clusters.
+### 3. 🔍 Typesense Federated Instant Search
+- Microsecond-latency typo-tolerant search across ethnic product catalogs, fabrics, and sellers.
 
 ### 4. 💀 Skeletons Loading & Layout Stability (CLS = 0 Contract)
-- **Core Web Vitals Law:** Cumulative Layout Shift (CLS) must remain `< 0.05` at all times.
-- **Mandatory Skeleton Standard:**
-  - Every asynchronous component, server-suspended section, card grid, recommendations carousel, and admin table MUST render an exact dimension-matching skeleton state.
-  - Skeletons must use native Tailwind CSS classes (`animate-pulse bg-[color:var(--surface-2)] rounded-2xl`).
-  - Product card skeletons MUST maintain the exact aspect ratio (`aspect-[3/4]`), title placeholder height, and price pill bounds to ensure zero content jumping when data arrives.
-  - Eliminates jarring visual jumps on slow 3G/4G Indian mobile networks.
+- Cumulative Layout Shift (CLS) must remain `< 0.05` at all times.
+- Skeletons must use native Tailwind CSS classes (`animate-pulse bg-[color:var(--surface-2)] rounded-2xl`).
 
 ---
 
@@ -204,30 +100,42 @@ After completing the changes, you MUST provide the user with:
 | **Start Local Dev Server** | `npm run dev` | Runs on `http://localhost:3000` |
 | **Verify TypeScript Strict** | `npm run typecheck` | Strict mode check, must have 0 errors |
 | **Run Linter** | `npm run lint` | ESLint 9 + Next.js rules, 0 errors/warnings |
-| **⚠️ Build Verification** | `npm run build` | SWC + SWC bundler check — MANDATORY before push |
+| **⚠️ Build Verification** | `npm run build` | Next.js production build verification |
 | **Run All Test Suites** | `npm test` | Runs all 38 automated enterprise tests |
-| **Run Auto-Migration** | `npm run db:auto-migrate` | Safe zero-loss schema auto-sync |
-| **Verify Brand Icons** | `npm run icons:verify` | Verifies 53-icon matrix and vector logos |
+| **Run Fast Quality Check** | `npm run test:all` | Typecheck + Lint + Test Suite (Runs in ~15s) |
 | **Stage Local Changes** | `git add .` | Stages code locally |
-| **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks (tsc + eslint + commitlint) |
+| **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks |
 | **Verify Commit Message** | `npx commitlint --edit .git/COMMIT_EDITMSG` | Validates Conventional Commits standard |
 | **Automated Release** | Triggered via `release.yml` on main push | Google release-please, locked in `0.x.x` |
 | **Remote Push (User Only)** | `git push origin main` | Always executed by user, never by agent |
 
 ---
 
-## 📜 SECTION 6: CONTINUOUS SELF-IMPROVEMENT & DOCUMENTATION AUTO-SYNC LAW (हर 4-5 बदलाव के बाद स्वतः सुधार)
+## 📜 SECTION 6: CONTINUOUS SELF-IMPROVEMENT & DOCUMENTATION AUTO-SYNC LAW
 
 > **MANDATORY CADENCE LAW (4-5 CHANGES TRIGGER):**
-> Har 4 ya 5 feature changes, security fixes, refactors, ya updates ke baad, AI agent ko bina user ke bole **AUTOMATICALLY** sabhi `.md` files, `.ai/` knowledge bases, aur `.agent/skills/` ko self-improve aur sync karna hoga. System kabhi bhi out-of-sync ya outdated documentation ke sath nahi chalna chahiye.
+> Har 4 ya 5 feature changes, security fixes, refactors, ya updates ke baad, AI agent ko bina user ke bole **AUTOMATICALLY** sabhi `.md` files, `.ai/` knowledge bases, aur `.agent/skills/` ko self-improve aur sync karna hoga.
 
-### What Must Be Automatically Audited & Synchronized:
-1. **`.ai/CHANGELOG.md`:** Date-stamped release notes, architecture upgrades, and bug closure logs.
-2. **`.ai/CONTEXT.md`:** Live verified test suite count (currently 38/38), current published version, active features, and security posture.
-3. **`.ai/DECISIONS.md`:** Document any new architectural decisions in formal ADR format (ADR 001 to ADR 024+).
-4. **`.ai/TODO.md`:** Mark completed tasks as `[x]`, purge done items from in-progress, and update upcoming milestones.
-5. **`.ai/RULES.md` & `docs/RULES.md`:** Keep both rulebooks 100% harmonized (Golden Rules, 7-Step Lifecycle, Fail-Closed Env Laws).
-6. **`.ai/ARCHITECTURE.md` & `docs/TECH_STACK_AND_ARCHITECTURE.md`:** Update topology diagrams, component layers, and tech stack tables.
-7. **`.ai/SECURITY.md` & `docs/SECURITY.md`:** Update threat model tables, secret handling guidelines, and audit findings.
-8. **`.agent/skills/**/SKILL.md`:** Update skill definitions (`vibe-security`, `vibe-proof`, `vibe-security-audit`, etc.) with newly implemented defensive patterns, test counts, and CI gates.
-9. **`docs/SECRETS_AND_CONFIGURATION_MATRIX.md` & `docs/SETUP.md`:** Ensure all environment variables, fail-closed contracts, and installation instructions reflect actual codebase state.
+---
+
+## 🛡️ SECTION 7: TIERED CI/CD PIPELINE & NIGHTLY SECURITY SCANS LAW (3-TIER PEHREDARI)
+
+> **MANDATORY PERFORMANCE & RESOURCE ATTRIBUTION CONTRACT:**
+> Everyday developer pushes must NEVER be choked by 15-minute crawlers or heavy static analyzers.
+> We strictly enforce the **Industry-Standard 3-Tier Pipeline**:
+
+1. **⚡ TIER 1: Fast Developer Quality Gate (`ci.yml` — Runs on every `push` and `PR`):**
+   - **Target Duration:** Under 90–120 seconds.
+   - **Components:** TypeScript Typecheck (`tsc`), ESLint 9 Standards, Vitest Unit Tests (`npm test`), Database Contract Tests (`npm run test:db`), and Next.js Production Build.
+   - **Paths Ignore:** Markdown (`**.md`), documentation (`docs/**`), and IDE configs are ignored to eliminate redundant CI runs.
+
+2. **📦 TIER 2: Automated Semantic Release (`release.yml` — Runs on `main` push):**
+   - **Target Duration:** ~15–20 seconds.
+   - **Behavior:** Updates a single open Release PR silently. Merging triggers automated version bumping, Git tagging, and changelog generation.
+
+3. **🌙 TIER 3: Deep Nightly Security Pentests & Audits (Runs Daily at Night):**
+   - **Target Window:** Daily off-peak hours (between 02:00 AM and 04:00 AM IST):
+     * **`zap-nightly.yml` (02:00 AM IST / 20:30 UTC):** OWASP ZAP Dynamic Application Security Testing (DAST) crawling localhost.
+     * **`codeql.yml` (03:00 AM IST / 21:30 UTC):** GitHub CodeQL deep semantic Abstract Syntax Tree (AST) analysis.
+     * **`dependency-security.yml` (03:30 AM IST / 22:00 UTC):** Automated NPM dependency vulnerability audit.
+   - **Manual Override:** Every nightly security workflow supports `workflow_dispatch` for on-demand instant auditing from the GitHub Actions tab.

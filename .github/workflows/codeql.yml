@@ -1,12 +1,15 @@
 name: "CodeQL Analysis"
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   schedule:
-    - cron: '30 1 * * 0'
+    - cron: '30 21 * * *' # Har raat 3:00 AM IST (21:30 UTC) — Deep Nightly Semantic Scan
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
