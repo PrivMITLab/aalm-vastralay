@@ -30,13 +30,14 @@ metadata:
 13. Path traversal defense: Uploaded filenames sanitized using strict alphanumeric UUIDs.
 
 ## Group 4: Cryptography & Secrets Management
-14. Zero hardcoded secrets, API keys, or private tokens in git repository.
-15. Authenticated AES-256-GCM cipher for stored credentials.
-16. Webhook signatures validated using constant-time comparison (`timingSafeEqual`).
+14. Zero hardcoded secrets, API keys, or private tokens in git repository or application source files.
+15. Fail-closed secrets architecture: `getRequiredEnv(key)` throws fatal error in production if a required secret is missing or empty. Zero fallback defaults in code.
+16. Authenticated AES-256-GCM cipher for stored credentials.
+17. Webhook signatures validated using constant-time comparison (`timingSafeEqual`) and Script Properties in Google Apps Script without default fallbacks.
 
 ## Group 5: Network, HTTP & Edge Security
-17. Content Security Policy (CSP) blocking unauthorized script injection and framing.
-18. Anti-clickjacking headers (`X-Frame-Options: SAMEORIGIN`).
-19. Rate limiting on all `/api/*` endpoints.
-20. Proof-of-work challenge enabled on checkout and authentication forms.
-21. Strict CORS and CSRF verification on form submissions.
+18. Content Security Policy (CSP) blocking unauthorized script injection and framing.
+19. Anti-clickjacking headers (`X-Frame-Options: SAMEORIGIN`).
+20. Rate limiting on all `/api/*` endpoints.
+21. Proof-of-work challenge enabled on checkout and authentication forms.
+22. Strict CORS and CSRF verification on form submissions.

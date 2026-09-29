@@ -17,12 +17,14 @@ Reading this section gives any agent instant 100% context across the entire repo
 
 ### Core Governance & Documentation Hub:
 - 📜 [docs/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
-- 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 36 Golden Rules, Code Quality, Client/Server Security Standards.
-- 📡 [.ai/CONTEXT.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CONTEXT.md) — Live system state, test suite count, verified verification matrix.
+- 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 41 Golden Rules, Code Quality, Client/Server Security Standards.
+- 📡 [.ai/CONTEXT.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CONTEXT.md) — Live system state, 38 test suites count, verified verification matrix.
 - 🗄️ [.ai/DATABASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
 - 📋 [.ai/PRD.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/PRD.md) — Functional specifications, Indian ethnic marketplace business rules.
 - 🏗️ [docs/TECH_STACK_AND_ARCHITECTURE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/TECH_STACK_AND_ARCHITECTURE.md) — Complete multi-tier system topology diagram and tech stack breakdown.
 - 🚀 [docs/SETUP.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/SETUP.md) — Local development, Vercel production deployment, and DB setup runbooks.
+- 🚀 [docs/RELEASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RELEASE.md) — Canonical Release Automation Runbook (Google release-please, Quality Gate, Vercel hooks).
+- 🤝 [CONTRIBUTING.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/CONTRIBUTING.md) — Conventional Commits and development workflow guide.
 - ⚖️ [.ai/DECISIONS.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DECISIONS.md) — Architecture Decision Records (ADR).
 - 📜 [.ai/CHANGELOG.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CHANGELOG.md) — Historical chronological record of releases and fixes.
 
@@ -30,8 +32,8 @@ Reading this section gives any agent instant 100% context across the entire repo
 - `src/app/` — Next.js 16 App Router pages, layouts, server actions, and API routes.
 - `src/db/` — Drizzle ORM database layer ([`src/db/schema.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/schema.ts), [`src/db/index.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/index.ts), [`src/db/init.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/init.ts)).
 - `src/components/` — UI components (Product cards, Header, Footer, Admin, Seller, Modals).
-- `src/lib/` — Business logic ([`src/lib/ai/client.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/ai/client.ts), [`src/lib/ai/search-parser.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/ai/search-parser.ts), [`src/lib/auth.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/auth.ts), [`src/lib/media-resolver.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/media-resolver.ts)).
-- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/tests/run-all-tests.ts), 34+ test suites).
+- `src/lib/` — Business logic ([`src/lib/required-env.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/required-env.ts), [`src/lib/ai/client.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/ai/client.ts), [`src/lib/auth.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/auth.ts), [`src/lib/media-resolver.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/media-resolver.ts)).
+- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/tests/run-all-tests.ts), 38 test suites).
 - `.env.development.example` — Template for local development (`http://localhost:3000`).
 - `.env.production.example` — Template for live production on Vercel with Neon pooled connection.
 
@@ -81,7 +83,8 @@ Every single feature, bug fix, or refactor MUST follow this exact 7-step lifecyc
   * Server boot par ya `npm run db:auto-migrate` par sabhi tables, columns, indexes, aur relations automatically safely synchronize ho jayein.
   * **Zero Data Loss (DDL):** Never execute destructive `DROP TABLE` or `DROP COLUMN`. Always use non-destructive schema evolutions with sensible defaults.
 - **Ironclad Privacy & Zero-Leak Security Architecture (पूर्ण गोपनीयता और शून्य-लीक सुरक्षा):**
-  * **Zero Secret / API Key Leaks:** Kabhi bhi API keys, webhook secrets, database connection strings, ya authentication secrets ko client-side bundles, console logs, ya error responses me expose na karein. Production me missing secret hone par fail-closed sentinel implement karein.
+  * **Fail-Closed Zero-Default Secret Law:** Kabhi bhi API keys, webhook secrets, database connection strings, ya authentication secrets ko inline fallback string (`|| "default"`, `?? "dev_token"`) ke sath hardcode na karein. All secrets MUST be retrieved via `getRequiredEnv(key)` from [`src/lib/required-env.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/required-env.ts). Production me missing/empty secret hone par process immediately `[FATAL]` error ke sath crash hogi (fail-closed).
+  * **Zero Secret / API Key Leaks:** Kabhi bhi secrets ko client-side bundles, console logs, ya error responses me expose na karein. Production me missing secret hone par fail-closed sentinel implement karein.
   * **Zero PII Exposure:** Customer ke personal details (phone numbers, full addresses, UPI IDs) ko public APIs aur client payloads me masked format me bhejien (`******1234`).
   * **OWASP ZAP & DAST Defense:**
     - Server technology disclosure ko rokne ke liye `poweredByHeader: false` enforce karein.
@@ -202,22 +205,29 @@ After completing the changes, you MUST provide the user with:
 | **Verify TypeScript Strict** | `npm run typecheck` | Strict mode check, must have 0 errors |
 | **Run Linter** | `npm run lint` | ESLint 9 + Next.js rules, 0 errors/warnings |
 | **⚠️ Build Verification** | `npm run build` | SWC + SWC bundler check — MANDATORY before push |
-| **Run All Test Suites** | `npm test` | Runs all 36+ automated enterprise tests |
+| **Run All Test Suites** | `npm test` | Runs all 38 automated enterprise tests |
 | **Run Auto-Migration** | `npm run db:auto-migrate` | Safe zero-loss schema auto-sync |
 | **Verify Brand Icons** | `npm run icons:verify` | Verifies 53-icon matrix and vector logos |
 | **Stage Local Changes** | `git add .` | Stages code locally |
-| **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks |
+| **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks (tsc + eslint + commitlint) |
+| **Verify Commit Message** | `npx commitlint --edit .git/COMMIT_EDITMSG` | Validates Conventional Commits standard |
+| **Automated Release** | Triggered via `release.yml` on main push | Google release-please, locked in `0.x.x` |
 | **Remote Push (User Only)** | `git push origin main` | Always executed by user, never by agent |
 
 ---
 
-## 📜 SECTION 6: DOCUMENTATION AUTO-SYNC RULE (3-4 CYCLES CADENCE)
+## 📜 SECTION 6: CONTINUOUS SELF-IMPROVEMENT & DOCUMENTATION AUTO-SYNC LAW (हर 4-5 बदलाव के बाद स्वतः सुधार)
 
-After every 3 to 4 updates, feature enhancements, or major bug fixes:
-The AI agent MUST review and sync all documentation files in `.ai/` and `docs/`:
-1. `.ai/CHANGELOG.md` — Log date-stamped release notes and architectural updates.
-2. `.ai/CONTEXT.md` — Update verified test count, active features, and system status.
-3. `.ai/DECISIONS.md` — Document new design choices in ADR format.
-4. `.ai/PRD.md` — Ensure requirements reflect live capabilities.
-5. `.ai/TODO.md` — Check off completed tasks and update upcoming milestones.
-6. `docs/TECH_STACK_AND_ARCHITECTURE.md` — Update architectural diagrams if new services are added.
+> **MANDATORY CADENCE LAW (4-5 CHANGES TRIGGER):**
+> Har 4 ya 5 feature changes, security fixes, refactors, ya updates ke baad, AI agent ko bina user ke bole **AUTOMATICALLY** sabhi `.md` files, `.ai/` knowledge bases, aur `.agent/skills/` ko self-improve aur sync karna hoga. System kabhi bhi out-of-sync ya outdated documentation ke sath nahi chalna chahiye.
+
+### What Must Be Automatically Audited & Synchronized:
+1. **`.ai/CHANGELOG.md`:** Date-stamped release notes, architecture upgrades, and bug closure logs.
+2. **`.ai/CONTEXT.md`:** Live verified test suite count (currently 38/38), current published version, active features, and security posture.
+3. **`.ai/DECISIONS.md`:** Document any new architectural decisions in formal ADR format (ADR 001 to ADR 024+).
+4. **`.ai/TODO.md`:** Mark completed tasks as `[x]`, purge done items from in-progress, and update upcoming milestones.
+5. **`.ai/RULES.md` & `docs/RULES.md`:** Keep both rulebooks 100% harmonized (Golden Rules, 7-Step Lifecycle, Fail-Closed Env Laws).
+6. **`.ai/ARCHITECTURE.md` & `docs/TECH_STACK_AND_ARCHITECTURE.md`:** Update topology diagrams, component layers, and tech stack tables.
+7. **`.ai/SECURITY.md` & `docs/SECURITY.md`:** Update threat model tables, secret handling guidelines, and audit findings.
+8. **`.agent/skills/**/SKILL.md`:** Update skill definitions (`vibe-security`, `vibe-proof`, `vibe-security-audit`, etc.) with newly implemented defensive patterns, test counts, and CI gates.
+9. **`docs/SECRETS_AND_CONFIGURATION_MATRIX.md` & `docs/SETUP.md`:** Ensure all environment variables, fail-closed contracts, and installation instructions reflect actual codebase state.

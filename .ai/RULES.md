@@ -39,12 +39,15 @@
 31. NO synthetic or fake reviews. Strictly adhere to BIS IS 19000:2022 (reviews require verified purchase and support edit/delete).
 32. NO hardcoded merchant identities in core components. Support turnkey open-source parameterization via .env.
 33. NO YES-MAN BEHAVIOR ("Haan mein haan mat milana"). When changes/suggestions are proposed, perform live real-time research, weigh objective trade-offs without fluff ("no bakwas"), and select the true professional production-grade approach.
-34. MANDATORY 6-STEP EXECUTION: Plan & Research -> Add/Edit Code -> Local Compile (typecheck + lint) -> Automated Test (100% pass) -> Report Changes & Step-by-Step Test Guide -> Local Commit.
+34. MANDATORY 7-STEP EXECUTION LIFECYCLE: Plan & Research -> Add/Edit Code -> Local Compile (typecheck + lint) -> Build Verification (npm run build) -> Automated Tests (100% pass on all 38 suites) -> Report Changes & Step-by-Step Test Guide -> Atomic Batched Local Commit (Husky + Commitlint).
 35. MANDATORY SKELETON STATES (CLS = 0): Every async page, product grid, cart, and recommendations carousel must render exact-dimension skeletons using Tailwind animate-pulse.
 36. ADVANCED PLATFORM TOPOLOGY: Maintain architectural alignment for OpenPanel (cookieless product telemetry), DuckDB (in-process analytical OLAP offloading), and Typesense (sub-50ms instant typo-tolerant search).
 37. PROJECT-CENTRIC DEEP THINKING & REAL-LIFE HONEST EXPLANATIONS: Always analyze and design from Aalm Vastralay's real production perspective. Speak the plain technical truth politely with concrete real-life production examples (no fake demos, no vaporware).
 38. ZERO-TOUCH AUTO-DATABASE & NON-DESTRUCTIVE MIGRATION: Database must be 100% self-healing. Tables and columns must auto-migrate via `initCleanBaseData` and `db:auto-migrate` with `CREATE/ALTER TABLE IF NOT EXISTS`. Zero manual SQL required by user; zero data loss.
 39. IRONCLAD PRIVACY & ZERO-LEAK SECURITY: Strictly zero leak of credentials, API keys, secrets, or customer PII in code, logs, or client payloads. Hardened for OWASP ZAP: `poweredByHeader: false`, anti-CSRF token inputs in forms, restrictive CSP/CORP/COEP headers, and timing-safe crypto comparisons.
+40. FAIL-CLOSED ENVIRONMENT SECRETS LAW: All sensitive secrets must be retrieved via `getRequiredEnv(key)` from `src/lib/required-env.ts`. Zero inline fallback strings (`|| 'default'`) in source code. Missing production secret must throw a fatal fail-closed error.
+41. CONVENTIONAL COMMITS & AUTOMATED RELEASE DISCIPLINE: All commit messages must strictly pass `commitlint` (`type(scope): subject`). All versioning is automated via Google `release-please` locked in `0.x.x` until explicit manual `1.0.0` milestone. Runs through Quality Gate (Typecheck + Lint + 38 Test Suites + Build).
+42. CONTINUOUS SELF-IMPROVEMENT & DOCUMENTATION AUTO-SYNC LAW: Har 4 ya 5 feature changes, security fixes, refactors, ya updates ke baad, AI agent ko bina user ke bole AUTOMATICALLY sabhi `.md` files, `.ai/` knowledge bases (`CONTEXT.md`, `CHANGELOG.md`, `DECISIONS.md`, `TODO.md`, `ARCHITECTURE.md`, `SECURITY.md`), aur `.agent/skills/` (`vibe-security`, `vibe-proof`, `vibe-security-audit`, etc.) ko self-improve aur sync karna hoga. System kabhi outdated docs ke sath nahi chalega.
 
 ---
 
@@ -196,15 +199,16 @@
 
 ## SECTION 8: TESTING RULES
 
-- Unit tests for all utility functions.
-- Integration tests for all API routes.
-- E2E tests for critical user flows.
+- All 38 automated enterprise test suites must pass 100% green (`npm test` in `tests/run-all-tests.ts`).
+- Unit tests for all utility functions and secret loaders.
+- Integration tests for all API routes and checkout / payment flows.
+- E2E tests for critical user flows (Guest mode, UPI QR, WhatsApp order confirm).
 - Minimum 70% code coverage.
-- Tests run on CI before merge.
-- Tests must be deterministic.
-- Tests must not depend on external services.
-- Mock external APIs in tests.
-- Test error cases, not just happy path.
+- Strict Quality Gate runs on CI (`release.yml`) before any release.
+- Tests must be deterministic and execute in < 2 seconds.
+- Tests must not depend on external live networks (use mock or sandbox).
+- Mock external APIs in tests (Neon, Backblaze B2, Google Apps Script).
+- Test fail-closed error cases, not just happy path.
 
 ---
 
@@ -213,15 +217,17 @@
 Commit message format:
   `type(scope): subject`
 
-  `type`: feat, fix, docs, style, refactor, test, chore, perf, security
-  `scope`: api, ui, db, auth, security, perf
+  `type`: feat, fix, docs, style, refactor, test, chore, perf, security, ci
+  `scope`: api, ui, db, auth, security, perf, release, env, mailer
   `subject`: imperative mood, no period, max 72 chars
 
+Must pass `commitlint` (`npx commitlint --edit .git/COMMIT_EDITMSG`) and Husky pre-commit hooks (`npm run typecheck && npm run lint`).
+
 Examples:
-  `feat(auth): add password reset flow`
+  `feat(auth): add google 1-click oauth 2.0 flow`
   `fix(ui): correct dropdown text color in dark mode`
-  `docs(api): update products endpoint examples`
-  `security(auth): add login rate limiting`
+  `security(env): enforce fail-closed zero-default secrets`
+  `ci(release): setup quality gate and automated release pipeline`
 
 Branch naming:
   `feature/feature-name`

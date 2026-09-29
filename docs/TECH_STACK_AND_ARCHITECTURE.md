@@ -57,8 +57,10 @@ Aalm Vastralay is engineered around four non-negotiable operational principles:
 | **In-Memory OLAP**  | **DuckDB-Wasm**        | `^1.33.1`    | Client-side columnar SQL engine executing GMV, GST, & sales analytics in browser RAM (0% DB load). |
 | **Free AI Inference**| **Google Gemini & Groq**| `2.5 Flash / 70B`| Zero-cost luxury copywriting, sub-300ms recommendations & NLP search. |
 | **Email Relay** | **Google Apps Script**| `V8 Runtime` | Zero-domain free transactional email relay for OTPs and invoices. |
-| **Logistics Engine** | **Shiprocket & Delhivery** | `REST v2` | Automated AWB waybill generation, barcode packing slips, and pincode mapping. |
-| **Testing Framework**| **Vitest & TSX** | `Automated` | 36 enterprise automated test suites verifying security, payments, and DB rules. |
+| **Testing Framework**| **Vitest & TSX** | `Automated` | 38 enterprise automated test suites verifying security, payments, and DB rules. |
+| **Release Automation**| **Google Release Please**| `v4` | Automated semantic versioning, Git tagging, and CHANGELOG.md generation. |
+| **Commit Discipline** | **Commitlint & Husky** | `v19 / v9` | Pre-commit quality gate (`typecheck` + `lint`) and Conventional Commits validation. |
+| **Secrets Gateway**   | **Fail-Closed Env Law** | `src/lib/required-env.ts` | Zero-default fail-closed secret gateway throwing fatal errors on missing production keys. |
 
 ---
 

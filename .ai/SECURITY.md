@@ -16,6 +16,7 @@
 | **IP Spoofing & Rate Limit Bypass** | Strict IPv4/IPv6 regex validation, Cloudflare/Vercel proxy priority, fail-closed on sensitive routes. | `src/lib/rate-limit.ts`, `src/lib/request.ts` |
 | **Information Leakage** | Zero stack traces or raw database error messages exposed in responses; generic user messages with server-only logged UUID request IDs. | `src/app/api/**/route.ts` |
 | **Credential & Key Leaks** | Secrets stored strictly in environment variables; AES-256-GCM encryption for stored keys. | `src/lib/encryption.ts` |
+| **Insecure Fallback Secrets** | Centralized fail-closed `getRequiredEnv()` strictly throws fatal error on missing/empty production secrets. Zero fallback defaults in code. Google Apps Script requires Script Properties. | `src/lib/required-env.ts`, `scripts/*.gs` |
 | **Brute-Force & DDoS** | IP-based rate limiting + progressive lockout on failed login attempts. | `src/lib/rate-limit.ts` |
 | **Multi-Vendor Data Tampering** | Strict tenant boundaries (`where storeId = ownStore.id`) in all seller actions. | `src/actions/seller.ts` |
 | **Customer PII Leakage** | Automated phone and email masking in seller order views and logs. | `src/lib/masking.ts`, `src/lib/encryption.ts` |

@@ -35,16 +35,19 @@ flowchart TD
 - Transactional state updates with audit logging (`recordAudit`).
 - Targeted cache invalidation (`updateTag`) for instant UI synchronization without layout nukes.
 
-### Layer 3: Security & Privacy (`src/lib/security/`, `src/lib/pow.ts`, `src/lib/encryption.ts`)
+### Layer 3: Security & Privacy (`src/lib/required-env.ts`, `src/lib/security/`, `src/lib/pow.ts`, `src/lib/encryption.ts`)
+- Centralized fail-closed environment secret gateway (`getRequiredEnv()`) eliminating hardcoded fallback strings.
 - Cryptographic hashing of user passwords with Scrypt.
 - Authenticated AES-256-GCM cipher for database credential protection.
 - In-memory and database rate-limiting with IP anti-spoof validation and fail-closed defense.
 - Self-hosted Turnstile-style click-to-solve PoW defense with `/24` subnet drift binding and single-use anti-replay `pow_used` table.
 - Tenant isolation ensuring sellers only access their own store data.
 
-### Layer 4: Persistence & Database (`src/db/`)
+### Layer 4: Persistence, Storage & Analytics (`src/db/`, `src/lib/b2.ts`, `@duckdb/duckdb-wasm`)
 - Drizzle ORM schemas (`src/db/schema.ts`) defining 17 strongly-typed tables.
 - Zero-touch bootstrap (`src/db/init.ts`) ensuring automatic table and index creation on startup.
+- Neon PostgreSQL `media_assets` table caching B2 metadata (eliminates Class C billing).
+- Client-side DuckDB-Wasm in-process OLAP engine for zero-cost GST 5%/12% and GMV calculations.
 - Safe database reset mechanisms preserving core catalog and settings.
 
 ## 3. Route Topology & Rendering Strategy
@@ -57,9 +60,21 @@ flowchart TD
 | **Support Hub** | `/help`, `/faq`, `/shipping`, `/size-guide` | Static ISR | 86400s | Public |
 | **Legal** | `/privacy`, `/terms`, `/cookies`, `/contact`, `/returns`, `/refund-policy`, `/shipping-policy` | Static | `force-static` | Public |
 | **Interactive** | `/cart`, `/checkout`, `/search`, `/track-order`, `/dashboard`, `/wishlist` | Dynamic | Request time | User / Session |
-| **Seller Hub** | `/seller`, `/seller/products/*`, `/seller/orders`, `/seller/settings` | Dynamic | Request time | Role = `seller` / `admin` |
-| **Admin Console**| `/admin`, `/admin/users`, `/admin/sellers`, `/admin/products`, `/admin/orders`, `/admin/categories`, `/admin/coupons`, `/admin/banners`, `/admin/theme`, `/admin/settings`, `/admin/audit-logs` | Dynamic / Actions | Server Action | Role = `admin` |
-| **Public APIs** | `/api/categories`, `/api/search`, `/api/products` | Edge Cached JSON | 60s - 300s | Public |
-| **Admin APIs** | `/api/admin/users`, `/api/admin/sellers`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/coupons`, `/api/admin/banners`, `/api/admin/settings` | Protected JSON | Request time | Role = `admin` |
+| **Seller Hub** | `/seller`, `/seller/products/*`, `/seller/orders`, `/seller/settings`, `/seller/analytics` | Dynamic | Request time | Role = `seller` / `admin` |
+| **Admin Console**| `/admin`, `/admin/users`, `/admin/sellers`, `/admin/products`, `/admin/orders`, `/admin/categories`, `/admin/coupons`, `/admin/banners`, `/admin/theme`, `/admin/settings`, `/admin/analytics`, `/admin/audit-logs` | Dynamic / Actions | Server Action | Role = `admin` |
+| **Public APIs** | `/api/categories`, `/api/search`, `/api/products`, `/api/avatar` | Edge Cached JSON | 60s - 300s | Public |
+| **Admin APIs** | `/api/admin/users`, `/api/admin/sellers`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/coupons`, `/api/admin/banners`, `/api/admin/settings`, `/api/admin/analytics/dataset` | Protected JSON | Request time | Role = `admin` |
 | **System & SEO** | `/sitemap.xml`, `/manifest.webmanifest`, `/robots.txt`, `/icon`, `/apple-icon` | Static / ISR | 3600s - 86400s | Public |
+
+## 4. Automated Release & Quality Pipeline
+
+```mermaid
+flowchart LR
+    Push["git push origin main"] --> QG["Quality Gate (npm ci, tsc, lint, 38 tests, build)"]
+    QG --> RP["Google Release Please Engine v4"]
+    RP --> Tag["Git Tag & GitHub Release (v0.x.x)"]
+    RP --> ChangeLog["CHANGELOG.md Auto Update"]
+    RP -.-> Deploy["Optional Vercel Deploy Hook"]
+    RP -.-> Notify["Optional Discord/Slack Notification"]
+```
 

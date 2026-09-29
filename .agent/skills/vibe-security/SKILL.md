@@ -54,4 +54,6 @@ metadata:
 - Cloudflare Worker TOML must use placeholder values — setup script writes actual values at runtime.
 - B2 credentials (`B2_KEY_ID`, `B2_APP_KEY`) pipe directly to `wrangler secret put` — never in files/logs.
 - No PII (name, phone, email, address, Cloudflare Account ID) in any committed source file.
+- **Fail-Closed Zero-Default Secrets Law:** Always retrieve secrets via `getRequiredEnv(key)` from `src/lib/required-env.ts`. Never use inline fallback strings (`|| "default_secret"`, `?? "dev_token"`). In production, missing or empty secrets MUST throw a fatal error.
+- **Google Apps Script Webhooks:** Scripts in `scripts/*.gs` must strictly require `PropertiesService.getScriptProperties().getProperty("AUTH_TOKEN")` and fail with 401 Unauthorized if missing or invalid.
 

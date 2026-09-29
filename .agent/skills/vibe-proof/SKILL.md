@@ -23,6 +23,7 @@ metadata:
 - Check error handling: no SQL errors, stack traces, or env var names in client responses.
 - PoW verification via `shouldEnforcePow()` single source of truth in `src/lib/pow.ts`.
 - Verify `/api/bootstrap` is POST-only with `timingSafeEqual` token check.
+- **Fail-Closed Secrets Audit:** Verify zero inline fallback strings (`|| "default"`, `?? "dev"`) in source code. All secrets must use `getRequiredEnv()` from `src/lib/required-env.ts`.
 
 ## Track 3: Database & Migration Safety
 - Verify all migrations follow additive-only pattern (`ADD COLUMN IF NOT EXISTS ... DEFAULT`).
@@ -37,8 +38,10 @@ metadata:
 - `wrangler-b2-proxy.toml` must contain only placeholder values (`SETUP_SCRIPT_WILL_FILL_THIS`).
 
 ## Track 5: DevOps & CI/CD
-- CI workflow (`ci.yml`) must pass TypeScript, ESLint, and all 33+ tests before merge.
+- CI & Quality Gate workflows (`ci.yml`, `release.yml`) must pass TypeScript (`npm run typecheck`), ESLint (`npm run lint`), all 38 test suites (`npm test`), and Next.js build (`npm run build`) before release.
 - Static analysis: CodeQL, Semgrep SAST, NPM critical audit in `.github/workflows/`.
 - Dependabot enabled for both `npm` and GitHub Actions dependency updates.
+- Automated release management: Google `release-please` v4, locked in `0.x.x` pre-major.
+- Git commit validation: Husky pre-commit hooks + `commitlint` Conventional Commits.
 - No secrets in CI env — use GitHub Encrypted Secrets and Cloudflare encrypted secrets vault.
 

@@ -8,13 +8,22 @@
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
 ## 2. Current Verified Status (Production Ready)
+- **Current Version:** `v0.1.8` (Automated semantic versioning via Google `release-please` v4).
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 36 Enterprise test suites in `tests/` passing in ~1.46s (`npm test`).
+- **Automated Tests:** 38 Enterprise test suites in `tests/` passing in ~1.46s (`npm test`).
+  - *New Suites:* `Google 1-Click OAuth 2.0 Security & Mapping` (Suite 37) and `Fail-Closed Required Env & Zero-Default Secrets` (Suite 38).
+- **Git & Release Management:**
+  - `release.yml`: 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `38 test suites`, `next build`) before release evaluation.
+  - Native `GITHUB_TOKEN` integration, auto tag creation (`v0.1.8`), auto `CHANGELOG.md` generation, and optional Vercel deploy hook.
+  - Pre-commit verification: Husky (`pre-commit` runs `typecheck` + `lint`, `commit-msg` runs `commitlint`).
+- **Fail-Closed Secrets Architecture (`src/lib/required-env.ts`):**
+  - Zero hardcoded fallback strings (`|| "default"`) in source code. All secrets use `getRequiredEnv(key)`. Missing secrets in production trigger immediate fail-closed `[FATAL]` crash.
+  - Google Apps Script webhooks strictly require Script Properties `AUTH_TOKEN` without fallbacks.
 - **Git Branch:** `main` (Remote: `https://github.com/SudhirDevOps1/aalm-vastralay.git`).
-- **GitHub Workflows:** `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
-- **Documentation Hub:** Root clean with all guides centralized in `docs/README.md`.
+- **GitHub Workflows:** `release.yml`, `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
+- **Documentation Hub:** Centralized guides in `docs/README.md`, `docs/RULES.md`, and `docs/RELEASE.md`.
 - **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
 - **Self-Hosted Avatars:** DiceBear Lorelei SVG generator at `/api/avatar` (1-year immutable cache, 0 upload friction).
 - **UserAvatar in Header:** `<UserAvatar seed={user.id} />` in desktop trigger, dropdown, and mobile drawer (commit `bd3e365`).

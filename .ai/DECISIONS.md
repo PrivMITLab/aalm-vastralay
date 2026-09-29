@@ -137,3 +137,13 @@
 - **Decision:** Deploy `@duckdb/duckdb-wasm` in a dedicated Web Worker on `/admin/analytics` and `/seller/analytics`. Neon PostgreSQL serves a 5-minute cached, non-PII dataset export (`/api/admin/analytics/dataset` and `/api/seller/analytics/dataset`). DuckDB ingests rows into virtual columnar tables (`orders`, `items`) to execute GMV trends, ethnic category share, payment velocity, and statutory 5% vs 12% apparel GST slab calculations in-memory. Provide a Super Admin interactive SQL console with CSV export.
 - **Rationale:** Neon PostgreSQL free tier (0.5 GB) must be reserved for transactional OLTP writes. Running heavy multi-month `GROUP BY` aggregations repeatedly on Neon burns compute units and can starve connection pools. Offloading analytical queries to client-side DuckDB-Wasm results in **0% Neon compute load, 0 Vercel server execution costs**, and sub-millisecond query performance on the user's browser.
 
+## ADR 023: Fail-Closed Secrets Architecture & Zero Hardcoded Fallbacks
+- **Status:** Accepted
+- **Decision:** Replace all inline fallback strings (`|| "aalm_gas..."`, `?? "aalm-vastralay..."`) with a centralized fail-closed `getRequiredEnv(key)` gateway in `src/lib/required-env.ts`. Any missing or empty required secret in production throws an immediate `[FATAL]` error causing the process to fail-closed. In development (`NODE_ENV !== "production"`), emit a visible warning and use an ephemeral mock fallback. Google Apps Script mailers strictly enforce `PropertiesService.getScriptProperties().getProperty("AUTH_TOKEN")` without fallback defaults.
+- **Rationale:** Eliminates silent security degradation, credential drift, and accidental reliance on mock tokens in production deployments. Ensures all environments are explicitly configured.
+
+## ADR 024: Automated Release Management & Strict Quality Gate Pipeline
+- **Status:** Accepted
+- **Decision:** Implement Google's `release-please` v4 for automated semantic versioning, Git tagging, and changelog generation, driven strictly through GitHub Actions (`.github/workflows/release.yml`). Enforce a 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `38 test suites`, `next build`) before release evaluation. Lock version increments in `0.x.x` via `bump-minor-pre-major: true`. Enforce Conventional Commits locally via Husky hooks (`pre-commit` and `commit-msg`) and `commitlint`.
+- **Rationale:** Guarantees zero-defect releases for solo and multi-developer environments, prevents broken tags or failed deployments from reaching production, and automates historical changelog tracking without manual overhead.
+

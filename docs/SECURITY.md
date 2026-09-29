@@ -27,6 +27,7 @@ If you discover a security flaw or vulnerability:
 Aalm Vastralay strictly segregates configuration data into two isolated domains:
 1. **Critical Private Secrets (Never Plaintext, Never Git):** Includes database passwords (`DATABASE_URL`), session signing keys (`AUTH_SECRET`), AES master keys (`ENCRYPTION_SECRET`), proof-of-work salts (`POW_SECRET`), and storage credentials (`B2_KEY_ID`, `B2_APP_KEY`). These are stored exclusively in platform-encrypted secret vaults (Vercel Environment Variables and Cloudflare Encrypted Secrets).
 2. **Plain-Text Public Configuration (`NEXT_PUBLIC_*`):** Store branding, support phone numbers, email addresses, physical locations, UPI VPA merchant identifiers, and public CDN proxy URLs. These are designed to be exposed to client-side bundles and are documented safely in `.env.example`.
+3. **Fail-Closed Zero-Default Secrets Gateway (`src/lib/required-env.ts`):** Eradicates all insecure inline fallback strings (`|| "default"`). All required secrets are strictly parsed through `getRequiredEnv(key)`. If any required secret is missing or empty in production, the application fails closed immediately with a `[FATAL]` error.
 
 For the exhaustive variable-by-variable risk analysis and storage guidelines, refer to:  
 👉 **[`docs/SECRETS_AND_CONFIGURATION_MATRIX.md`](SECRETS_AND_CONFIGURATION_MATRIX.md)**

@@ -11,7 +11,7 @@
 - [x] Smart Catalog Visual Filters (Haldi, Mehendi, Sangeet, Wedding, Color Dots, Fabrics).
 - [x] Indian Pincode Circle Resolution & Zero-Cost COD delivery estimator.
 - [x] Automated CI/CD security workflows (CodeQL, Semgrep, Dependency Security, Dependabot).
-- [x] 33 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~2.50s).
+- [x] 38 Automated Enterprise Test Suites in `tests/` (`npm test` passing in ~1.46s).
 - [x] TypeScript Strict Mode (0 type errors, 0 `any` types).
 - [x] Next.js 16 Turbopack production build with all routes verified.
 - [x] 17 relational database tables with Drizzle ORM and Neon Postgres.
@@ -74,9 +74,12 @@
 - [x] Master Interactive PowerShell Environment & Vercel CLI Setup Wizard (`scripts/setup-env.ps1`, `npm run setup:env`).
 - [x] Dedicated automated test suite `tests/media-management.test.ts` (All 35/35 Enterprise Test Suites Passing 100%).
 - [x] Cloudflare B2 Proxy deployed and live verified with zero egress billing via Bandwidth Alliance.
+- [x] DuckDB-Wasm Client-Side In-Memory OLAP Analytics & Statutory GST Slicing (`tests/duckdb-analytics.test.ts` - Suite 36).
+- [x] Google 1-Click OAuth 2.0 Security & Mapping Hardening (`tests/unit/google-oauth.test.ts` - Suite 37).
+- [x] Fail-Closed Secrets Architecture with `src/lib/required-env.ts` & Zero-Default Fallbacks (`tests/unit/required-env.test.ts` - Suite 38).
+- [x] Enterprise Automated Release Management System & Quality Gate via Google `release-please` v4 (`.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json`, `commitlint.config.mjs`, Husky hooks, `docs/RELEASE.md`, `CONTRIBUTING.md`). Official published milestone: `v0.1.8`.
 
 ## In-Progress / Next Enhancements
 - [ ] Post-delivery automated review request reminders via Push/WhatsApp.
 - [ ] Geolocation auto-detection for Indian postal circles.
-- [ ] DuckDB in-process analytical OLAP engine for seller GMV metrics.
 - [ ] Typesense dual-engine instant search autocomplete.

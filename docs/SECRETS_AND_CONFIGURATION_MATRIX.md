@@ -24,10 +24,10 @@
 
 | वेरिएबल का नाम | ज़रूरत का स्तर (Necessity) | प्रकार (Type) | क्या डिफ़ॉल्ट वैल्यू मौजूद है? | क्या प्रोडक्शन चलाने के लिए अनिवार्य है? |
 | :--- | :---: | :---: | :---: | :---: |
-| **`DATABASE_URL`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
-| **`AUTH_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
-| **`ENCRYPTION_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ⚠️ असुरक्षित देव फॉलबैक | **हाँ (100% Required)** |
-| **`POW_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ⚠️ डेमो साल्ट | **हाँ (100% Required)** |
+| **`DATABASE_URL`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं (Fail-Closed) | **हाँ (100% Required)** |
+| **`AUTH_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं (Fail-Closed) | **हाँ (100% Required)** |
+| **`ENCRYPTION_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं (Fail-Closed via `getRequiredEnv`) | **हाँ (100% Required)** |
+| **`POW_SECRET`** | 🔴 **अनिवार्य (MANDATORY)** | 🔒 **SECRET** | ❌ कोई डिफ़ॉल्ट नहीं (`AUTH_SECRET` सुरक्षित चेन) | **हाँ (100% Required)** |
 | **`NEXT_PUBLIC_SITE_URL`** | 🔴 **अनिवार्य (MANDATORY)** | 📢 **PLAIN TEXT** | ❌ कोई डिफ़ॉल्ट नहीं | **हाँ (100% Required)** |
 | **`GAS_EMAIL_URL`** (Option A) | 🟡 **अनुशंसित (Recommended)** | 📢 **PLAIN TEXT** | ❌ खाली रहने पर OTP प्रिंट होगा | अनुशंसित (फ्री OTP ईमेल के लिए) |
 | **`GAS_SECRET_TOKEN`** (Option A) | 🟡 **अनुशंसित (Recommended)** | 🔒 **SECRET** | ❌ खाली रहने पर OTP प्रिंट होगा | अनुशंसित (फ्री OTP ईमेल के लिए) |

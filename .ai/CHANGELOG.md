@@ -3,6 +3,41 @@
 
 ---
 
+## [2026-09-29] — Enterprise Automated Release Management System & Quality Gate (Release v0.1.8)
+
+### Added & Automated
+- **Google Release Please Engine v4 (`.github/workflows/release.yml`):**
+  - Fully automated semantic versioning, git tag creation, and `CHANGELOG.md` generation on pushes to `main`.
+  - Configured `release-please-config.json` with pre-major locking (`bump-minor-pre-major: true`, `bump-patch-for-minor-pre-major: true`) ensuring versions remain safely in `0.x.x` until manual `v1.0.0` milestone.
+  - Manifest file `.release-please-manifest.json` tracking current release (`0.1.8`).
+  - Native `GITHUB_TOKEN` integration with explicit write permissions (`contents: write`, `pull-requests: write`, `issues: write`).
+- **Strict 5-Stage Quality Gate (`quality_gate` Job):**
+  - Runs clean install (`npm ci`), TypeScript strict check (`npm run typecheck`), ESLint inspection (`npm run lint`), all 38 test suites (`npm test`), and Next.js production build (`npm run build`) before any release or tag can be created.
+- **Git Commit Discipline & Husky Hooks:**
+  - Configured `commitlint.config.mjs` enforcing Conventional Commits specification with support for `security`, `ci`, and custom scopes.
+  - Added `.husky/pre-commit` hook running `npm run typecheck && npm run lint`.
+  - Added `.husky/commit-msg` hook running `npx commitlint --edit`.
+- **Developer Runbooks & Guidelines:**
+  - Authored comprehensive guides: `docs/RELEASE.md` (Release Automation Runbook) and `CONTRIBUTING.md` (Conventional Commits and Contribution Guide).
+
+---
+
+## [2026-09-29] — Fail-Closed Secrets Architecture (src/lib/required-env.ts) & Google OAuth 2.0 Hardening
+
+### Added & Hardened
+- **Fail-Closed Zero-Default Environment Variable Gateway (`src/lib/required-env.ts`):**
+  - Created centralized helper `getRequiredEnv(key)` that trims values, detects empty or whitespace-only strings, and throws fatal errors in production.
+  - Eradicated all insecure fallback secret strings (`|| "aalm_gas..."`, `?? "aalm-vastralay..."`) across `src/lib/email.ts`, `gas-mailer.ts`, `pow.ts`, and `auth.ts`.
+  - Replaced hardcoded webhook fallbacks in `scripts/*.gs` with strict `PropertiesService.getScriptProperties().getProperty("AUTH_TOKEN")`, returning 401 Unauthorized if unconfigured.
+- **Google 1-Click OAuth 2.0 Security Hardening:**
+  - Hardened OAuth state handling, profile mapping, and existing account linking defenses.
+- **Automated Test Suite Expansion (38/38 Suites):**
+  - Added `tests/unit/google-oauth.test.ts` (Suite 37) verifying OAuth security and mapping.
+  - Added `tests/unit/required-env.test.ts` (Suite 38) verifying fail-closed sentinels, trimming, and dev fallbacks.
+  - **All 38/38 Enterprise Test Suites Passing 100% Green in ~1.46s.**
+
+---
+
 ## [2026-09-28] — DuckDB-Wasm In-Memory OLAP Analytics & Statutory GST Slicing
 
 ### Added & Engineered

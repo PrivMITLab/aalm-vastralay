@@ -43,6 +43,7 @@ git clone https://github.com/your-org/aalm-vastralay.git
 cd aalm-vastralay
 npm install
 ```
+> **Note:** `npm install` automatically initializes Husky Git hooks. Every commit is pre-verified (`tsc --noEmit` and `eslint .`) and validated against Conventional Commits (`commitlint`).
 
 ### Step 2: Configure Environment Variables (Interactive Wizard or Manual)
 
@@ -112,7 +113,7 @@ Or simply visit `https://aalm-vastralay.vercel.app/admin` and log in with your s
 Before pushing any changes, always run the full verification matrix:
 
 ```bash
-# 1. Run all 35 automated enterprise test suites
+# 1. Run all 38 automated enterprise test suites
 npm test
 
 # 2. Strict TypeScript typechecking (0 errors, 0 any types)
@@ -120,6 +121,9 @@ npm run typecheck
 
 # 3. Code quality and formatting lint
 npm run lint
+
+# 4. Production build verification (SWC + bundler checks)
+npm run build
 ```
 
 ---
