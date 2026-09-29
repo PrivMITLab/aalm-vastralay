@@ -28,19 +28,8 @@ on:
       - '.vscode/**'
       - '.idea/**'
 
-  # Manual control: Jab aapka mann kare tab Actions tab se run kar sakte hain
+  # Manual control: Jab aapka mann kare tab Actions tab se 1-click run kar sakte hain
   workflow_dispatch:
-    inputs:
-      release_as:
-        description: 'Force specific version (jaise: 1.0.0 ya 0.2.0) [Optional]'
-        required: false
-        type: string
-        default: ''
-      dry_run:
-        description: 'Dry run test (bina actual release/PR banaye test karo)'
-        required: false
-        type: boolean
-        default: false
 
 # Ek time pe ek hi release run chalegi — race conditions aur tag conflicts zero
 concurrency:
@@ -58,7 +47,7 @@ jobs:
   # JOB 1: QUALITY GATE (Release se pehle strict verification)
   # Agar build ya test fail hua, toh release kabhi nahi banegi (Zero-Defect Law)
   # ============================================================================
-  quality-gate:
+  quality_gate:
     name: 🛡️ Strict Quality Gate (Typecheck + Lint + Test + Build)
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -101,7 +90,7 @@ jobs:
   # ============================================================================
   release-please:
     name: 🚀 Auto Release & Version Bump
-    needs: quality-gate
+    needs: quality_gate
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -121,8 +110,6 @@ jobs:
           manifest-file: .release-please-manifest.json
           # Native repository GITHUB_TOKEN (Read and write permissions enabled in repo settings)
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Manual release-as input support (jaise: 1.0.0 manual trigger)
-          release-as: ${{ github.event.inputs.release_as }}
 
   # ============================================================================
   # JOB 3: TRIGGER VERCEL DEPLOY (Optional Post-Release Deployment)
@@ -132,13 +119,19 @@ jobs:
     name: 🌐 Trigger Vercel Production Deploy
     needs: release-please
     runs-on: ubuntu-latest
-    if: ${{ needs.release-please.outputs.release_created && secrets.VERCEL_DEPLOY_HOOK != '' }}
+    if: needs.release-please.outputs.release_created == 'true'
 
     steps:
       - name: 🚀 Call Vercel Deploy Hook via Curl
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "ℹ️ VERCEL_DEPLOY_HOOK secret is not set, skipping deployment trigger."
+            exit 0
+          fi
           echo "Triggering Vercel deployment for new release: ${{ needs.release-please.outputs.tag_name }}"
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}")
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$VERCEL_DEPLOY_HOOK")
           HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
           if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
             echo "✅ Vercel deploy hook triggered successfully (HTTP $HTTP_STATUS)!"
@@ -154,13 +147,18 @@ jobs:
     name: 📢 Send Release Notification
     needs: release-please
     runs-on: ubuntu-latest
-    if: ${{ needs.release-please.outputs.release_created && (secrets.DISCORD_WEBHOOK != '' || secrets.SLACK_WEBHOOK != '') }}
+    if: needs.release-please.outputs.release_created == 'true'
 
     steps:
       # Discord Webhook Notification
       - name: 💬 Send Discord Release Embed
-        if: ${{ secrets.DISCORD_WEBHOOK != '' }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "ℹ️ DISCORD_WEBHOOK is not set, skipping Discord notification."
+            exit 0
+          fi
           TAG="${{ needs.release-please.outputs.tag_name }}"
           VERSION="${{ needs.release-please.outputs.version }}"
           REPO="${{ github.repository }}"
@@ -182,12 +180,17 @@ jobs:
                    \"footer\": { \"text\": \"Aalm Vastralay DevOps • Release Automation\" }
                  }]
                }" \
-               "${{ secrets.DISCORD_WEBHOOK }}"
+               "$DISCORD_WEBHOOK"
 
       # Slack Webhook Notification
       - name: 💬 Send Slack Release Message
-        if: ${{ secrets.SLACK_WEBHOOK != '' }}
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "ℹ️ SLACK_WEBHOOK is not set, skipping Slack notification."
+            exit 0
+          fi
           TAG="${{ needs.release-please.outputs.tag_name }}"
           VERSION="${{ needs.release-please.outputs.version }}"
           REPO="${{ github.repository }}"
@@ -197,14 +200,14 @@ jobs:
                --data "{
                  \"text\": \"🎉 *Aalm Vastralay New Release: <${RELEASE_URL}|${TAG}>* (Version \`${VERSION}\`)\"
                }" \
-               "${{ secrets.SLACK_WEBHOOK }}"
+               "$SLACK_WEBHOOK"
 
   # ============================================================================
   # JOB 5: GITHUB STEP SUMMARY (Actions UI par beautiful status report)
   # ============================================================================
   summary:
     name: 📋 Generate GitHub Release Summary
-    needs: [quality-gate, release-please]
+    needs: [quality_gate, release-please]
     runs-on: ubuntu-latest
     if: always()
 
@@ -215,7 +218,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status | Details |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| 🛡️ **Quality Gate** | ${{ needs.quality-gate.result == 'success' && '✅ Passed' || '❌ Failed' }} | Typecheck, Lint, 38 Test Suites, Next.js Build |" >> $GITHUB_STEP_SUMMARY
+          
+          QG_RESULT="${{ needs.quality_gate.result }}"
+          if [ "$QG_RESULT" = "success" ]; then
+            echo "| 🛡️ **Quality Gate** | ✅ Passed | Typecheck, Lint, 38 Test Suites, Next.js Build |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🛡️ **Quality Gate** | ❌ Failed | Quality Gate did not pass. Release stopped. |" >> $GITHUB_STEP_SUMMARY
+          fi
           
           if [ "${{ needs.release-please.outputs.release_created }}" = "true" ]; then
             echo "| 🚀 **Release Status** | 🎉 **NEW RELEASE PUBLISHED** | Tag: \`${{ needs.release-please.outputs.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
