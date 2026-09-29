@@ -23,7 +23,11 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Allows manual release trigger from GitHub Actions UI anytime
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -58,8 +62,8 @@ jobs:
           config-file: release-please-config.json
           # Manifest file (current version track karta hai)
           manifest-file: .release-please-manifest.json
-          # GitHub token with write permissions (falls back to GITHUB_TOKEN)
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # Try custom PAT if configured, otherwise fallback to standard GITHUB_TOKEN
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN != '' && secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
   # ==========================================================================
   # OPTIONAL: Agar release hua to Vercel ko notify karo (redeploy trigger)
