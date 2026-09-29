@@ -18,8 +18,8 @@ name: 🛡️ Deep Security Pentest & Code Analysis
 
 on:
   schedule:
-    # Har Sunday subah 2:00 AM IST (= Saturday 20:30 UTC) par automated deep scan
-    - cron: '30 20 * * 6'
+    # Har raat 2:00 AM IST (= 20:30 UTC) par automated deep scan (Daily Nightly Pentest)
+    - cron: '30 20 * * *'
   workflow_dispatch: # Actions tab se 1-click manual audit ke liye
 
 env:
