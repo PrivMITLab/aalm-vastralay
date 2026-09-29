@@ -436,10 +436,15 @@ Comprehensive guides, specifications, and runbooks located in [`docs/`](docs/REA
 
 | Documentation Link | Topic & Coverage |
 | :--- | :--- |
-| 📖 **[docs/MASTER_DEVELOPER_GUIDE.md](docs/MASTER_DEVELOPER_GUIDE.md)** | Master developer and operations runbook. |
+| ⭐ **[docs/MASTER_DEVELOPER_GUIDE.md](docs/MASTER_DEVELOPER_GUIDE.md)** | Master developer and operations runbook. |
+| ⚡ **[docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)** | **Vercel Production Manual:** Next.js 16 SSR/ISR, Mumbai edge regions, zero-downtime releases, rollback. |
+| 🛡️ **[docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md)** | **Cloudflare Worker CDN:** $0 egress Bandwidth Alliance, KV token cache, HTTP 206 video range seeking. |
+| 📦 **[docs/BACKBLAZE_B2.md](docs/BACKBLAZE_B2.md)** | **Backblaze B2 Storage:** Private bucket setup, browser presigned uploads (bypassing Vercel 4.5MB ceiling), CORS. |
+| 📧 **[docs/GAS_MAILER.md](docs/GAS_MAILER.md)** | **Google Apps Script Mailer:** 100% free Gmail inbox delivery, zero DNS setup, HMAC security, 10 royal templates. |
+| 🔐 **[docs/ENV_VARS_PRODUCTION.md](docs/ENV_VARS_PRODUCTION.md)** | **Production Environment Matrix:** 100% production-ready secrets, 256-bit crypto key generation, zero leaks. |
 | 🏗️ **[docs/TECH_STACK_AND_ARCHITECTURE.md](docs/TECH_STACK_AND_ARCHITECTURE.md)** | Full architectural blueprints, multi-tier diagrams & storage flows. |
-| 🛠️ **[docs/SETUP.md](docs/SETUP.md)** | Step-by-step local development & Vercel deployment runbook. |
-| 🧊 **[docs/b2-cloudflare-setup.md](docs/b2-cloudflare-setup.md)** | Backblaze B2 + Cloudflare Worker one-command setup guide. |
+| 🚀 **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Master production deployment architecture and multi-cloud runbook. |
+| 🛠️ **[docs/SETUP.md](docs/SETUP.md)** | Step-by-step local development & production setup runbook. |
 | 📜 **[docs/RULES.md](docs/RULES.md)** | Master architectural laws, anti-yes-man principles & git rules. |
 | 🗄️ **[.ai/DATABASE.md](.ai/DATABASE.md)** | Drizzle ORM schemas and zero-loss Neon migration protocol. |
 | 📋 **[.ai/PRD.md](.ai/PRD.md)** | Product requirements document & Indian ethnic commerce rules. |

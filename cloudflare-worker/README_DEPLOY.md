@@ -1,5 +1,6 @@
 # 🚀 Cloudflare Worker B2 Proxy — 8-Step Deployment Guide (डिप्लॉयमेंट गाइड)
-Location: `cloudflare-worker/README_DEPLOY.md`
+Location: `cloudflare-worker/README_DEPLOY.md`  
+📖 **Master Documentation:** [**docs/CLOUDFLARE_WORKER.md**](../docs/CLOUDFLARE_WORKER.md)
 
 यह वर्कर **Backblaze B2 Private Bucket** की फाइल्स को **$0 Egress Bandwidth Alliance** के जरिए सर्व करता है, जिससे इमेज और वीडियो सीधे दुनिया भर के 300+ Cloudflare Edge PoPs से अल्ट्रा-फास्ट स्पीड में लोड होती हैं।
 
