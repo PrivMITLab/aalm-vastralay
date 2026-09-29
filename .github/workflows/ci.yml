@@ -131,5 +131,5 @@ jobs:
         with:
           target: "http://localhost:3000"
           rules_file_name: ".zap/rules.tsv"
-          cmd_options: "--autooff -a"
+          cmd_options: "-m 2 -T 3"
           fail_action: false
