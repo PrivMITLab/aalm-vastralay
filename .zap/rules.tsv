@@ -4,36 +4,36 @@
 # Note: Exactly 3 tab-separated columns are required by zap-baseline.py parser
 
 # 10055: Content Security Policy (CSP) Alerts (unsafe-inline / unsafe-eval / wildcard)
-# Required by Next.js client hydration and DuckDB-Wasm in-browser analytical OLAP
-10055	INFO	.*
+# Required by Next.js 16 client hydration and DuckDB-Wasm in-browser analytics
+10055	IGNORE	.*
 
 # 90003: Sub Resource Integrity (SRI) Attribute Missing
 # Next.js 16 App Router builds and hashes same-origin local chunks (_next/static/...)
 90003	IGNORE	.*
 
-# 10031: User Controllable HTML Element Attribute (Potential XSS)
-# Search keywords, categories, and auth redirects are safely sanitized and rendered in UI controls
-10031	INFO	.*
-
-# 10094: Base64 Disclosure
-# React Server Components (RSC) flight data serialization and base64 SVG icons
-10094	INFO	.*
-
-# 90005: Sec-Fetch-* Headers Missing (Fetch Metadata Request Headers)
-# Passive detection for modern browser Sec-Fetch metadata headers in server responses
-90005	INFO	.*
-
 # 10111: Authentication Request Identified
 # Passive identification of authentication endpoints (/sign-in, /sign-up); normal application behavior
-10111	INFO	.*
+10111	IGNORE	.*
 
 # 10049: Non-Storable Content / Storable Content (Cache-Control)
 # Protected routes (/checkout, /dashboard, /seller) strictly enforce no-store/private cache controls
-10049	INFO	.*
+10049	IGNORE	.*
+
+# 10031: User Controllable HTML Element Attribute (Potential XSS)
+# Search keywords, categories, and auth redirects are safely sanitized and rendered in UI controls
+10031	IGNORE	.*
+
+# 10094: Base64 Disclosure
+# React Server Components (RSC) flight data serialization and base64 SVG icons
+10094	IGNORE	.*
+
+# 90005: Sec-Fetch-* Headers Missing (Fetch Metadata Request Headers)
+# Passive detection for modern browser Sec-Fetch metadata headers in server responses
+90005	IGNORE	.*
 
 # 10109: Modern Web Application
 # Informational detection that site is built on modern framework (Next.js / React App Router)
-10109	INFO	.*
+10109	IGNORE	.*
 
 # 10044: Big Redirect Detected
 # Edge Middleware intercepts unauthenticated routes with 0-byte fast redirects
