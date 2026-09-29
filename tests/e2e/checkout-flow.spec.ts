@@ -14,10 +14,10 @@ test.describe("E-Commerce User Checkout Journey", () => {
     const searchInput = page.locator('input[type="search"]:visible, input[name="q"]:visible, input[placeholder*="Search" i]:visible').first();
     await expect(searchInput).toBeVisible();
     await searchInput.fill("saree");
-    await searchInput.press("Enter");
-
-    // Verify search results page loaded (HeaderNav navigates to /products?q=saree)
-    await page.waitForURL(/\/(products|search)/, { timeout: 10000 });
+    await Promise.all([
+      page.waitForURL(/\/(products|search)/, { timeout: 15000 }),
+      searchInput.press("Enter"),
+    ]);
     await expect(page.locator("body")).toContainText(/saree/i, { timeout: 10000 });
 
     // 3. Open Cart via direct navigation or Header Icon

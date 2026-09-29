@@ -345,12 +345,20 @@ export default function HeaderNav({
   const groups = useMemo(() => categories.slice(0, 6), [categories]);
   const activeGroup = useMemo(() => groups.find((g) => g.slug === desktopActiveCat), [groups, desktopActiveCat]);
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit(e?: React.SyntheticEvent) {
+    if (e) e.preventDefault();
     setSuggestions([]);
     setDrawer(false);
-    if (!query.trim()) return;
-    router.push(`/products?q=${encodeURIComponent(query.trim())}`);
+    let targetQ = query.trim();
+    if (e && "currentTarget" in e && e.currentTarget instanceof HTMLFormElement) {
+      const formData = new FormData(e.currentTarget);
+      const formQ = formData.get("q");
+      if (typeof formQ === "string" && formQ.trim()) {
+        targetQ = formQ.trim();
+      }
+    }
+    if (!targetQ) return;
+    router.push(`/products?q=${encodeURIComponent(targetQ)}`);
   }
 
   return (
@@ -400,11 +408,14 @@ export default function HeaderNav({
         {/* Desktop Search Bar with Live Suggestions */}
         <div ref={boxRef} className="relative hidden flex-1 md:block max-w-2xl mx-auto">
           <form
+            action="/products"
+            method="GET"
             onSubmit={submit}
             className="flex w-full items-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-4 pr-1 focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)]/20 transition-all"
           >
             <Search className="h-4 w-4 text-[color:var(--text-soft)]" />
             <input
+              name="q"
               value={query}
               onChange={(e) => {
                 const val = e.target.value;
@@ -622,11 +633,14 @@ export default function HeaderNav({
       {/* Mobile Search Input */}
       <div className="pb-2 md:hidden">
         <form
+          action="/products"
+          method="GET"
           onSubmit={submit}
           className="flex items-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-3.5 pr-1 focus-within:border-[color:var(--accent)]"
         >
           <Search className="h-3.5 w-3.5 text-[color:var(--text-soft)] shrink-0" />
           <input
+            name="q"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             type="search"
@@ -955,11 +969,14 @@ export default function HeaderNav({
             <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-4">
               {/* In-drawer Compact Search */}
               <form
+                action="/products"
+                method="GET"
                 onSubmit={submit}
                 className="relative mb-3 flex min-h-[44px] items-center rounded-2xl border border-[color:var(--border-strong)] bg-[color:var(--surface-2)] pl-3 pr-1.5 focus-within:border-[color:var(--accent)]"
               >
                 <Search className="h-4 w-4 text-[color:var(--text-soft)] shrink-0" />
                 <input
+                  name="q"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => {
