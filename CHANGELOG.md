@@ -10,6 +10,19 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.9](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.8...v0.1.9) (2026-09-29)
+
+
+### 🐛 Bug Fixes
+
+* **security:** return explicit Content-Type JSON 404 for unrouted /api requests ([7a0e448](https://github.com/SudhirDevOps1/aalm-vastralay/commit/7a0e4484fd92b6095d982eb1b781d1f9e6b52134))
+
+
+### 📖 Documentation
+
+* **readme:** rewrite professionally with feature-wise sections ([e18e9cd](https://github.com/SudhirDevOps1/aalm-vastralay/commit/e18e9cd202160690fbfe94ad2b8ed6f66058ff95))
+* synchronize all knowledge bases, skills, and rulebooks ([4e3b918](https://github.com/SudhirDevOps1/aalm-vastralay/commit/4e3b918ae1ca41e29fe89499cbc01546b6d5c279))
+
 ## [0.1.8](https://github.com/SudhirDevOps1/aalm-vastralay/compare/aalm-vastralay-v0.1.7...aalm-vastralay-v0.1.8) (2026-09-28)
 
 
