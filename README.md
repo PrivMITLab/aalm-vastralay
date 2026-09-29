@@ -13,7 +13,7 @@
 [![Neon Serverless](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle_0.45.2-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
 [![DuckDB OLAP](https://img.shields.io/badge/Analytics-DuckDB--Wasm_In--Memory-FFF000?style=for-the-badge&logo=duckdb&logoColor=black)](docs/TECH_STACK_AND_ARCHITECTURE.md)
-[![Automated Test Suite](https://img.shields.io/badge/Tests-37%2F37_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
+[![Automated Test Suite](https://img.shields.io/badge/Tests-38%2F38_Passing_Green-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](tests/)
 [![Cloudflare Workers](https://img.shields.io/badge/CDN-Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Backblaze B2](https://img.shields.io/badge/Cold_Storage-Backblaze_B2-E01E37?style=for-the-badge&logo=backblaze&logoColor=white)](https://www.backblaze.com/b2/)
 [![Google Gemini](https://img.shields.io/badge/AI_Engine-Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
@@ -22,31 +22,30 @@
 
 <br/>
 
-**[🌐 Live Storefront](https://aalm-vastralay.vercel.app)** &nbsp;•&nbsp; 
-**[⚡ Admin Console](https://aalm-vastralay.vercel.app/admin)** &nbsp;•&nbsp; 
-**[🏪 Seller Hub](https://aalm-vastralay.vercel.app/seller)** &nbsp;•&nbsp; 
-**[📖 Tech Stack & Architecture](docs/TECH_STACK_AND_ARCHITECTURE.md)** &nbsp;•&nbsp; 
-**[🚀 3-Minute Setup Runbook](docs/SETUP.md)**
+**[🌐 Live Storefront](https://aalm-vastralay.vercel.app)** &nbsp;•&nbsp;
+**[⚡ Admin Console](https://aalm-vastralay.vercel.app/admin)** &nbsp;•&nbsp;
+**[🏪 Seller Hub](https://aalm-vastralay.vercel.app/seller)** &nbsp;•&nbsp;
+**[📖 Architecture](docs/TECH_STACK_AND_ARCHITECTURE.md)** &nbsp;•&nbsp;
+**[🚀 3-Minute Setup](docs/SETUP.md)**
 
 <br/>
 
 | ⚡ Production Readiness | 💰 Operating Cost | 🛡️ Security Architecture | 🧊 Cold Storage | 🦆 In-Memory OLAP | 🧪 Automated Tests |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **37/37 Test Suites (100%)** |
+| **Enterprise Ready** | **$0.00 / month** | **Self-Hosted PoW Bot Shield** | **0 Class C Transactions** | **DuckDB-Wasm Vector Engine** | **38/38 Test Suites (100%)** |
 
 <br/>
 
-> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **Turnkey Open-Source Multi-Vendor E-Commerce Template**. Engineered with **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire architecture operates perpetually on **$0/month free tiers** with zero third-party captchas, zero fake reviews, zero recurring SaaS costs, and zero data loss. Features native Backblaze B2 cold media storage with Cloudflare CDN proxy, zero-cost Google Gemini + Groq AI engines, and interactive 1-click cloud setup.
+> **Aalm Vastralay** is an enterprise-grade, high-performance Indian ethnic wear marketplace and **turnkey open-source multi-vendor e-commerce template**. Built on **Next.js 16 App Router**, **React 19**, and **Neon Serverless PostgreSQL**, the entire platform runs perpetually on **$0/month free tiers** — zero third-party captchas, zero fake reviews, zero recurring SaaS costs, zero data loss. Includes native Backblaze B2 cold media storage behind a Cloudflare CDN proxy, zero-cost Google Gemini + Groq AI engines, and interactive 1-click cloud setup.
 
 </div>
 
 ---
 
-## 🎬 Official Launch Video & Interactive Product Tour (1080p)
+## 🎬 Product Tour (1080p)
 
 <div align="center">
 
-<!-- Live Playable Animated Video Preview -->
 <a href="brag-output/brag.mp4" title="Click to watch full 1080p video with audio">
   <img src="brag-output/brag.gif" alt="Aalm Vastralay Live Launch Video Demo" width="880" style="border-radius: 12px; border: 2px solid #d4af37;" />
 </a>
@@ -62,7 +61,7 @@
 </a>
 
 <p align="center">
-  <strong>“बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान”</strong><br/>
+  <strong>"बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान"</strong><br/>
   <em>Royal Bridal Lehengas • Pure Banarasi Handloom • Regal Groom Sherwanis • Live WhatsApp Video Call • COD</em>
 </p>
 
@@ -70,86 +69,146 @@
 
 ---
 
-## ⚡ Executive Feature Matrix
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    PLATFORM PILLARS                                    │
-├──────────────────────────────┬──────────────────────────────┬──────────────────────────┤
-│  💰 100% Perpetual $0/mo Cost│  🛡️ Self-Hosted Bot Shield   │  🧊 Zero Class C Storage │
-│  • Neon Serverless (0.5GB)   │  • Web Worker PBKDF2/SHA-256 │  • Cloudflare Worker CDN │
-│  • Vercel Hobby Serverless   │  • 10 Luxury Archetypes      │  • DB Metadata Caching   │
-│  • Google Gemini 2.5 Flash   │  • /24 Cellular Roaming Safe │  • Hard Permanent Purge  │
-│  • Groq Cloud LPU Inference  │  • Single-Use pow_used Store │  • Bandwidth Alliance ₹0 │
-├──────────────────────────────┼──────────────────────────────┼──────────────────────────┤
-│  🇮🇳 Indian Commerce Engine   │  👥 Multi-Vendor Isolation   │  🛠️ 105+ Live Settings   │
-│  • 0% Fee Dynamic UPI QR     │  • Strict Store Boundary     │  • Zero-Code Live Studio │
-│  • 12-Digit UTR Verification │  • Vendor Order Management   │  • Hero Carousel Manager │
-│  • GST Statutory Invoicing   │  • Variant Stock (XS to XXL) │  • Real-Time Swatches    │
-│  • Shiprocket & Delhivery    │  • Multi-Account Google Drive│  • Marketing Broadcasts  │
-└──────────────────────────────┴──────────────────────────────┴──────────────────────────┘
-```
-
----
-
 ## 📑 Table of Contents
 
-1. [✨ Key Architectural Innovations](#-key-architectural-innovations)
-2. [🏛️ System Architecture Topology](#️-system-architecture-topology)
-3. [🧊 Cold Storage & Zero Class C Optimization](#-cold-storage--zero-class-c-optimization)
-4. [🧠 100% Free Cultural AI Engines](#-100-free-cultural-ai-engines)
-5. [👥 Marketplace Personas & Universal CRUD](#-marketplace-personas--universal-crud)
-6. [🛠️ 105+ Zero-Code Live Admin Studio](#️-105-zero-code-live-admin-studio)
-7. [🛡️ Production Security & Bot Shield](#️-production-security--bot-shield)
-8. [🚀 3-Minute Quick Start Guide](#-3-minute-quick-start-guide)
-9. [🔑 Environment Configuration Matrix](#-environment-configuration-matrix)
-10. [🧪 Enterprise Verification Suite (35/35 Passing)](#-enterprise-verification-suite-3535-passing)
-11. [☁️ Cloud Deployment Runbook (Vercel + Cloudflare + Neon)](#️-cloud-deployment-runbook)
-12. [📚 Master Documentation Index](#-master-documentation-index)
+- [🛍️ Storefront Features](#️-storefront-features)
+- [🏪 Seller Hub Features](#-seller-hub-features)
+- [👑 Admin Console Features](#-admin-console-features)
+- [🇮🇳 Indian Commerce Engine](#-indian-commerce-engine)
+- [🧠 AI Engines](#-ai-engines)
+- [🧊 Media & Cold Storage](#-media--cold-storage)
+- [🛡️ Security Architecture](#️-security-architecture)
+- [🏛️ System Architecture](#️-system-architecture)
+- [🚀 Quick Start](#-quick-start)
+- [🔑 Environment Variables](#-environment-variables)
+- [🧪 Verification Suite](#-verification-suite)
+- [☁️ Deployment](#️-deployment)
+- [📚 Documentation](#-documentation)
 
 ---
 
-## ✨ Key Architectural Innovations
+## 🛍️ Storefront Features
 
-### 1. 🧊 Backblaze B2 Cold Storage & Zero Class C Database Caching
-- **Bandwidth Alliance Zero Egress:** Private Backblaze B2 bucket proxied through a globally distributed Cloudflare Worker (`aalm-b2-proxy.alamwastraly.workers.dev`) with 1-year immutable edge caching.
-- **Zero Class C Elimination:** Standard S3 listings and existence checks consume Backblaze Class C transactions (2,500/day limit). All uploaded file metadata, keys, and B2 `fileId` values are cached in Neon PostgreSQL (`media_assets`). Media gallery and product queries execute in **< 10ms directly from PostgreSQL with 0 B2 API calls**.
-- **Hard Permanent Deletion:** Uses native `b2_delete_file_version` with `fileId` to instantly purge files without creating hidden tombstone markers (`b2_hide_file`), conserving storage and Class C budgets.
-- **Automated Lifecycle Armor:** Bucket lifecycle rule configured with `daysFromHidingToDeleting = 1` for automated garbage collection.
+Everything a shopper touches, engineered for slow Indian mobile networks (skeleton-first rendering, CLS ≈ 0).
 
-### 2. 🧠 100% Free Cultural AI Engine (Google Gemini 2.5 Flash + Groq LPU)
-- **Hinglish Luxury Copywriter:** Powered by Google Gemini 2.5 Flash (15 RPM / 1,500 RPD free tier). Generates culturally authentic product descriptions with traditional Indian fabric vocabulary (*Zari, Banarasi, Katan, Anarkali, Sangeet, Karigari*).
-- **Sub-300ms Recommendations:** Groq Cloud LPU inference running Llama 3.3 70B delivers personalized cross-sell recommendations with near-instant rendering.
-- **Conversational NLP Search:** Translates natural language shopping queries (*"behen ki shaadi ke liye royal blue banarasi saree under 7000"*) into structured database filters.
-
-### 3. 🎛️ Universal Multi-Source Media Selector & Setup Wizard
-- **Universal Media Picker (`UniversalMediaPicker.tsx`):** Unifies 4 media sources in a luxury tabbed interface:
-  1. *Direct File Upload:* Client-side streaming to Backblaze B2 via Cloudflare Worker.
-  2. *Google Drive Link:* Paste any Google Drive link or ID; auto-canonicalized to `https://lh3.googleusercontent.com/d/{id}` for **0 hosting cost**.
-  3. *Direct Web Link:* Fast external image embedding with on-the-fly `wsrv.nl` WebP compression.
-  4. *Media Library:* Paginated browsing of previously uploaded assets cached in PostgreSQL with 1-click selection and permanent hard deletion.
-- **Interactive Cloud Setup Wizard (`npm run setup:env`):** Single-command PowerShell wizard that configures Neon DB, cryptographic secrets, B2 credentials, and AI keys, with **1-click automated Vercel CLI synchronization**.
-
-### 4. 🛡️ Self-Hosted Proof-of-Work Bot Shield (10 Archetypes)
-- **Zero Third-Party Dependence:** Eradicates Google reCAPTCHA and Cloudflare Turnstile trackers. Uses an in-house Web Worker PBKDF2/SHA-256 solving algorithm.
-- **10 Luxury Archetypes:** Includes Cloudflare Turnstile card, ALTCHA, Biometric fingerprint scanner, Royal Shagun Indian seal, Swipe-to-verify slider, compact ribbon, and invisible background auto-solve.
-- **Anti-Replay Challenge Store:** Additive table `pow_used` records challenge hashes with `ON CONFLICT DO NOTHING`, immediately rejecting duplicate submissions.
-- **Cellular Subnet Binding:** Challenge tokens are bound to IPv4 `/24` and IPv6 `/64` subnets, accommodating mobile IP shifts between cell towers while preventing cross-network token theft.
-- **DevTools Bypass Defense:** Form submit buttons remain cryptographically locked; Server Actions reject any unverified payload even if inspect-element tampering unlocks the button.
-
-### 5. 💰 Zero-Gateway-Fee Dynamic UPI QR & UTR Engine
-- **Instant Payment:** Generates real-time NPCI UPI QR codes (`upi://pay?pa=...&am=...`) with the exact order amount.
-- **Security Timer:** 5-minute countdown progress bar with auto-expiry.
-- **Fraud Defense:** Orders enter `pending-verification`. Customers input a 12-digit Indian banking UTR reference number; Admins verify against bank statements with 1-click approval (`verifyUpiPayment`), saving a direct 2% payment gateway cut.
-
-### 6. 🚚 Multi-Carrier Indian Logistics Engine
-- **Intelligent Auto-Routing:** Delhivery Express for North & East India (Bihar, UP, Delhi hubs) and Shiprocket nationwide.
-- **AWB Generation & Barcodes:** 1-Click Waybill generation with high-resolution Code128 printable packing slips (`/api/courier/label`).
-- **Pincode Circle Detection:** Prefix-based postal circle detection across India (Metro, Tier-1, Tier-2, Rural) with automatic Cash-on-Delivery (COD) eligibility resolution.
+| Area | What the customer gets |
+| :--- | :--- |
+| **Catalog & Discovery** | Typo-tolerant instant search, visual filters (Occasion, Color, Fabric), category navigation, sorting (rating, discount, price), SEO-friendly product pages with structured data |
+| **Product Pages** | Image galleries with WebP compression, variant selection (size XS–XXL, color swatches), live stock indicators, GST-inclusive pricing, COD eligibility badges |
+| **Cart & Wishlist** | Guest + authenticated carts, server-persisted wishlist, quantity controls with stock guards, double-click-safe checkout buttons |
+| **Checkout** | Cash on Delivery, 0%-fee dynamic UPI QR with 5-minute expiry timer, 12-digit UTR verification flow, pincode serviceability check with delivery estimates |
+| **Orders** | Live order tracking timeline, courier AWB integration (Shiprocket + Delhivery), printable GST invoices, return/cancel with reason codes |
+| **Trust & Engagement** | Verified-purchase-only reviews with photos (zero fake reviews), WhatsApp video-call shopping, 1-click WhatsApp order confirmation, push notifications for dispatch |
+| **Content** | Festive occasion collections (Wedding, Haldi, Mehendi, Sangeet), artisan store directory, personalized recommendations, marketing broadcasts |
 
 ---
 
-## 🏛️ System Architecture Topology
+## 🏪 Seller Hub Features
+
+A complete vendor operating system at `/seller` — onboarding to payout.
+
+| Area | What the seller gets |
+| :--- | :--- |
+| **Onboarding** | Guided registration with GSTIN capture, store profile builder, commission terms (6 months 0%, then 2.5%) |
+| **Catalog Management** | Product CRUD with Hinglish AI copywriter, variant matrix (size × color), multi-image uploads via universal media picker, bulk stock updates |
+| **Inventory** | Real-time stock ledger, low-stock alerts, variant-level quantities, out-of-stock auto-hiding |
+| **Orders** | Vendor-scoped order inbox (strict store isolation — sellers never see other stores' data), status pipeline (confirmed → packed → shipped → delivered), customer contacts PII-masked |
+| **Analytics** | DuckDB-Wasm in-browser OLAP: revenue trends, GMV slicing, GST summaries — sub-50ms on cached aggregates, zero Neon compute burn |
+| **Payouts** | UPI-based settlement tracking, commission ledger, GST-compliant payout statements |
+
+---
+
+## 👑 Admin Console Features
+
+A zero-code live studio at `/admin` — **105+ settings** editable without touching source code.
+
+| Group | Capabilities |
+| :--- | :--- |
+| **Brand Identity** | Store name, tagline, logo variants, favicon, announcement marquee text & scroll speed, WhatsApp helpline, contact details, social handles |
+| **Visual Theme** | Light/dark default, visitor theme toggle, Royal Maroon & Imperial Gold colorways, surfaces, corner radius, typography, density |
+| **Homepage Layout** | 5-slide hero carousel manager, aspect ratios, slide ordering, badge texts, CTA links, section reordering, occasion chips, grid presets |
+| **Indian Commerce** | INR formatting & rounding, free-shipping threshold, COD fees, return window, GST rates with HSN auto-split, catalog pagination |
+| **Seller Hub** | Commission-free launch months, default commission %, listing auto-approval, GSTIN requirements, max images per listing |
+| **Security & Bot Shield** | 10 PoW presentation archetypes, difficulty weight, iteration budget, rate-limit thresholds, lockout durations, session lifetimes, proxy trust flags |
+| **Operations** | Order management across all stores, dynamic UPI UTR verification queue, coupon engine, marketing broadcasts, audit logs, banner editor, user & role management |
+
+---
+
+## 🇮🇳 Indian Commerce Engine
+
+Purpose-built for how India actually buys — not a Western checkout clone.
+
+| Capability | Implementation |
+| :--- | :--- |
+| **0%-Fee UPI Payments** | Real-time NPCI `upi://pay` QR generation with exact order amounts; 5-minute expiry timer; 12-digit UTR verification against bank statements with 1-click admin approval — saves the standard 2% gateway cut |
+| **Cash on Delivery** | Pincode-prefix circle detection (Metro / Tier-1 / Tier-2 / Rural) with automatic COD eligibility resolution at checkout |
+| **GST Compliance** | HSN-based tax auto-split (CGST/SGST/IGST), Rule 46 invoice wording, statutory invoice PDFs, GSTIN-printed seller documents |
+| **Logistics** | Delhivery Express auto-routing for North & East hubs (Bihar, UP, Delhi), Shiprocket nationwide fallback, 1-click AWB generation with Code128 packing-slip barcodes |
+| **Pincode Intelligence** | Prefix-based postal circle resolution with delivery-time estimates and COD serviceability flags |
+
+---
+
+## 🧠 AI Engines
+
+100% free-tier cultural AI — no paid APIs, no credit card prerequisites.
+
+| Engine | Model | What it does |
+| :--- | :--- | :--- |
+| **Luxury Copywriter** | Google Gemini 2.5 Flash (15 RPM / 1,500 RPD free) | Culturally authentic Hinglish product descriptions with traditional fabric vocabulary (*Zari, Banarasi, Katan, Anarkali, Sangeet, Karigari*), bullet points, SEO tags |
+| **Recommendations** | Groq LPU · Llama 3.3 70B (~250ms) | Personalized cross-sell from browse history, cart contents, and festive season — non-blocking render |
+| **Conversational Search** | Gemini 2.5 Flash (~600ms, in-memory tokenizer fallback) | Turns colloquial queries (*"behen ki shaadi ke liye royal blue banarasi saree under 7000"*) into structured DB filters (category, color, price, occasion, fabric) |
+| **Seller Analytics** | DuckDB-Wasm in-process OLAP | Monthly GMV trends, inventory turnover, and ledger math offloaded from Neon — transactional DB stays lean |
+
+All inference responses are cached in PostgreSQL (`ai_cache`) to stay inside free-tier quotas.
+
+---
+
+## 🧊 Media & Cold Storage
+
+A storage architecture designed around Backblaze's free tier instead of against it.
+
+| Capability | Implementation |
+| :--- | :--- |
+| **Zero-Egress CDN** | Private B2 bucket proxied through a Cloudflare Worker with 1-year immutable edge caching — **₹0 egress** via the Bandwidth Alliance |
+| **Zero Class C Calls** | File metadata, keys, and B2 `fileId`s cached in Neon (`media_assets`); gallery reads run in **<10ms from PostgreSQL with 0 B2 API calls**, protecting the 2,500/day Class C quota |
+| **Permanent Deletion** | Native `b2_delete_file_version` with stored `fileId` — instant purge, no hidden tombstones; lifecycle rule (`daysFromHidingToDeleting = 1`) garbage-collects the rest |
+| **4-Source Media Picker** | Direct upload (streams to B2 via Worker) · Google Drive link (auto-canonicalized to `lh3.googleusercontent.com`, ₹0 hosting) · direct web link (on-the-fly `wsrv.nl` WebP) · paginated media library with 1-click reuse |
+| **1-Command Setup** | `npm run setup:env` wizard configures Neon, secrets, B2, and AI keys, with 1-click Vercel env sync; `npm run setup:b2` deploys the CDN proxy |
+
+```
+[ Client Upload ] → [ Next.js API ] → [ Backblaze B2 ]
+                                          │ returns fileId
+                                          ▼
+                        [ Neon media_assets ] ← metadata saved
+                                │
+                ┌───────────────┴───────────────┐
+                ▼                               ▼
+   [ Gallery = SELECT from DB ]     [ Delete = b2_delete_file_version ]
+   (0 Class C B2 calls)             (hard purge, no tombstone)
+```
+
+---
+
+## 🛡️ Security Architecture
+
+Defense-in-depth, verified by OWASP ZAP baseline scans (0 High findings) and 38 automated suites.
+
+| Vector | Defense |
+| :--- | :--- |
+| **Bots / Credential Stuffing** | Self-hosted click-to-solve Proof-of-Work (`ClickToSolve.tsx`) — Web Worker PBKDF2/SHA-256, 10 luxury archetypes (Turnstile card, ALTCHA, biometric, Shagun seal, swipe slider, invisible auto-solve). Zero Google/Cloudflare trackers |
+| **Challenge Replay** | Single-use `pow_used` store (`ON CONFLICT DO NOTHING`), hourly pruning; tokens bound to IPv4 `/24` / IPv6 `/64` subnets (cellular-tower safe) |
+| **DevTools Bypass** | Submit buttons cryptographically locked; Server Actions reject unverified payloads even after inspect-element tampering |
+| **Secrets** | Fail-closed sentinels — production boot aborts on missing `AUTH_SECRET` / `ENCRYPTION_SECRET`; required-env guard with zero default secrets; secret rotation without redeploys |
+| **Sessions** | Signed `HttpOnly` `SameSite=Lax` cookies, HMAC with per-user secret rotation on password change, fail-safe sign-out |
+| **PII** | Automatic masking in admin/seller views and logs — phones (`9876****10`), emails (`r**@gmail.com`); sellers see only dispatch-required address fields (DPDP Act 2023 aligned) |
+| **Headers** | Strict CSP (no wildcards), `CORP: same-origin`, `COEP: credentialless`, HSTS preload, `X-Content-Type-Options: nosniff`, `poweredByHeader: false` |
+| **Crypto Hygiene** | `timingSafeEqual` on all token/signature comparisons; non-blocking async notification dispatch; scrypt password hashing |
+| **Abuse & Errors** | Tiered rate limiting with IPv4/IPv6 anti-spoof validation and fail-closed sensitive routes; duplicate-order chaos guards (`useFormLock`); zero internal-error leakage to clients |
+| **Data Safety** | Zero-loss migrations only (`ADD COLUMN IF NOT EXISTS`, safe defaults — never `DROP`); `withDbRetry` backoff armor for Neon blips |
+
+---
+
+## 🏛️ System Architecture
 
 ```mermaid
 flowchart TD
@@ -169,9 +228,9 @@ flowchart TD
     end
 
     subgraph CloudStorage ["Cold Storage & Edge CDN ($0 Bandwidth Alliance)"]
-        CFW["Cloudflare Worker CDN Proxy\n(aalm-b2-proxy.alamwastraly.workers.dev)"]
-        B2["Backblaze B2 Private Bucket\n(aalm-vastralay-media)"]
-        GDrive["Google Drive Direct Embed\n(lh3.googleusercontent.com/d/{id})"]
+        CFW["Cloudflare Worker CDN Proxy"]
+        B2["Backblaze B2 Private Bucket"]
+        GDrive["Google Drive Direct Embed"]
     end
 
     subgraph FreeAI ["Perpetual Free AI Engines"]
@@ -180,8 +239,8 @@ flowchart TD
     end
 
     subgraph Database ["Neon Serverless PostgreSQL (ap-south-1 Mumbai)"]
-        MediaAssets[("media_assets table\n(Zero Class C Caching)")]
-        AiCache[("ai_cache table")]
+        MediaAssets[("media_assets\n(Zero Class C Caching)")]
+        AiCache[("ai_cache")]
         CommerceDB[("users, stores, products, orders, settings")]
     end
 
@@ -209,100 +268,18 @@ flowchart TD
     UI -->|Load Drive Images| GDrive
 ```
 
----
-
-## 🧊 Cold Storage & Zero Class C Optimization
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        BACKBLAZE B2 ZERO CLASS C FLOWCHART                             │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [ Client Upload ] ──▶ [ Next.js API ] ──▶ [ Backblaze B2 (b2_upload_file) ]          │
-│                                │                               │                       │
-│                                │                               ▼                       │
-│                                │                     Returns { fileId }                │
-│                                │                               │                       │
-│                                ▼                               │                       │
-│                  [ Save to Neon DB media_assets ] ◀────────────┘                       │
-│                                │                                                       │
-│                                ├───────────────────────────────┐                       │
-│                                ▼                               ▼                       │
-│                     [ Gallery Browsing ]             [ Asset Deletion ]                │
-│                                │                               │                       │
-│                                ▼                               ▼                       │
-│                     Query Neon DB ONLY              Call b2_delete_file_version        │
-│                     (0 Class C B2 Calls!)           using stored fileId                │
-│                                                     (Permanent Purge, No Tombstone)    │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-| Metric / Action | Standard S3 Architecture | Aalm Vastralay Architecture | Benefit |
-| :--- | :--- | :--- | :--- |
-| **Gallery File Listing** | `b2_list_file_names` (Class C) | `SELECT * FROM media_assets` (PostgreSQL) | **Zero Class C calls** (100% quota safety) |
-| **File Deletion** | Standard `DeleteObject` (Hides file) | `b2_delete_file_version` (Hard purge) | **Zero tombstone markers**, no hidden storage |
-| **Media Egress** | Direct B2 Download ($0.01/GB) | Cloudflare Worker CDN Proxy | **₹0 Free Egress** via Bandwidth Alliance |
-| **Secondary Hosting** | Third-party image hosting fees | Google Drive Direct Link Embed | **₹0 Zero-cost** secondary asset hosting |
+Full blueprints: [Tech Stack & Architecture](docs/TECH_STACK_AND_ARCHITECTURE.md).
 
 ---
 
-## 🧠 100% Free Cultural AI Engines
+## 🚀 Quick Start
 
-| Feature | Primary AI Model | Fallback Model | Latency | Cultural Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Luxury Copywriter** | **Google Gemini 2.5 Flash** | Gemini 1.5 Flash | ~800ms | Rich Hinglish vocabulary, ethnic attire attributes (*Zari, Banarasi, Katan, Anarkali, Sangeet, Mehendi, Karigari*), structured bullet points, and SEO tags. |
-| **Real-Time Recommendations** | **Groq Llama 3.3 70B** | Gemini 2.5 Flash | **~250ms** | Ultra-fast LPU inference tailored to user browse history, cart items, and festive seasons without page render blocking. |
-| **Conversational NLP Search** | **Google Gemini 2.5 Flash** | In-Memory Tokenizer | ~600ms | Extracts structured database filters (`category`, `color`, `priceRange`, `occasion`, `fabric`) from colloquial Indian search queries. |
-
----
-
-## 👥 Marketplace Personas & Universal CRUD
-
-| Role | Landing Route | Core Capabilities |
-| :--- | :--- | :--- |
-| **👑 Super Admin** | `/admin` | Complete marketplace oversight, 105+ live settings, commission rules, banner carousel editor, dynamic UPI UTR verification, marketing campaigns, audit logs, and security shield studio. |
-| **🏪 Seller (Vendor)** | `/seller` | Multi-vendor storefront management, catalog CRUD, variant sizing (XS–XXL), inventory management, and vendor order fulfillment. |
-| **🛍️ Customer (Shopper)** | `/dashboard`, `/cart`, `/orders` | Ethnic catalog browsing, visual filters (Occasion, Color, Fabric), cart, wishlist, dynamic UPI checkout, order tracking, and verified UGC reviews. |
-
----
-
-## 🛠️ 105+ Zero-Code Live Admin Studio
-
-All marketplace settings can be customized in real-time from **/admin → Site settings** without touching source code:
-
-| Setting Group | Configuration Capabilities |
-| :--- | :--- |
-| **Brand Identity** | Store name, tagline, logo variant, favicon emoji, announcement marquee text & scroll speed, WhatsApp helpline, phone, email, and social handles. |
-| **Visual Theme** | Light/Dark default mode, visitor theme toggle, Royal Maroon & Imperial Gold colorways, background surface colors, corner radius, typography, and density. |
-| **Homepage Layout** | 5-Slide Hero Carousel manager, aspect ratios, slide ordering, badge texts, CTA links, section reordering, occasion chips, and grid column presets. |
-| **Indian Commerce** | INR currency symbol, rounding logic, free shipping threshold, COD fees, return window, GST tax rates (HSN auto-split), and catalog pagination. |
-| **Seller Hub** | Commission-free launch months, default commission percentage, auto-approval for listings, GSTIN requirements, and maximum images per listing. |
-| **Security & Bot Shield** | 10 PoW presentation archetypes, difficulty weight, iteration budget, rate limit thresholds, lockout durations, session lifetimes, and proxy trust flags. |
-
----
-
-## 🛡️ Production Security & Bot Shield
-
-| Vector | Defensive Implementation |
-| :--- | :--- |
-| **Scripted Bots / Credential Stuffing** | Self-hosted click-to-solve PoW (`ClickToSolve.tsx`), Web Worker solving, and single-use `pow_used` table. |
-| **Challenge Replay Attacks** | Atomic insert with `ON CONFLICT DO NOTHING` on `pow_used` table with 1-hour automated pruning. |
-| **Database Degradation / Blips** | `withDbRetry<T>` armor providing automatic backoff retry on transient Neon connection blips. |
-| **IP Spoofing & Header Tampering** | Strict IPv4/IPv6 regex check (`isValidIp`), proxy header precedence, and quarantine of invalid IPs. |
-| **Button Rapid Double-Clicks** | Re-entry lock hook `useFormLock()` disabling buttons immediately to prevent duplicate orders. |
-| **Sensitive Data Exposure** | Zero internal error leakage; automated PII masking on phone (`9876****10`) and email (`r**@gmail.com`). |
-| **Session Security** | Signed `HttpOnly`, `SameSite=Lax` cookies; invalidation on password change; fail-safe sign-out endpoint (`/api/auth/sign-out`). |
-| **Zero Data Loss Migrations** | All schema updates strictly use `ADD COLUMN IF NOT EXISTS` with safe non-null defaults. |
-
----
-
-## 🚀 3-Minute Quick Start Guide
+Get the full marketplace running locally in ~3 minutes.
 
 ### 1. Prerequisites
-- **Node.js:** `v20.x` or higher (`node -v`)
-- **Package Manager:** `npm v10.x` or higher (`npm -v`)
-- **Database:** Free [Neon PostgreSQL](https://neon.tech) account (choose `ap-south-1 Mumbai` region)
+- **Node.js** `v20.x` or higher (`node -v`)
+- **npm** `v10.x` or higher (`npm -v`)
+- **Database:** free [Neon PostgreSQL](https://neon.tech) account (`ap-south-1 Mumbai` region)
 
 ### 2. Clone & Install
 ```bash
@@ -311,152 +288,102 @@ cd aalm-vastralay
 npm install
 ```
 
-### 3. Interactive Environment & Cloud Setup Wizard
-Run the interactive setup wizard to configure your database, cryptographic secrets, Backblaze B2, and AI keys in 1 step:
+### 3. Interactive Environment Setup
+One wizard configures database, secrets, B2, and AI keys — and can sync everything to Vercel in 1 click:
 ```bash
 npm run setup:env
 ```
-*(The wizard automatically offers to sync all variables to your Vercel Production and Preview environments using the Vercel CLI!)*
 
-### 4. Zero-Loss Database Auto-Migration
-Synchronize all 18 tables, performance indexes, and foundational categories safely without dropping any data:
+### 4. Zero-Loss Database Migration
+Creates all tables, indexes, and seed categories without dropping any data:
 ```bash
 npm run db:auto-migrate
 ```
 
-### 5. Launch Development Server
+### 5. Launch
 ```bash
 npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser. Default Admin credentials: `admin@aalmvastralay.com` / `Admin@123`.
+Open **[http://localhost:3000](http://localhost:3000)**. Default admin: `admin@aalmvastralay.com` / `Admin@123`.
 
 ---
 
-## 🔑 Environment Configuration Matrix
+## 🔑 Environment Variables
 
-| Variable | Required | Default / Purpose |
+| Variable | Required | Purpose |
 | :--- | :---: | :--- |
-| `DATABASE_URL` | **Yes** | Neon PostgreSQL Pooled Connection String (`-pooler` endpoint in `ap-south-1`). |
-| `AUTH_SECRET` | **Yes** | 64-character random hex string for signing HMAC session cookies. |
-| `ENCRYPTION_SECRET` | **Yes** | 64-character random hex string for AES-256-GCM database field encryption. |
-| `POW_SECRET` | **Yes** | Secret salt for signing Proof-of-Work challenge payloads. |
-| `NEXT_PUBLIC_SITE_URL` | **Yes** | Canonical marketplace URL (e.g. `http://localhost:3000` or production URL). |
-| `NEXT_PUBLIC_B2_WORKER_URL` | Optional | Cloudflare Worker B2 CDN proxy URL (`https://aalm-b2-proxy.alamwastraly.workers.dev`). |
-| `B2_BUCKET_NAME` | Optional | Backblaze B2 bucket name (`aalm-vastralay-media`). |
-| `B2_KEY_ID` | Optional | Backblaze Application Key ID (`keyID`). |
-| `B2_APPLICATION_KEY` | Optional | Backblaze Application Key secret (`applicationKey`). |
-| `GEMINI_API_KEY` | Optional | Google Gemini 2.5 Flash API Key (from Google AI Studio). |
-| `GROQ_API_KEY` | Optional | Groq Cloud LPU API Key (from Groq Console). |
-| `NEXT_PUBLIC_APP_NAME` | Optional | Storefront brand name (e.g. `"Aalm Vastralay"`). |
-| `NEXT_PUBLIC_UPI_VPA` | Optional | Store UPI Virtual Payment Address for 0% fee dynamic QR codes. |
-| `COOKIE_SECURE` | Optional | Set to `"true"` on production HTTPS, `"false"` for local development. |
+| `DATABASE_URL` | **Yes** | Neon PostgreSQL pooled connection string (`-pooler` endpoint, `ap-south-1`) |
+| `AUTH_SECRET` | **Yes** | 64-char random hex for HMAC session-cookie signing (fail-closed in production) |
+| `ENCRYPTION_SECRET` | **Yes** | 64-char random hex for AES-256-GCM field encryption (fail-closed in production) |
+| `POW_SECRET` | **Yes** | Salt for signing Proof-of-Work challenge payloads |
+| `GAS_SECRET_TOKEN` | **Yes** | Shared secret for the Google Apps Script mailer webhook (no default — must be set) |
+| `NEXT_PUBLIC_SITE_URL` | **Yes** | Canonical URL (`http://localhost:3000` locally, production URL on Vercel) |
+| `NEXT_PUBLIC_B2_WORKER_URL` | Optional | Cloudflare Worker B2 CDN proxy URL |
+| `B2_BUCKET_NAME` / `B2_KEY_ID` / `B2_APPLICATION_KEY` | Optional | Backblaze B2 bucket + application key credentials |
+| `GEMINI_API_KEY` | Optional | Google AI Studio key (Gemini 2.5 Flash copywriter + NLP search) |
+| `GROQ_API_KEY` | Optional | Groq Console key (LPU recommendations) |
+| `NEXT_PUBLIC_APP_NAME` | Optional | Storefront brand name |
+| `NEXT_PUBLIC_UPI_VPA` | Optional | Store UPI ID for 0%-fee dynamic QR codes |
+| `NEXT_PUBLIC_SUPPORT_PHONE` / `NEXT_PUBLIC_SUPPORT_EMAIL` | Optional | Customer-facing helpline contact details |
+| `COOKIE_SECURE` | Optional | `"true"` on production HTTPS, `"false"` locally |
+
+Generate production secrets per [ENV_VARS_PRODUCTION.md](docs/ENV_VARS_PRODUCTION.md) (256-bit crypto, zero-leak protocol).
 
 ---
 
-## 🧪 Enterprise Verification Suite (36/36 Passing)
+## 🧪 Verification Suite
 
-Every pull request and build is verified through **36 automated enterprise test suites** passing cleanly in **~1.46 seconds**:
+**38/38 enterprise suites, ~1.5 seconds.** Every change is verified before it ships:
 
 ```bash
-npm test
+npm test            # full enterprise suite (tests/run-all-tests.ts)
+npm run typecheck   # TypeScript strict, 0 errors
+npm run lint        # ESLint, 0 errors / 0 warnings
+npm run build       # Next.js production build (mandatory before push)
 ```
 
-```text
-=======================================================
- 👑 AALM VASTRALAY — AUTOMATED ENTERPRISE TEST SUITE   
-=======================================================
-  ✔ AES-256-GCM authenticated cipher & PII masking passed!
-  ✔ INR currency formatting and commerce calculations passed!
-  ✔ Pincode verification, size sorting & order steps passed!
-  ✔ Scrypt password hashing & role hierarchy verification passed!
-  ✔ Coupon discount rules, caps, thresholds & category hierarchies verified!
-  ✔ Multi-vendor tenant isolation, store boundaries & PII masking verified!
-  ✔ Verified all 105 zero-code admin settings & JSON safety!
-  ✔ Universal media resolver (GDrive, B2, YouTube, Direct WebP) passed!
-  ✔ Neon pooled connection validation passed!
-  ✔ Middleware static skip & route logic verified!
-  ✔ Guest Mode & Anonymous Session Isolation passed!
-  ✔ Webhook Signature Security & Tamper Resistance verified!
-  ✔ Upload Presign & Metadata Security Thresholds verified!
-  ✔ Server Component Request-Scoped Auth Caching verified!
-  ✔ Dynamic UPI QR generation, UTR validation & timer formatting verified!
-  ✔ 1-Click WhatsApp order confirmation, bridal consult & dispatch verified!
-  ✔ Catalog visual filters (colors, occasions, fabrics) verified!
-  ✔ Indian Pincode Circle Resolution & COD Serviceability verified!
-  ✔ Customer UGC Review Photos & Image Sanitization verified!
-  ✔ Service Worker Push Notifications & Order Dispatch passed!
-  ✔ Shiprocket & Delhivery Direct Courier & AWB Generation passed!
-  ✔ Complete 53-icon matrix & 20 logo SVG variants verified!
-  ✔ Statutory GST tax engine & Rule 46 invoice words passed!
-  ✔ PII Masking, Rate Limiting & XSS Escaping verified!
-  ✔ Button Double-Click Chaos Defense & Re-entry Lock verified!
-  ✔ Click-to-Solve PoW Single-Use & Action Binding verified!
-  ✔ Marketing Broadcasts & Luxury Email Template UTF-8 Engine passed!
-  ✔ Server-Side Hardening & Anti-Spoof Defense verified!
-  ✔ Header Dropdown Scroll-Lock, Clip Fix & A11Y verified!
-  ✔ Hero Carousel Multi-Strategy & B2 Mirror Engine verified!
-  ✔ Fail-Closed Secrets, Presign 503 & Courier Label 400 verified!
-  ✔ DB Transient Retry Armor, PoW Agreement & Anti-Enumeration verified!
-  ✔ Open-Source Turnkey Template & Zero-PII Integrity verified!
-  ✔ Free AI Engine & Hinglish NLP Search Intent passed!
-  ✔ Media Management & B2 Zero Class C Elimination passed!
-  ✔ DuckDB In-Memory OLAP Analytics & GST Slicing passed!
-=======================================================
- 🏆 ALL 36/36 ENTERPRISE TEST SUITES PASSED IN 1.46s!
- Strict zero-defect verification completed successfully. ✅
-=======================================================
-```
+Coverage spans encryption & PII masking, commerce math, auth & role hierarchy, seller tenant isolation, UPI QR + UTR, GST invoicing, courier AWB, PoW bot shield, fail-closed secrets, required-env guards, OAuth state safety, media/CDN thresholds, AI search intent, DuckDB analytics, and open-source template integrity.
 
 ---
 
-## ☁️ Cloud Deployment Runbook
+## ☁️ Deployment
 
-Deploy Aalm Vastralay to production with **zero ongoing server costs**:
+Production runs on perpetual free tiers — **$0/month**:
 
-### 1. Neon Database Setup
-1. Create a project at [Neon.tech](https://neon.tech) in `Asia-Pacific (Mumbai) - ap-south-1`.
-2. Copy the **Pooled connection string** containing `-pooler`.
+1. **Neon** — create a project in `Asia-Pacific (Mumbai) ap-south-1`, copy the **pooled** connection string.
+2. **Cloudflare Worker CDN** — deploy the B2 proxy in 1 command:
+   ```powershell
+   npm run setup:b2
+   ```
+3. **Vercel** — import the repo, then run `npm run setup:env` locally to sync all production variables in 1 click (or set them manually in Project Settings). Deploy — build completes in ~90 seconds.
 
-### 2. Cloudflare Worker B2 CDN Setup
-Deploy the high-performance B2 CDN proxy in 1 command:
-```powershell
-npm run setup:b2
-```
-
-### 3. Vercel Deployment
-1. Import the repository into [Vercel](https://vercel.com).
-2. Run `npm run setup:env` locally to sync all production variables directly to Vercel in 1 click, or configure them manually in Vercel Project Settings.
-3. Deploy! Next.js App Router will compile and serve the production build in ~90 seconds.
+Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md) · [Cloudflare Worker](docs/CLOUDFLARE_WORKER.md) · [Backblaze B2](docs/BACKBLAZE_B2.md) · [Master deployment guide](docs/DEPLOYMENT.md).
 
 ---
 
-## 📚 Master Documentation Index
+## 📚 Documentation
 
-Comprehensive guides, specifications, and runbooks located in [`docs/`](docs/README.md) and [`.ai/`](.ai/RULES.md):
-
-| Documentation Link | Topic & Coverage |
+| Guide | Covers |
 | :--- | :--- |
-| ⭐ **[docs/MASTER_DEVELOPER_GUIDE.md](docs/MASTER_DEVELOPER_GUIDE.md)** | Master developer and operations runbook. |
-| 🐘 **[docs/NEON_POSTGRESQL.md](docs/NEON_POSTGRESQL.md)** | **Neon PostgreSQL Manual:** Autoscaling Postgres 16, Mumbai `-pooler`, zero-loss migrations, 1-click clean wipe. |
-| ⚡ **[docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)** | **Vercel Production Manual:** Next.js 16 SSR/ISR, Mumbai edge regions, zero-downtime releases, rollback. |
-| 🛡️ **[docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md)** | **Cloudflare Worker CDN:** $0 egress Bandwidth Alliance, KV token cache, HTTP 206 video range seeking. |
-| 📦 **[docs/BACKBLAZE_B2.md](docs/BACKBLAZE_B2.md)** | **Backblaze B2 Storage:** Private bucket setup, browser presigned uploads (bypassing Vercel 4.5MB ceiling), CORS. |
-| 📧 **[docs/GAS_MAILER.md](docs/GAS_MAILER.md)** | **Google Apps Script Mailer:** 100% free Gmail inbox delivery, zero DNS setup, HMAC security, 10 royal templates. |
-| 🔐 **[docs/ENV_VARS_PRODUCTION.md](docs/ENV_VARS_PRODUCTION.md)** | **Production Environment Matrix:** 100% production-ready secrets, 256-bit crypto key generation, zero leaks. |
-| 🏗️ **[docs/TECH_STACK_AND_ARCHITECTURE.md](docs/TECH_STACK_AND_ARCHITECTURE.md)** | Full architectural blueprints, multi-tier diagrams & storage flows. |
-| 🚀 **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Master production deployment architecture and multi-cloud runbook. |
-| 🛠️ **[docs/SETUP.md](docs/SETUP.md)** | Step-by-step local development & production setup runbook. |
-| 📜 **[docs/RULES.md](docs/RULES.md)** | Master architectural laws, anti-yes-man principles & git rules. |
-| 🗄️ **[.ai/DATABASE.md](.ai/DATABASE.md)** | Drizzle ORM schemas and zero-loss Neon migration protocol. |
-| 📋 **[.ai/PRD.md](.ai/PRD.md)** | Product requirements document & Indian ethnic commerce rules. |
-| 💡 **[.ai/DECISIONS.md](.ai/DECISIONS.md)** | Architecture Decision Records (ADRs 001–021). |
-| 📜 **[.ai/CHANGELOG.md](.ai/CHANGELOG.md)** | Chronological history of releases and engineering updates. |
+| ⭐ [Master Developer Guide](docs/MASTER_DEVELOPER_GUIDE.md) | Developer + operations runbook |
+| 📜 [Architecture Laws (RULES)](docs/RULES.md) | Anti-yes-man principles, execution lifecycle, git discipline |
+| 🐘 [Neon PostgreSQL](docs/NEON_POSTGRESQL.md) | Autoscaling Postgres 16, pooled Mumbai endpoint, zero-loss migrations |
+| ⚡ [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md) | Next.js 16 SSR/ISR, edge regions, zero-downtime releases, rollback |
+| 🛡️ [Cloudflare Worker CDN](docs/CLOUDFLARE_WORKER.md) | $0 egress Bandwidth Alliance, KV token cache, HTTP 206 range seeking |
+| 📦 [Backblaze B2 Storage](docs/BACKBLAZE_B2.md) | Private bucket, presigned browser uploads (bypasses Vercel 4.5MB ceiling), CORS |
+| 📧 [GAS Mailer](docs/GAS_MAILER.md) | Free Gmail delivery, zero DNS setup, HMAC security, royal templates |
+| 🔐 [Production Env Vars](docs/ENV_VARS_PRODUCTION.md) | Production secrets matrix, 256-bit key generation, zero leaks |
+| 🏗️ [Tech Stack & Architecture](docs/TECH_STACK_AND_ARCHITECTURE.md) | Full blueprints, topology diagrams, storage flows |
+| 🛠️ [Setup Guide](docs/SETUP.md) | Local development + production setup, step by step |
+| 🗄️ [Database (.ai)](.ai/DATABASE.md) | Drizzle schemas, zero-loss migration protocol |
+| 📋 [PRD (.ai)](.ai/PRD.md) | Product requirements & Indian ethnic commerce rules |
+| 💡 [Decisions (.ai)](.ai/DECISIONS.md) | Architecture Decision Records |
 
 ---
 
 <div align="center">
 
-**Aalm Vastralay (आलम वस्त्रालय)** &nbsp;•&nbsp; Bihar, India  
+**Aalm Vastralay (आलम वस्त्रालय)** &nbsp;•&nbsp; Bihar, India
 *Crafted with precision for Indian Commerce.*
 
 </div>
