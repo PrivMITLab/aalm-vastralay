@@ -1,6 +1,6 @@
 # 🔐 Aalm Vastralay — सम्पूर्ण `.env` (Environment Variables) गाइड
-
-यह गाइड केवल और केवल **`.env` (Environment Variables)** के लिए बनाई गई है। इसमें आप देखेंगे कि:
+Location: `docs/ENV_SETUP_GUIDE.md`  
+📖 **Master Production Matrix & Key Generators:** [**docs/ENV_VARS_PRODUCTION.md**](ENV_VARS_PRODUCTION.md)
 - कौन-सा वेरिएबल **क्या काम करता है**?
 - वह **कहाँ से मिलेगा (Website/Console)**?
 - Neon, ImageKit आदि का **स्क्रीन कैसा दिखेगा और कहाँ क्लिक करके कॉपी करना है**?

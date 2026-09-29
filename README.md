@@ -437,6 +437,7 @@ Comprehensive guides, specifications, and runbooks located in [`docs/`](docs/REA
 | Documentation Link | Topic & Coverage |
 | :--- | :--- |
 | ⭐ **[docs/MASTER_DEVELOPER_GUIDE.md](docs/MASTER_DEVELOPER_GUIDE.md)** | Master developer and operations runbook. |
+| 🐘 **[docs/NEON_POSTGRESQL.md](docs/NEON_POSTGRESQL.md)** | **Neon PostgreSQL Manual:** Autoscaling Postgres 16, Mumbai `-pooler`, zero-loss migrations, 1-click clean wipe. |
 | ⚡ **[docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)** | **Vercel Production Manual:** Next.js 16 SSR/ISR, Mumbai edge regions, zero-downtime releases, rollback. |
 | 🛡️ **[docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md)** | **Cloudflare Worker CDN:** $0 egress Bandwidth Alliance, KV token cache, HTTP 206 video range seeking. |
 | 📦 **[docs/BACKBLAZE_B2.md](docs/BACKBLAZE_B2.md)** | **Backblaze B2 Storage:** Private bucket setup, browser presigned uploads (bypassing Vercel 4.5MB ceiling), CORS. |

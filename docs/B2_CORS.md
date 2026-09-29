@@ -1,5 +1,6 @@
 # 🌐 Backblaze B2 CORS Configuration Runbook (हिंदी गाइड)
-Location: `docs/B2_CORS.md`
+Location: `docs/B2_CORS.md`  
+📖 **Master Object Storage Manual:** [**docs/BACKBLAZE_B2.md**](BACKBLAZE_B2.md)
 
 ### ❓ समस्या क्या है? (Why does Direct Upload fail?)
 Aalm Vastralay में जब कोई सेलर या एडमिन प्रोडक्ट इमेज, लोगो या बैनर अपलोड करता है, तो फाइल **Vercel Serverless payload limit (4.5MB)** को बायपास करने के लिए सीधे ब्राउज़र से **Backblaze B2 Private Bucket** में स्ट्रीम होती है (`uploadToB2` in `src/lib/upload-client.ts`).

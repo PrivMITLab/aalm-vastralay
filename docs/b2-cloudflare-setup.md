@@ -1,5 +1,7 @@
 # 👑 Backblaze B2 + Cloudflare Worker — Setup Guide
-**Location:** `docs/b2-cloudflare-setup.md`
+**Location:** `docs/b2-cloudflare-setup.md`  
+📖 **Master B2 Manual:** [**docs/BACKBLAZE_B2.md**](BACKBLAZE_B2.md)  
+📖 **Master Cloudflare Worker Manual:** [**docs/CLOUDFLARE_WORKER.md**](CLOUDFLARE_WORKER.md)
 
 > **TL;DR:** Sab kuch ek command mein ho jaata hai. Neeeche dekho.
 

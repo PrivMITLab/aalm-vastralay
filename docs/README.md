@@ -11,6 +11,7 @@ These dedicated, production-grade manuals provide deep architectural breakdowns,
 
 | Infrastructure Pillar | Master Guide | Focus & Capabilities |
 | :--- | :--- | :--- |
+| 🐘 **Database Engine** | **[NEON_POSTGRESQL.md](NEON_POSTGRESQL.md)** | Neon Serverless PostgreSQL 16 (Mumbai `ap-south-1`), PgBouncer connection pooling (`-pooler`), zero-loss schema auto-migrations, 1-click clean wipe. |
 | ⚡ **Frontend & Compute** | **[VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** | Next.js 16 SSR/ISR on Vercel Edge, Mumbai/Singapore function regions, custom domain DNS (A + CNAME), zero-downtime releases, instant rollback. |
 | 🛡️ **Edge Proxy & CDN** | **[CLOUDFLARE_WORKER.md](CLOUDFLARE_WORKER.md)** | Cloudflare Worker proxy (`b2-proxy.js`), Bandwidth Alliance $0 egress, KV token caching (`B2_TOKEN_KV`), HTTP 206 video range seeking, 1-year immutable edge caching. |
 | 📦 **Cold Media Storage** | **[BACKBLAZE_B2.md](BACKBLAZE_B2.md)** | Private bucket (`aalm-vastralay-media`), direct browser presigned uploads (bypassing Vercel 4.5MB ceiling), production CORS rules, lifecycle cleanup. |

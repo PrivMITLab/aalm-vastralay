@@ -10,6 +10,7 @@ For deep, service-specific step-by-step production runbooks, refer to our specia
 
 | Pillar | Dedicated Production Manual | Core Capabilities & Focus |
 |:---|:---|:---|
+| 🐘 **Database Engine** | **[docs/NEON_POSTGRESQL.md](NEON_POSTGRESQL.md)** | Neon PostgreSQL 16 (Mumbai `ap-south-1`), PgBouncer connection pooler (`-pooler`), zero-loss schema auto-migrations, 1-click clean wipe. |
 | ⚡ **Frontend & Compute** | **[docs/VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** | Next.js 16 SSR/ISR, Edge caching, Mumbai region config, custom DNS, zero-downtime releases, instant rollback. |
 | 🛡️ **Edge Proxy & CDN** | **[docs/CLOUDFLARE_WORKER.md](CLOUDFLARE_WORKER.md)** | Bandwidth Alliance $0 egress, KV token caching (`B2_TOKEN_KV`), HTTP 206 video range seeking, 1-year immutable caching. |
 | 📦 **Cold Storage** | **[docs/BACKBLAZE_B2.md](BACKBLAZE_B2.md)** | Private bucket (`aalm-vastralay-media`), direct client presigned uploads (bypassing Vercel 4.5MB ceiling), production CORS rules. |
