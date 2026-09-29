@@ -1,35 +1,36 @@
 # OWASP ZAP Baseline Security Scan — Rules Configuration
-# Format: <rule-id>\t<action>\t[regex]
+# Format: <rule-id>\t<action>\t<url-regex>
 # Actions: IGNORE | INFO | WARN | FAIL
+# Note: Exactly 3 tab-separated columns are required by zap-baseline.py parser
 
 # 10055: Content Security Policy (CSP) Alerts (unsafe-inline / unsafe-eval / wildcard)
 # Required by Next.js client hydration and DuckDB-Wasm in-browser analytical OLAP
-10055	INFO
+10055	INFO	.*
 
 # 90003: Sub Resource Integrity (SRI) Attribute Missing
 # Next.js 16 App Router builds and hashes same-origin local chunks (_next/static/...)
-90003	IGNORE
+90003	IGNORE	.*
 
 # 10031: User Controllable HTML Element Attribute (Potential XSS)
 # Search keywords, categories, and auth redirects are safely sanitized and rendered in UI controls
-10031	INFO
+10031	INFO	.*
 
 # 10094: Base64 Disclosure
 # React Server Components (RSC) flight data serialization and base64 SVG icons
-10094	INFO
+10094	INFO	.*
 
 # 90005: Modern Web Application
 # Informational detection that site is built on modern framework (Next.js / React)
-90005	INFO
+90005	INFO	.*
 
 # 10044: Big Redirect Detected
 # Edge Middleware intercepts unauthenticated routes with 0-byte fast redirects
-10044	WARN
+10044	WARN	.*
 
 # 10019: Content-Type Header Missing
 # All route handlers and redirects must return explicit Content-Type headers
-10019	WARN
+10019	WARN	.*
 
 # 10202: Absence of Anti-CSRF Tokens
 # All interactive state-modifying forms must provide CSRF tokens
-10202	WARN
+10202	WARN	.*
