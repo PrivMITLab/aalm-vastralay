@@ -4,7 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { ArrowRight, ShoppingBag, Tag } from "lucide-react";
 import { db } from "@/db";
 import { cart, productVariants, products, stores } from "@/db/schema";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { resolveThumbnail } from "@/lib/media-resolver";
 import { formatINR, freeShippingThreshold, round2, shippingFor } from "@/lib/utils";
 import CartItemControls from "@/components/cart/CartItemControls";
@@ -13,7 +13,28 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your Bag" };
 
 export default async function CartPage() {
-  const user = await requireUser("/cart");
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-20 text-center">
+        <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-cream-100 text-maroon-700">
+          <ShoppingBag className="h-9 w-9" />
+        </span>
+        <h1 className="mt-5 font-display text-2xl font-semibold text-maroon-900">Your bag is empty</h1>
+        <p className="mt-2 text-sm text-slate-600">Sign in to view your saved bag or discover our latest wedding collection.</p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/sign-in?redirect_url=%2Fcart" className="btn btn-primary">
+            Sign In
+          </Link>
+          <Link href="/products" className="btn btn-outline">
+            Start shopping <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const rows = await db
     .select({ item: cart, product: products, variant: productVariants, storeName: stores.storeName, storeId: stores.id })
     .from(cart)
