@@ -19,7 +19,7 @@
 ## ⚡ चरण 1: Google Apps Script प्रोजेक्ट बनाना (Create Project)
 
 1. अपने ब्राउज़र में [**script.google.com/home**](https://script.google.com/home) खोलें।
-2. अपने उस Gmail खाते से लॉगिन करें जिससे आप ग्राहकों को ईमेल्स भेजना चाहते हैं (उदा. `aalmvastralay@gmail.com` या आपका व्यक्तिगत Gmail)।
+2. अपने उस Gmail खाते से लॉगिन करें जिससे आप ग्राहकों को ईमेल्स भेजना चाहते हैं (उदा. `your-store-email@gmail.com` या आपका व्यक्तिगत Gmail)।
 3. ऊपर बाईं ओर **"+ New project" (नया प्रोजेक्ट)** बटन पर क्लिक करें।
 4. ऊपर जहाँ **"Untitled project"** लिखा है, उस पर क्लिक करके नाम बदलें:
    👉 **`Aalm-Vastralay-Mailer`** और **Rename** पर क्लिक करें।
