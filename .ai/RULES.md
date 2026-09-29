@@ -314,3 +314,9 @@ Every AI session must follow this order:
    - `codeql.yml`: CodeQL AST semantic analysis runs nightly at 03:00 AM IST (21:30 UTC) + on PRs.
    - `dependency-security.yml`: NPM security audit runs nightly at 03:30 AM IST (22:00 UTC) + on PRs.
 
+### 💎 3 Golden Laws of GitHub Actions (Resource & Security Contract):
+1. **Ubuntu Runner Law (`runs-on: ubuntu-latest`):** Hamesha `ubuntu-latest` use karein. Windows/macOS runners public repos me hote hue bhi bohot slow boot hote hain aur unnecessary runner capacity lete hain.
+2. **Zero Misuse & Anti-Abuse Law:** Yeh free CI service strictly legitimate code build, automated tests, aur security scanning ke liye hai. Koi cryptocurrency mining, background spamming, ya resource exhaustion strictly prohibited hai (account ban prevention).
+3. **Mandatory NPM Caching Law (`cache: 'npm'`):** `actions/setup-node@v4` ke sath hamesha `cache: 'npm'` hona mandatory hai. Isse dependencies re-download hone ke bajaye cache se restore hoti hain aur build setup 2-3 minute ke bajaye sirf 20-30 second me pura ho jata hai.
+
+
