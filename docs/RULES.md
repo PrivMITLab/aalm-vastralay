@@ -156,4 +156,27 @@ Every code-generating session MUST execute this exact order without skipping ste
 > 2. **Auto-Sync Exemption:** Section 6 (Continuous Auto-Sync) ke dauran bhi `docs/RULES.md` hamesha **STRICTLY READ-ONLY** rahega. Baaki `.ai/` docs update ho sakte hain, lekin master rulebook bina user ke bole chhua nahi jayega.
 > 3. **Human-in-the-Loop Sovereignty:** Yeh rule ensure karta hai ki repository ke core governance rules par 100% control sirf developer (user) ka ho.
 
+---
+
+## 🔄 SECTION 9: AUTONOMOUS TASK DECOMPOSITION, STEP-BY-STEP ITERATION & VERIFICATION LOOP RULE (स्वायत्त कार्य विभाजन, चरणबद्ध लूप और स्व-सत्यापन नियम)
+
+> **MANDATORY EXECUTION PROTOCOL FOR ALL USER TASKS, BUGS, LOGS & FEATURES:**
+> Jab bhi user AI ko koi bhi kaam, bug, issue, error log, ya feature de, AI agent ko ek hi shot mein blind changes karne ke bajaye **Structured Plan -> Atomic Micro-Tasks -> Iterative Execution Loop -> Continuous Compile/Test -> Final Polished Delivery** ka protocol strictly follow karna hoga:
+>
+> 1. **Structured Plan & Deconstruction First (तोड़-तोड़ कर प्लान बनाना):**
+>    - Bada task ya bug milte hi pehle deep root-cause analysis karein aur ek structured Plan / TODO banayein.
+>    - Complex requirements ko chhote-chhote independent atomic sub-tasks ("micro-tasks") me divide karein.
+>
+> 2. **Iterative Autonomous Execution Loop (चरणबद्ध स्वायत्त लूप):**
+>    - Har step ko ek-ek karke loop ke through systematically execute karein:
+>      * `Write` (naye files, components, ya API handlers create karna)
+>      * `Edit` (existing code me surgical aur focused modifications karna)
+>      * `Rename` (files aur modules ko safely standardize karna)
+>      * `Delete` (dead code, unused artifacts, aur deprecated files ko clean karna)
+>    - Har critical change ke turant baad compilation/typecheck (`npm run typecheck`) aur test suites verify karein taaki regression na ho.
+>
+> 3. **End-to-End Self-Healing & Final Verification (पूर्ण समापन व सत्यापन):**
+>    - AI user ko aadhi-adhuri ya manual instructions ("bhai aap khud yeh rename kar lo") dene ke bajaye poora task autonomously end-to-end execute karega.
+>    - End me 100% compiled, lint-passed, tested, aur verified code final deliver karega.
+
 

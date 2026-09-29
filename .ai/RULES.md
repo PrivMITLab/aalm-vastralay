@@ -326,3 +326,11 @@ Every AI session must follow this order:
 - **Mandatory User Permission:** AI agents must NEVER auto-update, edit, or modify `docs/RULES.md` without the user's explicit, direct instructions.
 - **Read-Only Exemption:** Even during 4-5 change auto-sync routines, `docs/RULES.md` remains strictly read-only unless the user specifically directs: *"docs/rules.md mein add karo / update karo"*.
 - **Developer Sovereignty:** All master governance laws remain under 100% direct developer authority.
+
+---
+
+## SECTION 15: AUTONOMOUS TASK DECOMPOSITION & ITERATIVE EXECUTION LOOP
+
+- **Deconstruction First:** When handed complex logs, bugs, or feature sets, AI must break the problem down into atomic micro-tasks with an upfront structured Plan.
+- **Iterative Loop Execution:** AI operates through an autonomous execution loop (`Write` -> `Edit` -> `Rename` -> `Delete`), verifying via typecheck/test between milestones.
+- **End-to-End Self-Healing:** The agent completes all renaming, file creation, dead-code cleanup, and compilation verification autonomously without delegating partial manual work back to the user.
