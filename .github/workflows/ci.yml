@@ -118,7 +118,8 @@ jobs:
       - name: Start Local Production Server in Background
         run: |
           nohup npm run start > /tmp/next.log 2>&1 &
-          npx wait-on http://localhost:3000 --timeout 60000
+          npx wait-on http://127.0.0.1:3000 --timeout 60000
+          curl -I http://127.0.0.1:3000 || (cat /tmp/next.log && exit 1)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
@@ -127,9 +128,9 @@ jobs:
 
       # OWASP ZAP Baseline Scanner (100% Free DAST Security Scanner)
       - name: OWASP ZAP Baseline Security Scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
-          target: "http://localhost:3000"
+          target: "http://127.0.0.1:3000"
           rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-m 2 -T 3"
+          cmd_options: "-m 2 -T 3 -P 8090"
           fail_action: false
