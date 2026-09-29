@@ -319,4 +319,10 @@ Every AI session must follow this order:
 2. **Zero Misuse & Anti-Abuse Law:** Yeh free CI service strictly legitimate code build, automated tests, aur security scanning ke liye hai. Koi cryptocurrency mining, background spamming, ya resource exhaustion strictly prohibited hai (account ban prevention).
 3. **Mandatory NPM Caching Law (`cache: 'npm'`):** `actions/setup-node@v4` ke sath hamesha `cache: 'npm'` hona mandatory hai. Isse dependencies re-download hone ke bajaye cache se restore hoti hain aur build setup 2-3 minute ke bajaye sirf 20-30 second me pura ho jata hai.
 
+---
 
+## SECTION 14: DOCS/RULES.MD USER-COMMAND LOCK LAW
+
+- **Mandatory User Permission:** AI agents must NEVER auto-update, edit, or modify `docs/RULES.md` without the user's explicit, direct instructions.
+- **Read-Only Exemption:** Even during 4-5 change auto-sync routines, `docs/RULES.md` remains strictly read-only unless the user specifically directs: *"docs/rules.md mein add karo / update karo"*.
+- **Developer Sovereignty:** All master governance laws remain under 100% direct developer authority.

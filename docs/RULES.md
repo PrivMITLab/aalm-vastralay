@@ -145,3 +145,15 @@ Every code-generating session MUST execute this exact order without skipping ste
 2. **Zero Misuse & Anti-Abuse Law:** Yeh free CI service strictly legitimate code build, automated tests, aur security scanning ke liye hai. Koi cryptocurrency mining, background spamming, ya resource exhaustion strictly prohibited hai (account ban prevention).
 3. **Mandatory NPM Caching Law (`cache: 'npm'`):** `actions/setup-node@v4` ke sath hamesha `cache: 'npm'` hona mandatory hai. Isse dependencies re-download hone ke bajaye cache se restore hoti hain aur build setup 2-3 minute ke bajaye sirf 20-30 second me pura ho jata hai.
 
+---
+
+## 🔒 SECTION 8: DOCS/RULES.MD USER-COMMAND LOCK LAW (उपयोगकर्ता अनुमति अनुबंध)
+
+> **NON-NEGOTIABLE AI RESTRICTION CONTRACT:**
+> AI Agent `docs/RULES.md` (ya `docs/rules.md`) ko kabhi bhi automatically, autonomously, ya bina user ki explicit permission ke update / modify / edit **NAHI KAREGA**.
+> 
+> 1. **Explicit Permission Only:** Sirf aur sirf tabhi `docs/RULES.md` mein koi badlav kiya jayega jab user explicitly bole: *"docs/rules.md mein add karo"* ya *"docs/rules.md update karo"*.
+> 2. **Auto-Sync Exemption:** Section 6 (Continuous Auto-Sync) ke dauran bhi `docs/RULES.md` hamesha **STRICTLY READ-ONLY** rahega. Baaki `.ai/` docs update ho sakte hain, lekin master rulebook bina user ke bole chhua nahi jayega.
+> 3. **Human-in-the-Loop Sovereignty:** Yeh rule ensure karta hai ki repository ke core governance rules par 100% control sirf developer (user) ka ho.
+
+
