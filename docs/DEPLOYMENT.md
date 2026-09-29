@@ -122,33 +122,35 @@ Neon दुनिया का सबसे आधुनिक सर्वर�
 
 ```env
 # 1. डेटाबेस (Neon Serverless PostgreSQL Pooled - Mumbai)
-DATABASE_URL="postgresql://neondb_owner:PASSWORD@ep-xxxxxx-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://neondb_owner:YOUR_DATABASE_PASSWORD@ep-xxxxxx-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
 
 # 2. सुरक्षा व सीक्रेट्स (टर्मिनल में node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" से बनाएं)
 AUTH_SECRET="e9b2f4c781d0a5e38f12c67b94d183f05a76c82e91b45f3a7c2e81d094b72e15"
 ENCRYPTION_SECRET="7a1f2b641a26c9a227fbf3d59a2a45dcb945eb98a6f4e2a34d14207f6415e6c6"
-POW_SECRET="aalm_pow_shield_super_secure_key_2026"
+POW_SECRET="aalm_pow_shield_demo_secret_key_change_me_in_prod"
 
 # 3. डोमेन व कुकीज़
 COOKIE_SECURE="true"
-NEXT_PUBLIC_SITE_URL="https://aalmvastralay.com"
-NEXT_PUBLIC_B2_WORKER_URL="https://media.aalmvastralay.com"
+NEXT_PUBLIC_SITE_URL="https://example-marketplace.vercel.app"
+NEXT_PUBLIC_B2_WORKER_URL="https://media.example.com"
 NEXT_PUBLIC_USE_WSRV="true"
 
 # 4. बैकब्लेज़ B2 स्टोरेज
-B2_KEY_ID="004e8b9a1c2d3e40000000001"
-B2_APP_KEY="K004xYz123456789AbCdEfGhIjKlMn"
+B2_KEY_ID="004e8b9xxxxxxxx0000000001"
+B2_APP_KEY="K004xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 B2_BUCKET_ID="4a5b6c7d8e9f0123456789ab"
-B2_BUCKET_NAME="aalm-vastralay-media"
+B2_BUCKET_NAME="my-store-media-bucket"
 
-# 5. ईमेल इंजन (GAS)
+# 5. ईमेल इंजन (Dual Hybrid: SMTP + GAS Fallback)
+SMTP_USER="your-store-email@gmail.com"
+SMTP_PASSWORD="your-16-char-app-password"
 GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb.../exec"
-GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
+GAS_SECRET_TOKEN="your_gas_mail_shared_secret_token_here"
 
 # 6. सुपर एडमिन व बूटस्ट्रैप
-ADMIN_EMAIL="admin@aalmvastralay.com"
-ADMIN_PASSWORD="YourStrongPassword@2026"
-BOOTSTRAP_TOKEN="aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="YourStrongSecurePassword@2026"
+BOOTSTRAP_TOKEN="your_one_time_bootstrap_token_here"
 SKIP_SEED="true"
 ```
 

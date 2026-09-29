@@ -122,17 +122,19 @@ Add the following variables to **Project Settings -> Environment Variables** in 
 | `ENCRYPTION_SECRET` | `7a1f2b641a26c9a227fbf3d59a2a45dcb945eb98a6f4e2a34d14207f6415e6c6` | 🔒 Private Secret | Production, Preview |
 | `POW_SECRET` | `aalm_pow_shield_super_secure_key_2026` | 🔒 Private Secret | Production, Preview |
 | `COOKIE_SECURE` | `true` | ⚙️ Config | Production |
-| `NEXT_PUBLIC_SITE_URL` | `https://aalmvastralay.com` | 🌐 Public URL | Production, Preview |
-| `NEXT_PUBLIC_B2_WORKER_URL` | `https://media.aalmvastralay.com` | 🌐 Public URL | Production, Preview |
-| `B2_KEY_ID` | `004e8b9...` | 🔒 Private Secret | Production, Preview |
-| `B2_APP_KEY` | `K004...` | 🔒 Private Secret | Production, Preview |
-| `B2_BUCKET_ID` | `a1b2c3d4e5f6...` | 🔒 Private Secret | Production, Preview |
-| `B2_BUCKET_NAME` | `aalm-vastralay-media` | ⚙️ Config | Production, Preview |
+| `NEXT_PUBLIC_SITE_URL` | `https://example-marketplace.vercel.app` | 🌐 Public URL | Production, Preview |
+| `NEXT_PUBLIC_B2_WORKER_URL` | `https://media.example.com` | 🌐 Public URL | Production, Preview |
+| `B2_KEY_ID` | `004e8b9xxxxxxxx0000000001` | 🔒 Private Secret | Production, Preview |
+| `B2_APP_KEY` | `K004xxxxxxxxxxxxxxxxxxxxxxxxxxx` | 🔒 Private Secret | Production, Preview |
+| `B2_BUCKET_ID` | `4a5b6c7d8e9f0123456789ab` | 🔒 Private Secret | Production, Preview |
+| `B2_BUCKET_NAME` | `my-store-media-bucket` | ⚙️ Config | Production, Preview |
+| `SMTP_USER` | `your-store-email@gmail.com` | 🔒 Private Secret | Production, Preview |
+| `SMTP_PASSWORD` | `your-16-char-app-password` | 🔒 Private Secret | Production, Preview |
 | `GAS_WEBHOOK_URL` | `https://script.google.com/macros/s/AKfycb.../exec` | 🔒 Private Secret | Production, Preview |
-| `GAS_SECRET_TOKEN` | `aalm_gas_mail_secret_9988224411` | 🔒 Private Secret | Production, Preview |
-| `ADMIN_EMAIL` | `admin@aalmvastralay.com` | 🔒 Private Secret | Production |
-| `ADMIN_PASSWORD` | `SuperStrongPassword@2026` | 🔒 Private Secret | Production |
-| `BOOTSTRAP_TOKEN` | `aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c` | 🔒 Private Secret | Production |
+| `GAS_SECRET_TOKEN` | `your_gas_mail_shared_secret_token_here` | 🔒 Private Secret | Production, Preview |
+| `ADMIN_EMAIL` | `admin@example.com` | 🔒 Private Secret | Production |
+| `ADMIN_PASSWORD` | `YourStrongSecurePassword@2026` | 🔒 Private Secret | Production |
+| `BOOTSTRAP_TOKEN` | `your_one_time_bootstrap_token_here` | 🔒 Private Secret | Production |
 | `SKIP_SEED` | `true` | ⚙️ Config | Production |
 
 ---

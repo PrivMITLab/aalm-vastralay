@@ -93,20 +93,20 @@ node -e "console.log('aalm_gas_mail_' + require('crypto').randomBytes(16).toStri
 ### 5. Transactional Email Engine (Dual Hybrid: SMTP 500/day + GAS 100/day)
 | Variable | Required | Scope | Description & Production Example | Where to Obtain |
 |:---|:---:|:---|:---|:---|
-| `SMTP_USER` | **Recommended** | Vercel, Local Prod | `aalmvastralay@gmail.com` (Gmail address for 500/day SMTP) | Your dedicated Gmail account |
+| `SMTP_USER` | **Recommended** | Vercel, Local Prod | `your-store-email@gmail.com` (Gmail address for 500/day SMTP) | Your dedicated Gmail account |
 | `SMTP_PASSWORD` | **Recommended** | Vercel, Local Prod | 16-character Google App Password (e.g. `abcd efgh ijkl mnop`) | [Google Account](https://myaccount.google.com/apppasswords) -> Security -> App passwords |
 | `SMTP_HOST` | No | Vercel | `smtp.gmail.com` (Default) | Default SMTP host |
 | `SMTP_PORT` | No | Vercel | `587` (Default TLS) or `465` (SSL) | Default SMTP port |
-| `EMAIL_FROM` | No | Vercel | `"Aalm Vastralay <aalmvastralay@gmail.com>"` | Sender display name & address |
+| `EMAIL_FROM` | No | Vercel | `"Your Store Name <your-store-email@gmail.com>"` | Sender display name & address |
 | `GAS_WEBHOOK_URL` | **Yes** (Fallback) | Vercel, Local Prod | `https://script.google.com/macros/s/AKfycb.../exec` | [Google Apps Script](https://script.google.com) -> Deploy -> Web app URL |
-| `GAS_SECRET_TOKEN` | **Yes** (Fallback) | Vercel, GAS Script | `aalm_gas_mail_9988224411` | Matching secret in `Code.gs` and Next.js `.env` |
+| `GAS_SECRET_TOKEN` | **Yes** (Fallback) | Vercel, GAS Script | `your_gas_mail_shared_secret_token_here` | Matching secret in `Code.gs` and Next.js `.env` |
 
 ### 6. Super Admin & Database Initialization
 | Variable | Required | Scope | Description & Production Example | Where to Obtain |
 |:---|:---:|:---|:---|:---|
-| `ADMIN_EMAIL` | **Yes** | Vercel | `admin@aalmvastralay.com` | Primary store owner administrator email |
-| `ADMIN_PASSWORD` | **Yes** | Vercel | `StrongProductionPassword@2026` | Super admin login credential |
-| `BOOTSTRAP_TOKEN` | **Yes** | Vercel | `aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c` | Authorization token for POST `/api/bootstrap` |
+| `ADMIN_EMAIL` | **Yes** | Vercel | `admin@example.com` | Primary store owner administrator email |
+| `ADMIN_PASSWORD` | **Yes** | Vercel | `YourStrongSecurePassword@2026` | Super admin login credential |
+| `BOOTSTRAP_TOKEN` | **Yes** | Vercel | `your_one_time_bootstrap_token_here` | Authorization token for POST `/api/bootstrap` |
 | `SKIP_SEED` | **Yes** | Vercel | Set to `"true"` in production to prevent inserting dummy demo products | Production configuration |
 
 ### 7. Optional Social Authentication (Google OAuth)
@@ -125,42 +125,42 @@ node -e "console.log('aalm_gas_mail_' + require('crypto').randomBytes(16).toStri
 # ==============================================================================
 
 # 1. DATABASE (Neon Serverless PostgreSQL - Mumbai Region with Pooler)
-DATABASE_URL="postgresql://neondb_owner:PASSWORD@ep-cool-flower-xxxxxx-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://neondb_owner:YOUR_DATABASE_PASSWORD@ep-cool-flower-xxxxxx-pooler.ap-south-1.aws.neon.tech/neondb?sslmode=require"
 
 # 2. SECURITY, CRYPTOGRAPHY & BOT DEFENSE
 AUTH_SECRET="e9b2f4c781d0a5e38f12c67b94d183f05a76c82e91b45f3a7c2e81d094b72e15"
 ENCRYPTION_SECRET="7a1f2b641a26c9a227fbf3d59a2a45dcb945eb98a6f4e2a34d14207f6415e6c6"
-POW_SECRET="aalm_pow_shield_super_secure_key_2026"
+POW_SECRET="aalm_pow_shield_demo_secret_key_change_me_in_prod"
 COOKIE_SECURE="true"
 
 # 3. PUBLIC URLS & CDN MEDIA PROXY
-NEXT_PUBLIC_SITE_URL="https://aalmvastralay.com"
-NEXT_PUBLIC_B2_WORKER_URL="https://media.aalmvastralay.com"
+NEXT_PUBLIC_SITE_URL="https://example-marketplace.vercel.app"
+NEXT_PUBLIC_B2_WORKER_URL="https://media.example.com"
 NEXT_PUBLIC_USE_WSRV="true"
 
 # 4. BACKBLAZE B2 STORAGE (DIRECT CLIENT PRESIGNED UPLOADS)
-B2_KEY_ID="004e8b9a1c2d3e40000000001"
-B2_APP_KEY="K004xYz123456789AbCdEfGhIjKlMn"
+B2_KEY_ID="004e8b9xxxxxxxx0000000001"
+B2_APP_KEY="K004xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 B2_BUCKET_ID="4a5b6c7d8e9f0123456789ab"
-B2_BUCKET_NAME="aalm-vastralay-media"
+B2_BUCKET_NAME="my-store-media-bucket"
 
 # 5. DUAL HYBRID TRANSACTIONAL EMAIL ENGINE
 # A. Primary: Direct Gmail SMTP (500 emails/day)
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
 SMTP_SECURE="false"
-SMTP_USER="aalmvastralay@gmail.com"
+SMTP_USER="your-store-email@gmail.com"
 SMTP_PASSWORD="your-16-char-app-password"
-EMAIL_FROM="Aalm Vastralay <aalmvastralay@gmail.com>"
+EMAIL_FROM="Your Store Name <your-store-email@gmail.com>"
 
 # B. Secondary: Google Apps Script Webhook Fallback (100 emails/day)
-GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycbzAbCdEf123456789_xYz/exec"
-GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
+GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb_YOUR_APPS_SCRIPT_ID_HERE/exec"
+GAS_SECRET_TOKEN="your_gas_mail_shared_secret_token_here"
 
 # 6. SUPER ADMIN & DATABASE BOOTSTRAP
-ADMIN_EMAIL="admin@aalmvastralay.com"
-ADMIN_PASSWORD="YourStrongPassword@2026"
-BOOTSTRAP_TOKEN="aalm_boot_9f7c2b4e8a1d6e3f5a0c7b9e2d4f6a8c"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="YourStrongSecurePassword@2026"
+BOOTSTRAP_TOKEN="your_one_time_bootstrap_token_here"
 SKIP_SEED="true"
 
 # 7. OPTIONAL GOOGLE OAUTH

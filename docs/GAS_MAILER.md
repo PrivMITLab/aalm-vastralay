@@ -52,9 +52,9 @@ Direct SMTP connects securely to `smtp.gmail.com:587` over TLS. It uses a dedica
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
 SMTP_SECURE="false"
-SMTP_USER="aalmvastralay@gmail.com"
-SMTP_PASSWORD="xxxxyyyyzzzzwwww"
-EMAIL_FROM="Aalm Vastralay <aalmvastralay@gmail.com>"
+SMTP_USER="your-store-email@gmail.com"
+SMTP_PASSWORD="your-16-char-app-password"
+EMAIL_FROM="Your Store Name <your-store-email@gmail.com>"
 ```
 
 ---
@@ -69,7 +69,7 @@ If SMTP is unavailable or its 500 daily quota is reached, the system automatical
 3. Paste the contents of [`scripts/gas-webhook-code.gs`](../scripts/gas-webhook-code.gs).
 4. Set your shared secret token at the top:
    ```javascript
-   var GAS_SECRET_TOKEN = "aalm_gas_mail_secret_9988224411";
+   var GAS_SECRET_TOKEN = "your_gas_mail_shared_secret_token_here";
    ```
 5. Click **Deploy -> New deployment**:
    - **Type:** `Web app`
@@ -79,8 +79,8 @@ If SMTP is unavailable or its 500 daily quota is reached, the system automatical
 
 ```env
 # Secondary GAS Engine (100 emails/day fallback)
-GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb.../exec"
-GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
+GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb_YOUR_DEPLOYMENT_ID/exec"
+GAS_SECRET_TOKEN="your_gas_mail_shared_secret_token_here"
 ```
 
 ---
@@ -111,9 +111,9 @@ transporter.sendMail({
 curl -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
   -H "Content-Type: application/json" \
   -d '{
-    "token": "aalm_gas_mail_secret_9988224411",
+    "token": "your_gas_mail_shared_secret_token_here",
     "type": "FORGOT_PASSWORD",
-    "to": "your-email@gmail.com",
+    "to": "test-customer@example.com",
     "otp": "848101",
     "name": "Test Customer"
   }'

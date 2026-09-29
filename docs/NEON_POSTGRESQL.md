@@ -153,9 +153,9 @@ DELETE FROM "users" WHERE "role" != 'admin';
 INSERT INTO "users" ("clerk_id", "email", "full_name", "phone", "role", "password_hash")
 VALUES (
   'super_admin_primary',
-  'admin@aalmvastralay.com',
-  'Aalm Vastralay Administrator',
-  '9999999999',
+  'admin@example.com',
+  'Store Administrator',
+  '0000000000',
   'admin',
   'd4a9603f905c065f479a81b37ebf5139:41d99908cf8eb4793fdf6c63a5aa1cb9c1ec13efbaee69c2777f98ee09bb7b0f6991ee767c29367ff1cb85cb52fbc9470c184c8a2ce477ad5a24aa76c8c9a59a'
 )
