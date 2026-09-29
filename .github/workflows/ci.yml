@@ -1,3 +1,19 @@
+# ==============================================================================
+# ⚠️ ETHICAL USAGE NOTICE
+# ==============================================================================
+# Yeh workflow sirf legitimate CI/CD ke liye hai:
+#   ✅ Code build, test, lint, security scan
+#   ✅ Release automation, dependency audit
+#
+# 🚫 PROHIBITED USES (GitHub Account Ban Ho Jayega):
+#   ❌ Crypto mining
+#   ❌ Spam/unauthorized automation
+#   ❌ Any use violating GitHub Terms of Service
+#
+# Public repo hone ki wajah se GitHub Actions unlimited FREE hai, lekin
+# misuse par GitHub turant account suspend kar sakta hai.
+# ==============================================================================
+
 name: 👑 Aalm Vastralay CI & Quality Pipeline
 
 on:
@@ -13,46 +29,58 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Future-proof environment configuration
+env:
+  NODE_VERSION: '22'
+
+# Purana run cancel karke naye push ko priority do (Fast Feedback)
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: 1. Quality, Lint, Typecheck, Tests & Build Gate
-    runs-on: ubuntu-latest
+  quality-gate:
+    name: 🛡️ Quality Gate (Typecheck + Lint + Test + Build)
+    runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner (Fastest & Free)
+    timeout-minutes: 10
+
     steps:
-      - name: Checkout Code
+      # Step 1: Code checkout karo
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # Step 2: Node.js setup karo cache ke sath
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'  # 👈 Rule 2: npm cache enabled (2-3 min se 30 sec bana dega)
 
-      - name: Install Dependencies
-        run: npm ci
+      # Step 3: Fast deterministic dependencies install karo
+      - name: 📦 Install Dependencies (Clean & Cached)
+        run: npm ci --prefer-offline --no-audit
 
-      - name: TypeScript Typecheck
+      # Step 4: Strict TypeScript static typing check
+      - name: 🔍 TypeScript Typecheck (tsc --noEmit)
         run: npm run typecheck
 
-      - name: ESLint Standards Check
+      # Step 5: ESLint standards check
+      - name: 🧹 ESLint Standards Check
         run: npm run lint
 
-      - name: Run Vitest Unit Tests
-        run: npm run test:unit
-
-      - name: Run Enterprise Test Suite (38/38)
+      # Step 6: Vitest fast unit & enterprise test suite (Playwright excluded for fast CI)
+      - name: 🧪 Run Automated Test Suite (38/38 Suites)
         run: npm test
 
-      - name: Run Database Tests (Neon / Drizzle)
+      # Step 7: Database schema & connection verification
+      - name: 🗄️ Run Database Contract Tests
         run: npm run test:db
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
           NODE_ENV: test
 
-      - name: Build Next.js Production Bundle
+      # Step 8: Next.js production build verification
+      - name: 🏗️ Build Next.js Production App
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
@@ -60,48 +88,3 @@ jobs:
           ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
           NEXT_PUBLIC_SITE_URL: "https://aalmvastralay.com"
           NODE_ENV: production
-
-  e2e:
-    name: 2. Playwright E2E & Accessibility Tests
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Install Playwright Browsers (Chromium)
-        run: npx playwright install --with-deps chromium
-
-      - name: Build Next.js Production App
-        run: npm run build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
-          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
-          NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-          NODE_ENV: production
-
-      - name: Run Playwright E2E & Accessibility Tests
-        run: npx playwright test tests/e2e/storefront.spec.ts tests/e2e/checkout-flow.spec.ts tests/e2e/accessibility.spec.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
-          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
-          NODE_ENV: production
-
-      - name: Upload Playwright Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7

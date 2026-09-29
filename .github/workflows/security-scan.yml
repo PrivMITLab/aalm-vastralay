@@ -1,0 +1,140 @@
+# ==============================================================================
+# ⚠️ ETHICAL USAGE NOTICE
+# ==============================================================================
+# Yeh workflow sirf legitimate CI/CD ke liye hai:
+#   ✅ Code build, test, lint, security scan
+#   ✅ Release automation, dependency audit
+#
+# 🚫 PROHIBITED USES (GitHub Account Ban Ho Jayega):
+#   ❌ Crypto mining
+#   ❌ Spam/unauthorized automation
+#   ❌ Any use violating GitHub Terms of Service
+#
+# Public repo hone ki wajah se GitHub Actions unlimited FREE hai, lekin
+# misuse par GitHub turant account suspend kar sakta hai.
+# ==============================================================================
+
+name: 🛡️ Deep Security Pentest & Code Analysis
+
+on:
+  schedule:
+    # Har Sunday subah 2:00 AM IST (= Saturday 20:30 UTC) par automated deep scan
+    - cron: '30 20 * * 6'
+  workflow_dispatch: # Actions tab se 1-click manual audit ke liye
+
+env:
+  NODE_VERSION: '22'
+
+concurrency:
+  group: security-scan
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write # CodeQL results GitHub Security tab me upload karne ke liye
+  issues: write          # ZAP automated security issue create karne ke liye
+
+jobs:
+  # ============================================================================
+  # 1. OWASP ZAP DYNAMIC SECURITY PENTEST (DAST CRAWLER)
+  # ============================================================================
+  zap-scan:
+    name: 🕷️ OWASP ZAP Dynamic Pentest
+    runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'  # 👈 Rule 2: Always enable npm cache
+
+      - name: 📦 Clean Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build Production App for Local Security Audit
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3000"
+          NODE_ENV: production
+
+      # Background me production server start karke scan karenge (Zero Vercel quota consumed)
+      - name: 🚀 Start Local Production Server in Background
+        run: |
+          nohup npm run start > /tmp/next.log 2>&1 &
+          npx wait-on http://127.0.0.1:3000 --timeout 60000
+          curl -I http://127.0.0.1:3000 || (cat /tmp/next.log && exit 1)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-mock-auth-secret-key-32-characters-minimum-length' }}
+          ENCRYPTION_SECRET: ${{ secrets.ENCRYPTION_SECRET || 'ci-mock-encryption-secret-key-32-characters' }}
+          NODE_ENV: production
+
+      # OWASP ZAP Baseline Scanner (100% Free DAST Security Scanner)
+      - name: 🔍 OWASP ZAP Baseline Security Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: "http://127.0.0.1:3000"
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-m 2 -T 3 -P 8090"
+          fail_action: false
+
+  # ============================================================================
+  # 2. GITHUB CODEQL STATIC SECURITY ANALYSIS (SAST AST ANALYSIS)
+  # ============================================================================
+  codeql-scan:
+    name: 🛡️ CodeQL Semantic Security Scan
+    runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript']
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+        continue-on-error: true
+
+  # ============================================================================
+  # 3. NPM DEPENDENCY VULNERABILITY AUDIT
+  # ============================================================================
+  npm-audit:
+    name: 📦 NPM Dependency Security Audit
+    runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'  # 👈 Rule 2: Always enable npm cache
+
+      - name: 🔍 Run NPM High Severity Audit
+        run: |
+          npm audit --audit-level=high || echo "Non-critical audit alerts detected"
+        continue-on-error: true

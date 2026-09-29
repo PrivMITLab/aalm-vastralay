@@ -1,4 +1,20 @@
-name: Semgrep Security Scan
+# ==============================================================================
+# ⚠️ ETHICAL USAGE NOTICE
+# ==============================================================================
+# Yeh workflow sirf legitimate CI/CD ke liye hai:
+#   ✅ Code build, test, lint, security scan
+#   ✅ Release automation, dependency audit
+#
+# 🚫 PROHIBITED USES (GitHub Account Ban Ho Jayega):
+#   ❌ Crypto mining
+#   ❌ Spam/unauthorized automation
+#   ❌ Any use violating GitHub Terms of Service
+#
+# Public repo hone ki wajah se GitHub Actions unlimited FREE hai, lekin
+# misuse par GitHub turant account suspend kar sakta hai.
+# ==============================================================================
+
+name: 🛡️ Semgrep Static Security Scan
 
 on:
   pull_request:
@@ -11,15 +27,16 @@ concurrency:
 
 jobs:
   semgrep:
-    name: Semgrep SAST Scan
-    runs-on: ubuntu-latest
+    name: 🔍 Semgrep SAST Scan
+    runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
+    timeout-minutes: 10
     container:
       image: semgrep/semgrep
 
     steps:
-      - name: Checkout Code
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Run Semgrep Rules
+      - name: 🔍 Run Semgrep SAST Security Rules
         run: semgrep scan --config=auto
         continue-on-error: true
