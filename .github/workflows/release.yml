@@ -63,8 +63,9 @@ jobs:
           config-file: release-please-config.json
           # Manifest file (current version track karta hai)
           manifest-file: .release-please-manifest.json
-          # Use native repository GITHUB_TOKEN with granted contents:write & pull-requests:write
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer fine-grained PAT (repo scope) so release creation works even if
+          # org policy restricts GITHUB_TOKEN; falls back to GITHUB_TOKEN otherwise
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
   # ==========================================================================
   # OPTIONAL: Agar release hua to Vercel ko notify karo (redeploy trigger)
