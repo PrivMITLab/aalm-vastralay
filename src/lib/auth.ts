@@ -7,6 +7,7 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { loginAttempts, users, type User } from "@/db/schema";
 import { getSettingBool, getSettingNumber } from "./settings";
+import { getRequiredEnv } from "./required-env";
 
 export { hashPassword, verifyPassword } from "./password";
 export { auth } from "./better-auth";
@@ -24,26 +25,7 @@ export { auth } from "./better-auth";
  */
 
 export const SESSION_COOKIE = "av_session";
-const SECRET = (() => {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      // Fail-closed: production MUST have AUTH_SECRET — cookie forgery otherwise
-      throw new Error(
-        "[FATAL] AUTH_SECRET env var is not set. " +
-        "Set AUTH_SECRET in your Vercel / hosting environment to prevent session cookie forgery. " +
-        "Boot aborted."
-      );
-    }
-    // Development only: loud warn, use insecure fallback
-    console.warn(
-      "[SECURITY WARNING] AUTH_SECRET is not set. " +
-      "Using insecure dev-only fallback. " +
-      "Set AUTH_SECRET in .env.local before going to production."
-    );
-  }
-  return secret ?? "aalm-vastralay-dev-secret-change-me";
-})();
+const SECRET = getRequiredEnv("AUTH_SECRET");
 
 async function sessionDays() {
   const days = await getSettingNumber("security.sessionDays", 30);

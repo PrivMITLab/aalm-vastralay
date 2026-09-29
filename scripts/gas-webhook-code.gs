@@ -12,7 +12,9 @@
  * 1. Open https://script.google.com/home and click "+ New project".
  * 2. Rename the project to: "Aalm-Vastralay-Auth-Mailer"
  * 3. Delete all code in Code.gs and PASTE THIS ENTIRE FILE.
- * 4. Update GAS_SECRET_TOKEN below (must match GAS_SECRET_TOKEN in your .env).
+ * 4. Configure Script Property in Project Settings (⚙️ icon) -> Script Properties:
+ *    - Property: "AUTH_TOKEN"
+ *    - Value: "<your-generated-32-char-token>" (must match GAS_SECRET_TOKEN in your .env)
  * 5. Click "Deploy" (नीली बटन) -> "New deployment".
  * 6. Select Type: "Web app" (⚙️ icon).
  *    - Description: "Production Mailer Webhook v1"
@@ -23,12 +25,9 @@
  * 8. Copy the "Web app URL" (ends with /exec).
  * 9. Paste it into your .env / Vercel Environment Variables:
  *    GAS_WEBHOOK_URL="https://script.google.com/macros/s/AKfycb.../exec"
- *    GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
+ *    GAS_SECRET_TOKEN="CHANGE_ME_GENERATE_32CHAR"
  * ============================================================================
  */
-
-// 🔒 Shared Secret Token (Must match GAS_SECRET_TOKEN in Next.js .env)
-var GAS_SECRET_TOKEN = "aalm_gas_mail_secret_9988224411";
 
 // 👑 Brand Identity
 var BRAND_NAME = "आलम वस्त्रालय (Aalm Vastralay)";
@@ -38,11 +37,32 @@ var BRAND_REPLY_TO = "support@aalmvastralay.in";
 var DAILY_QUOTA_LIMIT = 450;
 
 /**
+ * Constant-time string comparator preventing timing attacks.
+ * Fails closed: Requires Script Properties AUTH_TOKEN with zero default fallback.
+ */
+function isValidToken(clientToken) {
+  if (!clientToken || typeof clientToken !== "string") return false;
+  var scriptProps = PropertiesService.getScriptProperties();
+  var expectedToken = scriptProps.getProperty("AUTH_TOKEN");
+  if (!expectedToken) {
+    // Fail-closed: if Script Properties AUTH_TOKEN is not configured, deny all requests
+    return false;
+  }
+
+  if (clientToken.length !== expectedToken.length) return false;
+  var mismatch = 0;
+  for (var i = 0; i < clientToken.length; i++) {
+    mismatch |= (clientToken.charCodeAt(i) ^ expectedToken.charCodeAt(i));
+  }
+  return mismatch === 0;
+}
+
+/**
  * Handle HTTP GET Requests (Health Check & Quota Inspection)
  */
 function doGet(e) {
   var token = e && e.parameter && e.parameter.token;
-  if (token !== GAS_SECRET_TOKEN) {
+  if (!isValidToken(token)) {
     return jsonResponse({ status: "error", message: "Unauthorized token" }, 401);
   }
 
@@ -74,7 +94,7 @@ function doPost(e) {
     }
 
     // 3. Security Token Verification (Prevent unauthorized spam)
-    if (!data.token || data.token !== GAS_SECRET_TOKEN) {
+    if (!isValidToken(data.token)) {
       return jsonResponse({
         status: "error",
         message: "Unauthorized: Invalid or missing secret token"

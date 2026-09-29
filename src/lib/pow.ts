@@ -1,5 +1,6 @@
 import { createHash, createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
 import { cache } from "react";
+import { getRequiredEnv } from "@/lib/required-env";
 
 /**
  * Altcha-style proof-of-work bot protection – self-hosted, no API keys, no third party.
@@ -14,7 +15,9 @@ import { cache } from "react";
  * and because the solution is expensive to find, mass form spam becomes uneconomical.
  */
 
-const SECRET = process.env.POW_SECRET ?? process.env.AUTH_SECRET ?? "aalm-vastralay-pow-secret";
+const SECRET = getRequiredEnv(["POW_SECRET", "AUTH_SECRET"], {
+  description: "POW_SECRET (or AUTH_SECRET)",
+});
 const ITERATIONS = 1000;
 const KEY_LEN = 32;
 const DEFAULT_CHALLENGE_TTL_MS = 10 * 60 * 1000;

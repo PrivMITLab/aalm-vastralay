@@ -140,11 +140,13 @@ function doPost(e) {
 
 /**
  * Constant-time string comparator preventing timing attacks
+ * Fails closed: Requires Script Properties AUTH_TOKEN with zero default fallback.
  */
 function isValidToken(clientToken) {
   if (!clientToken || typeof clientToken !== "string") return false;
   var scriptProps = PropertiesService.getScriptProperties();
-  var expectedToken = scriptProps.getProperty("AUTH_TOKEN") || "aalm_gas_mail_secret_9988224411";
+  var expectedToken = scriptProps.getProperty("AUTH_TOKEN");
+  if (!expectedToken) return false;
 
   if (clientToken.length !== expectedToken.length) return false;
   var mismatch = 0;

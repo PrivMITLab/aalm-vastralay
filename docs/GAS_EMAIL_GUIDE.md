@@ -151,7 +151,8 @@ function doPost(e) {
 function isValidToken(clientToken) {
   if (!clientToken || typeof clientToken !== "string") return false;
   var scriptProps = PropertiesService.getScriptProperties();
-  var expectedToken = scriptProps.getProperty("AUTH_TOKEN") || "aalm_gas_mail_secret_9988224411";
+  var expectedToken = scriptProps.getProperty("AUTH_TOKEN");
+  if (!expectedToken) return false;
 
   if (clientToken.length !== expectedToken.length) return false;
   var mismatch = 0;
@@ -498,7 +499,7 @@ function jsonResponse(obj, statusCode) {
 2. नीचे स्क्रॉल करें और **"Script Properties" (स्क्रिप्ट गुण)** सेक्शन देखें।
 3. **"Add script property" (प्रॉपर्टी जोड़ें)** बटन दबाएं:
    - **Property (प्रॉपर्टी):** `AUTH_TOKEN`
-   - **Value (मान):** `aalm_gas_mail_secret_9988224411`
+   - **Value (मान):** `CHANGE_ME_GENERATE_32CHAR`
      *(या आप अपनी पसंद का कोई भी 32-अक्षर लंबा गुप्त कोड रख सकते हैं)*
 4. **"Save script properties"** पर क्लिक करें।
 
@@ -547,7 +548,7 @@ function jsonResponse(obj, statusCode) {
 अपनी प्रोजेक्ट डायरेक्टरी में `.env` फ़ाइल खोलें और ये 2 लाइनें जोड़ें:
 ```env
 GAS_EMAIL_URL="https://script.google.com/macros/s/AKfycbxXXXXXXXXXXXXXXXXXXXXXXXXXX/exec"
-GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
+GAS_SECRET_TOKEN="CHANGE_ME_GENERATE_32CHAR"
 ```
 
 ### 2. लाइव Vercel प्रोडक्शन डिप्लॉयमेंट:
@@ -556,7 +557,7 @@ GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
 3. **Settings** -> **Environment Variables** पर जाएं।
 4. 2 वैरिएबल्स जोड़ें:
    - `GAS_EMAIL_URL` = `https://script.google.com/macros/s/AKfycbx.../exec`
-   - `GAS_SECRET_TOKEN` = `aalm_gas_mail_secret_9988224411`
+   - `GAS_SECRET_TOKEN` = `CHANGE_ME_GENERATE_32CHAR`
 5. प्रोजेक्ट को **Redeploy** कर दें।
 
 ---
@@ -566,11 +567,11 @@ GAS_SECRET_TOKEN="aalm_gas_mail_secret_9988224411"
 ### 1. हेल्थ चेक और कोटा जाँच (GET Request)
 अपने वेब ब्राउज़र में यह URL खोलें (अपना URL व टोकन डालकर):
 ```text
-https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=aalm_gas_mail_secret_9988224411
+https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=CHANGE_ME_GENERATE_32CHAR
 ```
 या टर्मिनल में cURL चलाएं:
 ```bash
-curl -L "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=aalm_gas_mail_secret_9988224411"
+curl -L "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=CHANGE_ME_GENERATE_32CHAR"
 ```
 **सफल उत्तर (Expected Response):**
 ```json
@@ -591,7 +592,7 @@ curl -L "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?token=aalm_g
 ```bash
 curl -L -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
   -H "Content-Type: text/plain;charset=utf-8" \
-  -d '{"token":"aalm_gas_mail_secret_9988224411","type":"FORGOT_PASSWORD","to":"your_email@gmail.com","otp":"849201","name":"श्रीमान ग्राहक"}'
+  -d '{"token":"CHANGE_ME_GENERATE_32CHAR","type":"FORGOT_PASSWORD","to":"your_email@gmail.com","otp":"849201","name":"श्रीमान ग्राहक"}'
 ```
 तुरंत आपके इनबॉक्स में सोने के बॉर्डर (Gold embroidery) वाला सुंदर OTP ईमेल प्राप्त होगा!
 
@@ -601,7 +602,7 @@ curl -L -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
 ```bash
 curl -L -X POST "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" \
   -H "Content-Type: text/plain;charset=utf-8" \
-  -d '{"token":"aalm_gas_mail_secret_9988224411","type":"FESTIVAL_OFFER","to":"your_email@gmail.com","festivalName":"दिवाली व लग्न महासेल","discountText":"FLAT 40% OFF","headline":"शाही बनारसी साड़ी व ब्राइडल कलेक्शन","message":"कल्याणपुर समस्तीपुर की ओर से हस्तनिर्मित पारंपरिक परिधानों पर विशेष छूट।"}'
+  -d '{"token":"CHANGE_ME_GENERATE_32CHAR","type":"FESTIVAL_OFFER","to":"your_email@gmail.com","festivalName":"दिवाली व लग्न महासेल","discountText":"FLAT 40% OFF","headline":"शाही बनारसी साड़ी व ब्राइडल कलेक्शन","message":"कल्याणपुर समस्तीपुर की ओर से हस्तनिर्मित पारंपरिक परिधानों पर विशेष छूट।"}'
 ```
 
 ---
@@ -631,7 +632,7 @@ Google Apps Script का एक नियम है: **यदि आप को�
 
 | समस्या | कारण | समाधान |
 | :--- | :--- | :--- |
-| `{"status":"error","message":"Unauthorized token"}` | टोकन गलत है या मेल नहीं खा रहा। | Script Properties में `AUTH_TOKEN` और `.env` में `GAS_SECRET_TOKEN` दोनों में एक ही स्ट्रिंग (`aalm_gas_mail_secret_9988224411`) रखें। |
+| `{"status":"error","message":"Unauthorized token"}` | टोकन गलत है या मेल नहीं खा रहा। | Script Properties में `AUTH_TOKEN` और `.env` में `GAS_SECRET_TOKEN` दोनों में एक ही स्ट्रिंग (`CHANGE_ME_GENERATE_32CHAR`) रखें। |
 | `Script function not found: doPost` | फ़ंक्शन का नाम गलत है या कोड सेव नहीं हुआ। | सुनिश्चित करें कि कोड `Code.gs` में है और Save आइकन दबा दिया गया है। |
 | ईमेल्स नहीं आ रहे | URL में `/exec` के बजाय `/dev` लगा है। | Web App URL के अंत में हमेशा `/exec` होना चाहिए (उदा. `.../exec`)। |
 | Google "Unsafe app" स्क्रीन | Google की डिफ़ॉल्ट चेतावनी स्क्रीन | "Advanced" पर क्लिक करें और "Go to Aalm-Vastralay-Mailer (unsafe)" पर क्लिक करके "Allow" करें। यह 100% सुरक्षित है। |

@@ -4,6 +4,8 @@
  * directly from Gmail without requiring custom domain DNS verification (SPF/DKIM/MX).
  */
 
+import { getRequiredEnv } from "@/lib/required-env";
+
 export type GasEmailPayload =
   | {
       type: "FORGOT_PASSWORD";
@@ -99,7 +101,6 @@ export type GasEmailResult = {
  */
 export async function sendGasEmail(payload: GasEmailPayload): Promise<GasEmailResult> {
   const gasUrl = process.env.GAS_EMAIL_URL?.trim();
-  const token = process.env.GAS_SECRET_TOKEN?.trim() || "aalm_gas_mail_secret_9988224411";
 
   // Graceful offline/local development fallback
   if (!gasUrl) {
@@ -112,6 +113,8 @@ export async function sendGasEmail(payload: GasEmailPayload): Promise<GasEmailRe
       message: "GAS_EMAIL_URL is not set. Simulated successfully in development mode.",
     };
   }
+
+  const token = getRequiredEnv("GAS_SECRET_TOKEN");
 
   try {
     const controller = new AbortController();

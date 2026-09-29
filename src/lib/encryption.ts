@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
+import { getRequiredEnv } from "@/lib/required-env";
 
 /**
  * Enterprise-grade AES-256-GCM Authenticated Encryption for Database Credentials & PII.
@@ -10,21 +11,9 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypt
  */
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.ENCRYPTION_SECRET ?? process.env.AUTH_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "[FATAL] ENCRYPTION_SECRET (or AUTH_SECRET) env var is not set. " +
-        "All encrypted PII would be silently unreadable. " +
-        "Set ENCRYPTION_SECRET in your Vercel / hosting environment. Boot aborted."
-      );
-    }
-    console.warn(
-      "[SECURITY WARNING] ENCRYPTION_SECRET is not set. " +
-      "Using insecure dev-only fallback. Set ENCRYPTION_SECRET in .env.local before going to production."
-    );
-  }
-  const key = secret ?? "aalm-vastralay-dev-secret-change-me";
+  const key = getRequiredEnv(["ENCRYPTION_SECRET", "AUTH_SECRET"], {
+    description: "ENCRYPTION_SECRET (or AUTH_SECRET)",
+  });
   // Derive a fixed 32-byte (256-bit) key using SHA-256
   return createHash("sha256").update(`encryption-salt:${key}`).digest();
 }

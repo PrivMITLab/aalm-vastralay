@@ -173,7 +173,7 @@ Neeche di gayi table mein Aalm Vastralay ke **saare 25 environment variables** k
 | **10**| `COOKIE_SECURE` | 🟡 HIGH | Security | `true` | Enforces `SameSite=Lax; Secure; HttpOnly` on cookies in HTTPS production. |
 | **11**| `NEXT_PUBLIC_USE_WSRV`| 🟢 OPT | Media | `true` | Routes external and Google Drive images through `wsrv.nl` WebP accelerator. |
 | **12**| `GAS_EMAIL_URL` | 🟡 HIGH | Email | `https://script.google.com/macros/s/AKfycb.../exec` | Deployed Google Apps Script Web App URL for zero-cost OTP emails. |
-| **13**| `GAS_SECRET_TOKEN` | 🟡 HIGH | Email | `aalm_gas_mail_secret_9988224411` | Shared secret token passed in headers to authenticate GAS webhook requests. |
+| **13**| `GAS_SECRET_TOKEN` | 🟡 HIGH | Email | `CHANGE_ME_GENERATE_32CHAR` | Shared secret token passed in headers to authenticate GAS webhook requests. |
 | **14**| `NEXT_PUBLIC_B2_WORKER_URL`| 🟢 OPT | Media CDN| `https://aalm-b2-proxy.workers.dev` | Live URL of the deployed Cloudflare Worker proxying Backblaze B2 storage. |
 | **15**| `B2_KEY_ID` | 🟢 OPT | Storage | `005abc123...` | Backblaze B2 Application Key ID. |
 | **16**| `B2_APP_KEY` | 🟢 OPT | Storage | `K005xyz789...` | Backblaze B2 Application Master Secret Key. |
@@ -278,7 +278,7 @@ In keys ko copy karke Vercel Dashboard ➔ **Settings** ➔ **Environment Variab
 ### 5.4 Google Apps Script (Zero-Cost Email OTP & Order Alerts)
 1. [script.google.com](https://script.google.com) par jayein aur new project create karein.
 2. [`docs/GAS_EMAIL_GUIDE.md`](GAS_EMAIL_GUIDE.md) se code copy karke paste karein.
-3. Secret token define karein (e.g. `aalm_gas_mail_secret_9988224411`).
+3. Secret token define karein (e.g. `CHANGE_ME_GENERATE_32CHAR`).
 4. Deploy ➔ **New deployment** ➔ Type: **Web app** ➔ Execute as: **Me** ➔ Who has access: **Anyone**.
 5. Generated Web App URL ko Vercel ke `GAS_EMAIL_URL` mein aur secret token ko `GAS_SECRET_TOKEN` mein daalein.
 

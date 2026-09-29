@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { getRequiredEnv } from "@/lib/required-env";
 
 /**
  * 👑 AALM VASTRALAY — DUAL HYBRID TRANSACTIONAL EMAIL ENGINE
@@ -120,7 +121,7 @@ async function sendViaGas(
   webhookUrl: string,
   { to, subject, html, text }: SendEmailOptions
 ): Promise<{ ok: boolean; error?: string }> {
-  const token = process.env.GAS_SECRET_TOKEN?.trim() || "aalm_gas_mail_secret_9988224411";
+  const token = getRequiredEnv("GAS_SECRET_TOKEN");
 
   try {
     const controller = new AbortController();
