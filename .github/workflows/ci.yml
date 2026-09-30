@@ -41,6 +41,7 @@ concurrency:
 jobs:
   quality-gate:
     name: 🛡️ Quality Gate (Typecheck + Lint + Test + Build)
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner (Fastest & Free)
     timeout-minutes: 10
 

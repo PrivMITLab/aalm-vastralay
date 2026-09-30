@@ -14,6 +14,7 @@ concurrency:
 jobs:
   analyze:
     name: Analyze Code Security
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest
     permissions:
       actions: read

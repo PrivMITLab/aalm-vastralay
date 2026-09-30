@@ -60,6 +60,7 @@ jobs:
   # ============================================================================
   quality-gate:
     name: 🛡️ Strict Quality Gate (Typecheck + Lint + Test + Build)
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
     timeout-minutes: 10
 
@@ -99,6 +100,7 @@ jobs:
   # ============================================================================
   security-gate:
     name: 🛡️ Heavy Security Gate (CodeQL AST + NPM Audit)
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
     timeout-minutes: 15
 
@@ -121,14 +123,14 @@ jobs:
         continue-on-error: true
 
       - name: 🛡️ Initialize CodeQL Analysis Engine
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           queries: security-extended
           config-file: .github/codeql/codeql-config.yml
 
       - name: 🔍 Run CodeQL Deep Semantic Scan
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript-typescript"
         continue-on-error: true
@@ -139,6 +141,7 @@ jobs:
   release-please:
     name: 🏷️ Auto Release & Version Bump
     needs: [quality-gate, security-gate]
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest  # 👈 Rule 1: Always Ubuntu runner
     timeout-minutes: 10
     outputs:
@@ -163,7 +166,7 @@ jobs:
   trigger-vercel-deploy:
     name: 🚀 Trigger Vercel Production Redeploy
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    if: ${{ github.repository == 'SudhirDevOps1/aalm-vastralay' && needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -184,7 +187,7 @@ jobs:
   summary:
     name: 📊 Release Execution Summary
     needs: [quality-gate, security-gate, release-please]
-    if: always()
+    if: always() && github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest
     steps:
       - name: 📝 Post Step Summary
