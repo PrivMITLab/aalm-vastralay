@@ -11,6 +11,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { Toaster } from "@/components/ui/sonner";
 import FormGuard from "@/components/ui/FormGuard";
 import CookieConsent from "@/components/compliance/CookieConsent";
+import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 import { getBrand, getSettingBool, getSettings, getTheme } from "@/lib/settings";
 import "./globals.css";
 
@@ -132,6 +133,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <ToastProvider>
             <Toaster />
             <FormGuard />
+            <AnalyticsTracker />
             <Header />
             <main className="w-full max-w-full min-w-0 flex-1 pb-[96px] lg:pb-0">{children}</main>
             <Footer />

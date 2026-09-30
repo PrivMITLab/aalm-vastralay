@@ -8,22 +8,26 @@
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
 ## 2. Current Verified Status (Production Ready)
-- **Current Version:** `v0.1.8` (Automated semantic versioning via Google `release-please` v4).
+- **Current Version:** `v0.1.9` (Automated semantic versioning via Google `release-please` v4, active Release PR #16).
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.24s (`npm test`).
-  - *New Suites:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
-- **Git & Release Management:**
-  - `release.yml`: 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `38 test suites`, `next build`) before release evaluation.
-  - Native `GITHUB_TOKEN` integration, auto tag creation (`v0.1.8`), auto `CHANGELOG.md` generation, and optional Vercel deploy hook.
+- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.5s (`npm test`).
+  - *Suites 39 & 40:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
+- **Git & Release Management (3-Darwaza Safety Gate):**
+  - **Darwaza 1 (Fast PR Gate):** `ci.yml` runs TypeCheck, ESLint, 40 tests, and production build in ~90s.
+  - **Darwaza 2 (Heavy PR Merge Gate):** `e2e-gate.yml` runs Playwright E2E (Desktop Chrome + Mobile Pixel), OWASP ZAP DAST scan, and CodeQL v4 AST scan on every PR to `main` with video/screenshot artifacts.
+  - **Darwaza 3 (Nightly Deep Pentest):** `security-scan.yml` runs daily at 2:00 AM IST (ZAP + CodeQL v4 + NPM audit) and posts GitHub Issues.
+  - **Post-Merge Release:** `release.yml` with dual Quality Gate + Security Gate before triggering Google `release-please` and optional Vercel production redeploy.
   - Pre-commit verification: Husky (`pre-commit` runs `typecheck` + `lint`, `commit-msg` runs `commitlint`).
 - **Fail-Closed Secrets Architecture (`src/lib/required-env.ts`):**
   - Zero hardcoded fallback strings (`|| "default"`) in source code. All secrets use `getRequiredEnv(key)`. Missing secrets in production trigger immediate fail-closed `[FATAL]` crash.
   - Google Apps Script webhooks strictly require Script Properties `AUTH_TOKEN` without fallbacks.
 - **Git Branch:** `main` (Remote: `https://github.com/SudhirDevOps1/aalm-vastralay.git`).
-- **GitHub Workflows:** `release.yml`, `ci.yml`, `codeql.yml`, `semgrep.yml`, `dependency-security.yml`, `deploy.yml`, and `dependabot.yml` configured and hardened.
+- **GitHub Workflows:** `ci.yml`, `e2e-gate.yml`, `release.yml`, `security-scan.yml`, `codeql.yml`, `semgrep.yml` (custom rules + SARIF), `dependency-security.yml`, and `deploy.yml`.
 - **Documentation Hub:** Centralized guides in `docs/README.md`, `docs/RULES.md`, and `docs/RELEASE.md`.
+- **Client Route Analytics:** `<AnalyticsTracker />` (`src/components/analytics/AnalyticsTracker.tsx`) mounted in `src/app/layout.tsx` for non-blocking, cookieless, PII-stripped pageview telemetry.
+- **Federated Instant Search:** `/api/search` wired with `searchEthnicCatalog` (`src/lib/typesense.ts`) for sub-millisecond typo-tolerant search with Postgres fail-soft fallback.
 - **Toast Notifications:** Sonner v2 fully wired with `sonner/dist/styles.css` and unified with `useToast()` hook.
 - **Self-Hosted Avatars:** DiceBear Lorelei SVG generator at `/api/avatar` (1-year immutable cache, 0 upload friction).
 - **UserAvatar in Header:** `<UserAvatar seed={user.id} />` in desktop trigger, dropdown, and mobile drawer (commit `bd3e365`).

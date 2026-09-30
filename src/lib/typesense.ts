@@ -11,7 +11,7 @@
  */
 
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { products, stores } from "@/db/schema";
 import { and, eq, ilike, or, gte, lte, desc } from "drizzle-orm";
 
 export interface SearchFilters {
@@ -31,11 +31,14 @@ export interface SearchProductResult {
   description?: string | null;
   price: number;
   mrp?: number | null;
+  discountPercent?: number | null;
   images: string[];
   rating?: number | null;
   totalReviews?: number;
   isFeatured?: boolean;
   stock?: number;
+  storeName?: string | null;
+  storeSlug?: string | null;
 }
 
 export interface SearchResponse {
@@ -127,13 +130,17 @@ export async function searchPostgresFallback(
         description: products.description,
         price: products.price,
         mrp: products.mrp,
+        discountPercent: products.discountPercent,
         images: products.images,
         rating: products.rating,
         totalReviews: products.totalReviews,
         isFeatured: products.isFeatured,
         stock: products.stock,
+        storeName: stores.storeName,
+        storeSlug: stores.slug,
       })
       .from(products)
+      .leftJoin(stores, eq(products.storeId, stores.id))
       .where(and(...whereConditions))
       .orderBy(desc(products.isFeatured), desc(products.createdAt))
       .limit(limit);

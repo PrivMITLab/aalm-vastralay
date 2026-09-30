@@ -1,16 +1,15 @@
-import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { NextResponse, type NextRequest } from "next/server";
-import { db } from "@/db";
-import { products, stores } from "@/db/schema";
 import { resolveImage } from "@/lib/media-resolver";
 import { clientIp, memoryRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { searchEthnicCatalog } from "@/lib/typesense";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Full Search API
+ * 👑 AALM VASTRALAY — FEDERATED INSTANT SEARCH API
  * GET /api/search?q=...&limit=24
- * Rate limited to 120/min, max query length 60, escapes SQL wildcards.
+ * Rate limited to 60/min per IP, max query length 60 characters.
+ * Powered by Typesense Typo-Tolerant Engine with fail-soft PostgreSQL fallback.
  */
 export async function GET(req: NextRequest) {
   const ip = clientIp(req.headers);
@@ -28,46 +27,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ query: "", count: 0, products: [] });
   }
 
-  const escapedQ = q.replace(/[%_\\]/g, "\\$&");
-
   try {
-    const conditions: SQL[] = [eq(products.isActive, true), eq(stores.isActive, true)];
-
-    conditions.push(
-      or(
-        sql`to_tsvector('english', ${products.title} || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('english', ${q})`,
-        ilike(products.title, `%${escapedQ}%`),
-        ilike(products.description, `%${escapedQ}%`),
-        sql`${q.toLowerCase()} = ANY(${products.tags})`
-      )!
-    );
-
-    const rows = await db
-      .select({
-        id: products.id,
-        title: products.title,
-        slug: products.slug,
-        price: products.price,
-        mrp: products.mrp,
-        discountPercent: products.discountPercent,
-        rating: products.rating,
-        totalReviews: products.totalReviews,
-        stock: products.stock,
-        images: products.images,
-        storeName: stores.storeName,
-        storeSlug: stores.slug,
-      })
-      .from(products)
-      .innerJoin(stores, eq(products.storeId, stores.id))
-      .where(and(...conditions))
-      .orderBy(desc(products.isFeatured), desc(products.rating), desc(products.createdAt))
-      .limit(limit);
+    const searchRes = await searchEthnicCatalog(q, { limit });
 
     return NextResponse.json(
       {
         query: q,
-        count: rows.length,
-        products: rows.map((r) => ({
+        source: searchRes.source,
+        latencyMs: searchRes.latencyMs,
+        count: searchRes.products.length,
+        total: searchRes.total,
+        products: searchRes.products.map((r) => ({
           ...r,
           image: resolveImage(r.images[0], { width: 500 }),
           url: `/products/${r.slug}`,
