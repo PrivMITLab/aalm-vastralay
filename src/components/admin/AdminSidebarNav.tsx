@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3,
   FileText,
   FolderTree,
   Image,
@@ -22,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/admin/analytics", label: "Analytics (DuckDB)", icon: BarChart3 },
   { href: "/admin/orders", label: "Orders", icon: PackageCheck },
   { href: "/admin/products", label: "Products", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
