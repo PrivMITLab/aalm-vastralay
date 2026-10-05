@@ -40,7 +40,12 @@ function safeRedirect(target: FormDataEntryValue | null, fallback: string) {
 }
 
 /** Shared gate for every public form: proof-of-work (single-use) + per-IP rate limit. */
-async function gate(formData: FormData, bucket: string, limitKey = "security.formRateLimit") {
+async function gate(
+  formData: FormData,
+  bucket: string,
+  limitKey = "security.formRateLimit",
+  opts?: { skipPow?: boolean }
+) {
   const origin = await assertSameOrigin();
   if (!origin.ok) return { ok: false as const, error: origin.error, meta: { ip: "0.0.0.0", userAgent: "", trustProxy: true } };
   if (honeypotFilled(formData)) return { ok: false as const, error: "Submission rejected.", meta: { ip: "0.0.0.0", userAgent: "", trustProxy: true } };
@@ -54,14 +59,16 @@ async function gate(formData: FormData, bucket: string, limitKey = "security.for
   });
   if (!rl.ok) return { ok: false as const, error: `Too many attempts. Please try again in ${rl.retryAfterSeconds} seconds.`, meta };
 
-  const botProtection = await shouldEnforcePow();
-  if (botProtection) {
-    const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
-      action: "auth",
-      ip: meta.ip,
-      strict: true,
-    });
-    if (!verdict.ok) return { ok: false as const, error: verdict.error ?? "Security check failed.", meta };
+  if (!opts?.skipPow) {
+    const botProtection = await shouldEnforcePow();
+    if (botProtection) {
+      const verdict = await verifyPayloadAndConsume(String(formData.get("botPayload") ?? ""), {
+        action: "auth",
+        ip: meta.ip,
+        strict: true,
+      });
+      if (!verdict.ok) return { ok: false as const, error: verdict.error ?? "Security check failed.", meta };
+    }
   }
   return { ok: true as const, meta };
 }
@@ -243,7 +250,7 @@ export async function markNotificationsRead() {
 /* ------------------------------- forgot & reset password ------------------------------- */
 
 export async function requestPasswordReset(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const gateResult = await gate(formData, "auth:forgot-password", "security.authRateLimit");
+  const gateResult = await gate(formData, "auth:forgot-password", "security.authRateLimit", { skipPow: true });
   if (!gateResult.ok) return { error: gateResult.error };
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -317,7 +324,7 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
 }
 
 export async function verifyOtpAndResetPassword(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const gateResult = await gate(formData, "auth:reset-password", "security.authRateLimit");
+  const gateResult = await gate(formData, "auth:reset-password", "security.authRateLimit", { skipPow: true });
   if (!gateResult.ok) return { error: gateResult.error };
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
