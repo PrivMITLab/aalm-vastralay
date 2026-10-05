@@ -77,8 +77,22 @@ export const auth = betterAuth({
     "aalm-vastralay-auth-secret-key-32-characters-minimum-length",
   baseURL:
     process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
     "http://localhost:3000",
+  trustedOrigins: Array.from(
+    new Set(
+      [
+        "http://localhost:3000",
+        "https://aalm-vastralay.vercel.app",
+        process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, ""),
+        process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, ""),
+        process.env.BETTER_AUTH_URL?.replace(/\/$/, ""),
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.replace(/\/$/, "")}` : undefined,
+      ].filter(Boolean) as string[]
+    )
+  ),
 
   // 1. Email Verification (ईमेल सत्यापन)
   emailVerification: {
