@@ -129,6 +129,8 @@ export const auth = betterAuth({
         subject: "आलम वस्त्रालय — अपने ईमेल पते की पुष्टि करें (Verify Your Email)",
         html: htmlBody,
         text: `Verify your email by opening: ${url}`,
+        type: "GENERAL",
+        name: user.name,
       });
     },
   },
@@ -166,6 +168,8 @@ export const auth = betterAuth({
         subject: "आलम वस्त्रालय — पासवर्ड रीसेट लिंक (Password Reset Request)",
         html: htmlBody,
         text: `Reset your password at: ${url}`,
+        type: "FORGOT_PASSWORD",
+        name: user.name,
       });
     },
   },
@@ -206,6 +210,7 @@ export const auth = betterAuth({
           subject: "आलम वस्त्रालय — आपका 1-क्लिक मैजिक लॉगिन लिंक (5 Min Expiry)",
           html: htmlBody,
           text: `Log in using this magic link (valid for 5 minutes): ${url}`,
+          type: "GENERAL",
         });
       },
     }),
@@ -252,6 +257,8 @@ export const auth = betterAuth({
           subject,
           html: htmlBody,
           text: `Your Aalm Vastralay verification code is: ${otp}. Valid for 10 minutes.`,
+          type: type === "forget-password" ? "FORGOT_PASSWORD" : "GENERAL",
+          otp,
         });
       },
     }),
