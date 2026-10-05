@@ -100,7 +100,7 @@ export type GasEmailResult = {
  * Fallbacks gracefully if GAS_EMAIL_URL is not yet configured in local development.
  */
 export async function sendGasEmail(payload: GasEmailPayload): Promise<GasEmailResult> {
-  const gasUrl = process.env.GAS_EMAIL_URL?.trim();
+  const gasUrl = process.env.GAS_EMAIL_URL?.trim() || process.env.GAS_WEBHOOK_URL?.trim();
 
   // Graceful offline/local development fallback
   if (!gasUrl) {
