@@ -251,8 +251,8 @@ export const auth = betterAuth({
           </div>
         `;
 
-        // Non-blocking void call to eliminate timing attacks
-        void sendEmail({
+        // Awaited so failures surface to client rather than being swallowed silently
+        await sendEmail({
           to: email,
           subject,
           html: htmlBody,
