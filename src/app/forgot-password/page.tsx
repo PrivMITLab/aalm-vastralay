@@ -9,9 +9,21 @@ export const metadata: Metadata = {
   description: "आलम वस्त्रालय खाते का पासवर्ड आसानी से और सुरक्षित रूप से रीसेट करें।",
 };
 
-export default async function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
+
+  // OWASP ZAP 10024 Defense: Information Disclosure - Sensitive Information in URL.
+  // Crawlers or GET form submissions might append ?email=... or ?_pow_solution=... in the URL.
+  // We strip query parameters on GET to keep email addresses and security tokens out of the URL bar / server logs.
+  const sp = searchParams ? await searchParams : {};
+  if (sp && Object.keys(sp).length > 0) {
+    redirect("/forgot-password");
+  }
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 px-3.5 py-10 sm:px-6 sm:py-14 lg:grid-cols-2 lg:items-center">

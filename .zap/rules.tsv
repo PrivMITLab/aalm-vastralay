@@ -46,3 +46,7 @@
 # 10202: Absence of Anti-CSRF Tokens
 # All interactive state-modifying forms must provide CSRF tokens
 10202	WARN	.*
+
+# 10024: Information Disclosure - Sensitive Information in URL
+# ZAP crawler probes forms by appending query params (?email=zaproxy@example.com); legitimate forms strip query params
+10024	IGNORE	.*

@@ -1,7 +1,7 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import { useActionState, useMemo, useState } from "react";
-import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { saveProduct } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
 import type { Product, ProductVariant } from "@/db/schema";
@@ -51,6 +51,52 @@ export default function ProductForm({ categories, product }: { categories: Categ
   );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isScrapingLinks, setIsScrapingLinks] = useState(false);
+
+  async function handleAutoDetectLinks() {
+    const lines = images.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    if (!lines.length) return;
+    setIsScrapingLinks(true);
+    try {
+      const updated: string[] = [];
+      for (const line of lines) {
+        if (line.startsWith("b2:") || line.startsWith("ik:") || line.startsWith("/")) {
+          updated.push(line);
+          continue;
+        }
+        const canonical = canonicalizeImageUrl(line);
+        if (canonical !== line) {
+          updated.push(canonical);
+          continue;
+        }
+        if (/\.(jpe?g|png|webp|avif|gif|svg)(\?.*)?$/i.test(line)) {
+          updated.push(line);
+          continue;
+        }
+        if (/^https?:\/\//i.test(line)) {
+          try {
+            const res = await fetch("/api/admin/scrape-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: line }),
+            });
+            const data = await res.json();
+            if (res.ok && data.ok && data.imageUrl) {
+              updated.push(data.imageUrl);
+              continue;
+            }
+          } catch {
+            // keep line if scrape fails
+          }
+        }
+        updated.push(line);
+      }
+      setImages(Array.from(new Set(updated)).join("\n"));
+    } finally {
+      setIsScrapingLinks(false);
+    }
+  }
 
   const ikPublicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
   const ikUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL;
@@ -321,14 +367,42 @@ export default function ProductForm({ categories, product }: { categories: Categ
           </div>
 
           {/* Drag & Drop Upload Zone */}
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-maroon-200 dark:border-stone-700 bg-cream-50/50 dark:bg-stone-900/40 p-5 text-center text-sm text-slate-600 dark:text-stone-300 hover:border-maroon-500 dark:hover:border-gold-400 hover:bg-cream-100/60 dark:hover:bg-stone-800/60 transition-colors">
+          <label
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(false);
+              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                uploadFiles(e.dataTransfer.files);
+              }
+            }}
+            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-5 text-center text-sm transition-all duration-200 ${
+              isDragging
+                ? "border-maroon-600 bg-maroon-50/80 dark:border-gold-400 dark:bg-stone-850 scale-[1.01] shadow-md"
+                : "border-maroon-200 dark:border-stone-700 bg-cream-50/50 dark:bg-stone-900/40 text-slate-600 dark:text-stone-300 hover:border-maroon-500 dark:hover:border-gold-400 hover:bg-cream-100/60 dark:hover:bg-stone-800/60"
+            }`}
+          >
             {uploading ? (
               <Loader2 className="h-7 w-7 animate-spin text-maroon-700 dark:text-gold-400" />
             ) : (
-              <ImagePlus className="h-7 w-7 text-maroon-700 dark:text-gold-400" />
+              <ImagePlus className={`h-7 w-7 transition-transform ${isDragging ? "scale-115 text-maroon-700 dark:text-gold-400" : "text-maroon-700 dark:text-gold-400"}`} />
             )}
             <span className="font-medium text-slate-800 dark:text-stone-200">
-              {uploading ? "Uploading to Backblaze B2…" : "Click or drag photos here (max 6)"}
+              {uploading
+                ? "Uploading to Backblaze B2…"
+                : isDragging
+                ? "Drop images here to upload!"
+                : "Click or drag photos here (max 6)"}
             </span>
             <span className="text-[11px] text-slate-400 dark:text-stone-500">
               High-speed B2 Cold Storage · JPG, PNG, WebP, AVIF (Max 10MB)
@@ -390,9 +464,20 @@ export default function ProductForm({ categories, product }: { categories: Categ
           )}
 
           <div>
-            <label className="label text-xs" htmlFor="images">
-              Raw Image URLs (B2 keys, Google Drive, or Web Links):
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="label text-xs mb-0" htmlFor="images">
+                Raw Image URLs (B2 keys, Google Drive, or Web Links):
+              </label>
+              <button
+                type="button"
+                onClick={handleAutoDetectLinks}
+                disabled={isScrapingLinks || !images.trim()}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-maroon-700 hover:text-maroon-800 dark:text-gold-400 hover:underline disabled:opacity-50"
+              >
+                {isScrapingLinks ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                <span>{isScrapingLinks ? "Detecting links…" : "Auto-Detect & Scrape"}</span>
+              </button>
+            </div>
             <textarea
               id="images"
               name="images"

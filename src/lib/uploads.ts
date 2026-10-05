@@ -14,21 +14,62 @@ export const ALLOWED_IMAGE_HOSTS = [
   "wsrv.nl",
   "lh3.googleusercontent.com",
   "res.cloudinary.com",
+  "images.unsplash.com",
+  "i.imgur.com",
+  "imgur.com",
+  "5.imimg.com",
+  "3.imimg.com",
+  "4.imimg.com",
+  "*.imimg.com",
+  "upload.wikimedia.org",
+  "raw.githubusercontent.com",
+  "drive.google.com",
+  "dropbox.com",
+  "dl.dropboxusercontent.com",
+  "*.backblazeb2.com",
+  "*.workers.dev",
+  "i.pinimg.com",
+  "images.pexels.com",
+  "cdn.pixabay.com",
 ];
 
 /**
  * Checks whether an external https URL belongs to an allowlisted host
- * (supports leading *. backblaze pattern via suffix match).
+ * or has a legitimate image extension (with strict SSRF / private IP blocking).
  */
 export function isAllowedImageUrl(raw: string): boolean {
   try {
     const u = new URL(raw);
     if (u.protocol !== "https:") return false;
     const host = u.hostname.toLowerCase();
-    return ALLOWED_IMAGE_HOSTS.some((h) => {
+
+    // Prevent SSRF: block localhost, private subnet IPs, metadata service
+    if (
+      host === "localhost" ||
+      host.endsWith(".local") ||
+      host === "127.0.0.1" ||
+      host === "0.0.0.0" ||
+      host.startsWith("192.168.") ||
+      host.startsWith("10.") ||
+      host.startsWith("172.16.") ||
+      host.startsWith("169.254.")
+    ) {
+      return false;
+    }
+
+    const matchesHost = ALLOWED_IMAGE_HOSTS.some((h) => {
       if (h.startsWith("*.")) return host.endsWith(h.slice(1).toLowerCase());
       return host === h || host.endsWith(`.${h}`);
     });
+    if (matchesHost) return true;
+
+    // Also permit any valid https URL whose path terminates in a standard image extension
+    const path = u.pathname.toLowerCase();
+    if (/\.(jpe?g|png|webp|avif|gif|svg)$/i.test(path)) {
+      return true;
+    }
+
+    return false;
   } catch {
     return false;
   }

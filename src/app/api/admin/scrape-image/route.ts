@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
 
 async function handleScrape(req: NextRequest) {
   const user = await getCurrentUser();
-  if (user?.role !== "admin") {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 403 });
+  if (!user || (user.role !== "admin" && user.role !== "seller")) {
+    return NextResponse.json({ ok: false, error: "Unauthorized: Admin or Seller access required" }, { status: 403 });
   }
 
   const ip = clientIp(req.headers);

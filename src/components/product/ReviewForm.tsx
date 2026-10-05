@@ -36,7 +36,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
         if (file.size > 5 * 1024 * 1024) {
           throw new Error("Each photo must be under 5 MB.");
         }
-        const uploaded = await uploadToB2(file, "products");
+        const uploaded = await uploadToB2(file, "reviews");
         if (uploaded.servableUrl) {
           newUrls.push(uploaded.servableUrl);
         }

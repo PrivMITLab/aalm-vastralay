@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Enforce Authentication (Seller or Admin only)
     const user = await getCurrentUser();
-    if (!user || (user.role !== "seller" && user.role !== "admin")) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: Seller or Admin access required." },
+        { success: false, error: "Unauthorized: Authentication required." },
         { status: 401 }
       );
     }

@@ -54,6 +54,32 @@ export default function UniversalMediaPicker({
   // Tab 3: External URL
   const [urlInput, setUrlInput] = useState("");
   const [isSavingUrl, setIsSavingUrl] = useState(false);
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapeError, setScrapeError] = useState<string | null>(null);
+
+  const handleScrapeUrl = async () => {
+    const target = urlInput.trim();
+    if (!target) return;
+    setIsScraping(true);
+    setScrapeError(null);
+    try {
+      const res = await fetch("/api/admin/scrape-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.imageUrl) {
+        setUrlInput(data.imageUrl);
+      } else {
+        setScrapeError(data.error || "Could not extract image from this page. Please paste direct image link.");
+      }
+    } catch (err) {
+      setScrapeError(err instanceof Error ? err.message : "Scraping failed.");
+    } finally {
+      setIsScraping(false);
+    }
+  };
 
   // gdrivePreview: canonicalize first, then enforce safe protocol
   const gdriveCleanUrl = gdriveInput.trim() ? canonicalizeImageUrl(gdriveInput.trim()) : "";
@@ -398,15 +424,36 @@ export default function UniversalMediaPicker({
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Paste Direct Image URL
+                      Paste Direct Image URL or Webpage Link
                     </label>
-                    <input
-                      type="url"
-                      placeholder="https://images.unsplash.com/photo-..."
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/... or webpage URL"
+                        value={urlInput}
+                        onChange={(e) => {
+                          setUrlInput(e.target.value);
+                          setScrapeError(null);
+                        }}
+                        className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleScrapeUrl}
+                        disabled={isScraping || !urlInput.trim()}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-xl border border-slate-700 transition disabled:opacity-50"
+                        title="Auto-detect or scrape high-res image from link"
+                      >
+                        {isScraping ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" /> : null}
+                        <span>{isScraping ? "Scraping…" : "Auto-Detect / Scrape"}</span>
+                      </button>
+                    </div>
+                    {scrapeError && (
+                      <p className="text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {scrapeError}
+                      </p>
+                    )}
                   </div>
 
                   {urlPreview && (urlPreview.startsWith("https://") || urlPreview.startsWith("http://")) && (

@@ -4,9 +4,22 @@ export const dynamic = "force-dynamic";
 
 /**
  * 👑 AALM VASTRALAY — ROOT API GATEWAY
- * Returns 404 with explicit application/json Content-Type header
- * for unhandled top-level /api and /api/ requests.
+ * Returns 200 OK on GET with explicit application/json Content-Type header
+ * for uptime monitoring, health probes, and security baseline compliance (OWASP ZAP 10019).
  */
+export async function GET() {
+  return NextResponse.json(
+    { ok: true, name: "Aalm Vastralay API Gateway", version: "1.0.0" },
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
+      },
+    }
+  );
+}
+
 function apiNotFoundResponse() {
   return NextResponse.json(
     { ok: false, error: "Not Found" },
@@ -18,10 +31,6 @@ function apiNotFoundResponse() {
       },
     }
   );
-}
-
-export async function GET() {
-  return apiNotFoundResponse();
 }
 
 export async function POST() {

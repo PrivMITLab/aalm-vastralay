@@ -7,6 +7,7 @@ import { categories, products, stores } from "@/db/schema";
 import { toggleProductActive, toggleProductFeatured } from "@/actions/admin";
 import { formatINR } from "@/lib/utils";
 import { resolveImage } from "@/lib/media-resolver";
+import { SmartImage } from "@/components/media/SmartImage";
 
 export const metadata: Metadata = { title: "Product Catalog – Admin Console" };
 export const dynamic = "force-dynamic";
@@ -139,9 +140,8 @@ export default async function AdminProductsPage({
                     <tr key={product.id} className="hover:bg-[color:var(--surface-2)] transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={thumb}
+                          <SmartImage
+                            src={product.images?.[0] || thumb}
                             alt=""
                             className="h-12 w-12 rounded-lg object-cover border border-[color:var(--border)] bg-[color:var(--surface-2)]"
                           />

@@ -2,9 +2,9 @@ import type React from "react";
 import Link from "next/link";
 import { Heart, ShoppingCart, Truck, Flame } from "lucide-react";
 import type { Product } from "@/db/schema";
-import { firstImage } from "@/lib/media-resolver";
 import { formatINR, freeShippingThreshold } from "@/lib/utils";
 import { RatingPill } from "./Rating";
+import { SmartImage } from "@/components/media/SmartImage";
 
 export type ProductCardData = Pick<
   Product,
@@ -36,6 +36,7 @@ export default function ProductCard({
   const mrp = product.mrp ?? product.price;
   const outOfStock = product.stock <= 0;
   const lowStock = !outOfStock && product.stock > 0 && product.stock <= 3;
+  const coverImage = product.images?.[0] || "";
 
   return (
     <Link
@@ -44,15 +45,11 @@ export default function ProductCard({
       aria-label={`${product.title} - ${formatINR(product.price)}`}
     >
       <div className="relative aspect-[3/4] w-full max-w-full overflow-hidden bg-cream-100 dark:bg-stone-900">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={firstImage(product.images, { width: 600, thumbnail: false })}
+        <SmartImage
+          src={coverImage}
           alt={product.title}
           width={600}
-          height={800}
           loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
 

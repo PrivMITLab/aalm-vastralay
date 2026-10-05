@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { getImageFallbackList, PLACEHOLDER_IMAGE } from "@/lib/image-resolver";
+import { getImageFallbackList, sanitizeImageUrl, PLACEHOLDER_IMAGE } from "@/lib/image-resolver";
 import type { DeliveryStrategy } from "@/types/media";
 
 export interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -57,7 +57,9 @@ export function SmartImage({
     setCurrentIndex(0);
   }
 
-  const activeSrc = fallbackChain[currentIndex] || PLACEHOLDER_IMAGE;
+  const rawActiveSrc = fallbackChain[currentIndex] || PLACEHOLDER_IMAGE;
+  // CodeQL Defense: Strictly sanitize protocol and characters before rendering in DOM
+  const safeSrc = sanitizeImageUrl(rawActiveSrc);
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     if (currentIndex < fallbackChain.length - 1) {
@@ -71,7 +73,7 @@ export function SmartImage({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={activeSrc}
+      src={safeSrc}
       alt={alt}
       onError={handleError}
       className={className}

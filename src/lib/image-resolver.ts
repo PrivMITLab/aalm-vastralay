@@ -95,6 +95,32 @@ export function canonicalizeImageUrl(src: string | null | undefined): string {
       }
       return parsed.toString();
     }
+
+    // 6. Imgur image page links (e.g. imgur.com/abc1234 -> i.imgur.com/abc1234.jpg)
+    if (host === "imgur.com" && parsed.pathname.length > 2 && !parsed.pathname.includes(".")) {
+      const imgId = parsed.pathname.replace(/^\//, "").split("/")[0];
+      if (imgId) return `https://i.imgur.com/${imgId}.jpg`;
+    }
+
+    // 7. Unsplash photo page links (e.g. unsplash.com/photos/abc -> direct raw)
+    if (host === "unsplash.com" && parsed.pathname.includes("/photos/")) {
+      const photoId = parsed.pathname.split("/photos/")[1]?.split("/")[0];
+      if (photoId) return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1200&q=80`;
+    }
+
+    // 8. IndiaMART & eCommerce product page image link auto-normalization
+    if (host.includes("indiamart.com") || host.includes("dir.indiamart.com")) {
+      // If it's already an image URL or cdn link, return clean canonical
+      if (parsed.pathname.match(/\.(jpg|jpeg|png|webp|avif)/i)) {
+        return parsed.toString();
+      }
+    }
+
+    // 9. Wikimedia Commons / Wikipedia file page (File:Example.jpg -> Special:FilePath/Example.jpg)
+    if ((host.endsWith("wikipedia.org") || host.endsWith("wikimedia.org")) && parsed.pathname.includes("/File:")) {
+      const fileName = parsed.pathname.split("/File:")[1]?.split("/")[0];
+      if (fileName) return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}`;
+    }
   } catch {
     // If not a parseable absolute URL, continue with existing string handling
   }

@@ -49,7 +49,7 @@ export function validateUploadMetadata(
   filename: string,
   contentType: string,
   sizeBytes: number,
-  folder: "products" | "brand" | "avatars" = "products"
+  folder: "products" | "brand" | "avatars" | "reviews" = "products"
 ): { isValid: boolean; error?: string; key?: string } {
   if (!filename || typeof filename !== "string") {
     return { isValid: false, error: "Filename is required." };
@@ -85,8 +85,8 @@ export function validateUploadMetadata(
   // Sanitize filename and extract extension
   const ext = filename.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "webp");
   const randomSuffix = Math.random().toString(36).slice(2, 10);
-  const safeFolder = (["products", "brand", "avatars"] as const).includes(
-    folder as "products" | "brand" | "avatars"
+  const safeFolder = (["products", "brand", "avatars", "reviews"] as const).includes(
+    folder as "products" | "brand" | "avatars" | "reviews"
   )
     ? folder
     : "products";

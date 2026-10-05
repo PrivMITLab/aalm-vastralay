@@ -15,8 +15,8 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
-    if (!user || (user.role !== "seller" && user.role !== "admin")) {
-      return NextResponse.json({ success: false, error: "Unauthorized: Seller or Admin access required." }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Unauthorized: Authentication required." }, { status: 401 });
     }
 
     const ip = clientIp(req.headers);
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       filename?: string;
       contentType?: string;
       sizeBytes?: number;
-      folder?: "products" | "brand" | "avatars";
+      folder?: "products" | "brand" | "avatars" | "reviews";
     } | null;
 
     if (!body || !body.filename || !body.contentType || typeof body.sizeBytes !== "number") {
@@ -37,6 +37,11 @@ export async function POST(req: NextRequest) {
         { success: false, error: "Missing required fields: filename, contentType, sizeBytes." },
         { status: 400 }
       );
+    }
+
+    const isCustomerAllowedFolder = body.folder === "reviews" || body.folder === "avatars";
+    if (!isCustomerAllowedFolder && user.role !== "seller" && user.role !== "admin") {
+      return NextResponse.json({ success: false, error: "Unauthorized: Seller or Admin access required." }, { status: 401 });
     }
 
     const { filename, contentType, sizeBytes, folder } = body;
