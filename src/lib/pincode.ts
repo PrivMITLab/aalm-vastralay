@@ -151,3 +151,79 @@ export function lookupPincode(pincode: string, baseDate: Date = new Date()): Pin
     freeShippingThreshold: 999,
   };
 }
+
+/**
+ * Centroid coordinate benchmarks for Indian postal hubs.
+ */
+const INDIAN_COORDINATE_HUBS: Array<{
+  lat: number;
+  lng: number;
+  pincode: string;
+  name: string;
+}> = [
+  // Bihar & Jharkhand (Core regional focus)
+  { lat: 25.5941, lng: 85.1376, pincode: "800001", name: "Patna Central" },
+  { lat: 25.2425, lng: 86.9842, pincode: "812001", name: "Bhagalpur" },
+  { lat: 24.7955, lng: 85.0002, pincode: "823001", name: "Gaya" },
+  { lat: 26.1209, lng: 85.3647, pincode: "842001", name: "Muzaffarpur" },
+  { lat: 25.7796, lng: 87.4753, pincode: "854301", name: "Purnea" },
+  { lat: 23.3441, lng: 85.3096, pincode: "834001", name: "Ranchi" },
+  // Delhi NCR & North
+  { lat: 28.6139, lng: 77.2090, pincode: "110001", name: "Delhi Central" },
+  { lat: 28.4595, lng: 77.0266, pincode: "122001", name: "Gurgaon" },
+  { lat: 30.7333, lng: 76.7794, pincode: "160017", name: "Chandigarh" },
+  { lat: 30.9010, lng: 75.8573, pincode: "141001", name: "Ludhiana" },
+  { lat: 31.1048, lng: 77.1734, pincode: "171001", name: "Shimla" },
+  { lat: 34.0837, lng: 74.7973, pincode: "190001", name: "Srinagar" },
+  // Uttar Pradesh & Uttarakhand
+  { lat: 26.8467, lng: 80.9462, pincode: "226001", name: "Lucknow" },
+  { lat: 25.3176, lng: 82.9739, pincode: "221001", name: "Varanasi" },
+  { lat: 25.4358, lng: 81.8463, pincode: "211001", name: "Prayagraj" },
+  { lat: 28.6692, lng: 77.4538, pincode: "201001", name: "Ghaziabad / Noida" },
+  { lat: 30.3165, lng: 78.0322, pincode: "248001", name: "Dehradun" },
+  // West & Central
+  { lat: 18.9220, lng: 72.8347, pincode: "400001", name: "Mumbai" },
+  { lat: 18.5204, lng: 73.8567, pincode: "411001", name: "Pune" },
+  { lat: 21.1458, lng: 79.0882, pincode: "440001", name: "Nagpur" },
+  { lat: 23.0225, lng: 72.5714, pincode: "380001", name: "Ahmedabad" },
+  { lat: 26.9124, lng: 75.7873, pincode: "302001", name: "Jaipur" },
+  { lat: 22.7196, lng: 75.8577, pincode: "452001", name: "Indore" },
+  { lat: 23.2599, lng: 77.4126, pincode: "462001", name: "Bhopal" },
+  // East & North East
+  { lat: 22.5726, lng: 88.3639, pincode: "700001", name: "Kolkata" },
+  { lat: 20.2961, lng: 85.8245, pincode: "751001", name: "Bhubaneswar" },
+  { lat: 26.1445, lng: 91.7362, pincode: "781001", name: "Guwahati" },
+  // South
+  { lat: 17.3850, lng: 78.4867, pincode: "500001", name: "Hyderabad" },
+  { lat: 12.9716, lng: 77.5946, pincode: "560001", name: "Bengaluru" },
+  { lat: 13.0827, lng: 80.2707, pincode: "600001", name: "Chennai" },
+  { lat: 9.9312, lng: 76.2673, pincode: "682001", name: "Kochi" },
+];
+
+/**
+ * Resolves browser GPS coordinates (lat, lon) to the nearest serviceable
+ * Indian postal circle PIN code using Euclidean proximity.
+ */
+export function resolveCoordinatesToPincode(lat: number, lng: number): string | null {
+  // Rough bounding box for Indian subcontinent (Lat: 6.5 to 37.5, Lng: 68.0 to 97.5)
+  if (lat < 6.5 || lat > 37.5 || lng < 68.0 || lng > 97.5) {
+    return null;
+  }
+
+  let minDistanceSq = Infinity;
+  let closestPincode = "110001"; // Default fallback to Delhi central
+
+  for (const hub of INDIAN_COORDINATE_HUBS) {
+    const dLat = lat - hub.lat;
+    const dLng = lng - hub.lng;
+    const distSq = dLat * dLat + dLng * dLng;
+
+    if (distSq < minDistanceSq) {
+      minDistanceSq = distSq;
+      closestPincode = hub.pincode;
+    }
+  }
+
+  return closestPincode;
+}
+

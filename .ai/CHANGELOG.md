@@ -3,6 +3,22 @@
 
 ---
 
+## [2026-10-05] — Geolocation Pincode Detection, WhatsApp Review Reminders & Dependabot Hardening
+
+### Added & Enhanced
+- **Geolocation Postal Circle Auto-Detection (`src/lib/pincode.ts`, `src/components/product/PincodeEstimator.tsx`):**
+  - Added `resolveCoordinatesToPincode(lat, lon)` resolving browser GPS coordinates to nearest serviceable Indian postal hubs (Patna, Bhagalpur, Gaya, Muzaffarpur, Delhi, Mumbai, Lucknow, etc.) via Euclidean distance.
+  - Added tactile 1-click **"Detect"** (`LocateFixed`) button with loading spinner (`Loader2`) and graceful geolocation permission handling.
+- **Post-Delivery WhatsApp Review Request Reminders (`src/lib/whatsapp.ts`):**
+  - Added `createWhatsAppReviewReminderLink()` generating polite bilingual post-delivery feedback messages with order details and review links conforming to Indian commerce etiquette and BIS IS 19000:2022.
+- **Dependabot Hardening (`.github/dependabot.yml`):**
+  - Added `update-types: ["minor", "patch"]` to package grouping to prevent breaking major jumps (e.g., Zod v4, TypeScript v7, ESLint v10) from bundling into monolithic PRs.
+- **Automated Test Coverage:**
+  - Added unit test assertions in `tests/unit/pincode-estimator.test.ts` and `tests/unit/whatsapp-integration.test.ts`. All 40/40 test suites passing.
+
+---
+
+
 ## [2026-09-29] — Tiered CI/CD Pipeline & Nightly Security Scans Architecture (30 Min -> 90 Sec)
 
 ### Performance & DevOps Optimization

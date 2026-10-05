@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle2, MapPin, Truck, AlertCircle, Zap, ShieldCheck } from "lucide-react";
-import { lookupPincode, type PincodeInfo } from "@/lib/pincode";
+import { CheckCircle2, MapPin, Truck, AlertCircle, Zap, ShieldCheck, LocateFixed, Loader2 } from "lucide-react";
+import { lookupPincode, resolveCoordinatesToPincode, type PincodeInfo } from "@/lib/pincode";
 
 export default function PincodeEstimator() {
   const [pincode, setPincode] = useState("");
   const [info, setInfo] = useState<PincodeInfo | null>(null);
   const [error, setError] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,6 +21,46 @@ export default function PincodeEstimator() {
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  function handleAutoDetect() {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        const autoPin = resolveCoordinatesToPincode(pos.coords.latitude, pos.coords.longitude);
+        if (!autoPin) {
+          setError("Location outside Indian postal serviceability zone.");
+          return;
+        }
+        setPincode(autoPin);
+        const res = lookupPincode(autoPin);
+        if (res) {
+          setInfo(res);
+          try {
+            localStorage.setItem("av_pincode", autoPin);
+          } catch {
+            // LocalStorage access may be restricted
+          }
+        }
+      },
+      (err) => {
+        setIsLocating(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setError("Location permission denied. Please enter PIN manually.");
+        } else {
+          setError("Could not detect location. Please enter PIN manually.");
+        }
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  }
 
   function handleCheck(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +115,21 @@ export default function PincodeEstimator() {
             className="input w-full py-1.5 text-xs font-medium"
           />
         </div>
+        <button
+          type="button"
+          onClick={handleAutoDetect}
+          disabled={isLocating}
+          title="Auto-detect Indian postal location"
+          className="btn btn-outline py-1.5 px-2.5 text-xs font-semibold flex items-center gap-1.5 hover:bg-[color:var(--brand-soft)] transition-colors"
+          aria-label="Auto detect location"
+        >
+          {isLocating ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-[color:var(--brand)]" />
+          ) : (
+            <LocateFixed className="h-3.5 w-3.5 text-[color:var(--brand)]" />
+          )}
+          <span className="hidden sm:inline">Detect</span>
+        </button>
         <button
           type="submit"
           className="btn btn-primary py-1.5 px-3.5 text-xs font-semibold"

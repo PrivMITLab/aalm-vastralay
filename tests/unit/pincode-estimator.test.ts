@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lookupPincode } from "../../src/lib/pincode";
+import { lookupPincode, resolveCoordinatesToPincode } from "../../src/lib/pincode";
 
 export async function testPincodeEstimator() {
   console.log("  ▶ Running Indian Pincode & Delivery Serviceability Tests...");
@@ -30,5 +30,16 @@ export async function testPincodeEstimator() {
   assert.equal(bihar.state, "Bihar");
   assert.equal(bihar.isExpressAvailable, true);
 
-  console.log("  ✔ Indian pincode circle resolution & COD eligibility verified!");
+  // 5. Geolocation Coordinate Resolution
+  const patnaPin = resolveCoordinatesToPincode(25.594, 85.137);
+  assert.equal(patnaPin, "800001");
+
+  const delhiPin = resolveCoordinatesToPincode(28.613, 77.209);
+  assert.equal(delhiPin, "110001");
+
+  // Coordinates outside India
+  const outsidePin = resolveCoordinatesToPincode(51.5074, -0.1278); // London
+  assert.equal(outsidePin, null);
+
+  console.log("  ✔ Indian pincode circle resolution, GPS coordinates & COD eligibility verified!");
 }

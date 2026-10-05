@@ -78,3 +78,25 @@ export function createWhatsAppDispatchLink(params: {
 
   return `https://wa.me/${customerNumber}?text=${encodeURIComponent(message)}`;
 }
+
+/**
+ * Generates customer post-delivery review reminder WhatsApp link for Admin/Seller.
+ */
+export function createWhatsAppReviewReminderLink(params: {
+  customerName: string;
+  customerPhone: string;
+  orderNumber: string;
+  productTitle?: string;
+  orderId?: string;
+}): string {
+  const customerNumber = cleanWhatsAppPhone(params.customerPhone);
+  const storeName = process.env.NEXT_PUBLIC_APP_NAME || "Store";
+  const itemText = params.productTitle ? ` (${params.productTitle})` : "";
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || "https://example.com");
+  const reviewLink = params.orderId ? `\nReview Link: ${siteUrl}/orders/${params.orderId}` : "";
+
+  const message = `Namaste ${params.customerName}, aasha hai aapko ${storeName} se aapka order #${params.orderNumber}${itemText} pasand aaya hoga! ✨\n\nAapka anubhav humare liye bohot keemti hai. Kripya 1 minute nikaal kar apna genuine review share karein:${reviewLink}\n\nDhanyawaad!`;
+
+  return `https://wa.me/${customerNumber}?text=${encodeURIComponent(message)}`;
+}
+

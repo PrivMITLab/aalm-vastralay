@@ -12,6 +12,7 @@ import {
   createWhatsAppOrderConfirmLink,
   createWhatsAppWeddingConsultLink,
   createWhatsAppDispatchLink,
+  createWhatsAppReviewReminderLink,
 } from "../../src/lib/whatsapp";
 
 export async function testWhatsAppIntegration() {
@@ -69,5 +70,22 @@ export async function testWhatsAppIntegration() {
     throw new Error(`Failed: Dispatch message missing tracking info: ${decodedDispatch}`);
   }
 
-  console.log("  ✔ 1-Click WhatsApp order confirmation, bridal consult & dispatch tracking verified!");
+  // 5. Review reminder link
+  const reviewLink = createWhatsAppReviewReminderLink({
+    customerName: "Priya Sharma",
+    customerPhone: "9876543210",
+    orderNumber: "AV-1082",
+    productTitle: "Banarasi Silk Saree",
+    orderId: "ord-12345",
+  });
+  if (!reviewLink.startsWith("https://wa.me/919876543210?text=")) {
+    throw new Error(`Failed: Review link should target customer phone: ${reviewLink}`);
+  }
+  const decodedReview = decodeURIComponent(reviewLink);
+  if (!decodedReview.includes("Priya Sharma") || !decodedReview.includes("AV-1082") || !decodedReview.includes("Banarasi Silk Saree") || !decodedReview.includes("/orders/ord-12345")) {
+    throw new Error(`Failed: Review reminder message missing details: ${decodedReview}`);
+  }
+
+  console.log("  ✔ 1-Click WhatsApp order confirmation, bridal consult, dispatch & review reminder verified!");
 }
+

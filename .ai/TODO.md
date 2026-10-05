@@ -78,8 +78,11 @@
 - [x] Google 1-Click OAuth 2.0 Security & Mapping Hardening (`tests/unit/google-oauth.test.ts` - Suite 37).
 - [x] Fail-Closed Secrets Architecture with `src/lib/required-env.ts` & Zero-Default Fallbacks (`tests/unit/required-env.test.ts` - Suite 38).
 - [x] Enterprise Automated Release Management System & Quality Gate via Google `release-please` v4 (`.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json`, `commitlint.config.mjs`, Husky hooks, `docs/RELEASE.md`, `CONTRIBUTING.md`). Official published milestone: `v0.1.8`.
+- [x] Hardened Dependabot Grouping (`.github/dependabot.yml`) to isolate breaking major jumps and group only minor/patch updates.
+- [x] Geolocation Auto-Detection for Indian Postal Circles (`resolveCoordinatesToPincode` in `src/lib/pincode.ts`, tactile `Detect` button in `src/components/product/PincodeEstimator.tsx`).
+- [x] Post-Delivery Automated Review Request Reminders via WhatsApp (`createWhatsAppReviewReminderLink` in `src/lib/whatsapp.ts`).
 
 ## In-Progress / Next Enhancements
-- [ ] Post-delivery automated review request reminders via Push/WhatsApp.
-- [ ] Geolocation auto-detection for Indian postal circles.
-- [ ] Typesense dual-engine instant search autocomplete.
+- [ ] Typesense dual-engine instant search autocomplete dropdown UI.
+- [ ] Automated Cron-based Dispatch Review Notification Trigger.
+
