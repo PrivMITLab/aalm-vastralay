@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { notifications, users } from "@/db/schema";
+import { account, notifications, users } from "@/db/schema";
 import { sendGasEmail } from "@/lib/gas-mailer";
+import { sendEmail } from "@/lib/email";
 import {
   clearSessionCookie,
   getCurrentUser,
@@ -267,13 +268,45 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
       })
       .where(eq(users.id, user.id));
 
-    // Send transactional OTP email via Google Apps Script (Gmail)
-    await sendGasEmail({
-      type: "FORGOT_PASSWORD",
-      to: user.email,
-      otp,
-      name: user.fullName,
-    });
+    // Dual-engine robust delivery: Try GAS email first, fallback to hybrid sendEmail (SMTP)
+    let emailSent = false;
+    try {
+      const gasRes = await sendGasEmail({
+        type: "FORGOT_PASSWORD",
+        to: user.email,
+        otp,
+        name: user.fullName,
+      });
+      emailSent = !!gasRes.ok;
+    } catch (gasErr) {
+      console.warn("[requestPasswordReset] GAS email failed, attempting SMTP fallback:", gasErr);
+    }
+
+    if (!emailSent) {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "आलम वस्त्रालय — पासवर्ड रीसेट OTP कोड (Reset Code)",
+          html: `
+            <div style="font-family:Georgia,serif;max-width:560px;margin:auto;border:1px solid #e5e7eb;padding:32px;background:#faf8f5;border-radius:12px;text-align:center;">
+              <h2 style="color:#7a1f2b;margin:0 0 16px;font-size:24px;">आलम वस्त्रालय (Aalm Vastralay)</h2>
+              <p style="font-size:15px;color:#4b5563;text-align:left;">नमस्ते ${user.fullName || "Customer"},</p>
+              <p style="font-size:15px;color:#4b5563;text-align:left;">Apna password reset karne ke liye aapka 6-digit OTP:</p>
+              <div style="margin:28px auto;padding:16px 24px;background:#ffffff;border:2px dashed #7a1f2b;border-radius:10px;display:inline-block;letter-spacing:8px;font-size:32px;font-weight:bold;color:#7a1f2b;font-family:monospace;">
+                ${otp}
+              </div>
+              <p style="font-size:13px;color:#dc2626;margin:12px 0 20px;">⏱️ यह कोड 15 मिनट के लिए मान्य है। किसी के साथ शेयर न करें।</p>
+            </div>
+          `,
+          text: `Your Aalm Vastralay password reset OTP is ${otp}. Valid for 15 minutes.`,
+          type: "FORGOT_PASSWORD",
+          otp,
+          name: user.fullName,
+        });
+      } catch (smtpErr) {
+        console.error("[requestPasswordReset] Both GAS and SMTP email dispatch failed:", smtpErr);
+      }
+    }
 
     await recordAudit({ actorEmail: email, action: "auth.password_reset_requested" });
   }
@@ -325,21 +358,37 @@ export async function verifyOtpAndResetPassword(_prev: ActionState, formData: Fo
     return { error: "गलत OTP कोड दर्ज किया गया है (Incorrect OTP code)." };
   }
 
-  // Update password and clear OTP
-  await db
+  const newPasswordHash = hashPassword(password);
+
+  // Update password and clear OTP in users table
+  const [updatedUser] = await db
     .update(users)
     .set({
-      passwordHash: hashPassword(password),
+      passwordHash: newPasswordHash,
       resetOtp: null,
       resetOtpExpiresAt: null,
       updatedAt: new Date(),
     })
-    .where(eq(users.id, user.id));
+    .where(eq(users.id, user.id))
+    .returning();
+
+  // Also sync account table if an entry exists for credential provider
+  try {
+    await db
+      .update(account)
+      .set({
+        password: newPasswordHash,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(account.userId, user.id), eq(account.providerId, "credential")));
+  } catch (accErr) {
+    console.warn("[verifyOtpAndResetPassword] Non-fatal account sync notice:", accErr);
+  }
 
   await recordAudit({ actorId: user.id, actorEmail: email, action: "auth.password_reset_completed" });
 
-  // Auto-login the user with a fresh session
-  await setSessionCookie(user);
+  // Auto-login the user with a fresh session using updated credentials
+  await setSessionCookie(updatedUser || { ...user, passwordHash: newPasswordHash });
   redirect("/dashboard?reset=success");
 }
 
