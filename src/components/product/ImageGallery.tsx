@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/media/SmartImage";
 
 export default function ImageGallery({
   images,
@@ -15,6 +16,7 @@ export default function ImageGallery({
 }) {
   const [active, setActive] = useState(0);
   const showVideo = video && active === images.length;
+  const currentImage = images[active] ?? images[0] ?? "";
 
   return (
     <div className="flex flex-col-reverse gap-3 md:flex-row">
@@ -33,8 +35,12 @@ export default function ImageGallery({
                   : "border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 hover:border-maroon-400 dark:hover:border-gold-400/50",
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`${title} ${i + 1}`} className="h-full w-full object-cover" />
+              <SmartImage
+                src={src}
+                alt={`${title} thumbnail ${i + 1}`}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
             </button>
           ))}
           {video && (
@@ -61,10 +67,15 @@ export default function ImageGallery({
             <video src={video.url} controls className="h-full w-full object-cover" />
           )
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={images[active] ?? images[0]} alt={title} className="h-full w-full object-cover" />
+          <SmartImage
+            key={currentImage}
+            src={currentImage}
+            alt={title}
+            className="h-full w-full object-cover transition-opacity duration-300"
+          />
         )}
       </div>
     </div>
   );
 }
+

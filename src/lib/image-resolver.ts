@@ -290,7 +290,7 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
     list.push(primary);
 
     // If primary is served via Cloudflare Worker proxy, add immediate wsrv fallback
-    // so a dead or cold-starting worker never leaves broken image icons.
+    // and direct B2 URL fallback so a dead or cold-starting worker never leaves broken image icons.
     try {
       const parsedHost = new URL(primary).hostname.toLowerCase();
       if (parsedHost.endsWith(".workers.dev")) {
@@ -301,6 +301,17 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
       }
     } catch {
       // ignore
+    }
+
+    if (src.startsWith("b2:")) {
+      const b2Direct = resolveImage(src, { ...opts, strategy: "direct" });
+      if (b2Direct && b2Direct !== PLACEHOLDER_IMAGE && !list.includes(b2Direct)) {
+        list.push(b2Direct);
+        const wsrvDirect = `https://wsrv.nl/?url=${encodeURIComponent(b2Direct)}&output=webp`;
+        if (!list.includes(wsrvDirect)) {
+          list.push(wsrvDirect);
+        }
+      }
     }
   }
 

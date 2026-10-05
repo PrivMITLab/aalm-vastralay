@@ -6,6 +6,7 @@ import { orders, products, stores, users } from "@/db/schema";
 import { requireRole } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
 import { BACKBONE } from "@/lib/backbone";
+import IntegrationsDashboardClient from "@/components/admin/IntegrationsDashboardClient";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Integrations & scaling" };
@@ -51,31 +52,14 @@ export default async function AdminIntegrationsPage() {
 
       <section className="card overflow-hidden">
         <header className="border-b border-[color:var(--border)] px-5 py-3">
-          <h2 className="font-semibold text-[color:var(--brand)]">Free-tier backbone status</h2>
+          <h2 className="font-semibold text-[color:var(--brand)]">Free-tier backbone status & connection diagnostics</h2>
           <p className="text-xs text-[color:var(--text-soft)]">
-            Add a key in <code>.env.local</code> (or Cloudflare Pages → Environment variables) and the capability activates automatically.
+            Configure keys in Vercel / Cloudflare Pages → Environment variables. Click <strong>Test Connection</strong> to run live diagnostics.
           </p>
         </header>
-        <ul className="divide-y divide-[color:var(--border)]">
-          {services.map((s) => (
-            <li key={s.name} className="flex flex-wrap items-center gap-3 px-5 py-3">
-              <span className={s.configured ? "text-emerald-600" : "text-[color:var(--text-soft)]"}>
-                {s.configured ? <CheckCircle2 className="h-5 w-5" /> : <CircleDashed className="h-5 w-5" />}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{s.name}</p>
-                <p className="text-xs text-[color:var(--text-soft)]">
-                  {s.purpose} · <span className="font-mono">{s.envKeys.join(", ")}</span>
-                </p>
-              </div>
-              <span className={`badge ${s.configured ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : ""}`}>{s.configured ? "Active" : "Awaiting key"}</span>
-              <a href={s.docs} target="_blank" rel="noopener noreferrer" className="chip">
-                Docs <ExternalLink className="h-3 w-3" />
-              </a>
-            </li>
-          ))}
-        </ul>
+        <IntegrationsDashboardClient services={services} />
       </section>
+
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="card p-5">

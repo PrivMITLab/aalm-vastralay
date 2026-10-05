@@ -9,6 +9,7 @@ import { resolveThumbnail, sanitizeImageUrl } from "@/lib/media-resolver";
 import { canonicalizeImageUrl } from "@/lib/image-resolver";
 import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionButton";
 import UniversalMediaPicker, { type MediaSelectResult } from "@/components/media/UniversalMediaPicker";
+import { SmartImage } from "@/components/media/SmartImage";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -364,9 +365,8 @@ export default function ProductForm({ categories, product }: { categories: Categ
                     key={`${safeSrc}-${i}`}
                     className="group relative aspect-[3/4] w-full overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 shadow-xs"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={safeSrc}
+                    <SmartImage
+                      src={imageList[i] || safeSrc}
                       alt={`Product photo ${i + 1}`}
                       className="h-full w-full object-cover"
                     />

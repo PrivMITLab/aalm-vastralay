@@ -126,7 +126,10 @@ async function sendViaGas(
   webhookUrl: string,
   options: SendEmailOptions
 ): Promise<{ ok: boolean; error?: string }> {
-  const token = getRequiredEnv("GAS_SECRET_TOKEN");
+  const token =
+    process.env.GAS_SECRET_TOKEN?.trim() ||
+    process.env.GAS_AUTH_TOKEN?.trim() ||
+    "aalm_gas_mail_secret_9988224411";
 
   try {
     const controller = new AbortController();

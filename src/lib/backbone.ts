@@ -6,6 +6,7 @@ export const BACKBONE: Array<{
   purpose: string;
   envKeys: string[];
   docs: string;
+  testKey?: "neon" | "gas" | "smtp" | "b2" | "worker" | "ai";
   check: (env: EnvLike) => boolean;
 }> = [
   {
@@ -13,14 +14,32 @@ export const BACKBONE: Array<{
     purpose: "Primary database (0.5 GB free, ap-south-1 Mumbai)",
     envKeys: ["DATABASE_URL"],
     docs: "https://neon.tech/docs",
+    testKey: "neon",
     check: (env) => Boolean(env.DATABASE_URL),
   },
   {
     name: "Better Auth + GAS Email",
     purpose: "Session auth, magic links & email OTP via 100% free Gmail webhook",
-    envKeys: ["AUTH_SECRET", "GAS_WEBHOOK_URL", "GAS_SECRET_TOKEN"],
+    envKeys: ["AUTH_SECRET", "GAS_EMAIL_URL", "GAS_WEBHOOK_URL", "GAS_SECRET_TOKEN"],
     docs: "https://better-auth.com",
-    check: (env) => Boolean(env.AUTH_SECRET || env.BETTER_AUTH_SECRET),
+    testKey: "gas",
+    check: (env) => Boolean(env.GAS_EMAIL_URL || env.GAS_WEBHOOK_URL || env.AUTH_SECRET || env.BETTER_AUTH_SECRET),
+  },
+  {
+    name: "Direct Gmail SMTP (Primary)",
+    purpose: "Direct TLS socket dispatch via nodemailer (500 emails/day free)",
+    envKeys: ["SMTP_USER", "SMTP_PASSWORD", "SMTP_HOST", "SMTP_PORT"],
+    docs: "https://support.google.com/mail/answer/185833",
+    testKey: "smtp",
+    check: (env) => Boolean(env.SMTP_USER && (env.SMTP_PASSWORD || env.SMTP_PASS || env.EMAIL_SERVER_PASSWORD)),
+  },
+  {
+    name: "Multi-Provider AI Studio",
+    purpose: "AI copywriting, product tag generation & auto-recommendations (Gemini, Groq, Mistral)",
+    envKeys: ["GEMINI_API_KEY", "GROQ_API_KEY", "MISTRAL_API_KEY"],
+    docs: "https://aistudio.google.com",
+    testKey: "ai",
+    check: (env) => Boolean(env.GEMINI_API_KEY || env.GROQ_API_KEY || env.MISTRAL_API_KEY),
   },
   {
     name: "ImageKit CDN",
@@ -41,6 +60,7 @@ export const BACKBONE: Array<{
     purpose: "Private bucket for archived order media (10 GB free)",
     envKeys: ["B2_BUCKET_NAME", "B2_KEY_ID", "B2_APP_KEY"],
     docs: "https://www.backblaze.com/b2/docs/",
+    testKey: "b2",
     check: (env) => Boolean(env.B2_KEY_ID && env.B2_APP_KEY),
   },
   {
@@ -48,6 +68,7 @@ export const BACKBONE: Array<{
     purpose: "Signed-proxy + edge cache for cold images (100k req/day)",
     envKeys: ["NEXT_PUBLIC_B2_WORKER_URL"],
     docs: "https://developers.cloudflare.com/workers/",
+    testKey: "worker",
     check: (env) => Boolean(env.NEXT_PUBLIC_B2_WORKER_URL),
   },
   {
