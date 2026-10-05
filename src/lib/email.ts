@@ -126,10 +126,9 @@ async function sendViaGas(
   webhookUrl: string,
   options: SendEmailOptions
 ): Promise<{ ok: boolean; error?: string }> {
-  const token =
-    process.env.GAS_SECRET_TOKEN?.trim() ||
-    process.env.GAS_AUTH_TOKEN?.trim() ||
-    "aalm_gas_mail_secret_9988224411";
+  const token = getRequiredEnv(["GAS_SECRET_TOKEN", "GAS_AUTH_TOKEN"], {
+    description: "Google Apps Script authorization token",
+  });
 
   try {
     const controller = new AbortController();

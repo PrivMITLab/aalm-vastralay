@@ -3,7 +3,22 @@
 
 ---
 
-## [2026-10-05] — Geolocation Pincode Detection, WhatsApp Review Reminders & Dependabot Hardening
+## [2026-10-05] — Admin Integrations Live Diagnostics, Fail-Closed GAS Token & Resilient Image Gallery
+ 
+### Added & Enhanced
+- **Admin Live Connection Diagnostics Matrix (`/admin/integrations`, `/api/admin/integrations/test`):**
+  - Added interactive **"Test Connection"** suite for Neon PostgreSQL, Better Auth + GAS Email, Direct Gmail SMTP, Multi-Provider AI Studio (Gemini, Groq, Mistral), Backblaze B2, and Cloudflare Worker.
+  - Returns real latency (ms), remaining Google Apps Script daily quota, and actionable diagnostics without exposing raw secrets.
+- **Fail-Closed GAS Security (Strict Zero-Default-Secret):**
+  - Enforced `getRequiredEnv(["GAS_SECRET_TOKEN", "GAS_AUTH_TOKEN"])` in `src/lib/email.ts` and `/api/admin/integrations/test`.
+  - Zero hardcoded fallback secrets: Ensures the system fails closed if `GAS_SECRET_TOKEN` is missing, per docs/RULES.md Section 3.
+- **Resilient 5-Tier Image Gallery (`ImageGallery.tsx`, `ProductForm.tsx`, `image-resolver.ts`):**
+  - Replaced raw `<img>` tags with `<SmartImage>` featuring automatic cascading fallbacks: `Worker Proxy -> Direct B2 S3 Stream -> wsrv.nl WebP Optimizer -> Direct Canonical -> Placeholder`.
+  - Fixed blank product cards on `/products/[slug]` and enabled instant thumbnail previews in `ProductForm.tsx`.
+- **40/40 Automated Enterprise Test Suites:** 100% green.
+
+---
+
 
 ### Added & Enhanced
 - **Geolocation Postal Circle Auto-Detection (`src/lib/pincode.ts`, `src/components/product/PincodeEstimator.tsx`):**

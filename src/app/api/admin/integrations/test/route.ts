@@ -51,14 +51,21 @@ export async function POST(req: NextRequest) {
 
       const gasToken =
         process.env.GAS_SECRET_TOKEN?.trim() ||
-        process.env.GAS_AUTH_TOKEN?.trim() ||
-        "aalm_gas_mail_secret_9988224411";
+        process.env.GAS_AUTH_TOKEN?.trim();
 
       if (!gasUrl) {
         return NextResponse.json({
           success: false,
           service: "gas",
           error: "GAS_EMAIL_URL or GAS_WEBHOOK_URL is not set in environment variables.",
+        }, { status: 400 });
+      }
+
+      if (!gasToken) {
+        return NextResponse.json({
+          success: false,
+          service: "gas",
+          error: "GAS_SECRET_TOKEN is missing in environment variables. Set GAS_SECRET_TOKEN in Vercel to authenticate.",
         }, { status: 400 });
       }
 

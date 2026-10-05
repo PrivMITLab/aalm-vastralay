@@ -8,12 +8,18 @@
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
 ## 2. Current Verified Status (Production Ready)
-- **Current Version:** `v0.1.9` (Automated semantic versioning via Google `release-please` v4, active Release PR #16).
+- **Current Version:** `v0.1.10` (Automated semantic versioning via Google `release-please` v4).
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.5s (`npm test`).
+- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.7s (`npm test`).
   - *Suites 39 & 40:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
+- **Admin Integrations Diagnostic & Live Test Matrix (`/admin/integrations`):**
+  - Interactive 1-click test connection endpoint (`/api/admin/integrations/test`) for Neon DB, Better Auth + GAS Email, Direct Gmail SMTP, Multi-Provider AI Studio (Gemini/Groq/Mistral), Backblaze B2, and Cloudflare Worker.
+  - Zero hardcoded fallback tokens: Fail-closed architecture strictly requires `GAS_SECRET_TOKEN` from Vercel environment variables.
+- **Universal Media Engine & Resilient Image Gallery (`ImageGallery.tsx`, `ProductForm.tsx`):**
+  - Replaced raw `<img>` tags with `<SmartImage>` resilient 5-tier fallback: `Worker Proxy -> Direct B2 S3 Stream -> wsrv.nl WebP -> Direct Canonical -> Placeholder`.
+  - Zero broken images on product page (`/products/[slug]`) and instant live preview in Seller `ProductForm`.
 - **Git & Release Management (3-Darwaza Safety Gate):**
   - **Darwaza 1 (Fast PR Gate):** `ci.yml` runs TypeCheck, ESLint, 40 tests, and production build in ~90s.
   - **Darwaza 2 (Heavy PR Merge Gate):** `e2e-gate.yml` runs Playwright E2E (Desktop Chrome + Mobile Pixel), OWASP ZAP DAST scan, and CodeQL v4 AST scan on every PR to `main` with video/screenshot artifacts.
