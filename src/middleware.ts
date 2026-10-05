@@ -91,7 +91,6 @@ export function middleware(request: NextRequest) {
         signInUrl.searchParams.set("redirect_url", pathname);
       }
       const redirectRes = NextResponse.redirect(signInUrl, 307);
-      redirectRes.headers.set("Content-Type", "text/plain; charset=utf-8");
       redirectRes.headers.set("Cache-Control", "no-store, max-age=0");
       return redirectRes;
     }

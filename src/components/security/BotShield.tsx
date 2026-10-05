@@ -34,6 +34,13 @@ self.onmessage = async (e) => {
         256,
       );
       const bytes = new Uint8Array(bits);
+      // Fast byte-level filter: avoids 32 string allocations per guess
+      if (zeros >= 1 && (bytes[0] >> 4) !== 0) continue;
+      if (zeros >= 2 && bytes[0] !== 0) continue;
+      if (zeros >= 3 && (bytes[1] >> 4) !== 0) continue;
+      if (zeros >= 4 && bytes[1] !== 0) continue;
+      if (zeros >= 5 && (bytes[2] >> 4) !== 0) continue;
+
       let hex = "";
       for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, "0");
       if (hex.startsWith(prefix)) { self.postMessage({ number: n }); return; }
@@ -51,6 +58,12 @@ export async function solveOnMainThread(c: Challenge) {
   for (let n = 0; n <= c.maxnumber; n++) {
     const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: enc.encode(`${c.salt}?${n}`), iterations: c.iterations, hash: "SHA-256" }, key, 256);
     const bytes = new Uint8Array(bits);
+    if (c.zeros >= 1 && (bytes[0] >> 4) !== 0) continue;
+    if (c.zeros >= 2 && bytes[0] !== 0) continue;
+    if (c.zeros >= 3 && (bytes[1] >> 4) !== 0) continue;
+    if (c.zeros >= 4 && bytes[1] !== 0) continue;
+    if (c.zeros >= 5 && (bytes[2] >> 4) !== 0) continue;
+
     let hex = "";
     for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, "0");
     if (hex.startsWith(prefix)) return n;

@@ -35,7 +35,7 @@ export async function GET(req: Request) {
   const rawTtl = Number(url.searchParams.get("ttl") ?? "");
   const ttlMs = Number.isFinite(rawTtl) ? Math.min(600, Math.max(60, Math.floor(rawTtl))) * 1000 : undefined;
 
-  const difficulty = await getSettingNumber("security.powDifficulty", 3);
+  const difficulty = await getSettingNumber("security.powDifficulty", 2);
   const maxnumber = await getSettingNumber("security.powMaxIterations", 100000);
   const displayMode = (await getSetting("security.powDisplayMode", "turnstile")) as string;
   const widgetStyle = (await getSetting("security.powWidgetStyle", "checkbox")) as string;

@@ -200,7 +200,7 @@ export const SETTINGS_FIELDS: SettingField[] = [
     default: "true",
     help: "Plays a gentle, satisfying luxury chime upon successful verification (synthesized in browser, 0KB).",
   },
-  { key: "security.powDifficulty", group: "security", label: "Proof-of-work weight (leading zeros)", type: "number", default: "3", min: 2, max: 5, help: "Higher = heavier puzzle = slower bots, slightly slower first submit for real users." },
+  { key: "security.powDifficulty", group: "security", label: "Proof-of-work weight (leading zeros)", type: "number", default: "2", min: 2, max: 5, help: "Higher = heavier puzzle = slower bots, slightly slower first submit for real users." },
   { key: "security.powMaxIterations", group: "security", label: "Max iterations offered to clients", type: "number", default: "100000", min: 5000, max: 500000 },
   { key: "security.formRateLimit", group: "security", label: "Form submissions per minute / IP", type: "number", default: "8", min: 1, max: 120 },
   { key: "security.authRateLimit", group: "security", label: "Sign-in attempts per 10 minutes / IP", type: "number", default: "10", min: 3, max: 60 },

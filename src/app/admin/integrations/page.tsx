@@ -13,26 +13,59 @@ export const metadata: Metadata = { title: "Integrations & scaling" };
 
 export default async function AdminIntegrationsPage() {
   await requireRole(["admin"], "/admin/integrations");
-  const settings = await getSettings();
-  const [[usage]] = await Promise.all([
-    db
+
+  let settings: Record<string, any> = {};
+  try {
+    settings = await getSettings();
+  } catch (err) {
+    console.warn("[AdminIntegrations] Settings error:", err);
+  }
+
+  let counts = { users: 0, stores: 0, products: 0, orders: 0, audit: 0 };
+  let orderRows: { n: number; gmv: number } = { n: 0, gmv: 0 };
+
+  try {
+    const [res] = await db
       .select({
-        users: sql<number>`(select count(*) from users)::int`,
-        stores: sql<number>`(select count(*) from stores)::int`,
-        products: sql<number>`(select count(*) from products)::int`,
-        orders: sql<number>`(select count(*) from orders)::int`,
-        audit: sql<number>`(select count(*) from audit_logs)::int`,
+        users: sql<number>`coalesce((select count(*) from users)::int, 0)`,
+        stores: sql<number>`coalesce((select count(*) from stores)::int, 0)`,
+        products: sql<number>`coalesce((select count(*) from products)::int, 0)`,
+        orders: sql<number>`coalesce((select count(*) from orders)::int, 0)`,
       })
-      .from(sql`(select 1) as one`),
-  ]);
-  const [orderRows] = await db.select({ n: count(), gmv: sql<number>`coalesce(sum(total),0)::float` }).from(orders);
+      .from(sql`(select 1) as one`);
+    if (res) counts = { ...counts, ...res };
+  } catch (err) {
+    console.warn("[AdminIntegrations] Counts query error:", err);
+  }
+
+  try {
+    const [auditRes] = await db
+      .select({
+        audit: sql<number>`coalesce((select count(*) from audit_logs)::int, 0)`,
+      })
+      .from(sql`(select 1) as one`);
+    if (auditRes) counts.audit = auditRes.audit ?? 0;
+  } catch (err) {
+    console.warn("[AdminIntegrations] Audit count error:", err);
+  }
+
+  try {
+    const [oRes] = await db.select({ n: count(), gmv: sql<number>`coalesce(sum(total),0)::float` }).from(orders);
+    if (oRes) orderRows = oRes;
+  } catch (err) {
+    console.warn("[AdminIntegrations] Orders summary error:", err);
+  }
 
   const env = process.env;
   const dbUrlSet = Boolean(env.DATABASE_URL);
-  const counts = usage ?? { users: 0, stores: 0, products: 0, orders: 0, audit: 0 };
 
   const services = BACKBONE.map((svc) => {
-    const configured = svc.check(env);
+    let configured = false;
+    try {
+      configured = svc.check(env);
+    } catch {
+      configured = false;
+    }
     return { ...svc, configured };
   });
 
@@ -106,7 +139,7 @@ export default async function AdminIntegrationsPage() {
             </li>
           </ul>
           <p className="mt-3 text-xs text-[color:var(--text-soft)]">
-            Proof-of-work weight is currently {settings["security.powDifficulty"]} leading zeros (~{Math.round(Math.pow(16, Number(settings["security.powDifficulty"] ?? 3))).toLocaleString("en-IN")} average
+            Proof-of-work weight is currently {settings["security.powDifficulty"] ?? 2} leading zeros (~{Math.round(Math.pow(16, Number(settings["security.powDifficulty"] ?? 2))).toLocaleString("en-IN")} average
             hash attempts per form) – heavy for bots, a blink for shoppers.
           </p>
         </section>

@@ -18,7 +18,7 @@ import { getRequiredEnv } from "@/lib/required-env";
 const SECRET = getRequiredEnv(["POW_SECRET", "AUTH_SECRET"], {
   description: "POW_SECRET (or AUTH_SECRET)",
 });
-const ITERATIONS = 1000;
+const ITERATIONS = 120;
 const KEY_LEN = 32;
 const DEFAULT_CHALLENGE_TTL_MS = 10 * 60 * 1000;
 
