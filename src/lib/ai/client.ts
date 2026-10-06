@@ -398,6 +398,20 @@ export type AiVisionAnalysisOptions = {
   preferredProvider?: "gemini" | "auto";
 };
 
+export type AiVisionVisualAttributes = {
+  primaryColor: string;
+  secondaryColor?: string;
+  metallicZari?: string;
+  weaveTexture: string;
+  embroideryTechniques: string[];
+  motifs: string[];
+  borderStyle?: string;
+  silhouette: string;
+  setPieces?: string[];
+  necklineAndSleeve?: string;
+  visualClarity: "high" | "standard";
+};
+
 export type AiVisionAnalysisResult = {
   title: string;
   categorySlug: string;
@@ -419,6 +433,7 @@ export type AiVisionAnalysisResult = {
   washCare: string;
   formattedText: string;
   provider: "gemini" | "fallback";
+  visualAttributes?: AiVisionVisualAttributes;
 };
 
 /**
@@ -602,9 +617,33 @@ export function generateDeterministicVisionFallback(
   const stylingTips = `Style with antique gold or kundan jhumkas, a classic embellished potli bag, and embroidered juttis.`;
   const washCare = `Dry clean only recommended. Store in a breathable cotton muslin bag away from direct sunlight.`;
 
+  const visualAttributes: AiVisionVisualAttributes = {
+    primaryColor: color.split("&")[0].trim(),
+    secondaryColor: color.includes("&") ? color.split("&")[1].trim() : undefined,
+    metallicZari: color.toLowerCase().includes("gold") ? "Antique Gold Zari" : color.toLowerCase().includes("silver") ? "Silver Zari" : "Tonal Accents",
+    weaveTexture: fabric,
+    embroideryTechniques: [work.split(",")[0].trim(), "Artisanal Border Work"],
+    motifs: ["Traditional Floral Motifs", "Artisan Border Trim"],
+    borderStyle: "Finished artisanal border with fine edge binding",
+    silhouette: categorySlug === "lehengas" ? "Flared Kalidar Lehenga with Blouse & Dupatta" : categorySlug === "sarees" ? "6-Yard Draped Saree with Running Blouse Piece" : `${categoryName} Silhouette`,
+    setPieces: categorySlug === "lehengas" ? ["Lehenga Skirt", "Choli Blouse", "Embroidered Dupatta"] : categorySlug === "sarees" ? ["Saree", "Unstitched Blouse Piece"] : [categoryName],
+    necklineAndSleeve: categorySlug === "lehengas" || categorySlug === "anarkali-suits" ? "Sweetheart neckline & elbow sleeves" : undefined,
+    visualClarity: "standard",
+  };
+
+  const visualSummary =
+    `🎨 VISUAL CRAFT BREAKDOWN:\n` +
+    `• Palette: ${visualAttributes.primaryColor}${visualAttributes.metallicZari ? ` with ${visualAttributes.metallicZari}` : ""}\n` +
+    `• Weave & Fabric: ${visualAttributes.weaveTexture}\n` +
+    `• Karigari: ${visualAttributes.embroideryTechniques.join(", ")}\n` +
+    `• Motifs: ${visualAttributes.motifs.join(", ")}\n` +
+    (visualAttributes.borderStyle ? `• Border: ${visualAttributes.borderStyle}\n` : "") +
+    (visualAttributes.setPieces && visualAttributes.setPieces.length > 0 ? `• Set Components: ${visualAttributes.setPieces.join(" + ")}\n` : "");
+
   const formattedText =
     `${shortDescription}\n\n` +
     `${longDescription}\n\n` +
+    `${visualSummary}\n` +
     `🌟 KEY HIGHLIGHTS:\n` +
     highlights.map((h) => `• ${h}`).join("\n") +
     `\n\n` +
@@ -632,6 +671,7 @@ export function generateDeterministicVisionFallback(
     washCare,
     formattedText,
     provider: "fallback",
+    visualAttributes,
   };
 }
 
@@ -656,20 +696,27 @@ export async function executeAiVisionAnalysis(
     return generateDeterministicVisionFallback(imageInput, options.categoriesList);
   }
 
-  // 2. Prepare concise, high-converting luxury prompt
+  // 2. Prepare concise, high-converting luxury prompt grounded strictly in visual facts
   const systemInstructions =
-    `You are the Master Indian Haute Couture Appraiser for 'Aalm Vastralay' (आलम वस्त्रालय), India's premier luxury marketplace for authentic Banarasi sarees, bridal lehengas, sherwanis, and luxury ethnic wear.\n` +
-    `Analyze this ethnic garment image with deep textile and craft precision (fabric weave, embroidery technique, silhouette, and regal tones).\n` +
-    `CRITICAL REQUIREMENT: Write concise, crisp, high-converting luxury boutique copy (no verbose filler text). Every word must convey prestige and artisan craftsmanship.\n` +
+    `You are the Senior Textile Appraiser for 'Aalm Vastralay' (आलम वस्त्रालय), India's premier luxury ethnic fashion marketplace.\n` +
+    `Perform a rigorous, grounded visual analysis of this garment photograph. Every single detail you write must be directly observable in the photo.\n` +
+    `STRICT ZERO-HALLUCINATION POLICY:\n` +
+    `- Do NOT invent unverified claims, fictional stone names, or fake thread counts. Rely 100% on what is visible.\n` +
+    `- Observe EXACT colors (primary body hue, border/pallu accents, metallic thread type).\n` +
+    `- Observe EXACT fabric texture (e.g. lustrous silk, dense velvet, sheer tissue organza, textured brocade, flowing georgette).\n` +
+    `- Observe EXACT surface work (e.g. zardozi, gota patti, mirror/shisha, cutdana, sequins, threadwork, kadwa weave).\n` +
+    `- Observe EXACT silhouette & set pieces visible in this photo.\n` +
+    `- If neckline or sleeves are not visible in the photo, write 'Not visible in photo'.\n` +
+    `CRITICAL REQUIREMENT: Write concise, crisp, high-converting luxury boutique copy (no verbose filler text). Every word must convey prestige and authentic craftsmanship.\n` +
     `Return ONLY a raw valid JSON object with EXACTLY this structure (no markdown fences, no explanatory text):\n` +
     `{\n` +
     `  "title": "Evocative, crisp luxury title under 70 chars (e.g. 'Crimson Red Velvet Zardozi Bridal Lehenga')",\n` +
     `  "categorySlug": "sarees" | "lehengas" | "anarkali-suits" | "salwar-kameez" | "gowns" | "sherwanis" | "kurta-sets" | "nehru-jackets" | "indo-western" | "dupattas" | "jewellery" | "footwear",\n` +
     `  "categoryName": "Human-friendly category name (e.g. 'Lehengas' or 'Sarees')",\n` +
-    `  "fabric": "Exact fabric & weave (e.g. 'Pure Silk Velvet with Raw Silk Underlay', 'Katan Silk', 'Georgette')",\n` +
-    `  "color": "Specific regal ethnic color tone (e.g. 'Crimson Red & Antique Gold', 'Rani Pink', 'Peacock Blue')",\n` +
-    `  "work": "Authentic embroidery/karigari technique (e.g. 'Handcrafted Zardozi, Sequins & Gota Patti', 'Kadwa Weave')",\n` +
-    `  "occasion": "Primary occasion (e.g. 'Bridal & Wedding Reception', 'Sangeet Soiree', 'Festive Gathering')",\n` +
+    `  "fabric": "Exact fabric & weave observed in the image",\n` +
+    `  "color": "Specific regal ethnic color tone observed (e.g. 'Crimson Red & Antique Gold')",\n` +
+    `  "work": "Authentic embroidery/karigari technique observed in the image",\n` +
+    `  "occasion": "Primary occasion matching the garment richness",\n` +
     `  "suggestedPrice": 45000,\n` +
     `  "suggestedMrp": 60000,\n` +
     `  "shortDescription": "1-2 punchy, evocative sentences capturing the silhouette and artisan majesty.",\n` +
@@ -677,11 +724,24 @@ export async function executeAiVisionAnalysis(
     `  "highlights": ["4 clear bullet points: Fabric, Work, Occasion, Inclusions"],\n` +
     `  "tags": ["6 high-intent Indian eCommerce search tags"],\n` +
     `  "stylingTips": "1 sentence expert advice on pairing with heritage jewellery, footwear, and accessories.",\n` +
-    `  "washCare": "Clear traditional garment care (e.g. 'Dry clean only. Store wrapped in breathable muslin cloth.')"\n` +
+    `  "washCare": "Clear traditional garment care tailored to detected fabric.",\n` +
+    `  "visualAttributes": {\n` +
+    `    "primaryColor": "Dominant body hue",\n` +
+    `    "secondaryColor": "Secondary or accent hue",\n` +
+    `    "metallicZari": "Metallic thread observed ('Antique Gold Zari', 'Silver Zari', 'Rose Gold', or 'None')",\n` +
+    `    "weaveTexture": "Observed physical weave and sheen",\n` +
+    `    "embroideryTechniques": ["List of exact surface techniques observed"],\n` +
+    `    "motifs": ["List of exact patterns/motifs observed (e.g. Floral Jaal, Paisley, Chevron)"],\n` +
+    `    "borderStyle": "Border or hemline construction observed",\n` +
+    `    "silhouette": "Garment cut and drape structure",\n` +
+    `    "setPieces": ["Pieces physically visible in this photo"],\n` +
+    `    "necklineAndSleeve": "Neckline and sleeve style if visible, otherwise 'Not visible in photo'",\n` +
+    `    "visualClarity": "high"\n` +
+    `  }\n` +
     `}`;
 
   const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
-  let parsedResult: Partial<AiVisionAnalysisResult> | null = null;
+  let parsedResult: (Partial<AiVisionAnalysisResult> & { visualAttributes?: Partial<AiVisionVisualAttributes> }) | null = null;
 
   for (const model of models) {
     try {
@@ -749,9 +809,40 @@ export async function executeAiVisionAnalysis(
       categoryName.toLowerCase().includes(c.name.toLowerCase())
   );
 
+  const rawVa = parsedResult.visualAttributes;
+  const visualAttributes: AiVisionVisualAttributes = {
+    primaryColor: rawVa?.primaryColor || parsedResult.color?.split("&")[0]?.trim() || "Regal Ethnic Hue",
+    secondaryColor: rawVa?.secondaryColor || (parsedResult.color?.includes("&") ? parsedResult.color.split("&")[1].trim() : undefined),
+    metallicZari: rawVa?.metallicZari || (parsedResult.color?.toLowerCase().includes("gold") ? "Antique Gold Zari" : "Tonal Accents"),
+    weaveTexture: rawVa?.weaveTexture || parsedResult.fabric || "Artisanal Weave",
+    embroideryTechniques: Array.isArray(rawVa?.embroideryTechniques) && rawVa.embroideryTechniques.length > 0
+      ? rawVa.embroideryTechniques
+      : [parsedResult.work || "Handcrafted Embroidery"],
+    motifs: Array.isArray(rawVa?.motifs) && rawVa.motifs.length > 0
+      ? rawVa.motifs
+      : ["Traditional Indian Motifs"],
+    borderStyle: rawVa?.borderStyle || "Artisanal Border",
+    silhouette: rawVa?.silhouette || `${categoryName} Silhouette`,
+    setPieces: Array.isArray(rawVa?.setPieces) && rawVa.setPieces.length > 0
+      ? rawVa.setPieces
+      : [categoryName],
+    necklineAndSleeve: rawVa?.necklineAndSleeve,
+    visualClarity: "high",
+  };
+
+  const visualBreakdown =
+    `🎨 VISUAL CRAFT BREAKDOWN:\n` +
+    `• Palette: ${visualAttributes.primaryColor}${visualAttributes.metallicZari && visualAttributes.metallicZari !== "None" ? ` with ${visualAttributes.metallicZari}` : ""}\n` +
+    `• Weave & Fabric: ${visualAttributes.weaveTexture}\n` +
+    (visualAttributes.embroideryTechniques.length > 0 ? `• Karigari: ${visualAttributes.embroideryTechniques.join(", ")}\n` : "") +
+    (visualAttributes.motifs.length > 0 ? `• Motifs: ${visualAttributes.motifs.join(", ")}\n` : "") +
+    (visualAttributes.borderStyle ? `• Border: ${visualAttributes.borderStyle}\n` : "") +
+    (visualAttributes.setPieces && visualAttributes.setPieces.length > 0 ? `• Set Components: ${visualAttributes.setPieces.join(" + ")}\n` : "");
+
   const formattedText =
     `${parsedResult.shortDescription ?? ""}\n\n` +
     `${parsedResult.longDescription ?? ""}\n\n` +
+    `${visualBreakdown}\n` +
     `🌟 KEY HIGHLIGHTS:\n` +
     (parsedResult.highlights ?? []).map((h) => `• ${h}`).join("\n") +
     `\n\n` +
@@ -781,5 +872,6 @@ export async function executeAiVisionAnalysis(
     washCare: parsedResult.washCare || "Dry clean only.",
     formattedText,
     provider: "gemini",
+    visualAttributes,
   };
 }

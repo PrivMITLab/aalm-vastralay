@@ -33,7 +33,7 @@ export async function testAiVisionEngine() {
   }
   console.log("  ✔ SSRF private IP and loopback defense verified.");
 
-  // Test 3: Deterministic Vision Fallback Generation
+  // Test 3: Deterministic Vision Fallback Generation & Grounded Visual Attributes
   const dummyCategories = [
     { id: "cat-1", name: "Banarasi Sarees", slug: "banarasi-sarees" },
     { id: "cat-2", name: "Bridal Lehengas", slug: "bridal-lehengas" },
@@ -52,9 +52,14 @@ export async function testAiVisionEngine() {
   assert.ok(fallbackResult.suggestedMrp > fallbackResult.suggestedPrice, "MRP should exceed selling price");
   assert.ok(fallbackResult.tags.length >= 3, "Tags array should contain craft tags");
   assert.ok(fallbackResult.formattedText.includes("AALM VASTRALAY"), "Formatted copy should contain brand signature");
+  assert.ok(fallbackResult.formattedText.includes("VISUAL CRAFT BREAKDOWN"), "Formatted copy should contain grounded visual breakdown");
+  assert.ok(fallbackResult.visualAttributes, "Visual attributes must be present");
+  assert.ok(fallbackResult.visualAttributes.primaryColor, "Primary color must be detected");
+  assert.ok(fallbackResult.visualAttributes.weaveTexture, "Weave texture must be determined");
+  assert.ok(fallbackResult.visualAttributes.embroideryTechniques.length > 0, "Embroidery techniques must be populated");
   console.log("  ✔ Deterministic vision fallback and craft extraction verified.");
 
-  // Test 4: Full Vision Analysis Execution (with Fallback / API tolerance)
+  // Test 4: Full Vision Analysis Execution (with Grounded Visual Verification)
   const analysis = await executeAiVisionAnalysis({
     imageUrl: dataUrl,
     categoriesList: dummyCategories,
@@ -66,7 +71,10 @@ export async function testAiVisionEngine() {
   assert.ok(analysis.color, "Analysis must identify garment color");
   assert.ok(analysis.formattedText.length > 30, "Formatted text must be crisp boutique copy");
   assert.ok(analysis.suggestedPrice >= 500, "Suggested price should be reasonable for ethnic wear");
-  console.log("  ✔ Multimodal vision analysis execution verified.");
+  assert.ok(analysis.visualAttributes, "Analysis should return structured visualAttributes");
+  assert.ok(analysis.visualAttributes.primaryColor, "Visual attributes should include primary color");
+  assert.ok(analysis.visualAttributes.weaveTexture, "Visual attributes should include weave texture");
+  console.log("  ✔ Multimodal vision analysis execution & visual attributes verified.");
 
   console.log("✅ testAiVisionEngine: All 4 Vision AI checks passed.\n");
 }

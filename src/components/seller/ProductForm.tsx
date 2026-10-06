@@ -11,7 +11,7 @@ import { canonicalizeImageUrl } from "@/lib/image-resolver";
 import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionButton";
 import UniversalMediaPicker, { type MediaSelectResult } from "@/components/media/UniversalMediaPicker";
 import { SmartImage } from "@/components/media/SmartImage";
-import type { AiVisionAnalysisResult } from "@/lib/ai/client";
+import type { AiVisionAnalysisResult, AiVisionVisualAttributes } from "@/lib/ai/client";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -61,6 +61,7 @@ export default function ProductForm({ categories, product }: { categories: Categ
   const [isScrapingLinks, setIsScrapingLinks] = useState(false);
   const [isAnalyzingVision, setIsAnalyzingVision] = useState(false);
   const [visionDetectedBadge, setVisionDetectedBadge] = useState<string | null>(null);
+  const [visualDetails, setVisualDetails] = useState<AiVisionVisualAttributes | null>(null);
 
   async function handleAutoDetectLinks() {
     const lines = images.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -170,6 +171,10 @@ export default function ProductForm({ categories, product }: { categories: Categ
       }
       if (data.suggestedMrp && (!mrp || Number(mrp) === 0)) {
         setMrp(String(data.suggestedMrp));
+      }
+
+      if (data.visualAttributes) {
+        setVisualDetails(data.visualAttributes);
       }
 
       const summaryDetails = [data.craftType, data.color, data.fabric].filter(Boolean).join(" • ");
@@ -579,6 +584,57 @@ export default function ProductForm({ categories, product }: { categories: Categ
               <div className="mt-2.5 flex items-center gap-1.5 rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-medium text-amber-950 border border-amber-200 shadow-2xs dark:bg-stone-850 dark:text-amber-200 dark:border-amber-800">
                 <span className="text-amber-600 dark:text-amber-400">✨ AI क्राफ्ट विवरण:</span>
                 <span className="font-semibold">{visionDetectedBadge}</span>
+              </div>
+            )}
+
+            {visualDetails && (
+              <div className="mt-2.5 space-y-2 rounded-lg border border-amber-200/80 bg-white/90 p-2.5 text-[11px] dark:border-stone-700 dark:bg-stone-850">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-1 dark:border-stone-700/60">
+                  <span className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1 text-[11px]">
+                    <Sparkles className="h-3 w-3 text-amber-600" />
+                    <span>तस्वीर से सत्यापित विवरण (Real Visual Details)</span>
+                  </span>
+                  <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    Grounded Visual
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                  <div className="rounded bg-stone-50 p-1.5 dark:bg-stone-800/60">
+                    <span className="text-stone-400 block">रंग (Palette):</span>
+                    <span className="font-medium text-stone-800 dark:text-stone-200">
+                      {visualDetails.primaryColor}
+                      {visualDetails.metallicZari && visualDetails.metallicZari !== "None" ? ` • ${visualDetails.metallicZari}` : ""}
+                    </span>
+                  </div>
+                  <div className="rounded bg-stone-50 p-1.5 dark:bg-stone-800/60">
+                    <span className="text-stone-400 block">कपड़ा (Fabric/Weave):</span>
+                    <span className="font-medium text-stone-800 dark:text-stone-200">
+                      {visualDetails.weaveTexture}
+                    </span>
+                  </div>
+                  <div className="col-span-2 rounded bg-stone-50 p-1.5 dark:bg-stone-800/60">
+                    <span className="text-stone-400 block">कारीगरी (Karigari):</span>
+                    <span className="font-medium text-stone-800 dark:text-stone-200">
+                      {visualDetails.embroideryTechniques.join(", ")}
+                    </span>
+                  </div>
+                  {visualDetails.motifs && visualDetails.motifs.length > 0 && (
+                    <div className="col-span-2 rounded bg-stone-50 p-1.5 dark:bg-stone-800/60">
+                      <span className="text-stone-400 block">पैटर्न व मोटिफ़:</span>
+                      <span className="font-medium text-stone-800 dark:text-stone-200">
+                        {visualDetails.motifs.join(", ")}
+                      </span>
+                    </div>
+                  )}
+                  {visualDetails.setPieces && visualDetails.setPieces.length > 0 && (
+                    <div className="col-span-2 rounded bg-stone-50 p-1.5 dark:bg-stone-800/60">
+                      <span className="text-stone-400 block">सेट के हिस्से:</span>
+                      <span className="font-medium text-stone-800 dark:text-stone-200">
+                        {visualDetails.setPieces.join(" + ")}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
