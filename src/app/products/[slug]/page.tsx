@@ -139,8 +139,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   variants.sort((a, b) => sizeRank(a.size) - sizeRank(b.size) || (a.color ?? "").localeCompare(b.color ?? ""));
-  const rawImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [null];
-  const images = rawImages.map((src) => resolveImage(src, { width: 900 }));
+  const rawImages = (Array.isArray(product.images) && product.images.length > 0 ? product.images : [null])
+    .filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+  const images = rawImages.length > 0 ? rawImages : ["/images/placeholder.svg"];
   const video = resolveVideo(product.videoUrl);
   const discount = Math.round(Number(product.discountPercent ?? 0));
   const mrp = product.mrp ?? product.price;

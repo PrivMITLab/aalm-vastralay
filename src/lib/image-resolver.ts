@@ -196,6 +196,11 @@ export function resolveImage(src: string | null | undefined, opts: ResolveOption
     }
   }
 
+  // Direct Data URI (e.g. Pollinations AI generated image base64, canvas exports)
+  if (src.startsWith("data:image/")) {
+    return src;
+  }
+
   const raw = canonicalizeImageUrl(src);
 
   // Strategy: "direct" (Direct canonical link, e.g. raw Google Drive, Dropbox, or external URL without wsrv)
@@ -286,14 +291,21 @@ export function sanitizeImageUrl(url: string | null | undefined): string {
   const trimmed = url.trim();
   if (!trimmed) return PLACEHOLDER_IMAGE;
 
-  // Strict allowlist: must start with https://, http://, or safe root path / (blocking javascript:, data:, vbscript:, etc.)
+  // Strict allowlist: must start with https://, http://, safe data:image/, or safe root path /
+  const isDataImage = trimmed.startsWith("data:image/") && !trimmed.includes("<") && !trimmed.includes(">");
   const isSafeProtocol =
     trimmed.startsWith("https://") ||
     trimmed.startsWith("http://") ||
+    isDataImage ||
     (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\"));
 
   if (!isSafeProtocol) {
     return PLACEHOLDER_IMAGE;
+  }
+
+  // Safe data:image/ pass-through without escaping base64 data
+  if (isDataImage) {
+    return trimmed;
   }
 
   // Defend against HTML quote escapes
@@ -344,8 +356,11 @@ export function getImageFallbackList(src: string | null | undefined, opts: Resol
       // ignore
     }
 
-    if (src.startsWith("b2:")) {
-      const b2Direct = resolveImage(src, { ...opts, strategy: "direct" });
+    if (src.startsWith("b2:") || (primary && primary.includes(".workers.dev/"))) {
+      const b2Key = src.startsWith("b2:")
+        ? src
+        : `b2:${new URL(primary).pathname.replace(/^\//, "")}`;
+      const b2Direct = resolveImage(b2Key, { ...opts, strategy: "direct" });
       if (b2Direct && b2Direct !== PLACEHOLDER_IMAGE && !list.includes(b2Direct)) {
         list.push(b2Direct);
         const wsrvDirect = `https://wsrv.nl/?url=${encodeURIComponent(b2Direct)}&output=webp`;
