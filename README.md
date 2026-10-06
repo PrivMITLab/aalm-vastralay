@@ -26,7 +26,7 @@
 **[🗺️ Interactive Architecture Showcase](https://aalm-vastralay.vercel.app/architecture)** &nbsp;•&nbsp;
 **[⚡ Admin Console](https://aalm-vastralay.vercel.app/admin)** &nbsp;•&nbsp;
 **[🏪 Seller Hub](https://aalm-vastralay.vercel.app/seller)** &nbsp;•&nbsp;
-**[📄 52-Page Hindi Master PDF](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** &nbsp;•&nbsp;
+**[📄 58-Page Hindi Master PDF](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** &nbsp;•&nbsp;
 **[🚀 3-Minute Setup](docs/SETUP.md)**
 
 <br/>
@@ -95,22 +95,23 @@
 
 | प्रारूप (Format) | दस्तावेज़ लिंक (Document Link) | मुख्य विवरण (Description) |
 | :--- | :--- | :--- |
-| 📄 **ऑफिशियल प्रिंटेबल PDF (52 पृष्ठ)** | **[AALM_VASTRALAY_MANUAL_HI.pdf](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** | हाई-क्वालिटी 52-पेज A4 प्रिंटेबल PDF (~2.7 MB) — 12 अध्याय, 105+ सेटिंग्स, 19 टेबल्स, 15 रनबुक्स। |
+| 📄 **ऑफिशियल प्रिंटेबल PDF (58 पृष्ठ)** | **[AALM_VASTRALAY_MANUAL_HI.pdf](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** | हाई-क्वालिटी 58-पेज A4 प्रिंटेबल PDF (~2.7 MB) — 12 अध्याय, 107 सेटिंग्स, 19 टेबल्स, 20 रनबुक्स, 7 परिशिष्ट। |
 | 🗺️ **इंटरैक्टिव आर्किटेक्चर शोकेस** | **[aalm-vastralay.vercel.app/architecture](https://aalm-vastralay.vercel.app/architecture)** | Archify 3.0 द्वारा रेंडर किया गया लाइव ज़ूम/पैन 3D आर्किटेक्चर विजुअलाइज़र। |
 | 🏛️ **स्टैटिक आर्किटेक्चर शोकेस** | **[public/architecture.html](public/architecture.html)** | गिटहब पेजेस एवं ऑफलाइन ब्राउज़र हेतु पूर्णतः स्व-निहित 777 KB स्टैटिक शोकेस। |
-| 🎨 **प्रिंट-रेडी विजुअल HTML** | **[HINDI_MASTER_MANUAL.html](docs/HINDI_MASTER_MANUAL.html)** | रॉयल मैरून व गोल्ड थीम वाला सम्पूर्ण वेब मैनुअल (~214 KB). |
-| 📖 **विस्तृत हिंदी मार्कडाउन** | **[HINDI_MASTER_MANUAL.md](docs/HINDI_MASTER_MANUAL.md)** | संपूर्ण 12 अध्यायों का त्वरित संदर्भ गाइड (Markdown). |
+| 🎨 **प्रिंट-रेडी विजुअल HTML** | **[HINDI_MASTER_MANUAL.html](docs/HINDI_MASTER_MANUAL.html)** | रॉयल मैरून व गोल्ड थीम वाला सम्पूर्ण वेब मैनुअल (~232 KB). |
+| 📖 **विस्तृत हिंदी मार्कडाउन** | **[HINDI_MASTER_MANUAL.md](docs/HINDI_MASTER_MANUAL.md)** | संपूर्ण 12 अध्यायों व परिशिष्टों का त्वरित संदर्भ गाइड (Markdown). |
 
-### 📌 महाग्रंथ के 12 मुख्य अध्याय (Master Bible Highlights):
-1. **$0/माह क्लाउड डिप्लॉयमेंट:** Neon PostgreSQL (Pooled), Backblaze B2 प्राइवेट स्टोरेज (10GB फ्री), Cloudflare Worker प्रॉक्सी ($0 इग्रेस), Google Apps Script (फ्री Gmail रिले), Gemini & Groq AI और Vercel डिप्लॉयमेंट का स्टेप-बाय-स्टेप तरीका।
-2. **डेटाबेस स्कीमा (19 टेबल्स):** `products`, `product_variants`, `orders`, `order_items`, `reviews`, `review_votes`, `coupons`, `audit_logs` आदि का पूर्ण DDL व संबंध।
-3. **सेलर हब व 'Add Product' नियमावली:** टाइटल, फैब्रिक, अवसर, साइज मैट्रिक्स (XS-XXL), कलर हेक्स स्वॉचेस, Google Gemini AI हिंग्लिश प्रॉम्प्ट्स, और 3-टीयर इमेज अपलोड।
+### 📌 महाग्रंथ के 12 मुख्य अध्याय एवं परिशिष्ट (Master Bible Highlights):
+1. **$0/माह क्लाउड डिप्लॉयमेंट:** Neon PostgreSQL (Pooled), Backblaze B2 प्राइवेट स्टोरेज (10GB फ्री), Cloudflare Worker कोड ($0 इग्रेस), Google Apps Script (HMAC Gmail रिले), Gemini & Groq AI और Vercel डिप्लॉयमेंट का स्टेप-बाय-स्टेप तरीका।
+2. **डेटाबेस स्कीमा (19 टेबल्स):** `products`, `product_variants`, `orders`, `order_items`, `reviews`, `review_votes`, `coupons`, `audit_logs`, `security_events` आदि का पूर्ण DDL व संबंध।
+3. **सेलर हब व 'Add Product' नियमावली:** टाइटल, फैब्रिक विज्ञान (कतान, मखमल, जॉर्जेट), साइज चार्ट (XS-XXL), 5 Gemini AI हिंग्लिश प्रॉम्प्ट्स, और 3-टीयर इमेज अपलोड।
 4. **BIS IS 19000:2022 समीक्षा प्रणाली:** सत्यापित खरीददार लॉक, मल्टी-फोटो रिव्यू व लाइटबॉक्स, और 'सहायक समीक्षा' (Helpful vote) धोखाधड़ी निवारण।
 5. **ग्राहक व भारतीय ई-कॉमर्स इंजन:** SmartImage 5-टीयर फॉलबैक, 0% NPCI UPI QR जनरेटर, 12-अंकीय UTR सबमिशन, 1-क्लिक WhatsApp चेकआउट, PWA ऑफलाइन सिंक।
-6. **105+ एडमिन सेटिंग्स का 100% सम्पूर्ण शब्दकोश:** Brand, Theme, Home, Commerce, Security, Seller, Features की सभी कीज़ का व्यापारिक प्रभाव।
+6. **105+ एडमिन सेटिंग्स का 100% सम्पूर्ण शब्दकोश:** Brand, Theme, Home, Commerce, Security, Seller, Features की सभी 107 कीज़ का व्यापारिक प्रभाव।
 7. **बैंक-ग्रेड सुरक्षा:** 10 PoW आर्किटाइप्स, PBKDF2 Web Worker, `pow_used` रीप्ले सुरक्षा, और सबनेट ड्रिफ्ट सहिष्णुता।
 8. **ईमानदार तकनीकी विश्लेषण ("क्या तैयार है और क्या कमियां/सीमाएं हैं"):** 40/40 टेस्ट सूट्स की मजबूती बनाम फ्री-टीयर कोटा की सीमाएं (Gmail 500 mails/day, Neon cold-start, मैनुअल UPI UTR मिलान) और स्केलिंग रोडमैप।
-9. **15 आपातकालीन रनबुक्स एवं 15 FAQ:** उत्पादन व्यवधानों से तुरंत निपटने हेतु तैयार समाधान।
+9. **20 आपातकालीन रनबुक्स एवं 20 FAQ:** उत्पादन व्यवधानों से तुरंत निपटने हेतु तैयार समाधान।
+10. **7 तकनीकी परिशिष्ट माला (Appendices A to G):** शब्दावली, BIS ऑडिट, पैकेजिंग SOP, UTR सुलह SOP, लाइव लिस्टिंग वॉकथ्रू, GST HSN कोड्स, OWASP सुरक्षा ऑडिट।
 
 ---
 
@@ -393,7 +394,7 @@ Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md)
 
 | Guide | Covers |
 | :--- | :--- |
-| 📄 [ऑफिशियल प्रिंटेबल PDF (52 पृष्ठ)](docs/AALM_VASTRALAY_MANUAL_HI.pdf) | A4 प्रिंटेबल 52-पेज मास्टर PDF (~2.7 MB) — 12 अध्याय, 105+ सेटिंग्स, 19 टेबल्स, 15 रनबुक्स |
+| 📄 [ऑफिशियल प्रिंटेबल PDF (58 पृष्ठ)](docs/AALM_VASTRALAY_MANUAL_HI.pdf) | A4 प्रिंटेबल 58-पेज मास्टर PDF (~2.7 MB) — 12 अध्याय, 107 सेटिंग्स, 19 टेबल्स, 20 रनबुक्स, 7 परिशिष्ट |
 | 🗺️ [Interactive Architecture Showcase](https://aalm-vastralay.vercel.app/architecture) | Live Next.js Route featuring zoomable, pan-able Archify 3.0 visual topology |
 | 🏛️ [Archify 3.0 Static Showcase](public/architecture.html) | Standalone 777 KB static showcase for GitHub Pages & offline inspection |
 | 🎨 [प्रिंट-रेडी विजुअल HTML मैनुअल](docs/HINDI_MASTER_MANUAL.html) | रॉयल मैरून व गोल्ड थीम वाला ब्राउज़र प्रिंट-फ्रेंडली सम्पूर्ण HTML मैनुअल |

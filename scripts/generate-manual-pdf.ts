@@ -28,9 +28,8 @@ async function main() {
   // Ensure fonts and styles are fully loaded
   await page.evaluate(() => document.fonts.ready);
 
-  console.log(`[INFO] Generating A4 PDF at: ${outputPath}`);
-  await page.pdf({
-    path: outputPath,
+  console.log(`[INFO] Generating A4 PDF in-memory buffer...`);
+  const pdfBuffer = await page.pdf({
     format: "A4",
     printBackground: true,
     displayHeaderFooter: true,
@@ -56,9 +55,26 @@ async function main() {
 
   await browser.close();
 
+  // Write with retry logic to avoid Windows EBUSY lockouts
+  let written = false;
+  let attempts = 0;
+  while (!written && attempts < 5) {
+    try {
+      fs.writeFileSync(outputPath, pdfBuffer);
+      written = true;
+    } catch (err: any) {
+      attempts++;
+      if (err.code === "EBUSY") {
+        console.warn(`[WARN] File busy (attempt ${attempts}/5), retrying in 1s...`);
+        await new Promise((res) => setTimeout(res, 1000));
+      } else {
+        throw err;
+      }
+    }
+  }
+
   const stats = fs.statSync(outputPath);
-  const buf = fs.readFileSync(outputPath);
-  const matches = buf.toString("latin1").match(/\/Type\s*\/Page[^s]/g);
+  const matches = pdfBuffer.toString("latin1").match(/\/Type\s*\/Page[^s]/g);
   const pageCount = matches ? matches.length : 0;
 
   console.log(`[SUCCESS] PDF generated successfully!`);
