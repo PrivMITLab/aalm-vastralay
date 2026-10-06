@@ -109,6 +109,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const mrp = product.mrp ?? product.price;
   const alreadyReviewed = user ? reviewRows.some((r) => r.review.userId === user.id) : false;
   const breakdown = [5, 4, 3, 2, 1].map((star) => ({ star, n: reviewRows.filter((r) => r.review.rating === star).length }));
+  const effectiveTotalReviews = reviewRows.length > 0 ? reviewRows.length : Number(product.totalReviews ?? 0);
+  const effectiveRating = reviewRows.length > 0
+    ? Number((reviewRows.reduce((acc, r) => acc + (r.review.rating || 0), 0) / reviewRows.length).toFixed(1))
+    : Number(product.rating ?? 0);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aalmvastralay.com";
   const productJsonLd = {
@@ -133,12 +137,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         name: store.storeName || "Aalm Vastralay",
       },
     },
-    ...(Number(product.rating ?? 0) > 0 && product.totalReviews > 0
+    ...(effectiveRating > 0 && effectiveTotalReviews > 0
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: Number(product.rating),
-            reviewCount: product.totalReviews,
+            ratingValue: effectiveRating,
+            reviewCount: effectiveTotalReviews,
           },
         }
       : {}),
@@ -337,10 +341,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <h2 className="section-title">Ratings &amp; Reviews</h2>
           <div className="card mt-4 p-5 dark:border-stone-850 dark:bg-stone-900/60">
             <div className="flex items-end gap-3">
-              <span className="font-display text-5xl font-semibold text-maroon-900 dark:text-gold-300">{Number(product.rating ?? 0).toFixed(1)}</span>
+              <span className="font-display text-5xl font-semibold text-maroon-900 dark:text-gold-300">{effectiveRating.toFixed(1)}</span>
               <div className="pb-1">
-                <Rating value={product.rating} showValue={false} size="md" />
-                <p className="text-xs text-slate-500 dark:text-stone-400">{product.totalReviews} verified ratings</p>
+                <Rating value={effectiveRating} showValue={false} size="md" />
+                <p className="text-xs text-slate-500 dark:text-stone-400">{effectiveTotalReviews} {effectiveTotalReviews === 1 ? "verified rating" : "verified ratings"}</p>
               </div>
             </div>
             <ul className="mt-4 space-y-1.5">
@@ -363,12 +367,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <ReviewForm productId={product.id} />
               )
             ) : (
-              <p className="text-sm text-slate-600 dark:text-stone-300">
-                <Link href={`/sign-in?redirect_url=/products/${product.slug}`} className="font-semibold text-maroon-700 dark:text-gold-400 hover:underline">
-                  Sign in
-                </Link>{" "}
-                to write a review.
-              </p>
+              <div className="card p-4 sm:p-5 border-dashed border-stone-200 dark:border-stone-800 text-center">
+                <p className="text-sm text-slate-600 dark:text-stone-300">
+                  Customer reviews &amp; ratings are public and visible to everyone.
+                </p>
+                <Link
+                  href={`/sign-in?redirect_url=/products/${product.slug}`}
+                  className="btn btn-outline btn-sm mt-2.5 inline-flex items-center gap-1.5 font-semibold text-maroon-700 dark:text-gold-400 hover:text-maroon-800"
+                >
+                  Sign in to write a review
+                </Link>
+              </div>
             )}
           </div>
         </div>

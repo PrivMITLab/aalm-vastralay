@@ -67,7 +67,13 @@ async function cardQuery(where: SQL | undefined, order: "featured" | "new", limi
           : [desc(products.createdAt), desc(products.rating)]),
       )
       .limit(limit);
-    return rows.map(({ product, storeName, storeSlug }) => ({ ...product, storeName, storeSlug }) as CatalogProductCard);
+    return rows.map(({ product, storeName, storeSlug }) => ({
+      ...product,
+      rating: product.rating != null ? Number(product.rating) : null,
+      totalReviews: Number(product.totalReviews ?? 0),
+      storeName,
+      storeSlug,
+    }) as CatalogProductCard);
   } catch (err) {
     console.warn("[cardQuery] Database unavailable, returning empty list:", err instanceof Error ? err.message : err);
     return [];
@@ -78,13 +84,13 @@ export const getFeaturedProducts = unstable_cache(
   async (limit = 8) =>
     cardQuery(and(eq(products.isActive, true), eq(products.isFeatured, true), eq(stores.isActive, true)), "featured", limit),
   ["featured-products"],
-  { revalidate: 600, tags: [CATALOG_TAG] },
+  { revalidate: 60, tags: [CATALOG_TAG, "featured-products"] },
 );
 
 export const getNewProducts = unstable_cache(
   async (limit = 8) => cardQuery(and(eq(products.isActive, true), eq(stores.isActive, true)), "new", limit),
   ["new-products"],
-  { revalidate: 300, tags: [CATALOG_TAG] },
+  { revalidate: 60, tags: [CATALOG_TAG, "new-products"] },
 );
 
 export type StoreCard = {
@@ -140,7 +146,19 @@ export const getCategoryParents = unstable_cache(
  * read-your-own-writes invalidation (works without a cache profile).
  */
 export async function invalidateCatalog() {
-  const { updateTag } = await import("next/cache");
-  updateTag(CATALOG_TAG);
-  updateTag(STORES_TAG);
+  try {
+    const { revalidateTag, updateTag } = await import("next/cache");
+    if (typeof updateTag === "function") {
+      try { updateTag(CATALOG_TAG); } catch { /* ignore */ }
+      try { updateTag(STORES_TAG); } catch { /* ignore */ }
+    }
+    if (typeof revalidateTag === "function") {
+      try { revalidateTag(CATALOG_TAG, "max"); } catch { /* ignore */ }
+      try { revalidateTag(STORES_TAG, "max"); } catch { /* ignore */ }
+      try { revalidateTag("featured-products", "max"); } catch { /* ignore */ }
+      try { revalidateTag("new-products", "max"); } catch { /* ignore */ }
+    }
+  } catch (err) {
+    console.warn("[invalidateCatalog] Cache invalidation notice:", err);
+  }
 }

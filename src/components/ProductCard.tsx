@@ -77,14 +77,14 @@ export default function ProductCard({
           </span>
         ) : null}
 
-        {/* ❤️ Wishlist Heart — 44px tap target, top-right overlay */}
+        {/* ❤️ Wishlist Heart — 44px tap target, visible on mobile touch, hover on desktop */}
         {!outOfStock && (
           <button
             type="button"
             aria-label={`${product.title} wishlist mein add karein`}
-            className="absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110 hover:bg-white active:scale-95 dark:bg-zinc-900/80 dark:hover:bg-zinc-800 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700 motion-reduce:transition-none"
+            className="absolute right-2 top-2 grid h-10 w-10 sm:h-11 sm:w-11 place-items-center rounded-full bg-white/85 backdrop-blur-sm shadow-xs transition-all duration-200 hover:scale-110 hover:bg-white active:scale-95 dark:bg-zinc-900/85 dark:hover:bg-zinc-800 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700 motion-reduce:transition-none"
           >
-            <Heart className="h-5 w-5 text-maroon-700 dark:text-rose-400" />
+            <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-maroon-700 dark:text-rose-400" />
           </button>
         )}
 
@@ -105,7 +105,7 @@ export default function ProductCard({
         {watermark}
       </div>
 
-      <div className="flex flex-1 flex-col justify-between p-3 sm:p-3.5">
+      <div className="flex flex-1 flex-col justify-between p-2.5 sm:p-3.5">
         <div className="space-y-1">
           {product.storeName && (
             <p className="truncate text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-gold-400">
@@ -113,12 +113,12 @@ export default function ProductCard({
             </p>
           )}
 
-          <h3 className="line-clamp-2 min-h-[2.6em] text-xs sm:text-sm font-semibold capitalize leading-snug text-[color:var(--text)] transition-colors duration-200 group-hover:text-[color:var(--brand)]">
+          <h3 className="line-clamp-2 min-h-[2.4em] text-xs sm:text-sm font-semibold capitalize leading-snug text-[color:var(--text)] transition-colors duration-200 group-hover:text-[color:var(--brand)]">
             {product.title}
           </h3>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-baseline gap-1.5 sm:gap-2 pt-1">
+        <div className="mt-2.5 sm:mt-3 flex flex-wrap items-baseline gap-1.5 sm:gap-2 pt-1">
           <span className="text-sm sm:text-base font-bold text-maroon-800 dark:text-rose-300">
             {formatINR(product.price)}
           </span>
@@ -134,11 +134,15 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-1 border-t border-[color:var(--border)]/50 pt-2 pb-0.5 text-xs">
-          <RatingPill value={product.rating} count={product.totalReviews} />
+        <div className="mt-2.5 flex items-center justify-between gap-1 border-t border-[color:var(--border)]/50 pt-2 pb-0.5 text-xs">
+          <div className="min-w-0 shrink">
+            <RatingPill value={product.rating} count={product.totalReviews} />
+          </div>
           {product.price >= freeShippingThreshold() && (
-            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-              <Truck className="h-3 w-3" /> Free Delivery
+            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+              <Truck className="h-3 w-3 shrink-0" />
+              <span className="hidden sm:inline">Free Delivery</span>
+              <span className="sm:hidden">Free</span>
             </span>
           )}
         </div>

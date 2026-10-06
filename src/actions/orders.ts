@@ -23,6 +23,7 @@ import { shouldEnforcePow } from "@/lib/pow";
 import { verifyPayloadAndConsume } from "@/lib/pow-store";
 import { rateLimit } from "@/lib/rate-limit";
 import { requestMeta } from "@/lib/request";
+import { invalidateCatalog } from "@/lib/cache";
 import { getCommerce, getSetting, getSettingBool } from "@/lib/settings";
 import { withDbRetry } from "@/lib/db-retry";
 import { orderConfirmationHtml, sendEmail } from "@/lib/email";
@@ -516,7 +517,7 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
 
         await db.execute(sql`
           UPDATE products SET
-            rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}),
+            rating = COALESCE((SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE product_id = ${productId}), 0),
             total_reviews = (SELECT COUNT(*) FROM reviews WHERE product_id = ${productId})
           WHERE id = ${productId}`);
         if (product.storeId) {
@@ -529,6 +530,9 @@ export async function submitReview(_prev: ActionState, formData: FormData): Prom
     );
 
     await recordAudit({ actorId: user.id, actorEmail: user.email, action: "review.create", target: productId, detail: `${rating}★` });
+    await invalidateCatalog();
+    revalidatePath("/");
+    revalidatePath("/products");
     revalidatePath(`/products/${product.slug}`);
     return { success: "Thank you! Your review has been published." };
   } catch (err) {
@@ -596,6 +600,9 @@ export async function editReview(_prev: ActionState, formData: FormData): Promis
     );
 
     const [product] = await db.select({ slug: products.slug }).from(products).where(eq(products.id, productId)).limit(1);
+    await invalidateCatalog();
+    revalidatePath("/");
+    revalidatePath("/products");
     if (product) revalidatePath(`/products/${product.slug}`);
     return { success: "Review updated successfully." };
   } catch (err) {
@@ -635,6 +642,9 @@ export async function deleteReview(_prev: ActionState, formData: FormData): Prom
     );
 
     const [product] = await db.select({ slug: products.slug }).from(products).where(eq(products.id, productId)).limit(1);
+    await invalidateCatalog();
+    revalidatePath("/");
+    revalidatePath("/products");
     if (product) revalidatePath(`/products/${product.slug}`);
     return { success: "Review removed." };
   } catch (err) {
