@@ -12,8 +12,15 @@
 - **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all 34 routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.08s (`npm test`).
-  - *Suites 39 & 40:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
+- **Automated Tests:** 42 Enterprise test suites in `tests/` passing in ~1.72s (`npm test`).
+  - *Suite 41:* `Free AI Vision & Multimodal Extraction Engine` (`tests/unit/ai-vision.test.ts`).
+  - *Suite 42:* `AI Ethnic Fashion Variant Studio` (`tests/unit/ai-variant.test.ts`).
+- **AI Variant Studio & Pollinations Multimodal Engine:**
+  - Interactive seller modal (`src/components/seller/AiVariantStudioModal.tsx`) with 8 couture colorway presets, 1-click B2 storage, and auto-insert into product form.
+  - Multi-tier multimodal vision (`src/lib/ai/vision.ts`) with Google Gemini primary and Pollinations Vision tier-2 keyless fallback.
+- **Resilient 3-Tier Image Fallback Pipeline:**
+  - Client component `<SmartImage />` automatically cascades: `Cloudflare Worker Proxy -> wsrv.nl WebP Optimizer -> Backblaze B2 Direct -> Placeholder`.
+  - Pass-through for safe `data:image/` URIs and automatic handling of raw B2 keys (`b2:`).
 - **Multi-Tier Route Error Boundaries (`src/app/error.tsx`, `src/app/products/[slug]/error.tsx`):**
   - High-resilience error boundaries preserving Header, Navigation, and Footer during runtime exceptions.
   - Storefront error boundary (`src/app/error.tsx`) and product detail boundary (`src/app/products/[slug]/error.tsx`) provide context-aware retry actions ("Dobara try karein").

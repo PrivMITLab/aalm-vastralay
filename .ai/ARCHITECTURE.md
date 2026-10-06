@@ -52,6 +52,11 @@ flowchart TD
 - Client-side DuckDB-Wasm in-process OLAP engine for zero-cost GST 5%/12% and GMV calculations.
 - Safe database reset mechanisms preserving core catalog and settings.
 
+### Layer 5: AI Intelligence & Universal Media Pipeline (`src/lib/ai/`, `src/lib/image-resolver.ts`, `src/components/media/SmartImage.tsx`)
+- **Multi-Tier Vision AI:** Google Gemini primary with Pollinations Vision keyless tier-2 backup for 1-click product attribute extraction.
+- **AI Variant Studio:** Prompt-guided Flux/SDXL image synthesis for 8 Indian couture colorways with live Base64 data URI preview and 1-click B2 storage.
+- **Resilient Media Hierarchy:** 3-tier browser fallback chain (`Cloudflare Worker Proxy -> wsrv.nl WebP Cache -> Backblaze B2 Direct -> Placeholder`) guaranteeing 0 broken image icons across all network environments.
+
 ## 3. Route Topology & Rendering Strategy
 
 | Route Category | Path | Rendering Strategy | Revalidation | Access Control |

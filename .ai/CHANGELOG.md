@@ -3,6 +3,30 @@
 
 ---
 
+## [2026-10-06] — AI Variant Studio, Pollinations Multimodal Vision & Resilient B2 Media Pipeline
+
+### Added & Enhanced
+- **AI Ethnic Fashion Variant Studio (`/api/ai/generate-variant`, `AiVariantStudioModal.tsx`, `ProductForm.tsx`):**
+  - Synthesizes 8 bespoke Indian couture colorway presets (Peacock Royal Blue, Emerald Bottle Green, Rani Hot Pink, Mustard Haldi Yellow, etc.) with custom zari borders and studio lighting environments.
+  - Powered by prompt-guided synthesis (Pollinations Flux / SDXL) with instant HD preview, one-click B2 storage, and automated variant row creation.
+  - Full automated verification suite registered as Suite 42 in `tests/unit/ai-variant.test.ts`.
+- **Keyless Multimodal Vision AI Backup (`src/lib/ai/vision.ts`, `tests/unit/ai-vision.test.ts`):**
+  - Integrated Pollinations Vision as tier-2 keyless backup when Google Gemini API keys hit rate quotas, ensuring 100% uninterrupted auto-fill for titles, categories, and luxury descriptions.
+  - Full automated verification suite registered as Suite 41 in `tests/unit/ai-vision.test.ts`.
+
+### Fixed & Hardened
+- **Data URI Safe Pass-Through (`src/lib/image-resolver.ts`):**
+  - Extended `sanitizeImageUrl()` and `resolveImage()` to allow safe Base64 `data:image/` URIs while strictly defending against HTML quote escapes (`<`, `>`).
+  - Completely resolved Pollinations studio preview blank card issue.
+- **Client-Side Resilient Image Fallback Chain (`src/app/products/[slug]/page.tsx`, `image-resolver.ts`):**
+  - Passed raw image keys directly to `<ImageGallery />` and `<SmartImage />`, preventing server-side pre-resolution from locking in static or broken worker URLs.
+  - Client component automatically walks the 3-tier fallback hierarchy: `Cloudflare Worker Proxy -> wsrv.nl WebP Optimizer -> Backblaze B2 Direct -> Placeholder`.
+- **Backblaze B2 Production Environment Variables (`.env.local`):**
+  - Synchronized `NEXT_PUBLIC_B2_WORKER_URL`, `NEXT_PUBLIC_B2_BUCKET_NAME`, and `NEXT_PUBLIC_B2_DIRECT_URL` (cluster f005) with live Cloudflare Worker proxy (`aalm-b2-proxy.alamwastraly.workers.dev`).
+  - All 42 enterprise test suites pass 100% green.
+
+---
+
 ## [2026-10-06] — Storefront Crash Hardening, React 19 RSC Boundary Fix, Review Helpful Votes & Archify 3.0
 
 ### Fixed & Hardened

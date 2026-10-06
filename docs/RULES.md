@@ -18,7 +18,7 @@ Reading this section gives any agent instant 100% context across the entire repo
 ### Core Governance & Documentation Hub:
 - 📜 [docs/RULES.md](file:///D:/aalm-vastralay/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
 - 📜 [.ai/RULES.md](file:///D:/aalm-vastralay/.ai/RULES.md) — 43 Golden Rules, Code Quality, Client/Server Security Standards.
-- 📡 [.ai/CONTEXT.md](file:///D:/aalm-vastralay/.ai/CONTEXT.md) — Live system state, 40 test suites count, verified verification matrix.
+- 📡 [.ai/CONTEXT.md](file:///D:/aalm-vastralay/.ai/CONTEXT.md) — Live system state, 42 test suites count, verified verification matrix.
 - 🗄️ [.ai/DATABASE.md](file:///D:/aalm-vastralay/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
 - 📋 [.ai/PRD.md](file:///D:/aalm-vastralay/.ai/PRD.md) — Functional specifications, Indian ethnic marketplace business rules.
 - 🏗️ [docs/TECH_STACK_AND_ARCHITECTURE.md](file:///D:/aalm-vastralay/docs/TECH_STACK_AND_ARCHITECTURE.md) — Complete multi-tier system topology diagram and tech stack breakdown.
@@ -33,7 +33,7 @@ Reading this section gives any agent instant 100% context across the entire repo
 - `src/db/` — Drizzle ORM database layer ([`src/db/schema.ts`](file:///D:/aalm-vastralay/src/db/schema.ts), [`src/db/index.ts`](file:///D:/aalm-vastralay/src/db/index.ts), [`src/db/init.ts`](file:///D:/aalm-vastralay/src/db/init.ts)).
 - `src/components/` — UI components (Product cards, Header, Footer, Admin, Seller, Modals).
 - `src/lib/` — Business logic ([`src/lib/required-env.ts`](file:///D:/aalm-vastralay/src/lib/required-env.ts), [`src/lib/ai/client.ts`](file:///D:/aalm-vastralay/src/lib/ai/client.ts), [`src/lib/auth.ts`](file:///D:/aalm-vastralay/src/lib/auth.ts), [`src/lib/media-resolver.ts`](file:///D:/aalm-vastralay/src/lib/media-resolver.ts)).
-- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///D:/aalm-vastralay/tests/run-all-tests.ts), 40 test suites).
+- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///D:/aalm-vastralay/tests/run-all-tests.ts), 42 test suites).
 - `.env.development.example` — Template for local development (`http://localhost:3000`).
 - `.env.production.example` — Template for live production on Vercel with Neon pooled connection.
 

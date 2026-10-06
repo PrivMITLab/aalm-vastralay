@@ -21,6 +21,8 @@
 | **Multi-Vendor Data Tampering** | Strict tenant boundaries (`where storeId = ownStore.id`) in all seller actions. | `src/actions/seller.ts` |
 | **Customer PII Leakage** | Automated phone and email masking in seller order views and logs. | `src/lib/masking.ts`, `src/lib/encryption.ts` |
 | **Accidental Data Loss** | Safe clean script explicitly protects categories, coupons, settings, and admin. | `scripts/neon-reset.sql` |
+| **Image XSS & Protocol Injection** | Strict protocol allowlist (`https:`, `http:`, `data:image/` with quote escape defense), blocking `javascript:`, `vbscript:`, and SVG inline scripts. | `src/lib/image-resolver.ts` |
+| **Open-Source Hardcoded Leaks** | Automated test scanner `tests/unit/open-source-template.test.ts` scanning `src/` for forbidden domain strings, personal numbers, or private infrastructure keys. | `tests/unit/open-source-template.test.ts` |
 
 ## 2. PII Protection Standards
 - Customer phone number is masked: `9876543210` -> `9876****10`.

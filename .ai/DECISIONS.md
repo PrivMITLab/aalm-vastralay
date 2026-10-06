@@ -167,4 +167,14 @@
 - **Decision:** Integrate Archify 3.0 architecture visualization generator to compile interactive, drill-down architectural blueprints at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
 - **Rationale:** Provides team members, security auditors, and AI agents with a comprehensive, visual interactive model of application layers, data flow, edge caching, and security boundaries.
 
+## ADR 029: Keyless AI Multimodal Vision & Ethnic Fashion Variant Studio
+- **Status:** Accepted
+- **Decision:** Implement a two-tiered multimodal vision pipeline (`src/lib/ai/vision.ts`) using Google Gemini as tier-1 and Pollinations Vision as keyless tier-2 fallback. Pair with an interactive AI Variant Studio modal (`AiVariantStudioModal.tsx`) using prompt-guided image synthesis (Pollinations Flux / SDXL) for 8 curated Indian ethnic colorways (Peacock Blue, Emerald Green, Rani Pink, etc.) with 1-click B2 cold storage.
+- **Rationale:** Sellers frequently upload real apparel photos without descriptions or multi-color product variants. Multimodal AI eliminates manual data entry, while variant synthesis provides high-fashion colorway mockups without expensive physical photoshoots, zero vendor lock-in, and zero third-party API costs.
+
+## ADR 030: Client-Side Resilient Media Resolution & Data URI Pass-Through
+- **Status:** Accepted
+- **Decision:** Pass raw media keys (`b2:`, Google Drive links, external URLs) directly from server components to `<ImageGallery />` and `<SmartImage />`, avoiding server-side pre-resolution that binds pages to static or failing endpoints. Whitelist safe `data:image/` URIs in `sanitizeImageUrl()` with strict XSS character guards (`<`, `>`).
+- **Rationale:** Guarantees zero broken image icons through a dynamic 3-tier browser fallback hierarchy (`Worker Proxy -> wsrv.nl WebP Cache -> Backblaze B2 Direct -> Placeholder`) and allows instant in-memory preview of AI-generated assets before cloud persistence.
+
 

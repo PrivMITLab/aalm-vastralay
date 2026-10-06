@@ -88,6 +88,11 @@
 - [x] Statement-Level Isolated Database Migrations in `src/db/init.ts` (`autoEnsureTables`).
 - [x] Review UI Polish: Proper reviewer name capitalization, initials avatar, and photo review lightbox.
 - [x] Archify 3.0 System Architecture Visualizer Artifact (`.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`).
+- [x] Multimodal Vision AI with keyless Pollinations Vision tier-2 backup (`src/lib/ai/vision.ts`, `tests/unit/ai-vision.test.ts` - Suite 41).
+- [x] AI Ethnic Fashion Variant Studio with 8 colorway presets & 1-click B2 storage (`AiVariantStudioModal.tsx`, `tests/unit/ai-variant.test.ts` - Suite 42).
+- [x] Data URI support in `sanitizeImageUrl()` and `resolveImage()` for instant in-browser AI preview without cold-start delay.
+- [x] Client-side resilient media resolution with 3-tier fallback chain (`Worker Proxy -> wsrv.nl -> B2 Direct -> Placeholder`).
+- [x] Production Backblaze B2 environment variables synchronized with live Cloudflare Worker proxy (`aalm-b2-proxy.alamwastraly.workers.dev`).
 
 ## In-Progress / Next Enhancements
 - [ ] Typesense dual-engine instant search autocomplete dropdown UI.

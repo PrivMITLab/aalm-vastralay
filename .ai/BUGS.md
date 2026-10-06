@@ -178,8 +178,18 @@
 - **Root Cause:** Review rating averages were inconsistently cached for unauthenticated guest sessions, and mobile reviews used nested flex layouts without minimum height boundaries.
 - **Resolution:** Synchronized product rating caching across both guest and authenticated sessions, and refactored mobile review items to responsive CSS grids with fixed skeleton bounds.
 
-### Incident 028: Ephemeral LocalStorage Review Helpful Votes (Zero Cross-Device Persistence)
-- **Symptom:** Customer helpful votes on reviews were stored only in the browser's `localStorage`, resetting across devices, private tabs, or browser resets, and vulnerable to vote count gaming.
-- **Root Cause:** Absence of a dedicated database persistence table for review votes.
-- **Resolution:** Created `review_votes` PostgreSQL table and added `helpful_count` to `reviews`. Added server action `voteReviewHelpful` verifying user ID and hashing client IP (`ip_hash`) with atomic conflict rejection to eliminate vote manipulation.
+### Incident 029: Production B2 Worker Proxy Placeholder Domain Mismatch (404 Media Outage)
+- **Symptom:** Real product images uploaded to Backblaze B2 displayed placeholder SVG ("Aalm Vastralay / Image coming soon") across the storefront and product detail pages.
+- **Root Cause:** `.env.local` had a generic placeholder domain `https://b2-proxy.marketplace.workers.dev` instead of the actual live deployed Cloudflare Worker proxy `https://aalm-b2-proxy.alamwastraly.workers.dev`.
+- **Resolution:** Updated `.env.local` with real worker URL, cluster `f005`, and bucket `aalm-vastralay-media`. Preserved open-source zero-PII sanitization contracts in `tests/unit/open-source-template.test.ts` by ensuring runtime resolution strictly pulls from `NEXT_PUBLIC_B2_WORKER_URL`.
+
+### Incident 030: Pollinations AI Variant Preview Blocked by Protocol Sanitizer
+- **Symptom:** In the seller's AI Variant Studio, generated ethnic colorway variants completed in the backend, but the modal preview box rendered the placeholder SVG instead of the synthesized lehenga/saree.
+- **Root Cause:** `sanitizeImageUrl()` in `src/lib/image-resolver.ts` strictly whitelisted only `https://`, `http://`, and `/` paths, dropping Base64 `data:image/` URIs returned by the Pollinations Flux generator.
+- **Resolution:** Updated `sanitizeImageUrl()` and `resolveImage()` to allow safe `data:image/` URIs with XSS character guards (`<`, `>`). Now enables instant preview in the studio modal and smooth 1-click B2 storage.
+
+### Incident 031: Product Page Server-Side Pre-Resolution Starved Client Fallback Chain
+- **Symptom:** Product detail page `/products/[slug]` received pre-resolved absolute URLs from the server component. If the server resolved with an unset environment variable or cold-start worker blip, `<SmartImage>` received a static string and was unable to trigger its full 3-tier fallback chain.
+- **Root Cause:** `page.tsx` called `resolveImage(src, { width: 900 })` on server before passing strings to `<ImageGallery />`.
+- **Resolution:** Passed raw image keys directly to `ImageGallery` and `SmartImage`. `<SmartImage>` now resolves in the client with a full multi-tier fallback chain: Cloudflare Worker Proxy -> wsrv.nl WebP Cache -> Backblaze B2 Direct Storage -> Placeholder.
 
