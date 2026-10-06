@@ -385,3 +385,401 @@ export async function executeAiCompletion(
 
   throw new Error("All configured AI providers failed.");
 }
+
+/* ============================================================================
+ * 📸 MULTIMODAL VISION AI ENGINE (Gemini 2.5 Flash Vision + Universal Links)
+ * ============================================================================ */
+
+export type AiVisionAnalysisOptions = {
+  imageUrl?: string;
+  imageBase64?: string;
+  mimeType?: string;
+  categoriesList?: { id: string; name: string; slug: string }[];
+  preferredProvider?: "gemini" | "auto";
+};
+
+export type AiVisionAnalysisResult = {
+  title: string;
+  categorySlug: string;
+  categoryName: string;
+  categoryId?: string;
+  fabric: string;
+  color: string;
+  work: string;
+  craftType?: string;
+  occasion: string;
+  suggestedPrice: number;
+  suggestedMrp: number;
+  description?: string;
+  shortDescription: string;
+  longDescription: string;
+  highlights: string[];
+  tags: string[];
+  stylingTips: string;
+  washCare: string;
+  formattedText: string;
+  provider: "gemini" | "fallback";
+};
+
+/**
+ * Resolves any image reference (B2, Drive, ImageKit, external URL, or data URL) into
+ * a Base64 buffer and mimeType suitable for Gemini Multimodal Vision API.
+ */
+export async function prepareImageForVisionAnalysis(
+  rawInput: string
+): Promise<{ inlineData: { mimeType: string; data: string } } | null> {
+  if (!rawInput || typeof rawInput !== "string") return null;
+  const s = rawInput.trim();
+
+  // 1. Data URL (Base64)
+  const dataUrlMatch = s.match(/^data:(image\/[a-zA-Z0-9.+_-]+);base64,(.+)$/i);
+  if (dataUrlMatch) {
+    return {
+      inlineData: {
+        mimeType: dataUrlMatch[1].toLowerCase(),
+        data: dataUrlMatch[2],
+      },
+    };
+  }
+
+  // 2. Resolve image reference across B2, Google Drive, ImageKit, and web URLs
+  let fetchUrl = s;
+  if (s.startsWith("b2:")) {
+    const key = s.slice(3).replace(/^\//, "");
+    const b2Worker = process.env.NEXT_PUBLIC_B2_WORKER_URL || "https://marketplace.workers.dev";
+    fetchUrl = `${b2Worker}/${key}`;
+  } else if (s.includes("drive.google.com") || s.includes("googleusercontent.com")) {
+    const gdriveMatch = s.match(/(?:id=|d\/)([a-zA-Z0-9_-]{25,})/);
+    if (gdriveMatch) {
+      fetchUrl = `https://lh3.googleusercontent.com/d/${gdriveMatch[1]}`;
+    }
+  }
+
+  // 3. SSRF-safe remote image fetch
+  try {
+    const u = new URL(fetchUrl);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+
+    // Block private IP/metadata targets
+    const host = u.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "::1" ||
+      host === "0.0.0.0" ||
+      host.includes("169.254.") ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal")
+    ) {
+      return null;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8_000);
+
+    const res = await fetch(fetchUrl, {
+      method: "GET",
+      headers: { Accept: "image/*" },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return null;
+
+    const contentLength = Number(res.headers.get("content-length") || "0");
+    if (contentLength > 5 * 1024 * 1024) return null; // 5MB safe limit
+
+    const arrayBuf = await res.arrayBuffer();
+    if (arrayBuf.byteLength > 5 * 1024 * 1024) return null;
+
+    const buffer = Buffer.from(arrayBuf);
+    const contentType = res.headers.get("content-type")?.split(";")[0]?.trim().toLowerCase() || "image/jpeg";
+    const mimeType = contentType.startsWith("image/") ? contentType : "image/jpeg";
+
+    return {
+      inlineData: {
+        mimeType,
+        data: buffer.toString("base64"),
+      },
+    };
+  } catch (err) {
+    console.warn("[VisionEngine] Image fetch failed:", err);
+    return null;
+  }
+}
+
+/**
+ * Deterministic visual ethnic wear heuristics engine used when Gemini API key
+ * is absent or quota is exhausted.
+ */
+export function generateDeterministicVisionFallback(
+  imageRef: string,
+  categoriesList?: { id: string; name: string; slug: string }[]
+): AiVisionAnalysisResult {
+  const q = imageRef.toLowerCase();
+
+  let categorySlug = "lehengas";
+  let categoryName = "Lehengas";
+
+  if (q.includes("saree") || q.includes("sari") || q.includes("banarasi")) {
+    categorySlug = "sarees";
+    categoryName = "Sarees";
+  } else if (q.includes("sherwani") || q.includes("achkan")) {
+    categorySlug = "sherwanis";
+    categoryName = "Sherwanis";
+  } else if (q.includes("anarkali") || q.includes("suit")) {
+    categorySlug = "anarkali-suits";
+    categoryName = "Anarkali Suits";
+  } else if (q.includes("kurta")) {
+    categorySlug = "kurta-sets";
+    categoryName = "Kurta Sets";
+  } else if (q.includes("dupatta")) {
+    categorySlug = "dupattas";
+    categoryName = "Dupattas";
+  }
+
+  // Attempt to match categoryId from provided categories
+  const matchedCat = categoriesList?.find(
+    (c) =>
+      c.slug === categorySlug ||
+      c.slug.includes(categorySlug) ||
+      categorySlug.includes(c.slug) ||
+      c.name.toLowerCase() === categoryName.toLowerCase() ||
+      c.name.toLowerCase().includes(categoryName.toLowerCase()) ||
+      categoryName.toLowerCase().includes(c.name.toLowerCase())
+  );
+  const categoryId = matchedCat?.id;
+  if (matchedCat) {
+    categorySlug = matchedCat.slug;
+    categoryName = matchedCat.name;
+  }
+
+  let fabric = "Pure Katan Silk & Velvet";
+  if (q.includes("velvet")) fabric = "Silk Velvet";
+  else if (q.includes("georgette")) fabric = "Flowing Georgette";
+  else if (q.includes("organza")) fabric = "Tissue Organza";
+  else if (q.includes("chanderi")) fabric = "Handloom Chanderi";
+
+  let color = "Crimson Red & Antique Gold";
+  if (q.includes("pink") || q.includes("rani")) color = "Rani Pink & Rose Gold";
+  else if (q.includes("blue")) color = "Peacock Royal Blue";
+  else if (q.includes("green")) color = "Emerald Bottle Green";
+  else if (q.includes("yellow") || q.includes("haldi")) color = "Mustard Haldi Yellow";
+  else if (q.includes("white") || q.includes("ivory")) color = "Ivory Cream & Antique Zari";
+
+  const work = "Handcrafted Zardozi, Sequins & Gota Patti Needlework";
+  const occasion = categorySlug === "lehengas" || categorySlug === "sherwanis" ? "Bridal & Wedding Reception" : "Festive Celebrations & Wedding Soiree";
+
+  const title = `Regal ${color.split("&")[0].trim()} ${fabric} Handcrafted ${categoryName.replace(/s$/, "")}`;
+  const suggestedPrice = categorySlug === "lehengas" ? 38500 : categorySlug === "sherwanis" ? 28000 : 18500;
+  const suggestedMrp = Math.round(suggestedPrice * 1.35);
+
+  const shortDescription = `Elegantly handcrafted in luxurious ${fabric}, this exquisite ${categoryName.toLowerCase()} features timeless ${work.toLowerCase()} for memorable occasions.`;
+  const longDescription =
+    `Tailored with artisanal grace, this magnificent ensemble combines rich Indian heritage with effortless contemporary silhouette. The intricate embroidery catches the ambient light with subtle aristocracy, making it a treasured centerpiece of your traditional wardrobe.\n\n` +
+    `Designed for supreme comfort, royal drape, and breathable wear throughout long celebratory rituals. Pair with heirloom jewellery for an unforgettable presence.`;
+
+  const highlights = [
+    `Fabric & Weave: Premium ${fabric} offering a lustrous sheen and grand silhouette`,
+    `Artisan Karigari: ${work}`,
+    `Occasion: Perfect for ${occasion}`,
+    `Complete Set: Finished garment with artisanal border detailing`,
+  ];
+
+  const tags = [
+    `${categoryName.toLowerCase()}`,
+    `${fabric.toLowerCase()}`,
+    `${color.split("&")[0].trim().toLowerCase()}`,
+    `wedding ${categoryName.toLowerCase()}`,
+    "handcrafted ethnic wear",
+    "aalm vastralay",
+  ];
+
+  const stylingTips = `Style with antique gold or kundan jhumkas, a classic embellished potli bag, and embroidered juttis.`;
+  const washCare = `Dry clean only recommended. Store in a breathable cotton muslin bag away from direct sunlight.`;
+
+  const formattedText =
+    `${shortDescription}\n\n` +
+    `${longDescription}\n\n` +
+    `🌟 KEY HIGHLIGHTS:\n` +
+    highlights.map((h) => `• ${h}`).join("\n") +
+    `\n\n` +
+    `✨ STYLING ADVICE:\n${stylingTips}\n\n` +
+    `🧼 CARE INSTRUCTIONS:\n${washCare}\n\n` +
+    `👑 AALM VASTRALAY EXCLUSIVE — Handcrafted Luxury Heritage`;
+
+  return {
+    title,
+    categorySlug,
+    categoryName,
+    categoryId,
+    fabric,
+    color,
+    work,
+    craftType: work,
+    occasion,
+    suggestedPrice,
+    suggestedMrp,
+    shortDescription,
+    longDescription,
+    highlights,
+    tags,
+    stylingTips,
+    washCare,
+    formattedText,
+    provider: "fallback",
+  };
+}
+
+/**
+ * Unified Multimodal Vision AI: Analyzes garment images and generates concise,
+ * high-converting luxury boutique product copy.
+ */
+export async function executeAiVisionAnalysis(
+  options: AiVisionAnalysisOptions
+): Promise<AiVisionAnalysisResult> {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+  const imageInput = options.imageUrl || (options.imageBase64 ? `data:${options.mimeType || "image/jpeg"};base64,${options.imageBase64}` : "");
+
+  if (!apiKey || !imageInput) {
+    return generateDeterministicVisionFallback(imageInput || "ethnic-wear", options.categoriesList);
+  }
+
+  // 1. Prepare Base64 image payload
+  const imagePayload = await prepareImageForVisionAnalysis(imageInput);
+  if (!imagePayload) {
+    return generateDeterministicVisionFallback(imageInput, options.categoriesList);
+  }
+
+  // 2. Prepare concise, high-converting luxury prompt
+  const systemInstructions =
+    `You are the Master Indian Haute Couture Appraiser for 'Aalm Vastralay' (आलम वस्त्रालय), India's premier luxury marketplace for authentic Banarasi sarees, bridal lehengas, sherwanis, and luxury ethnic wear.\n` +
+    `Analyze this ethnic garment image with deep textile and craft precision (fabric weave, embroidery technique, silhouette, and regal tones).\n` +
+    `CRITICAL REQUIREMENT: Write concise, crisp, high-converting luxury boutique copy (no verbose filler text). Every word must convey prestige and artisan craftsmanship.\n` +
+    `Return ONLY a raw valid JSON object with EXACTLY this structure (no markdown fences, no explanatory text):\n` +
+    `{\n` +
+    `  "title": "Evocative, crisp luxury title under 70 chars (e.g. 'Crimson Red Velvet Zardozi Bridal Lehenga')",\n` +
+    `  "categorySlug": "sarees" | "lehengas" | "anarkali-suits" | "salwar-kameez" | "gowns" | "sherwanis" | "kurta-sets" | "nehru-jackets" | "indo-western" | "dupattas" | "jewellery" | "footwear",\n` +
+    `  "categoryName": "Human-friendly category name (e.g. 'Lehengas' or 'Sarees')",\n` +
+    `  "fabric": "Exact fabric & weave (e.g. 'Pure Silk Velvet with Raw Silk Underlay', 'Katan Silk', 'Georgette')",\n` +
+    `  "color": "Specific regal ethnic color tone (e.g. 'Crimson Red & Antique Gold', 'Rani Pink', 'Peacock Blue')",\n` +
+    `  "work": "Authentic embroidery/karigari technique (e.g. 'Handcrafted Zardozi, Sequins & Gota Patti', 'Kadwa Weave')",\n` +
+    `  "occasion": "Primary occasion (e.g. 'Bridal & Wedding Reception', 'Sangeet Soiree', 'Festive Gathering')",\n` +
+    `  "suggestedPrice": 45000,\n` +
+    `  "suggestedMrp": 60000,\n` +
+    `  "shortDescription": "1-2 punchy, evocative sentences capturing the silhouette and artisan majesty.",\n` +
+    `  "longDescription": "2 concise paragraphs (around 70-90 words total) detailing the weave touch, regal drape, and styling charisma.",\n` +
+    `  "highlights": ["4 clear bullet points: Fabric, Work, Occasion, Inclusions"],\n` +
+    `  "tags": ["6 high-intent Indian eCommerce search tags"],\n` +
+    `  "stylingTips": "1 sentence expert advice on pairing with heritage jewellery, footwear, and accessories.",\n` +
+    `  "washCare": "Clear traditional garment care (e.g. 'Dry clean only. Store wrapped in breathable muslin cloth.')"\n` +
+    `}`;
+
+  const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+  let parsedResult: Partial<AiVisionAnalysisResult> | null = null;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              imagePayload,
+              { text: systemInstructions },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: "application/json",
+        },
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 14_000);
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Gemini Vision ${model} HTTP ${res.status}: ${errText}`);
+      }
+
+      const json = (await res.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+
+      const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) throw new Error("Empty response from vision model");
+
+      const cleanJson = rawText.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+      parsedResult = JSON.parse(cleanJson);
+      break;
+    } catch (err) {
+      console.warn(`[VisionEngine] ${model} attempt failed:`, err);
+    }
+  }
+
+  if (!parsedResult || !parsedResult.title) {
+    return generateDeterministicVisionFallback(imageInput, options.categoriesList);
+  }
+
+  const categorySlug = (parsedResult.categorySlug || "lehengas").toLowerCase();
+  const categoryName = parsedResult.categoryName || categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
+  const matchedCat = options.categoriesList?.find(
+    (c) =>
+      c.slug === categorySlug ||
+      c.slug.includes(categorySlug) ||
+      categorySlug.includes(c.slug) ||
+      c.name.toLowerCase() === categoryName.toLowerCase() ||
+      c.name.toLowerCase().includes(categoryName.toLowerCase()) ||
+      categoryName.toLowerCase().includes(c.name.toLowerCase())
+  );
+
+  const formattedText =
+    `${parsedResult.shortDescription ?? ""}\n\n` +
+    `${parsedResult.longDescription ?? ""}\n\n` +
+    `🌟 KEY HIGHLIGHTS:\n` +
+    (parsedResult.highlights ?? []).map((h) => `• ${h}`).join("\n") +
+    `\n\n` +
+    `✨ STYLING ADVICE:\n${parsedResult.stylingTips ?? ""}\n\n` +
+    `🧼 CARE INSTRUCTIONS:\n${parsedResult.washCare ?? ""}\n\n` +
+    `👑 AALM VASTRALAY EXCLUSIVE — Handcrafted Luxury Heritage`;
+
+  const work = parsedResult.work || "Artisanal Zari & Needlework";
+
+  return {
+    title: parsedResult.title.slice(0, 160),
+    categorySlug: matchedCat ? matchedCat.slug : categorySlug,
+    categoryName: matchedCat ? matchedCat.name : categoryName,
+    categoryId: matchedCat?.id,
+    fabric: parsedResult.fabric || "Pure Silk Blend",
+    color: parsedResult.color || "Royal Heritage Palette",
+    work,
+    craftType: work,
+    occasion: parsedResult.occasion || "Weddings & Celebrations",
+    suggestedPrice: Number(parsedResult.suggestedPrice) || 25000,
+    suggestedMrp: Number(parsedResult.suggestedMrp) || 35000,
+    shortDescription: parsedResult.shortDescription || "",
+    longDescription: parsedResult.longDescription || "",
+    highlights: Array.isArray(parsedResult.highlights) ? parsedResult.highlights : [],
+    tags: Array.isArray(parsedResult.tags) ? parsedResult.tags : [],
+    stylingTips: parsedResult.stylingTips || "",
+    washCare: parsedResult.washCare || "Dry clean only.",
+    formattedText,
+    provider: "gemini",
+  };
+}

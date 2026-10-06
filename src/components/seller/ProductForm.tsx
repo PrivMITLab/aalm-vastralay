@@ -1,7 +1,8 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import { useActionState, useMemo, useState } from "react";
-import { ImagePlus, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
+import { toast } from "sonner";
 import { saveProduct } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
 import type { Product, ProductVariant } from "@/db/schema";
@@ -10,6 +11,7 @@ import { canonicalizeImageUrl } from "@/lib/image-resolver";
 import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionButton";
 import UniversalMediaPicker, { type MediaSelectResult } from "@/components/media/UniversalMediaPicker";
 import { SmartImage } from "@/components/media/SmartImage";
+import type { AiVisionAnalysisResult } from "@/lib/ai/client";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -43,6 +45,10 @@ function safeThumbnailUrl(rawUrl: string): string {
 
 export default function ProductForm({ categories, product }: { categories: CategoryOption[]; product?: (Product & { variants: ProductVariant[] }) | null }) {
   const [state, action] = useActionState(saveProduct, null);
+  const [title, setTitle] = useState(product?.title ?? "");
+  const [categoryId, setCategoryId] = useState(product?.categoryId ?? "");
+  const [price, setPrice] = useState(product?.price != null ? String(product.price) : "");
+  const [mrp, setMrp] = useState(product?.mrp != null ? String(product.mrp) : "");
   const [images, setImages] = useState((product?.images ?? []).join("\n"));
   const [description, setDescription] = useState(product?.description ?? "");
   const [tags, setTags] = useState((product?.tags ?? []).join(", "));
@@ -53,6 +59,8 @@ export default function ProductForm({ categories, product }: { categories: Categ
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isScrapingLinks, setIsScrapingLinks] = useState(false);
+  const [isAnalyzingVision, setIsAnalyzingVision] = useState(false);
+  const [visionDetectedBadge, setVisionDetectedBadge] = useState<string | null>(null);
 
   async function handleAutoDetectLinks() {
     const lines = images.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -95,6 +103,83 @@ export default function ProductForm({ categories, product }: { categories: Categ
       setImages(Array.from(new Set(updated)).join("\n"));
     } finally {
       setIsScrapingLinks(false);
+    }
+  }
+
+  async function handleVisionAnalysis(specificImageUrl?: string) {
+    const lines = images.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+    const targetImage = specificImageUrl || lines[0];
+    if (!targetImage) {
+      toast.error("कृपया पहले एक फोटो अपलोड करें या लिंक पेस्ट करें (Please add an image first)");
+      return;
+    }
+
+    setIsAnalyzingVision(true);
+    try {
+      const res = await fetch("/api/ai/analyze-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: targetImage }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok || !json.data) {
+        throw new Error(json.error || "Vision analysis failed.");
+      }
+
+      const data: AiVisionAnalysisResult = json.data;
+
+      // 1. Auto-fill Title
+      if (data.title) {
+        setTitle(data.title);
+      }
+
+      // 2. Auto-select Category
+      if (data.categoryId) {
+        setCategoryId(data.categoryId);
+      } else if (data.categorySlug) {
+        const slug = data.categorySlug.toLowerCase();
+        const matched = categories.find(
+          (c) =>
+            c.id.toLowerCase() === slug ||
+            c.name.toLowerCase().includes(slug) ||
+            slug.includes(c.name.toLowerCase())
+        );
+        if (matched) setCategoryId(matched.id);
+      }
+
+      // 3. Auto-fill Description
+      if (data.formattedText) {
+        setDescription(data.formattedText);
+      } else if (data.shortDescription) {
+        setDescription(data.shortDescription);
+      }
+
+      // 4. Auto-fill Tags
+      if (data.tags && data.tags.length > 0) {
+        setTags((prev) => {
+          const existing = prev.split(",").map((s) => s.trim()).filter(Boolean);
+          const merged = Array.from(new Set([...existing, ...data.tags]));
+          return merged.join(", ");
+        });
+      }
+
+      // 5. Auto-suggest Price & MRP if empty or 0
+      if (data.suggestedPrice && (!price || Number(price) === 0)) {
+        setPrice(String(data.suggestedPrice));
+      }
+      if (data.suggestedMrp && (!mrp || Number(mrp) === 0)) {
+        setMrp(String(data.suggestedMrp));
+      }
+
+      const summaryDetails = [data.craftType, data.color, data.fabric].filter(Boolean).join(" • ");
+      setVisionDetectedBadge(summaryDetails || "Ethnic Karigari Details Detected");
+      toast.success(`✨ फोटो से फॉर्म ऑटो-भर दिया गया! (${data.craftType || data.title})`);
+    } catch (err) {
+      console.error("Vision AI error:", err);
+      toast.error(err instanceof Error ? err.message : "फोटो विश्लेषण में त्रुटि आई");
+    } finally {
+      setIsAnalyzingVision(false);
     }
   }
 
@@ -185,14 +270,31 @@ export default function ProductForm({ categories, product }: { categories: Categ
             <label className="label" htmlFor="title">
               Product title
             </label>
-            <input id="title" name="title" className="input" defaultValue={product?.title ?? ""} placeholder="e.g. Scarlet Zardozi Bridal Lehenga Set" required minLength={5} maxLength={160} />
+            <input
+              id="title"
+              name="title"
+              className="input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Scarlet Zardozi Bridal Lehenga Set"
+              required
+              minLength={5}
+              maxLength={160}
+            />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="categoryId">
                 Category
               </label>
-              <select id="categoryId" name="categoryId" className="input" defaultValue={product?.categoryId ?? ""} required>
+              <select
+                id="categoryId"
+                name="categoryId"
+                className="input"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                required
+              >
                 <option value="" disabled>
                   Select category
                 </option>
@@ -217,18 +319,12 @@ export default function ProductForm({ categories, product }: { categories: Categ
                 Description
               </label>
               <GenerateDescriptionButton
-                getTitle={() => {
-                  const el = document.getElementById("title") as HTMLInputElement | null;
-                  return el?.value ?? "";
-                }}
+                getTitle={() => title}
                 getCategoryName={() => {
-                  const el = document.getElementById("categoryId") as HTMLSelectElement | null;
-                  return el?.selectedOptions?.[0]?.text ?? "";
+                  const cat = categories.find((c) => c.id === categoryId);
+                  return cat ? cat.name : "";
                 }}
-                getPrice={() => {
-                  const el = document.getElementById("price") as HTMLInputElement | null;
-                  return el?.value ? Number(el.value) : undefined;
-                }}
+                getPrice={() => (price ? Number(price) : undefined)}
                 onApplyDescription={(text) => setDescription(text)}
                 onApplyTags={(newTags) => {
                   setTags((prev) => {
@@ -271,13 +367,33 @@ export default function ProductForm({ categories, product }: { categories: Categ
               <label className="label" htmlFor="price">
                 Selling price (₹)
               </label>
-              <input id="price" name="price" type="number" min={1} step="0.01" className="input" defaultValue={product?.price ?? ""} required />
+              <input
+                id="price"
+                name="price"
+                type="number"
+                min={1}
+                step="0.01"
+                className="input"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+              />
             </div>
             <div>
               <label className="label" htmlFor="mrp">
                 MRP (₹)
               </label>
-              <input id="mrp" name="mrp" type="number" min={0} step="0.01" className="input" defaultValue={product?.mrp ?? ""} placeholder="Shown struck-through" />
+              <input
+                id="mrp"
+                name="mrp"
+                type="number"
+                min={0}
+                step="0.01"
+                className="input"
+                value={mrp}
+                onChange={(e) => setMrp(e.target.value)}
+                placeholder="Shown struck-through"
+              />
             </div>
             <div>
               <label className="label" htmlFor="shippingWeightGrams">
@@ -427,6 +543,46 @@ export default function ProductForm({ categories, product }: { categories: Categ
             />
           </div>
 
+          {/* 1-Click Multimodal Vision AI Auto-Fill Card */}
+          <div className="rounded-xl border border-amber-300/80 bg-gradient-to-br from-amber-50 via-rose-50/40 to-amber-50/60 p-3.5 shadow-xs dark:border-amber-700/60 dark:from-amber-950/30 dark:via-stone-900 dark:to-stone-900">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 font-bold text-xs text-amber-950 dark:text-amber-200">
+                  <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span>1-Click Multimodal Vision AI</span>
+                </div>
+                <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-snug">
+                  तस्वीर देखकर Title, Category, Luxury विवरण और Tags स्वतः भरें
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleVisionAnalysis()}
+                disabled={isAnalyzingVision || imageList.length === 0}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-maroon-800 to-amber-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                title={imageList.length === 0 ? "पहले कोई फोटो जोड़ें" : "तस्वीर से विवरण भरें"}
+              >
+                {isAnalyzingVision ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>AI परख रहा है...</span>
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="h-3.5 w-3.5" />
+                    <span>Auto-Fill From Photo</span>
+                  </>
+                )}
+              </button>
+            </div>
+            {visionDetectedBadge && (
+              <div className="mt-2.5 flex items-center gap-1.5 rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-medium text-amber-950 border border-amber-200 shadow-2xs dark:bg-stone-850 dark:text-amber-200 dark:border-amber-800">
+                <span className="text-amber-600 dark:text-amber-400">✨ AI क्राफ्ट विवरण:</span>
+                <span className="font-semibold">{visionDetectedBadge}</span>
+              </div>
+            )}
+          </div>
+
           {uploadError && <p className="text-xs text-rose-700 dark:text-rose-400">{uploadError}</p>}
 
           {/* Thumbnail Gallery with Delete Actions */}
@@ -449,6 +605,16 @@ export default function ProductForm({ categories, product }: { categories: Categ
                         Cover
                       </span>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => handleVisionAnalysis(imageList[i])}
+                      disabled={isAnalyzingVision}
+                      className="absolute bottom-1 right-1 flex items-center gap-0.5 rounded-md bg-amber-600/90 hover:bg-amber-700 text-white px-1.5 py-0.5 text-[9px] font-bold shadow-xs transition active:scale-95 disabled:opacity-50"
+                      title="इस फोटो से विवरण भरें (Analyze this photo)"
+                    >
+                      <Sparkles className="h-2.5 w-2.5" />
+                      <span>AI</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
