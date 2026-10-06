@@ -12,6 +12,7 @@ import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionBut
 import UniversalMediaPicker, { type MediaSelectResult } from "@/components/media/UniversalMediaPicker";
 import { SmartImage } from "@/components/media/SmartImage";
 import type { AiVisionAnalysisResult, AiVisionVisualAttributes } from "@/lib/ai/client";
+import AiVariantStudioModal from "@/components/seller/AiVariantStudioModal";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -62,6 +63,27 @@ export default function ProductForm({ categories, product }: { categories: Categ
   const [isAnalyzingVision, setIsAnalyzingVision] = useState(false);
   const [visionDetectedBadge, setVisionDetectedBadge] = useState<string | null>(null);
   const [visualDetails, setVisualDetails] = useState<AiVisionVisualAttributes | null>(null);
+  const [isStudioOpen, setIsStudioOpen] = useState(false);
+
+  function handleVariantSaved(savedUrl: string, colorName: string) {
+    setImages((prev) => {
+      const existing = prev.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+      if (existing.includes(savedUrl)) return prev;
+      return [...existing, savedUrl].join("\n");
+    });
+
+    setVariants((prev) => [
+      ...prev,
+      {
+        key: nextKey(),
+        size: prev.length > 0 ? (prev[0].size || "Free Size") : "Free Size",
+        color: colorName,
+        stock: 5,
+        priceAdjustment: 0,
+        sku: "",
+      },
+    ]);
+  }
 
   async function handleAutoDetectLinks() {
     const lines = images.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -639,6 +661,29 @@ export default function ProductForm({ categories, product }: { categories: Categ
             )}
           </div>
 
+          {/* AI Color Variant Studio Launch Card */}
+          <div className="rounded-xl border border-purple-200/80 bg-gradient-to-r from-purple-50/60 via-cream-50 to-purple-50/60 p-3 shadow-xs dark:border-purple-900/60 dark:from-stone-900 dark:via-purple-950/20 dark:to-stone-900">
+            <div className="flex items-center justify-between gap-2">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 font-bold text-xs text-purple-950 dark:text-purple-200">
+                  <Wand2 className="h-3.5 w-3.5 text-purple-700 dark:text-purple-400" />
+                  <span>AI Variant Studio (रंग वेरिएंट्स बनाएं)</span>
+                </div>
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-snug">
+                  1 फोटो से अन्य रंगों के वेरिएंट बनाकर सीधे B2 में जोड़ें
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsStudioOpen(true)}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-purple-300 bg-white px-2.5 py-1.5 text-xs font-bold text-purple-900 shadow-2xs transition hover:bg-purple-100 active:scale-95 dark:border-purple-700 dark:bg-purple-950/60 dark:text-purple-200"
+              >
+                <Sparkles className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                <span>Open Studio</span>
+              </button>
+            </div>
+          </div>
+
           {uploadError && <p className="text-xs text-rose-700 dark:text-rose-400">{uploadError}</p>}
 
           {/* Thumbnail Gallery with Delete Actions */}
@@ -742,6 +787,16 @@ export default function ProductForm({ categories, product }: { categories: Categ
           {product ? "Save changes" : "Publish product"}
         </SubmitButton>
       </aside>
+
+      {/* Interactive AI Variant Studio Modal */}
+      <AiVariantStudioModal
+        isOpen={isStudioOpen}
+        onClose={() => setIsStudioOpen(false)}
+        baseImageUrl={imageList[0]}
+        initialGarmentType={title ? title.split(" ").slice(-2).join(" ") : undefined}
+        initialAccentDetails={visualDetails?.metallicZari || visualDetails?.embroideryTechniques?.[0] || undefined}
+        onSaveVariantImage={handleVariantSaved}
+      />
     </form>
   );
 }
