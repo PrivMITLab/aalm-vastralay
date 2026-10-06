@@ -74,6 +74,7 @@ export async function testAiVisionEngine() {
   assert.ok(analysis.visualAttributes, "Analysis should return structured visualAttributes");
   assert.ok(analysis.visualAttributes.primaryColor, "Visual attributes should include primary color");
   assert.ok(analysis.visualAttributes.weaveTexture, "Visual attributes should include weave texture");
+  assert.ok(["gemini", "pollinations", "fallback"].includes(analysis.provider), "Provider must be gemini, pollinations, or fallback");
   console.log("  ✔ Multimodal vision analysis execution & visual attributes verified.");
 
   console.log("✅ testAiVisionEngine: All 4 Vision AI checks passed.\n");

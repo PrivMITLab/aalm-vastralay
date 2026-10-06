@@ -432,7 +432,7 @@ export type AiVisionAnalysisResult = {
   stylingTips: string;
   washCare: string;
   formattedText: string;
-  provider: "gemini" | "fallback";
+  provider: "gemini" | "pollinations" | "fallback";
   visualAttributes?: AiVisionVisualAttributes;
 };
 
@@ -676,8 +676,72 @@ export function generateDeterministicVisionFallback(
 }
 
 /**
+ * Tier 2 Backup: Calls Pollinations.ai multimodal vision endpoint
+ * when primary Gemini API is unconfigured or rate-limited.
+ */
+async function callPollinationsVision(
+  imageDataUrl: string,
+  systemInstructions: string
+): Promise<(Partial<AiVisionAnalysisResult> & { visualAttributes?: Partial<AiVisionVisualAttributes> }) | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 7_000); // 7s fail-soft timeout
+
+  try {
+    const res = await fetch("https://text.pollinations.ai/openai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `${systemInstructions}\n\nSTRICT INSTRUCTION: Output ONLY raw JSON matching the requested schema. No code fences.`,
+              },
+              {
+                type: "image_url",
+                image_url: { url: imageDataUrl },
+              },
+            ],
+          },
+        ],
+        temperature: 0.2,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const json = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+
+    const content = json.choices?.[0]?.message?.content;
+    if (!content || typeof content !== "string") return null;
+
+    const clean = content.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+    const parsed = JSON.parse(clean);
+    return parsed;
+  } catch (err) {
+    console.warn("[VisionEngine] Pollinations backup attempt failed or timed out:", err);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Unified Multimodal Vision AI: Analyzes garment images and generates concise,
- * high-converting luxury boutique product copy.
+ * high-converting luxury boutique product copy with 3-tier resilience:
+ * Tier 1: Gemini 2.5 Flash -> Tier 2: Pollinations.ai -> Tier 3: Deterministic Craft Engine
  */
 export async function executeAiVisionAnalysis(
   options: AiVisionAnalysisOptions
@@ -686,8 +750,8 @@ export async function executeAiVisionAnalysis(
 
   const imageInput = options.imageUrl || (options.imageBase64 ? `data:${options.mimeType || "image/jpeg"};base64,${options.imageBase64}` : "");
 
-  if (!apiKey || !imageInput) {
-    return generateDeterministicVisionFallback(imageInput || "ethnic-wear", options.categoriesList);
+  if (!imageInput) {
+    return generateDeterministicVisionFallback("ethnic-wear", options.categoriesList);
   }
 
   // 1. Prepare Base64 image payload
@@ -742,57 +806,71 @@ export async function executeAiVisionAnalysis(
 
   const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
   let parsedResult: (Partial<AiVisionAnalysisResult> & { visualAttributes?: Partial<AiVisionVisualAttributes> }) | null = null;
+  let activeProvider: "gemini" | "pollinations" = "gemini";
 
-  for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const payload = {
-        contents: [
-          {
-            parts: [
-              imagePayload,
-              { text: systemInstructions },
-            ],
+  if (apiKey) {
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const payload = {
+          contents: [
+            {
+              parts: [
+                imagePayload,
+                { text: systemInstructions },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json",
           },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-        },
-      };
+        };
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 14_000);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 14_000);
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
 
-      clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Gemini Vision ${model} HTTP ${res.status}: ${errText}`);
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Gemini Vision ${model} HTTP ${res.status}: ${errText}`);
+        }
+
+        const json = (await res.json()) as {
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
+        };
+
+        const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) throw new Error("Empty response from vision model");
+
+        const cleanJson = rawText.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        parsedResult = JSON.parse(cleanJson);
+        break;
+      } catch (err) {
+        console.warn(`[VisionEngine] ${model} attempt failed:`, err);
       }
-
-      const json = (await res.json()) as {
-        candidates?: { content?: { parts?: { text?: string }[] } }[];
-      };
-
-      const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error("Empty response from vision model");
-
-      const cleanJson = rawText.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-      parsedResult = JSON.parse(cleanJson);
-      break;
-    } catch (err) {
-      console.warn(`[VisionEngine] ${model} attempt failed:`, err);
     }
   }
 
+  // Tier 2: Pollinations.ai Vision Backup (Free, keyless multimodal fallback)
+  if (!parsedResult || !parsedResult.title) {
+    const pollinationsPayload = `data:${imagePayload.inlineData.mimeType};base64,${imagePayload.inlineData.data}`;
+    const pollinationsResult = await callPollinationsVision(pollinationsPayload, systemInstructions);
+    if (pollinationsResult && pollinationsResult.title) {
+      parsedResult = pollinationsResult;
+      activeProvider = "pollinations";
+    }
+  }
+
+  // Tier 3: Local Deterministic Karigari Engine (100% Offline Fail-Safe)
   if (!parsedResult || !parsedResult.title) {
     return generateDeterministicVisionFallback(imageInput, options.categoriesList);
   }
@@ -871,7 +949,7 @@ export async function executeAiVisionAnalysis(
     stylingTips: parsedResult.stylingTips || "",
     washCare: parsedResult.washCare || "Dry clean only.",
     formattedText,
-    provider: "gemini",
+    provider: activeProvider,
     visualAttributes,
   };
 }
