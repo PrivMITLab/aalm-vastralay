@@ -68,3 +68,36 @@ export function maskEmail(email: string | null | undefined): string {
   const maskLength = Math.min(4, localPart.length - 2);
   return `${firstChar}${"*".repeat(maskLength)}${lastChar}${domainPart}`;
 }
+
+/**
+ * Formats a reviewer's name for public product reviews.
+ * Protects customer privacy (e.g. "Priya Sharma" -> "Priya S.") and sanitizes
+ * internal staff/role strings (e.g. "Aalm Vastralay Administrator" -> "Aalm V.").
+ */
+export function formatReviewerName(name: string | null | undefined): string {
+  if (!name || !name.trim()) return "Verified Customer";
+  const clean = name.trim();
+
+  // If name contains internal role markers like "Administrator" or "Admin"
+  if (/admin(istrator)?/i.test(clean)) {
+    const withoutRole = clean.replace(/\badmin(istrator)?\b/gi, "").trim();
+    if (withoutRole) {
+      const parts = withoutRole.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return `${parts[0]} ${parts[1][0].toUpperCase()}.`;
+      }
+      return parts[0];
+    }
+    return "Aalm Customer";
+  }
+
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if (parts.length <= 1) {
+    return parts[0] || "Verified Customer";
+  }
+
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  return `${first} ${last[0].toUpperCase()}.`;
+}
+

@@ -23,6 +23,10 @@ import WhatsAppShare from "@/components/product/WhatsAppShare";
 import WhatsAppConsultButton from "@/components/product/WhatsAppConsultButton";
 import MobileStickyBar from "@/components/product/MobileStickyBar";
 import PersonalizedRecommendations from "@/components/home/PersonalizedRecommendations";
+import UserAvatar from "@/components/UserAvatar";
+import { formatReviewerName } from "@/lib/masking";
+import ReviewPhotoGallery from "@/components/product/ReviewPhotoGallery";
+import ReviewHelpfulButton from "@/components/product/ReviewHelpfulButton";
 
 export const revalidate = 60;
 
@@ -72,7 +76,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     Promise.all([
     db.select().from(productVariants).where(eq(productVariants.productId, product.id)),
     db
-      .select({ review: reviews, userName: users.fullName })
+      .select({ review: reviews, userName: users.fullName, userRole: users.role })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
       .where(eq(reviews.productId, product.id))
@@ -331,22 +335,22 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <section className="mt-14 grid gap-8 lg:grid-cols-[320px_1fr]">
         <div>
           <h2 className="section-title">Ratings &amp; Reviews</h2>
-          <div className="card mt-4 p-5">
+          <div className="card mt-4 p-5 dark:border-stone-850 dark:bg-stone-900/60">
             <div className="flex items-end gap-3">
-              <span className="font-display text-5xl font-semibold text-maroon-900">{Number(product.rating ?? 0).toFixed(1)}</span>
+              <span className="font-display text-5xl font-semibold text-maroon-900 dark:text-gold-300">{Number(product.rating ?? 0).toFixed(1)}</span>
               <div className="pb-1">
                 <Rating value={product.rating} showValue={false} size="md" />
-                <p className="text-xs text-slate-500">{product.totalReviews} verified ratings</p>
+                <p className="text-xs text-slate-500 dark:text-stone-400">{product.totalReviews} verified ratings</p>
               </div>
             </div>
             <ul className="mt-4 space-y-1.5">
               {breakdown.map(({ star, n }) => (
-                <li key={star} className="flex items-center gap-2 text-xs">
+                <li key={star} className="flex items-center gap-2 text-xs text-slate-700 dark:text-stone-300">
                   <span className="w-6">{star}★</span>
-                  <span className="h-2 flex-1 overflow-hidden rounded-full bg-cream-200">
+                  <span className="h-2 flex-1 overflow-hidden rounded-full bg-cream-200 dark:bg-stone-800">
                     <span className="block h-full bg-gold-500" style={{ width: `${reviewRows.length ? (n / reviewRows.length) * 100 : 0}%` }} />
                   </span>
-                  <span className="w-6 text-right text-slate-500">{n}</span>
+                  <span className="w-6 text-right text-slate-500 dark:text-stone-400">{n}</span>
                 </li>
               ))}
             </ul>
@@ -354,13 +358,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="mt-4">
             {user ? (
               alreadyReviewed ? (
-                <p className="text-sm text-slate-500">You have already reviewed this product. Thank you!</p>
+                <p className="text-sm text-slate-500 dark:text-stone-400">You have already reviewed this product. Thank you!</p>
               ) : (
                 <ReviewForm productId={product.id} />
               )
             ) : (
-              <p className="text-sm text-slate-600">
-                <Link href={`/sign-in?redirect_url=/products/${product.slug}`} className="font-semibold text-maroon-700 hover:underline">
+              <p className="text-sm text-slate-600 dark:text-stone-300">
+                <Link href={`/sign-in?redirect_url=/products/${product.slug}`} className="font-semibold text-maroon-700 dark:text-gold-400 hover:underline">
                   Sign in
                 </Link>{" "}
                 to write a review.
@@ -370,46 +374,67 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <div className="space-y-4">
-          {reviewRows.length === 0 && <p className="card p-6 text-sm text-slate-500">No reviews yet. Be the first to review this product.</p>}
-          {reviewRows.map(({ review, userName }) => (
-            <article key={review.id} className="card p-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <Rating value={review.rating} showValue={false} />
-                {review.title && <p className="font-semibold text-slate-900">{review.title}</p>}
-                {review.isVerified && (
-                  <span className="badge bg-emerald-50 text-emerald-700">
-                    <BadgeCheck className="h-3 w-3" /> Verified purchase
-                  </span>
-                )}
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-slate-700">{review.body}</p>
-              {review.images && review.images.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {review.images.map((img, idx) => (
-                    <a
-                      key={idx}
-                      href={resolveImage(img)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative block h-16 w-16 overflow-hidden rounded-xl border border-[color:var(--border)] bg-cream-50 transition hover:scale-105"
-                      title="View customer review photo"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={resolveImage(img, { width: 120, thumbnail: true })}
-                        alt={`Customer photo ${idx + 1}`}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition group-hover:opacity-90"
-                      />
-                    </a>
-                  ))}
+          {reviewRows.length === 0 && <p className="card p-6 text-sm text-slate-500 dark:border-stone-850 dark:bg-stone-900/60 dark:text-stone-400">No reviews yet. Be the first to review this product.</p>}
+          {reviewRows.map(({ review, userName, userRole }) => {
+            const reviewerDisplayName = formatReviewerName(userName);
+            return (
+              <article key={review.id} className="card p-5 transition-shadow hover:shadow-md dark:border-stone-850 dark:bg-stone-900/60">
+                {/* Header: Customer Avatar + Formatted Name + Verified Badge + Star Rating */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <UserAvatar
+                      seed={review.userId || userName || review.id}
+                      name={reviewerDisplayName}
+                      size={40}
+                      className="h-10 w-10 shrink-0 rounded-full border border-stone-200 dark:border-stone-700 object-cover shadow-2xs"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-stone-100 truncate">
+                          {reviewerDisplayName}
+                        </span>
+                        {review.isVerified && (
+                          <span className="badge bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800 text-[11px] py-0.5 px-2 inline-flex items-center gap-1">
+                            <BadgeCheck className="h-3 w-3" /> Verified Buyer
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-stone-400">
+                        Reviewed on {formatDate(review.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 pt-0.5">
+                    <Rating value={review.rating} showValue={false} size="sm" />
+                  </div>
                 </div>
-              )}
-              <p className="mt-3 text-xs text-slate-500">
-                {userName ?? "Customer"} · {formatDate(review.createdAt)}
-              </p>
-            </article>
-          ))}
+
+                {/* Review Title & Body */}
+                <div className="mt-3 space-y-1.5">
+                  {review.title && (
+                    <h4 className="font-semibold text-slate-900 dark:text-stone-100 text-sm">
+                      {review.title}
+                    </h4>
+                  )}
+                  <p className="text-sm leading-relaxed text-slate-700 dark:text-stone-300 whitespace-pre-line">
+                    {review.body}
+                  </p>
+                </div>
+
+                {/* Customer Photo Gallery with Fullscreen Lightbox Modal */}
+                {review.images && review.images.length > 0 && (
+                  <ReviewPhotoGallery images={review.images} />
+                )}
+
+                {/* Footer: Helpful Button */}
+                <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-850 flex items-center justify-between text-xs text-slate-500 dark:text-stone-400">
+                  <span>Was this review helpful?</span>
+                  <ReviewHelpfulButton reviewId={review.id} />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
