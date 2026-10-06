@@ -82,3 +82,18 @@
   - `GET /api/admin/banners`: Retrieve active promotional hero banners and settings.
   - `GET /api/admin/settings`: Retrieve all zero-code configuration settings map.
 
+### `POST /api/admin/integrations/test`
+- **Purpose:** Real-time health and diagnostic test for external services.
+- **Access:** Admin only (`role = 'admin'`).
+- **Body:** `{ "key": "neon" | "betterauth" | "gmail" | "ai" | "b2" | "cloudflare" }`.
+- **Response:** `{ "ok": true, "latencyMs": 42, "message": "Service reachable" }`.
+
+## 3. Key Server Actions (`src/actions/`)
+
+### `voteReviewHelpful(formData)` (`src/actions/orders.ts`)
+- **Purpose:** Upvote a customer review as helpful.
+- **Payload:** `reviewId` (UUID), `ipHash` (string).
+- **Behavior:** Verifies user identity or IP hash, prevents duplicate votes, and atomically increments `reviews.helpful_count`.
+- **Response:** `{ success: true, count: number }` or `{ error: string }`.
+
+

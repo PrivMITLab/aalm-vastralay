@@ -81,6 +81,13 @@
 - [x] Hardened Dependabot Grouping (`.github/dependabot.yml`) to isolate breaking major jumps and group only minor/patch updates.
 - [x] Geolocation Auto-Detection for Indian Postal Circles (`resolveCoordinatesToPincode` in `src/lib/pincode.ts`, tactile `Detect` button in `src/components/product/PincodeEstimator.tsx`).
 - [x] Post-Delivery Automated Review Request Reminders via WhatsApp (`createWhatsAppReviewReminderLink` in `src/lib/whatsapp.ts`).
+- [x] React 19 RSC Boundary Violation Decoupling on `/admin/integrations` (resolved Digest `1344781023`).
+- [x] Resilient Storefront Route Crash Armor & Subquery Isolation on `/products/[slug]` (resolved Digest `4182331038`).
+- [x] Route-Level Error Boundaries for Storefront & Products (`src/app/error.tsx`, `src/app/products/[slug]/error.tsx`).
+- [x] Database-Backed Review Helpful Votes with Anti-Gaming IP Hash (`review_votes` table & `helpful_count` column).
+- [x] Statement-Level Isolated Database Migrations in `src/db/init.ts` (`autoEnsureTables`).
+- [x] Review UI Polish: Proper reviewer name capitalization, initials avatar, and photo review lightbox.
+- [x] Archify 3.0 System Architecture Visualizer Artifact (`.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`).
 
 ## In-Progress / Next Enhancements
 - [ ] Typesense dual-engine instant search autocomplete dropdown UI.

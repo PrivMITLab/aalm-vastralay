@@ -8,12 +8,26 @@
 - **Architecture:** Next.js 16 (App Router + Turbopack) + Drizzle ORM + Neon Serverless PostgreSQL + Tailwind CSS + Lucide React
 
 ## 2. Current Verified Status (Production Ready)
-- **Current Version:** `v0.1.10` (Automated semantic versioning via Google `release-please` v4).
-- **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all routes compiled).
+- **Current Version:** `v0.1.11` (Automated semantic versioning via Google `release-please` v4).
+- **Build Status:** Next.js 16 Turbopack build passes with 0 errors (`npm run build`, all 34 routes compiled).
 - **TypeScript Status:** Strict mode enabled, 0 type errors (`npm run typecheck`).
 - **ESLint Status:** Clean, 0 errors / 0 warnings (`npm run lint`).
-- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.7s (`npm test`).
+- **Automated Tests:** 40 Enterprise test suites in `tests/` passing in ~1.08s (`npm test`).
   - *Suites 39 & 40:* `OpenPanel Cookieless Client Analytics & PII Stripping` (Suite 39) and `Typesense Instant Search & Postgres Fallback Engine` (Suite 40).
+- **Multi-Tier Route Error Boundaries (`src/app/error.tsx`, `src/app/products/[slug]/error.tsx`):**
+  - High-resilience error boundaries preserving Header, Navigation, and Footer during runtime exceptions.
+  - Storefront error boundary (`src/app/error.tsx`) and product detail boundary (`src/app/products/[slug]/error.tsx`) provide context-aware retry actions ("Dobara try karein").
+- **React 19 RSC Boundary Decoupling (`src/app/admin/integrations/page.tsx`):**
+  - Fully resolved digest `1344781023`: Stripped function references (`check: (env) => boolean`) from server props passed to Client Component `<IntegrationsDashboardClient />`. Passed only plain JSON serializable primitives.
+- **Resilient Product Detail Architecture (`src/app/products/[slug]/page.tsx`):**
+  - Fully resolved digest `4182331038`: Added `decodeURIComponent(slug)` URL parameter protection, defensive array bounds for `product.images`, and wrapped secondary queries (`reviews`, `similarProducts`, `wishlist`, `productVariants`) in isolated `try/catch` fallbacks.
+- **Database-Backed Helpful Reviews (`review_votes`, `reviews.helpful_count`):**
+  - Persistent crowdsourced credibility conforming to BIS IS 19000:2022. Upvotes stored in PostgreSQL with anti-gaming IP hash and user ID single-vote deduplication.
+  - Formatted reviewer names (e.g. "Ananya S."), fallback avatars, and high-res review photo lightbox.
+- **Isolated Table Migrations (`src/db/init.ts`):**
+  - Statement-level `try/catch` isolation in `autoEnsureTables()` ensuring transient DDL warnings never abort subsequent table or column additions.
+- **Interactive System Architecture Visualization (Archify 3.0):**
+  - Master interactive architecture visualizer compiled at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
 - **Admin Integrations Diagnostic & Live Test Matrix (`/admin/integrations`):**
   - Interactive 1-click test connection endpoint (`/api/admin/integrations/test`) for Neon DB, Better Auth + GAS Email, Direct Gmail SMTP, Multi-Provider AI Studio (Gemini/Groq/Mistral), Backblaze B2, and Cloudflare Worker.
   - Zero hardcoded fallback tokens: Fail-closed architecture strictly requires `GAS_SECRET_TOKEN` from Vercel environment variables.
@@ -144,7 +158,7 @@
 - **Backblaze B2 Private Storage:** Cloudflare Worker proxy (`https://aalm-b2-proxy.alamwastraly.workers.dev` via `cloudflare-worker/b2-proxy.js`) with Cloudflare KV token caching (23 hours) and 1-year immutable edge caching; direct serverless fallback to Data URI when on read-only environments. **Auto-setup script:** `pwsh scripts/setup-b2-worker.ps1` (Windows) or `bash scripts/setup-b2-worker.sh` (Mac/Linux).
 - **CI/CD Security:** Automated CodeQL analysis, Semgrep scanning, and NPM dependency security checks.
 
-## 5. Database Schema (17 Tables)
+## 5. Database Schema (19 Tables)
 1. `users`: Customers, Sellers, and Admins (`id`, `email`, `role`, `password_hash`).
 2. `stores`: Multi-vendor stores with Bihar/Indian address, GSTIN, ratings, and sales.
 3. `categories`: 18 hierarchical ethnic categories (Women, Men, Kids, Accessories).
@@ -154,14 +168,16 @@
 7. `order_items`: Line items linked to products & variants with frozen purchase price.
 8. `cart`: User cart items with variant specification.
 9. `wishlist`: Customer favorite ethnic pieces.
-10. `reviews`: Verified purchase ratings (1-5 stars) with photos and body.
-11. `coupons`: Discount vouchers (percentage/fixed) with `min_order_value` and `max_discount` caps.
-12. `notifications`: Real-time user alert feed.
-13. `addresses`: Customer shipping addresses with default flag.
-14. `settings`: 100+ zero-code admin settings for banners, theme, brand, pricing, security, and toggles.
-15. `audit_logs`: Administrative action audit trails with IP and user agent.
-16. `login_attempts` & `rate_limits`: Brute-force lockout and IP throttling.
-17. `pow_used`: Single-use Proof-of-Work anti-replay challenge store (`challenge_hash` PK, `used_at` timestamp).
+10. `reviews`: Verified purchase ratings (1-5 stars) with photos, body, and additive `helpful_count`.
+11. `review_votes`: Anti-gaming single-use helpful votes tracking (`review_id`, `user_id`, `ip_hash`).
+12. `media_assets`: B2 metadata cache table (`file_id`, `file_name`, `url`, `content_type`, `size`) eliminating Class C calls.
+13. `coupons`: Discount vouchers (percentage/fixed) with `min_order_value` and `max_discount` caps.
+14. `notifications`: Real-time user alert feed (`priority`, `channel_id`, `action_buttons`).
+15. `addresses`: Customer shipping addresses with default flag.
+16. `settings`: 100+ zero-code admin settings for banners, theme, brand, pricing, security, and toggles.
+17. `audit_logs`: Administrative action audit trails with IP and user agent.
+18. `login_attempts` & `rate_limits`: Brute-force lockout and IP throttling.
+19. `pow_used`: Single-use Proof-of-Work anti-replay challenge store (`challenge_hash` PK, `used_at` timestamp).
 
 ## 6. Brand Identity & Complete Asset Matrix (ADR 014)
 - **Master Vector Source:** `public/logo-source.svg` (1024×1024 master canvas) and `public/logo.svg`.
@@ -327,6 +343,28 @@ ame?\, \size?\ (default 40px), \className?\.
 4. **Enterprise Multi-Layer `.gitignore`:**
    - 10 distinct security and cleanliness sections blocking secrets, build caches, test reports, OS files, and scratch artifacts.
 5. **Production Verification Status:**
-   - 33/33 test suites passing in < 3.5s.
+   - 40/40 test suites passing in ~1.08s.
    - Strict TypeScript (`tsc --noEmit`): 0 errors.
    - Next.js Turbopack build: 34 routes compiled and static-optimized with 0 errors.
+
+## 15. Storefront Crash Armor, RSC Decoupling & Database Helpful Reviews (Commits `801325b` -> `9f867dc`)
+1. **React 19 Server-to-Client Function Serialization Leak Resolved (`/admin/integrations`):**
+   - **Digest 1344781023 Fixed:** In `src/app/admin/integrations/page.tsx`, `BACKBONE` had `check: (env) => boolean` functions being passed to Client Component `<IntegrationsDashboardClient />`.
+   - Mapped `services` to only plain JSON-serializable keys (`name`, `purpose`, `envKeys`, `docs`, `configured`, `testKey`), stripping the `check` function and resolving production crash.
+2. **Resilient Product Detail Route & URL Armor (`/products/[slug]`):**
+   - **Digest 4182331038 Fixed:** Added `decodeURIComponent(slug)` to ensure non-ASCII or encoded product URLs decode cleanly.
+   - Added defensive array fallback `Array.isArray(product.images) && product.images.length > 0 ? product.images : [null]` preventing image carousel crashes.
+   - Isolated secondary database queries (`reviews`, `similarProducts`, `wishlist`, `productVariants`) in independent `try/catch` scopes with safe fallbacks so table schema skew or cold-start lag never breaks the primary storefront purchase page.
+3. **Multi-Tier Route Error Boundaries:**
+   - Created `src/app/error.tsx`: Root-level route boundary retaining Header, Breadcrumbs, and Footer while presenting an interactive "Dobara try karein" retry button.
+   - Created `src/app/products/[slug]/error.tsx`: Product-scoped error boundary preventing product page crashes from bubbling up to the unstyled root error layout.
+4. **Database-Backed Helpful Reviews (`review_votes` table & `reviews.helpful_count`):**
+   - Replaced temporary localStorage-only counters with a relational database schema.
+   - Created `review_votes` table tracking `review_id`, authenticated `user_id`, and anonymized SHA-256 `ip_hash`.
+   - Added `voteReviewHelpful` server action in `src/actions/orders.ts` with atomic conflict resolution and rate limiting.
+   - Added formatted reviewer names (e.g. "Ananya S."), luxury fallback avatars, and high-res review photo lightbox.
+5. **Isolated Runtime DDL Execution (`src/db/init.ts`):**
+   - Refactored `autoEnsureTables()` to execute every `ALTER TABLE` and `CREATE TABLE` in its own isolated `try/catch` loop so failure of one statement never blocks `helpful_count`, `review_votes`, or other tables.
+6. **Archify 3.0 Interactive Architecture Visualizer:**
+   - Compiled complete system architecture visualizer at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
+

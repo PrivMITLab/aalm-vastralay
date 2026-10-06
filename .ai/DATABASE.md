@@ -29,7 +29,7 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 
 ---
 
-## 2. Table Catalog (All 17 Tables)
+## 2. Table Catalog (All 19 Tables)
 
 | Table | Purpose | Primary Key | Foreign Keys |
 |---|---|---|---|
@@ -42,7 +42,9 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 | `order_items` | Products within an order | UUID | `order_id -> orders.id`, `product_id -> products.id` |
 | `cart` | Shopping cart items | UUID | `user_id -> users.id`, `product_id -> products.id` |
 | `wishlist` | Saved favorite products | UUID | `user_id -> users.id`, `product_id -> products.id` |
-| `reviews` | Customer ratings & photos | UUID | `product_id -> products.id`, `user_id -> users.id` |
+| `reviews` | Customer ratings, photos & `helpful_count` | UUID | `product_id -> products.id`, `user_id -> users.id` |
+| `review_votes` | Anti-gaming single-use helpful upvotes | UUID | `review_id -> reviews.id`, `user_id -> users.id` |
+| `media_assets` | Backblaze B2 metadata & fileId cache (0 Class C) | UUID | `store_id -> stores.id` |
 | `coupons` | Promo codes & discounts | UUID | — |
 | `notifications` | User alerts feed (`priority`, `channel_id`, `action_buttons`) | UUID | `user_id -> users.id` |
 | `addresses` | Customer delivery locations | UUID | `user_id -> users.id` |
@@ -56,8 +58,9 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 
 ## 3. Pure Production & Zero-Fake Data Policy
 - **No Mock / Fake Reviews:** The platform strictly enforces Indian Standard **BIS IS 19000:2022** for Online Consumer Reviews. Only verified customers who ordered and received a product (`status IN ('delivered', 'confirmed')`) can write reviews.
-- **Customer Review CRUD:** Customers have full rights to Edit and Delete their reviews at any time.
-- **1-Command Auto-Migration:** Run `npm run db:auto-migrate` to safely synchronize all 17 tables, performance indexes, and initial settings without manual SQL console access.
+- **Customer Review CRUD & Helpful Voting:** Customers have full rights to Edit and Delete their reviews at any time. Crowd-sourced helpful votes are persisted in `review_votes` with IP hash anti-gaming checks.
+- **Statement-Level Isolated Auto-Migration:** In `src/db/init.ts`, `autoEnsureTables()` executes each `ALTER TABLE` and `CREATE TABLE` inside its own isolated `try/catch` block so transient errors or existing columns never halt downstream migrations.
+- **1-Command Auto-Migration:** Run `npm run db:auto-migrate` to safely synchronize all 19 tables, performance indexes, and initial settings without manual SQL console access.
 
 ---
 
@@ -69,7 +72,7 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 5. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`
 6. `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`
 7. `CREATE INDEX IF NOT EXISTS "idx_products_fts" ON "products" USING gin (to_tsvector('english', "title" || ' ' || coalesce("description", '')));` (Full-text search)
-8. `CREATE TABLE IF NOT EXISTS "push_subscriptions" (...);`
+8. `CREATE TABLE IF NOT EXISTS "media_assets" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "store_id" uuid, "file_id" text NOT NULL, "file_name" text NOT NULL, "url" text NOT NULL, "content_type" text, "size_bytes" bigint, "created_at" timestamptz DEFAULT now() NOT NULL);`
 9. `CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now() NOT NULL);`
 10. `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`
 11. `settings` key `home.slides`: JSON array of max 5 slides (`[{ image, title, subtitle, badge, ctaLabel, ctaHref, strategy, mirroredUrl, active, order }]`), validated via Zod `heroSlidesArraySchema`.
@@ -79,6 +82,10 @@ Jab bhi aap koi naya feature add karte hain ya existing feature update karte hai
 15. `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`
 16. Dynamic NPCI UPI QR engine with environment parameterization (`NEXT_PUBLIC_UPI_VPA`, `NEXT_PUBLIC_UPI_PAYEE_NAME`).
 17. DPDP Act 2023 compliant `CookieConsent` preferences and sandboxed `ThirdPartyEmbed` security wrapper.
+18. `ALTER TABLE "reviews" ADD COLUMN IF NOT EXISTS "helpful_count" integer DEFAULT 0 NOT NULL;`
+19. `CREATE TABLE IF NOT EXISTS "review_votes" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "review_id" uuid NOT NULL REFERENCES "reviews"("id") ON DELETE CASCADE, "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "ip_hash" text, "created_at" timestamptz DEFAULT now() NOT NULL);`
+20. `CREATE INDEX IF NOT EXISTS "idx_review_votes_review" ON "review_votes" ("review_id");`
+21. `CREATE INDEX IF NOT EXISTS "idx_review_votes_user" ON "review_votes" ("user_id");`
 *Note: Existing `home.banner` settings key is 100% preserved as automatic zero-cost fallback.*
 
 

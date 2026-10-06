@@ -153,3 +153,33 @@
 - **Symptom:** After implementing `/api/avatar` (DiceBear Lorelei), the header still showed a hard-coded `<span>A</span>` monogram in desktop trigger and a gold `<div>` initial in mobile drawer.
 - **Root Cause:** `<HeaderNav>` was not updated when `<UserAvatar>` was introduced. `HeaderUser` type lacked `id: string` field needed for avatar seed.
 - **Resolution:** Updated `Header.tsx` to pass `id: user.id`. Added `id: string` to `HeaderUser` type. Replaced all 3 monogram instances (desktop trigger size 28, dropdown size 36, mobile drawer size 36) with `<UserAvatar seed={user.id} size={N} />` (commit `bd3e365`).
+
+### Incident 025: React 19 RSC Boundary Violation on `/admin/integrations` (Digest 1344781023)
+- **Symptom:** Visiting `/admin/integrations` in production threw "A server error occurred - Digest: 1344781023".
+- **Root Cause:** Next.js 16 / React 19 Server Components disallow passing functions as props across the RSC boundary. `src/app/admin/integrations/page.tsx` was passing `BACKBONE` service objects directly to `<IntegrationsDashboardClient services={BACKBONE} />` where each service object contained a `check: (env) => boolean` callback function.
+- **Resolution:** Mapped `services` strictly on the server before passing to the client component, evaluating all checks server-side and only providing serializable plain JSON data (`name`, `purpose`, `envKeys`, `docs`, `configured`, `testKey`).
+
+### Incident 026: Product Detail Server Crash & Unhandled Subquery Failure (Digest 4182331038)
+- **Symptom:** Visiting `https://aalm-vastralay.vercel.app/products/lehnga` triggered `global-error.tsx` with digest `4182331038`.
+- **Root Cause:**
+  1. Root and route-level error boundaries (`error.tsx`) were missing for `src/app/` and `src/app/products/[slug]/`, bubbling any cold-start or transient DB error up to the minimal unstyled `global-error.tsx`.
+  2. URL slugs with special/encoded characters were not decoded using `decodeURIComponent(slug)`.
+  3. `product.images` had unsafe array assumptions when database returned null or non-array records.
+  4. Secondary queries (`reviews`, `similarProducts`, `wishlist`, `productVariants`) executed in the same unshielded scope; a failure in any secondary table brought down the entire product detail and purchase page.
+  5. Schema auto-migration in `src/db/init.ts` ran in a non-isolated block where one existing column error stopped subsequent statements from executing.
+- **Resolution:**
+  1. Created `src/app/error.tsx` and `src/app/products/[slug]/error.tsx` maintaining layout, navigation, and retry UI.
+  2. Added `decodeURIComponent(slug)` and defensive array bounds for `product.images`.
+  3. Isolated secondary queries (`reviews`, `similar`, `wishlist`, `variants`) in independent `try/catch` scopes with safe fallbacks.
+  4. Refactored `autoEnsureTables()` to execute every statement in its own isolated `try/catch` block.
+
+### Incident 027: Review Rating Cache Skew on Guest Sessions & Mobile Stutter
+- **Symptom:** Guest users experienced inconsistent review ratings across page visits, and mobile product reviews had layout shift during initial paint.
+- **Root Cause:** Review rating averages were inconsistently cached for unauthenticated guest sessions, and mobile reviews used nested flex layouts without minimum height boundaries.
+- **Resolution:** Synchronized product rating caching across both guest and authenticated sessions, and refactored mobile review items to responsive CSS grids with fixed skeleton bounds.
+
+### Incident 028: Ephemeral LocalStorage Review Helpful Votes (Zero Cross-Device Persistence)
+- **Symptom:** Customer helpful votes on reviews were stored only in the browser's `localStorage`, resetting across devices, private tabs, or browser resets, and vulnerable to vote count gaming.
+- **Root Cause:** Absence of a dedicated database persistence table for review votes.
+- **Resolution:** Created `review_votes` PostgreSQL table and added `helpful_count` to `reviews`. Added server action `voteReviewHelpful` verifying user ID and hashing client IP (`ip_hash`) with atomic conflict rejection to eliminate vote manipulation.
+

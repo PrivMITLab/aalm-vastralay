@@ -17,7 +17,7 @@ flowchart TD
     
     subgraph Data_Tier["Data & Storage Tier"]
         ActionsEngine --> DrizzleORM["Drizzle ORM (Type-safe SQL)"]
-        DrizzleORM --> NeonPostgres["Neon Serverless PostgreSQL (17 Tables)"]
+        DrizzleORM --> NeonPostgres["Neon Serverless PostgreSQL (19 Tables)"]
         NextApp --> EncryptionEngine["AES-256-GCM Encryption Engine"]
         NextApp --> LocalStorage["Local / Cloud Uploads (/public/uploads)"]
     end
@@ -27,7 +27,8 @@ flowchart TD
 
 ### Layer 1: Presentation & UI (`src/components/` & `src/app/`)
 - **Server Components:** Fetch data directly via Drizzle queries with zero client bundle footprint.
-- **Client Components (`"use client"`):** Used only for interactive states (drawers, carousels, forms, live filtering, Turnstile `<ClickToSolve />`).
+- **Client Components (`"use client"`):** Used only for interactive states (drawers, carousels, forms, live filtering, Turnstile `<ClickToSolve />`). Functions are never passed across the RSC serialization boundary.
+- **Route Error Boundaries:** `src/app/error.tsx` (Global) and `src/app/products/[slug]/error.tsx` (Product Detail) preserve Header, Footer, and Navigation context with in-place retry capabilities.
 - **Styling:** Tailwind CSS with CSS Variables (`var(--brand)`, `var(--accent)`, `var(--surface)`) supporting live admin customization and dark mode.
 
 ### Layer 2: Business Logic & Server Actions (`src/actions/`)
@@ -44,9 +45,10 @@ flowchart TD
 - Tenant isolation ensuring sellers only access their own store data.
 
 ### Layer 4: Persistence, Storage & Analytics (`src/db/`, `src/lib/b2.ts`, `@duckdb/duckdb-wasm`)
-- Drizzle ORM schemas (`src/db/schema.ts`) defining 17 strongly-typed tables.
-- Zero-touch bootstrap (`src/db/init.ts`) ensuring automatic table and index creation on startup.
+- Drizzle ORM schemas (`src/db/schema.ts`) defining 19 strongly-typed tables.
+- Zero-touch bootstrap (`src/db/init.ts`) ensuring automatic statement-level isolated table and index creation on startup.
 - Neon PostgreSQL `media_assets` table caching B2 metadata (eliminates Class C billing).
+- Database-backed `review_votes` table and `helpful_count` column conforming to BIS IS 19000:2022.
 - Client-side DuckDB-Wasm in-process OLAP engine for zero-cost GST 5%/12% and GMV calculations.
 - Safe database reset mechanisms preserving core catalog and settings.
 
@@ -70,11 +72,18 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Push["git push origin main"] --> QG["Quality Gate (npm ci, tsc, lint, 38 tests, build)"]
+    Push["git push origin main"] --> QG["Quality Gate (npm ci, tsc, lint, 40 tests, build)"]
     QG --> RP["Google Release Please Engine v4"]
     RP --> Tag["Git Tag & GitHub Release (v0.x.x)"]
     RP --> ChangeLog["CHANGELOG.md Auto Update"]
     RP -.-> Deploy["Optional Vercel Deploy Hook"]
     RP -.-> Notify["Optional Discord/Slack Notification"]
 ```
+
+## 5. Interactive System Architecture (Archify 3.0)
+
+For an interactive, zoomable, deep-dive architectural visualization of the entire system, refer to:
+- **Architecture Showcase Artifact:** `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`
+- Contains interactive SVG graph representations of frontend layers, server actions, database tables, and external security gateways.
+
 

@@ -57,7 +57,7 @@ Aalm Vastralay is engineered around four non-negotiable operational principles:
 | **In-Memory OLAP**  | **DuckDB-Wasm**        | `^1.33.1`    | Client-side columnar SQL engine executing GMV, GST, & sales analytics in browser RAM (0% DB load). |
 | **Free AI Inference**| **Google Gemini & Groq**| `2.5 Flash / 70B`| Zero-cost luxury copywriting, sub-300ms recommendations & NLP search. |
 | **Email Relay** | **Google Apps Script**| `V8 Runtime` | Zero-domain free transactional email relay for OTPs and invoices. |
-| **Testing Framework**| **Vitest & TSX** | `Automated` | 38 enterprise automated test suites verifying security, payments, and DB rules. |
+| **Testing Framework**| **Vitest & TSX** | `Automated` | 40 enterprise automated test suites verifying security, payments, and DB rules. |
 | **Release Automation**| **Google Release Please**| `v4` | Automated semantic versioning, Git tagging, and CHANGELOG.md generation. |
 | **Commit Discipline** | **Commitlint & Husky** | `v19 / v9` | Pre-commit quality gate (`typecheck` + `lint`) and Conventional Commits validation. |
 | **Secrets Gateway**   | **Fail-Closed Env Law** | `src/lib/required-env.ts` | Zero-default fail-closed secret gateway throwing fatal errors on missing production keys. |
@@ -163,7 +163,7 @@ flowchart TD
 
 ## 8. 🧪 Enterprise Verification & Test Matrix
 
-The platform includes **35 comprehensive automated test suites** (`tests/run-all-tests.ts`):
+The platform includes **40 comprehensive automated test suites** (`tests/run-all-tests.ts`):
 
 ```bash
 npm test
@@ -187,10 +187,27 @@ npm test
 15. Open-source turnkey compliance & BIS IS 19000:2022 standards.
 16. Free AI Engine & Hinglish NLP search intent extraction.
 17. Media Management & B2 Zero Class C Elimination.
+18. DuckDB-Wasm Client-Side In-Memory OLAP Analytics (Suite 36).
+19. Google 1-Click OAuth 2.0 Security & Mapping Hardening (Suite 37).
+20. Fail-Closed Secrets Architecture with `src/lib/required-env.ts` (Suite 38).
+21. OpenPanel Cookieless Client Analytics & PII Stripping (Suite 39).
+22. Typesense Instant Search & Postgres Fallback Engine (Suite 40).
 
 ---
 
-## 9. 📋 Operational Run Commands Cheat-Sheet
+## 9. 🏛️ Interactive Architecture & Error Boundaries
+
+- **Archify 3.0 System Architecture Visualizer:**
+  Interactive visual architecture blueprint generated at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
+- **Multi-Tier Route Error Boundaries:**
+  - `src/app/error.tsx`: Root route error boundary retaining global Header, Navigation, and Footer.
+  - `src/app/products/[slug]/error.tsx`: Product detail-scoped error boundary preventing product page runtime exceptions from degrading the entire application layout.
+- **React 19 RSC Boundary Decoupling:**
+  Prohibits passing functions across the server/client boundary. Pre-computes status flags on the server to prevent production serialization digest crashes.
+
+---
+
+## 10. 📋 Operational Run Commands Cheat-Sheet
 
 | Task | Command | Purpose |
 | :--- | :--- | :--- |
@@ -199,7 +216,7 @@ npm test
 | **Start Local Dev** | `npm run dev` | Boots Next.js Turbopack dev server on `http://localhost:3000`. |
 | **Production Build** | `npm run build` | Compiles production assets and typechecks all 34 routes. |
 | **Start Production**| `npm start` | Runs compiled Next.js standalone server. |
-| **Run All Tests** | `npm test` | Runs all 35 automated enterprise test suites (100% green in < 2s). |
+| **Run All Tests** | `npm test` | Runs all 40 automated enterprise test suites (100% green in ~1s). |
 | **Typecheck** | `npm run typecheck` | Validates TypeScript strict mode (0 errors, 0 `any`). |
 | **Lint Code** | `npm run lint` | Runs ESLint 9 across all components and actions. |
 | **Auto-Migrate DB** | `npm run db:auto-migrate`| Zero-data-loss safe table creation & column additions. |

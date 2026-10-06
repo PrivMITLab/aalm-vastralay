@@ -16,24 +16,24 @@
 Reading this section gives any agent instant 100% context across the entire repository:
 
 ### Core Governance & Documentation Hub:
-- 📜 [docs/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
-- 📜 [.ai/RULES.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/RULES.md) — 43 Golden Rules, Code Quality, Client/Server Security Standards.
-- 📡 [.ai/CONTEXT.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CONTEXT.md) — Live system state, 38 test suites count, verified verification matrix.
-- 🗄️ [.ai/DATABASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
-- 📋 [.ai/PRD.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/PRD.md) — Functional specifications, Indian ethnic marketplace business rules.
-- 🏗️ [docs/TECH_STACK_AND_ARCHITECTURE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/TECH_STACK_AND_ARCHITECTURE.md) — Complete multi-tier system topology diagram and tech stack breakdown.
-- 🚀 [docs/SETUP.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/SETUP.md) — Local development, Vercel production deployment, and DB setup runbooks.
-- 🚀 [docs/RELEASE.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/docs/RELEASE.md) — Canonical Release Automation Runbook (Google release-please, Quality Gate, Vercel hooks).
-- 🤝 [CONTRIBUTING.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/CONTRIBUTING.md) — Conventional Commits and development workflow guide.
-- ⚖️ [.ai/DECISIONS.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/DECISIONS.md) — Architecture Decision Records (ADR).
-- 📜 [.ai/CHANGELOG.md](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/.ai/CHANGELOG.md) — Historical chronological record of releases and fixes.
+- 📜 [docs/RULES.md](file:///D:/aalm-vastralay/docs/RULES.md) — This master rulebook (Laws, Protocols, Architecture).
+- 📜 [.ai/RULES.md](file:///D:/aalm-vastralay/.ai/RULES.md) — 43 Golden Rules, Code Quality, Client/Server Security Standards.
+- 📡 [.ai/CONTEXT.md](file:///D:/aalm-vastralay/.ai/CONTEXT.md) — Live system state, 40 test suites count, verified verification matrix.
+- 🗄️ [.ai/DATABASE.md](file:///D:/aalm-vastralay/.ai/DATABASE.md) — Drizzle ORM schemas, Neon PostgreSQL zero-loss migration protocol.
+- 📋 [.ai/PRD.md](file:///D:/aalm-vastralay/.ai/PRD.md) — Functional specifications, Indian ethnic marketplace business rules.
+- 🏗️ [docs/TECH_STACK_AND_ARCHITECTURE.md](file:///D:/aalm-vastralay/docs/TECH_STACK_AND_ARCHITECTURE.md) — Complete multi-tier system topology diagram and tech stack breakdown.
+- 🚀 [docs/SETUP.md](file:///D:/aalm-vastralay/docs/SETUP.md) — Local development, Vercel production deployment, and DB setup runbooks.
+- 🚀 [docs/RELEASE.md](file:///D:/aalm-vastralay/docs/RELEASE.md) — Canonical Release Automation Runbook (Google release-please, Quality Gate, Vercel hooks).
+- 🤝 [CONTRIBUTING.md](file:///D:/aalm-vastralay/CONTRIBUTING.md) — Conventional Commits and development workflow guide.
+- ⚖️ [.ai/DECISIONS.md](file:///D:/aalm-vastralay/.ai/DECISIONS.md) — Architecture Decision Records (ADR).
+- 📜 [.ai/CHANGELOG.md](file:///D:/aalm-vastralay/.ai/CHANGELOG.md) — Historical chronological record of releases and fixes.
 
 ### Key Codebase Anatomy:
 - `src/app/` — Next.js 16 App Router pages, layouts, server actions, and API routes.
-- `src/db/` — Drizzle ORM database layer ([`src/db/schema.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/schema.ts), [`src/db/index.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/index.ts), [`src/db/init.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/db/init.ts)).
+- `src/db/` — Drizzle ORM database layer ([`src/db/schema.ts`](file:///D:/aalm-vastralay/src/db/schema.ts), [`src/db/index.ts`](file:///D:/aalm-vastralay/src/db/index.ts), [`src/db/init.ts`](file:///D:/aalm-vastralay/src/db/init.ts)).
 - `src/components/` — UI components (Product cards, Header, Footer, Admin, Seller, Modals).
-- `src/lib/` — Business logic ([`src/lib/required-env.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/required-env.ts), [`src/lib/ai/client.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/ai/client.ts), [`src/lib/auth.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/auth.ts), [`src/lib/media-resolver.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/src/lib/media-resolver.ts)).
-- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///e:/daily/aalm-vastralay-marketplace-development%20%281%29/tests/run-all-tests.ts), 38 test suites).
+- `src/lib/` — Business logic ([`src/lib/required-env.ts`](file:///D:/aalm-vastralay/src/lib/required-env.ts), [`src/lib/ai/client.ts`](file:///D:/aalm-vastralay/src/lib/ai/client.ts), [`src/lib/auth.ts`](file:///D:/aalm-vastralay/src/lib/auth.ts), [`src/lib/media-resolver.ts`](file:///D:/aalm-vastralay/src/lib/media-resolver.ts)).
+- `tests/` — Automated enterprise test suites ([`tests/run-all-tests.ts`](file:///D:/aalm-vastralay/tests/run-all-tests.ts), 40 test suites).
 - `.env.development.example` — Template for local development (`http://localhost:3000`).
 - `.env.production.example` — Template for live production on Vercel with Neon pooled connection.
 
@@ -101,7 +101,7 @@ Every code-generating session MUST execute this exact order without skipping ste
 | **Verify TypeScript Strict** | `npm run typecheck` | Strict mode check, must have 0 errors |
 | **Run Linter** | `npm run lint` | ESLint 9 + Next.js rules, 0 errors/warnings |
 | **⚠️ Build Verification** | `npm run build` | Next.js production build verification |
-| **Run All Test Suites** | `npm test` | Runs all 38 automated enterprise tests |
+| **Run All Test Suites** | `npm test` | Runs all 40 automated enterprise tests |
 | **Run Fast Quality Check** | `npm run test:all` | Typecheck + Lint + Test Suite (Runs in ~15s) |
 | **Stage Local Changes** | `git add .` | Stages code locally |
 | **Commit Local Changes** | `git commit -m "..."` | Runs Husky pre-commit hooks |

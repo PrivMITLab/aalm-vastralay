@@ -3,6 +3,37 @@
 
 ---
 
+## [2026-10-06] — Storefront Crash Hardening, React 19 RSC Boundary Fix, Review Helpful Votes & Archify 3.0
+
+### Fixed & Hardened
+- **React 19 RSC Boundary Violation Decoupling (`src/app/admin/integrations/page.tsx`):**
+  - Resolved production digest `1344781023`: The `BACKBONE` service list passed function references (`check: (env) => boolean`) across the Server Component boundary into Client Component `<IntegrationsDashboardClient />`.
+  - Transformed the services array on the server to pass only JSON-serializable plain values (`name`, `purpose`, `envKeys`, `docs`, `configured`, `testKey`), eliminating runtime serialization crashes.
+- **Storefront Product Detail Crash Hardening (`src/app/products/[slug]/page.tsx`):**
+  - Resolved production digest `4182331038`: Added `decodeURIComponent(slug)` to ensure non-ASCII and encoded URLs decode accurately.
+  - Added defensive array bounds for `product.images`: `Array.isArray(product.images) && product.images.length > 0 ? product.images : [null]`.
+  - Isolated secondary queries (`reviews`, `similarProducts`, `wishlist`, `productVariants`) in independent `try/catch` scopes with safe fallback defaults so secondary query/table skew or cold-start latency never breaks the primary storefront purchase flow.
+- **Route Error Boundaries (`src/app/error.tsx`, `src/app/products/[slug]/error.tsx`):**
+  - Built `src/app/error.tsx`: Root route error boundary keeping Header, Brand Navigation, and Footer intact while providing an in-place retry button ("Dobara try karein").
+  - Built `src/app/products/[slug]/error.tsx`: Product-scoped error boundary preventing product page exceptions from degrading the entire application layout.
+- **Statement-Level Isolated Runtime Migrations (`src/db/init.ts`):**
+  - Refactored `autoEnsureTables()` to execute every `ALTER TABLE` and `CREATE TABLE` in its own isolated `try/catch` loop, guaranteeing that transient warnings on one statement never abort subsequent schema upgrades.
+
+### Added & Enhanced
+- **Database-Backed Review Helpful Votes (`src/db/schema.ts`, `src/actions/orders.ts`, `ReviewHelpfulButton.tsx`):**
+  - Replaced temporary localStorage counters with persistent PostgreSQL storage conforming to BIS IS 19000:2022.
+  - Created `review_votes` table tracking `review_id`, `user_id`, `ip_hash`, and timestamps with indexes.
+  - Added additive `helpful_count integer DEFAULT 0 NOT NULL` column to `reviews`.
+  - Built server action `voteReviewHelpful` with optimistic client UI updates and anti-gaming duplicate vote rejection.
+- **Review UI Luxury Polish (`ProductReviews.tsx`):**
+  - Formatted reviewer names (e.g., "Ananya S.") with luxury avatar fallbacks.
+  - Added interactive photo review lightbox modal with keyboard navigation.
+  - Synchronized rating cache across guest sessions and mobile responsive layout.
+- **System Architecture Visualizer (Archify 3.0):**
+  - Generated full interactive architectural blueprint and dependency visualizer at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
+
+---
+
 ## [2026-10-05] — Admin Integrations Live Diagnostics, Fail-Closed GAS Token & Resilient Image Gallery
  
 ### Added & Enhanced

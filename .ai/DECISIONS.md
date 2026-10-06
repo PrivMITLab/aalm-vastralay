@@ -144,6 +144,27 @@
 
 ## ADR 024: Automated Release Management & Strict Quality Gate Pipeline
 - **Status:** Accepted
-- **Decision:** Implement Google's `release-please` v4 for automated semantic versioning, Git tagging, and changelog generation, driven strictly through GitHub Actions (`.github/workflows/release.yml`). Enforce a 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `38 test suites`, `next build`) before release evaluation. Lock version increments in `0.x.x` via `bump-minor-pre-major: true`. Enforce Conventional Commits locally via Husky hooks (`pre-commit` and `commit-msg`) and `commitlint`.
+- **Decision:** Implement Google's `release-please` v4 for automated semantic versioning, Git tagging, and changelog generation, driven strictly through GitHub Actions (`.github/workflows/release.yml`). Enforce a 5-stage Quality Gate (`npm ci`, `typecheck`, `lint`, `40 test suites`, `next build`) before release evaluation. Lock version increments in `0.x.x` via `bump-minor-pre-major: true`. Enforce Conventional Commits locally via Husky hooks (`pre-commit` and `commit-msg`) and `commitlint`.
 - **Rationale:** Guarantees zero-defect releases for solo and multi-developer environments, prevents broken tags or failed deployments from reaching production, and automates historical changelog tracking without manual overhead.
+
+## ADR 025: React 19 RSC Boundary & Function Serialization Decoupling
+- **Status:** Accepted
+- **Decision:** Prohibit passing function callbacks (e.g., `check: (env) => boolean`) across Server Component to Client Component boundaries. All service readiness evaluations and environment inspections must execute server-side in Server Components (e.g. `src/app/admin/integrations/page.tsx`), passing only plain JSON serializable primitives (`name`, `purpose`, `envKeys`, `docs`, `configured`, `testKey`) to Client Components.
+- **Rationale:** React 19 enforces strict serialization across the Server/Client boundary. Passing functions as component props throws unrecoverable runtime serialization errors (e.g. Next.js Digest `1344781023`). Server-side preprocessing completely eliminates serialization leaks.
+
+## ADR 026: Multi-Tier Route Error Boundaries and Secondary Subquery Isolation
+- **Status:** Accepted
+- **Decision:** Implement dedicated route-level error boundaries (`src/app/error.tsx` and `src/app/products/[slug]/error.tsx`) preserving Header, Footer, and Navigation context with in-place retry capabilities. In addition, wrap secondary product subqueries (reviews, recommendations, wishlist status, variant inventory) in isolated `try/catch` scopes with safe fallbacks, and decode URL parameters (`decodeURIComponent`).
+- **Rationale:** Transient failures or cold-start lags in non-critical database tables (e.g. reviews or similar recommendations) must never crash the primary storefront, product catalog, or purchase flow. Isolated fault tolerance ensures high commerce availability.
+
+## ADR 027: Database-Backed Review Helpful Votes with Anti-Gaming IP Hash
+- **Status:** Accepted
+- **Decision:** Persist customer helpful upvotes in a dedicated relational `review_votes` table with an additive `helpful_count` column on `reviews` instead of ephemeral client-side `localStorage`. Validate authenticated `user_id` or anonymized SHA-256 client `ip_hash` with single-vote enforcement.
+- **Rationale:** Complies with Indian Standard BIS IS 19000:2022 for authentic online consumer reviews, provides cross-device persistence, and prevents vote count manipulation or artificial inflation.
+
+## ADR 028: Archify 3.0 Interactive Architectural Blueprint Visualizer
+- **Status:** Accepted
+- **Decision:** Integrate Archify 3.0 architecture visualization generator to compile interactive, drill-down architectural blueprints at `.archify/architecture-aalm-vastralay-20261006-134300/architecture.html`.
+- **Rationale:** Provides team members, security auditors, and AI agents with a comprehensive, visual interactive model of application layers, data flow, edge caching, and security boundaries.
+
 

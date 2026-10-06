@@ -65,5 +65,5 @@ These dedicated, production-grade manuals provide deep architectural breakdowns,
 ## 🚀 Root Files & Entry Points
 
 - **[`README.md`](../README.md)** — Main repository landing page.
-- **[`GEMINI.md`](../GEMINI.md)** — Mandatory AI agent workflow instructions.
-- **[`CLAUDE.md`](../CLAUDE.md)** — Claude code workflow rules.
+- **[`CONTRIBUTING.md`](../CONTRIBUTING.md)** — Contribution and Conventional Commits guidelines.
+- **[`CHANGELOG.md`](../CHANGELOG.md)** — Official automated release changelog.
