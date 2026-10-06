@@ -94,11 +94,11 @@ Everything a shopper touches, engineered for slow Indian mobile networks (skelet
 | Area | What the customer gets |
 | :--- | :--- |
 | **Catalog & Discovery** | Typo-tolerant instant search, visual filters (Occasion, Color, Fabric), category navigation, sorting (rating, discount, price), SEO-friendly product pages with structured data |
-| **Product Pages** | Image galleries with WebP compression, variant selection (size XS–XXL, color swatches), live stock indicators, GST-inclusive pricing, COD eligibility badges |
+| **Product Pages** | Image galleries with 5-tier fallback `<SmartImage>`, variant selection (size XS–XXL, color swatches), live stock indicators, GST-inclusive pricing, COD eligibility badges, resilient subquery armor |
 | **Cart & Wishlist** | Guest + authenticated carts, server-persisted wishlist, quantity controls with stock guards, double-click-safe checkout buttons |
 | **Checkout** | Cash on Delivery, 0%-fee dynamic UPI QR with 5-minute expiry timer, 12-digit UTR verification flow, pincode serviceability check with delivery estimates |
 | **Orders** | Live order tracking timeline, courier AWB integration (Shiprocket + Delhivery), printable GST invoices, return/cancel with reason codes |
-| **Trust & Engagement** | Verified-purchase-only reviews with photos (zero fake reviews), WhatsApp video-call shopping, 1-click WhatsApp order confirmation, push notifications for dispatch |
+| **Trust & Engagement** | Verified-purchase-only reviews with photos (zero fake reviews, BIS IS 19000:2022 compliant), database-persisted helpful votes (`review_votes`), photo review lightbox modal, WhatsApp video-call shopping, 1-click WhatsApp order confirmation, push notifications for dispatch |
 | **Content** | Festive occasion collections (Wedding, Haldi, Mehendi, Sangeet), artisan store directory, personalized recommendations, marketing broadcasts |
 
 ---
@@ -191,7 +191,7 @@ A storage architecture designed around Backblaze's free tier instead of against 
 
 ## 🛡️ Security Architecture
 
-Defense-in-depth, verified by OWASP ZAP baseline scans (0 High findings) and 38 automated suites.
+Defense-in-depth, verified by OWASP ZAP baseline scans (0 High findings) and 40 automated suites.
 
 | Vector | Defense |
 | :--- | :--- |
@@ -203,8 +203,9 @@ Defense-in-depth, verified by OWASP ZAP baseline scans (0 High findings) and 38 
 | **PII** | Automatic masking in admin/seller views and logs — phones (`9876****10`), emails (`r**@gmail.com`); sellers see only dispatch-required address fields (DPDP Act 2023 aligned) |
 | **Headers** | Strict CSP (no wildcards), `CORP: same-origin`, `COEP: credentialless`, HSTS preload, `X-Content-Type-Options: nosniff`, `poweredByHeader: false` |
 | **Crypto Hygiene** | `timingSafeEqual` on all token/signature comparisons; non-blocking async notification dispatch; scrypt password hashing |
-| **Abuse & Errors** | Tiered rate limiting with IPv4/IPv6 anti-spoof validation and fail-closed sensitive routes; duplicate-order chaos guards (`useFormLock`); zero internal-error leakage to clients |
-| **Data Safety** | Zero-loss migrations only (`ADD COLUMN IF NOT EXISTS`, safe defaults — never `DROP`); `withDbRetry` backoff armor for Neon blips |
+| **Abuse & Errors** | Tiered rate limiting with IPv4/IPv6 anti-spoof validation and fail-closed sensitive routes; duplicate-order chaos guards (`useFormLock`); zero internal-error leakage; multi-tier route error boundaries (`src/app/error.tsx`, `products/[slug]/error.tsx`) |
+| **RSC Boundary Decoupling** | Prohibits passing functions across Server-to-Client component boundaries; pre-evaluates checks server-side to prevent production serialization digest crashes (`1344781023`) |
+| **Data Safety** | Zero-loss migrations only (`ADD COLUMN IF NOT EXISTS`, safe defaults — never `DROP`); statement-level isolated DDL execution; `withDbRetry` backoff armor for Neon blips |
 
 ---
 
@@ -333,7 +334,7 @@ Generate production secrets per [ENV_VARS_PRODUCTION.md](docs/ENV_VARS_PRODUCTIO
 
 ## 🧪 Verification Suite
 
-**40/40 enterprise suites, ~3.7 seconds.** Every change is verified before it ships:
+**40/40 enterprise suites, ~1.08 seconds.** Every change is verified before it ships:
 
 ```bash
 npm test            # full enterprise suite (tests/run-all-tests.ts)
@@ -366,6 +367,7 @@ Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md)
 | Guide | Covers |
 | :--- | :--- |
 | ⭐ [Master Developer Guide](docs/MASTER_DEVELOPER_GUIDE.md) | Developer + operations runbook |
+| 🏛️ [Archify 3.0 Blueprint](.archify/architecture-aalm-vastralay-20261006-134300/architecture.html) | Interactive zoomable system architecture visualizer |
 | 📜 [Architecture Laws (RULES)](docs/RULES.md) | Anti-yes-man principles, execution lifecycle, git discipline |
 | 🐘 [Neon PostgreSQL](docs/NEON_POSTGRESQL.md) | Autoscaling Postgres 16, pooled Mumbai endpoint, zero-loss migrations |
 | ⚡ [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md) | Next.js 16 SSR/ISR, edge regions, zero-downtime releases, rollback |
