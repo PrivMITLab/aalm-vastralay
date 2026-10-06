@@ -1,4 +1,92 @@
-<!DOCTYPE html>
+import fs from "node:fs";
+import path from "node:path";
+import { SETTINGS_FIELDS, SETTINGS_GROUPS } from "../src/lib/settings-defs";
+
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+console.log(`[INFO] Loaded ${SETTINGS_FIELDS.length} settings fields across ${SETTINGS_GROUPS.length} groups.`);
+
+const htmlFile = path.resolve(process.cwd(), "docs/HINDI_MASTER_MANUAL.html");
+const mdFile = path.resolve(process.cwd(), "docs/HINDI_MASTER_MANUAL.md");
+
+function getSettingBusinessImpact(key: string, label: string, group: string): string {
+  if (key.includes("logo") || key.includes("name") || key.includes("tagline")) {
+    return "स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।";
+  }
+  if (key.includes("color") || key.includes("theme")) {
+    return "संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।";
+  }
+  if (key.includes("upi") || key.includes("payment")) {
+    return "चेकआउट पेज पर 0% शुल्क डायनामिक QR कोड और NPCI इंटेंट लिंक (GPay/PhonePe) को सक्षम करता है।";
+  }
+  if (key.includes("pow") || key.includes("security")) {
+    return "बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।";
+  }
+  if (key.includes("shipping") || key.includes("delivery")) {
+    return "कार्ट और चेकआउट पर फ्री डिलीवरी थ्रेशोल्ड और कूरियर डिलीवरी शुल्क का स्वचालित गणित निर्धारित करता है।";
+  }
+  if (key.includes("seller")) {
+    return "सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।";
+  }
+  if (key.includes("ai") || key.includes("gemini")) {
+    return "सेलर हब में 1-क्लिक हिंग्लिश उत्पाद विवरण और SEO कीवर्ड्स जेनरेशन मॉडल को सक्रिय करता है।";
+  }
+  if (key.includes("mail") || key.includes("gas")) {
+    return "ऑर्डर पुष्टि, डिस्पैच और UTR अप्रूवल पर Google Apps Script के जरिए शून्य-लागत Gmail नोटिफिकेशन भेजता है।";
+  }
+  return `स्टोर संचालन और ${group} कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।`;
+}
+
+// Generate grouped settings HTML
+const groupedSettingsHtml = SETTINGS_GROUPS.map((group) => {
+  const fieldsInGroup = SETTINGS_FIELDS.filter((f) => f.group === group.id);
+  const rows = fieldsInGroup.map((s) => {
+    const optionsText = s.options ? `<br><small class="text-muted">विकल्प: ${s.options.join(", ")}</small>` : "";
+    const constraintsText = (s.min !== undefined || s.max !== undefined) ? `<br><small class="text-muted">रेंज: ${s.min ?? "min"} से ${s.max ?? "max"}</small>` : "";
+    const helpText = s.help ? `<p class="help-desc">${escapeHtml(s.help)}</p>` : "";
+
+    return `
+      <tr>
+        <td class="font-mono text-xs"><code>${escapeHtml(s.key)}</code></td>
+        <td><strong>${escapeHtml(s.label)}</strong>${helpText}</td>
+        <td><span class="badge badge-type">${escapeHtml(s.type)}</span></td>
+        <td class="font-mono text-xs text-break">${escapeHtml(s.default || "—")}${optionsText}${constraintsText}</td>
+        <td class="text-sm">${getSettingBusinessImpact(s.key, s.label, s.group)}</td>
+      </tr>
+    `;
+  }).join("\n");
+
+  return `
+    <div class="page-break"></div>
+    <h3>8.${SETTINGS_GROUPS.indexOf(group) + 1} समूह: ${escapeHtml(group.label)} (${escapeHtml(group.id).toUpperCase()})</h3>
+    <p>इस समूह में <strong>${fieldsInGroup.length} सेटिंग्स</strong> शामिल हैं, जो ${escapeHtml(group.label)} के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%;">की (Key)</th>
+          <th style="width:22%;">लेबल व विवरण</th>
+          <th style="width:10%;">प्रकार</th>
+          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
+          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
+}).join("\n");
+
+// Build HTML content
+const htmlContent = `<!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
@@ -525,7 +613,7 @@
     </div>
     <div class="card">
       <div class="card-header">🖥️ सर्वर व डेटाबेस लागत</div>
-      <p class="text-sm">AWS EC2, RDS PostgreSQL, और Redis क्लस्टर्स चलाने का न्यूनतम बिल $50 से $200/माह आता है, चाहे बिक्री शून्य ही क्यों न हो।</p>
+      <p class="text-sm">AWS EC2, RDS PostgreSQL, और Redis क्लस्टर्स चलाने का न्यूनतम बिल \$50 से \$200/माह आता है, चाहे बिक्री शून्य ही क्यों न हो।</p>
     </div>
   </div>
 
@@ -543,25 +631,25 @@
     <tbody>
       <tr>
         <td><strong>एप्लिकेशन होस्टिंग व CDN</strong></td>
-        <td>AWS EC2 / CloudFront ($35/mo)</td>
+        <td>AWS EC2 / CloudFront (\$35/mo)</td>
         <td>Vercel Serverless Edge Global CDN</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
       <tr>
         <td><strong>रिलेशनल डेटाबेस</strong></td>
-        <td>AWS RDS PostgreSQL ($45/mo)</td>
+        <td>AWS RDS PostgreSQL (\$45/mo)</td>
         <td>Neon Serverless PostgreSQL (0.5 GB Storage)</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
       <tr>
         <td><strong>ऑब्जेक्ट स्टोरेज (इमेजेज)</strong></td>
-        <td>AWS S3 + CloudFront ($25/mo)</td>
+        <td>AWS S3 + CloudFront (\$25/mo)</td>
         <td>Backblaze B2 (10 GB) + Cloudflare Worker</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
       <tr>
         <td><strong>लेनदेन ईमेल इंजन</strong></td>
-        <td>SendGrid / AWS SES ($20/mo)</td>
+        <td>SendGrid / AWS SES (\$20/mo)</td>
         <td>Google Apps Script (GAS) Gmail Mailer (500/day)</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
@@ -573,13 +661,13 @@
       </tr>
       <tr>
         <td><strong>AI कॉपीराइटिंग व SEO</strong></td>
-        <td>Copy.ai / Jasper ($49/mo)</td>
+        <td>Copy.ai / Jasper (\$49/mo)</td>
         <td>Google Gemini 1.5 Flash + Groq Llama-3</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
       <tr>
         <td><strong>बॉट व DDoS सुरक्षा</strong></td>
-        <td>Cloudflare Enterprise / DataDome ($200/mo)</td>
+        <td>Cloudflare Enterprise / DataDome (\$200/mo)</td>
         <td>इन-बिल्ट 10-आर्किटाइप Proof-of-Work (PoW)</td>
         <td><strong style="color:var(--success);">₹0 / माह</strong></td>
       </tr>
@@ -660,7 +748,7 @@ npm run db:bootstrap</code></pre>
   <h2>2.2 सेवा 2: Backblaze B2 S3 ऑब्जेक्ट स्टोरेज सेटअप</h2>
   <p>उत्पाद छवियों, बैनर्स और ग्राहक समीक्षा तस्वीरों के सुरक्षित और तीव्र भंडारण के लिए Backblaze B2 का उपयोग किया जाता है।</p>
   <div class="callout callout-info">
-    <strong>मुफ्त सीमा:</strong> 10 GB मुफ़्त डेटा स्टोरेज, $0/GB अपलोड, और Cloudflare रूटिंग के साथ 100% मुफ़्त डाउनलोड बैंडविड्थ।
+    <strong>मुफ्त सीमा:</strong> 10 GB मुफ़्त डेटा स्टोरेज, \$0/GB अपलोड, और Cloudflare रूटिंग के साथ 100% मुफ़्त डाउनलोड बैंडविड्थ।
   </div>
   <ol>
     <li><a href="https://www.backblaze.com/b2/cloud-storage.html">backblaze.com</a> पर खाता खोलें।</li>
@@ -691,7 +779,7 @@ npm run db:bootstrap</code></pre>
   <h2>2.3 सेवा 3: Cloudflare CDN & Image Worker पाइपलाइन</h2>
   <p>Cloudflare छवियों को कैश करने, DDoS हमलों को रोकने और सब-सेकंड लोडिंग सुनिश्चित करने के लिए विश्व का सबसे बड़ा एज नेटवर्क प्रदान करता है।</p>
   <div class="callout callout-success">
-    <strong>फ़ायदा:</strong> Backblaze B2 और Cloudflare के बीच "Bandwidth Alliance" समझौता है, जिससे B2 से Cloudflare में डेटा ट्रांसफर पूरी तरह $0 होता है।
+    <strong>फ़ायदा:</strong> Backblaze B2 और Cloudflare के बीच "Bandwidth Alliance" समझौता है, जिससे B2 से Cloudflare में डेटा ट्रांसफर पूरी तरह \$0 होता है।
   </div>
   <ol>
     <li>Cloudflare डैशबोर्ड पर अपना डोमेन (उदा. <code>aalm-vastralay.com</code>) जोड़ें अथवा Vercel डिफ़ॉल्ट URL का उपयोग करें।</li>
@@ -1295,1095 +1383,7 @@ const isVerified = Boolean(deliveredOrder && deliveredOrder.items.length > 0);</
   <h1>अध्याय 8: 105+ एडमिन सेटिंग्स का 100% सम्पूर्ण शब्दकोश (Settings Dictionary)</h1>
   <p class="text-muted">यह अध्याय <code>src/lib/settings-defs.ts</code> में परिभाषित सभी सेटिंग्स का 7 श्रेणियों में वर्गीकृत संपूर्ण शब्दकोश प्रस्तुत करता है। व्यवस्थापक बिना कोई कोड छुए संपूर्ण प्लेटफ़ॉर्म को यहाँ से अनुकूलित कर सकते हैं।</p>
 
-  
-    <div class="page-break"></div>
-    <h3>8.1 समूह: Brand &amp; identity (BRAND)</h3>
-    <p>इस समूह में <strong>18 सेटिंग्स</strong> शामिल हैं, जो Brand &amp; identity के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>site.name</code></td>
-        <td><strong>Site name</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Aalm Vastralay</td>
-        <td class="text-sm">स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.tagline</code></td>
-        <td><strong>Tagline</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Royal Indian Wedding &amp; Luxury Ethnic Wear</td>
-        <td class="text-sm">स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.logoText</code></td>
-        <td><strong>Logo monogram</strong><p class="help-desc">Shown in the header when no logo image is set.</p></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">AA</td>
-        <td class="text-sm">स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.logoUrl</code></td>
-        <td><strong>Logo image URL</strong><p class="help-desc">Supports all link types: ImageKit (ik:...), Backblaze B2 (b2:...), Google Drive, Dropbox, OneDrive, or direct https:// image URL.</p></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">—</td>
-        <td class="text-sm">स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.faviconEmoji</code></td>
-        <td><strong>Favicon emoji</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">👑</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.announcements</code></td>
-        <td><strong>Announcement bar messages</strong><p class="help-desc">One message per line. Supports all link types: Markdown [Text](/link), direct URLs (https://...), arrow syntax (Sale -&gt; /products), WhatsApp (wa.me/...), or phone numbers.</p></td>
-        <td><span class="badge badge-type">list</span></td>
-        <td class="font-mono text-xs text-break">बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान|साड़ी, सूट, लहंगा एवं फैब्रिक्स का संपूर्ण कलेक्शन|हर अंदाज आपके लिए खास — Royal Indian Wedding &amp; Luxury Ethnic Wear|Customer Support Available · Call / WhatsApp for Assistance</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.announcementSpeed</code></td>
-        <td><strong>Announcement scroll speed (seconds)</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">26<br><small class="text-muted">रेंज: 8 से 120</small></td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.phone</code></td>
-        <td><strong>Support phone</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">+91 98765 43210</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.whatsapp</code></td>
-        <td><strong>WhatsApp number</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">+91 98765 43210</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.email</code></td>
-        <td><strong>Support email</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">support@example.com</td>
-        <td class="text-sm">सेलर हब में 1-क्लिक हिंग्लिश उत्पाद विवरण और SEO कीवर्ड्स जेनरेशन मॉडल को सक्रिय करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.address</code></td>
-        <td><strong>Registered address</strong></td>
-        <td><span class="badge badge-type">textarea</span></td>
-        <td class="font-mono text-xs text-break">Main Market, Bihar, India</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.copyright</code></td>
-        <td><strong>Footer copyright line</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">© 2026 Aalm Vastralay. All rights reserved.</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.socialInstagram</code></td>
-        <td><strong>Instagram URL</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">https://instagram.com</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.socialYoutube</code></td>
-        <td><strong>YouTube URL</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">https://youtube.com</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>site.socialFacebook</code></td>
-        <td><strong>Facebook URL</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">https://facebook.com</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>brand.watermark</code></td>
-        <td><strong>Show logo watermark on product images</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">false</td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>brand.watermarkOpacity</code></td>
-        <td><strong>Watermark opacity (%)</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">22<br><small class="text-muted">रेंज: 5 से 80</small></td>
-        <td class="text-sm">स्टोर संचालन और brand कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>brand.logoSvg</code></td>
-        <td><strong>Use full SVG logo in header</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोरफ्रंट हेडर, SEO मेटा टैग्स, इनवॉइस हेडर एवं ब्राउज़र टैब टाइटल को तुरंत बदलता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.2 समूह: Theme &amp; appearance (THEME)</h3>
-    <p>इस समूह में <strong>12 सेटिंग्स</strong> शामिल हैं, जो Theme &amp; appearance के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>theme.defaultMode</code></td>
-        <td><strong>Default colour mode</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">light<br><small class="text-muted">विकल्प: light, dark, system</small></td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.allowUserToggle</code></td>
-        <td><strong>Show dark-mode switch to visitors</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.primary</code></td>
-        <td><strong>Primary brand colour</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#4A148C</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.primaryLight</code></td>
-        <td><strong>Primary (dark mode)</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#6A1B9A</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.accent</code></td>
-        <td><strong>Accent / gold colour</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#D4AF37</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.accentLight</code></td>
-        <td><strong>Accent (dark mode)</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#E6CA65</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.bgLight</code></td>
-        <td><strong>Light background</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#FAF9F6</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.bgDark</code></td>
-        <td><strong>Dark background</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#12100f</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.surfaceDark</code></td>
-        <td><strong>Dark surface / cards</strong></td>
-        <td><span class="badge badge-type">color</span></td>
-        <td class="font-mono text-xs text-break">#1c1917</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.radius</code></td>
-        <td><strong>Corner radius</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">1rem</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.fontDisplay</code></td>
-        <td><strong>Display font stack</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Georgia, &quot;Times New Roman&quot;, serif</td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>theme.density</code></td>
-        <td><strong>Layout density</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">comfortable<br><small class="text-muted">विकल्प: comfortable, compact</small></td>
-        <td class="text-sm">संपूर्ण वेबसाइट के बटन्स, नेविगेशन बार, हाईलाइट्स और लग्जरी बॉर्डर्स का रंग पैलेट सेट करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.3 समूह: Homepage &amp; banner (HOME)</h3>
-    <p>इस समूह में <strong>22 सेटिंग्स</strong> शामिल हैं, जो Homepage &amp; banner के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerUrl</code></td>
-        <td><strong>Hero banner image URL</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">/brand/poster.png</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerHeight</code></td>
-        <td><strong>Banner height (px, desktop)</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">520<br><small class="text-muted">रेंज: 240 से 900</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerOverlay</code></td>
-        <td><strong>Banner dark overlay (%)</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">55<br><small class="text-muted">रेंज: 0 से 95</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerBadge</code></td>
-        <td><strong>Banner badge</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Aalm Vastralay · Wedding &amp; Ethnic Wear</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerTitle</code></td>
-        <td><strong>Banner headline</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Royal Indian Wedding &amp; Luxury Ethnic Wear</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerSubtitle</code></td>
-        <td><strong>Banner sub-headline</strong></td>
-        <td><span class="badge badge-type">textarea</span></td>
-        <td class="font-mono text-xs text-break">Exquisite Banarasi sarees, handloom silks, bridal lehengas, and regal sherwanis handcrafted by master artisans. Cash on delivery &amp; nationwide delivery.</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerCtaLabel</code></td>
-        <td><strong>Primary button label</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Explore Collections</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerCtaHref</code></td>
-        <td><strong>Primary button link</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">/products?category=women</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerCta2Label</code></td>
-        <td><strong>Secondary button label</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">कॉल करें (Call Us)</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerCta2Href</code></td>
-        <td><strong>Secondary button link</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">tel:+919876543210</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerStrategy</code></td>
-        <td><strong>Banner Image Delivery Strategy</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">wsrv<br><small class="text-muted">विकल्प: wsrv, direct, b2, auto</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.bannerMirroredUrl</code></td>
-        <td><strong>Banner Mirrored B2 URL</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">—</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.slides</code></td>
-        <td><strong>Hero Carousel Slides (Max 5)</strong><p class="help-desc">Auto-rotating Flipkart/Myntra style hero slides.</p></td>
-        <td><span class="badge badge-type">json</span></td>
-        <td class="font-mono text-xs text-break">[]</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>stats.mirroredBytes</code></td>
-        <td><strong>Total Mirrored B2 Bytes</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">0</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.announcementText</code></td>
-        <td><strong>Top announcement bar text</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Festive Wedding Season Sale – Up to 40% Off on Bridal Lehengas &amp; Sherwanis</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.marqueeText</code></td>
-        <td><strong>Scrolling marquee ticker text</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">✨ Free Nationwide Shipping on Orders Above ₹999 | Handcrafted Banarasi Silks &amp; Bridal Couture ✨</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.gridDesktop</code></td>
-        <td><strong>Product grid – desktop columns</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">4<br><small class="text-muted">विकल्प: 2, 3, 4, 5, 6</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.gridTablet</code></td>
-        <td><strong>Product grid – tablet columns</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">3<br><small class="text-muted">विकल्प: 2, 3, 4</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.gridMobile</code></td>
-        <td><strong>Product grid – mobile columns</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">2<br><small class="text-muted">विकल्प: 1, 2</small></td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.sections</code></td>
-        <td><strong>Homepage sections</strong><p class="help-desc">Enable/disable, reorder and set how many items each section shows.</p></td>
-        <td><span class="badge badge-type">json</span></td>
-        <td class="font-mono text-xs text-break">[{&quot;key&quot;:&quot;categories&quot;,&quot;name&quot;:&quot;Shop by Category&quot;,&quot;enabled&quot;:true,&quot;order&quot;:1,&quot;limit&quot;:4},{&quot;key&quot;:&quot;occasions&quot;,&quot;name&quot;:&quot;Shop by Occasion&quot;,&quot;enabled&quot;:true,&quot;order&quot;:2,&quot;limit&quot;:7},{&quot;key&quot;:&quot;featured&quot;,&quot;name&quot;:&quot;Featured Picks&quot;,&quot;enabled&quot;:true,&quot;order&quot;:3,&quot;limit&quot;:8},{&quot;key&quot;:&quot;sellerCta&quot;,&quot;name&quot;:&quot;Become a Seller&quot;,&quot;enabled&quot;:true,&quot;order&quot;:4,&quot;limit&quot;:1},{&quot;key&quot;:&quot;newArrivals&quot;,&quot;name&quot;:&quot;New Arrivals&quot;,&quot;enabled&quot;:true,&quot;order&quot;:5,&quot;limit&quot;:8},{&quot;key&quot;:&quot;stores&quot;,&quot;name&quot;:&quot;Trusted Stores&quot;,&quot;enabled&quot;:true,&quot;order&quot;:6,&quot;limit&quot;:4}]</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.occasions</code></td>
-        <td><strong>Occasion chips</strong></td>
-        <td><span class="badge badge-type">list</span></td>
-        <td class="font-mono text-xs text-break">Bridal|Sangeet|Reception|Haldi|Festive|Groom|Wedding Guest|Cocktail</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>home.categoryCards</code></td>
-        <td><strong>Category card images</strong></td>
-        <td><span class="badge badge-type">json</span></td>
-        <td class="font-mono text-xs text-break">{&quot;women&quot;:&quot;/images/bridal-lehenga.jpg&quot;,&quot;men&quot;:&quot;/images/sherwani.jpg&quot;,&quot;kids&quot;:&quot;/images/kids-lehenga.jpg&quot;,&quot;accessories&quot;:&quot;/images/dupatta-jewellery.jpg&quot;}</td>
-        <td class="text-sm">स्टोर संचालन और home कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.4 समूह: Commerce &amp; pricing (COMMERCE)</h3>
-    <p>इस समूह में <strong>17 सेटिंग्स</strong> शामिल हैं, जो Commerce &amp; pricing के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.currencySymbol</code></td>
-        <td><strong>Currency symbol</strong></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">₹</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.currencyCode</code></td>
-        <td><strong>Currency code</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">INR<br><small class="text-muted">विकल्प: INR, USD, AED, GBP, EUR</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.rateFromINR</code></td>
-        <td><strong>Display conversion rate (from INR)</strong><p class="help-desc">Display only – all orders and invoices are settled in INR to keep calculations safe.</p></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">1<br><small class="text-muted">रेंज: 0.001 से max</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.priceRounding</code></td>
-        <td><strong>Displayed price rounding</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">none<br><small class="text-muted">विकल्प: none, nearest1, nearest5, nearest10</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.freeShippingThreshold</code></td>
-        <td><strong>Free shipping above</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">999</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.shippingFee</code></td>
-        <td><strong>Standard shipping fee</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">49</td>
-        <td class="text-sm">कार्ट और चेकआउट पर फ्री डिलीवरी थ्रेशोल्ड और कूरियर डिलीवरी शुल्क का स्वचालित गणित निर्धारित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.codFee</code></td>
-        <td><strong>COD handling fee</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">0</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.returnWindowDays</code></td>
-        <td><strong>Return window</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">7</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.gstPercent</code></td>
-        <td><strong>GST rate</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">5</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.gstInclusive</code></td>
-        <td><strong>Prices include GST</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.gstin</code></td>
-        <td><strong>Marketplace GSTIN</strong><p class="help-desc">15-digit statutory GSTIN printed on tax invoices (State Code: 10 - Bihar).</p></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">10AAAAA0000A1Z5</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.minOrderValue</code></td>
-        <td><strong>Minimum order value</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">0</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.allowGuestBrowsing</code></td>
-        <td><strong>Allow browsing without signing in</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.weightUnit</code></td>
-        <td><strong>Shipping weight unit</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">kg<br><small class="text-muted">विकल्प: kg, g</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>products.pageSize</code></td>
-        <td><strong>Products per page (catalogue)</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">24<br><small class="text-muted">रेंज: 6 से 60</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>products.defaultSort</code></td>
-        <td><strong>Default catalogue sorting</strong></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">relevance<br><small class="text-muted">विकल्प: relevance, newest, price_asc, price_desc, discount, rating</small></td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>commerce.showWeight</code></td>
-        <td><strong>Show shipping weight on product page</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और commerce कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.5 समूह: Seller programme (SELLER)</h3>
-    <p>इस समूह में <strong>6 सेटिंग्स</strong> शामिल हैं, जो Seller programme के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>seller.freeMonths</code></td>
-        <td><strong>Commission-free months</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">6</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>seller.commissionPercent</code></td>
-        <td><strong>Commission after free period</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">2.5</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>seller.autoApproveProducts</code></td>
-        <td><strong>Auto-approve new listings</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>seller.requireGst</code></td>
-        <td><strong>Require GSTIN for stores</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">false</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>seller.maxImagesPerProduct</code></td>
-        <td><strong>Max images per product</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">8<br><small class="text-muted">रेंज: 1 से 12</small></td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>seller.registrationOpen</code></td>
-        <td><strong>Seller registration open</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.6 समूह: Security &amp; scaling (SECURITY)</h3>
-    <p>इस समूह में <strong>18 सेटिंग्स</strong> शामिल हैं, जो Security &amp; scaling के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>security.botProtection</code></td>
-        <td><strong>Bot protection</strong><p class="help-desc">Altcha-style proof-of-work: browsers must solve a hash puzzle before submitting forms. No third-party captcha, no API keys, works offline.</p></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">pow<br><small class="text-muted">विकल्प: pow, off</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powDisplayMode</code></td>
-        <td><strong>Bot shield archetype &amp; style (10 types)</strong><p class="help-desc">Choose archetype: turnstile (Cloudflare Turnstile card), altcha (Official ALTCHA PoW), mcaptcha (mCaptcha Speed/Complexity), slide (Swipe to unlock), biometric (Touch/Pulse fingerprint), shagun (Royal ethnic seal), bar (Slim inline strip), floating (Bottom-right badge), overlay (Modal gate), or invisible (Auto background solve).</p></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">turnstile<br><small class="text-muted">विकल्प: turnstile, altcha, mcaptcha, slide, biometric, shagun, bar, floating, overlay, invisible, standard</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powWidgetStyle</code></td>
-        <td><strong>Bot shield control style</strong><p class="help-desc">Choose control type: classic checkbox [ ] or modern toggle switch ( O ).</p></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">checkbox<br><small class="text-muted">विकल्प: checkbox, switch</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powLabel</code></td>
-        <td><strong>Bot shield prompt label</strong><p class="help-desc">Text displayed next to the checkbox or switch (e.g. &#039;Main robot nahi hoon&#039; or &#039;I am not a robot&#039;).</p></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">Main robot nahi hoon</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powTheme</code></td>
-        <td><strong>Bot shield accent theme</strong><p class="help-desc">Color accent for checkbox/switch active states and loaders.</p></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">gold<br><small class="text-muted">विकल्प: gold, royal-maroon, emerald, neutral</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powSound</code></td>
-        <td><strong>Play verification chime</strong><p class="help-desc">Plays a gentle, satisfying luxury chime upon successful verification (synthesized in browser, 0KB).</p></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powDifficulty</code></td>
-        <td><strong>Proof-of-work weight (leading zeros)</strong><p class="help-desc">Higher = heavier puzzle = slower bots, slightly slower first submit for real users.</p></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">2<br><small class="text-muted">रेंज: 2 से 5</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.powMaxIterations</code></td>
-        <td><strong>Max iterations offered to clients</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">100000<br><small class="text-muted">रेंज: 5000 से 500000</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.formRateLimit</code></td>
-        <td><strong>Form submissions per minute / IP</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">8<br><small class="text-muted">रेंज: 1 से 120</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.authRateLimit</code></td>
-        <td><strong>Sign-in attempts per 10 minutes / IP</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">10<br><small class="text-muted">रेंज: 3 से 60</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.apiRateLimit</code></td>
-        <td><strong>API requests per minute / IP</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">120<br><small class="text-muted">रेंज: 10 से 1000</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.lockThreshold</code></td>
-        <td><strong>Failed logins before lockout</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">6<br><small class="text-muted">रेंज: 3 से 20</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.lockMinutes</code></td>
-        <td><strong>Lockout duration</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">15</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.sessionDays</code></td>
-        <td><strong>Session lifetime</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">30</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.requireStrongPassword</code></td>
-        <td><strong>Require strong passwords</strong><p class="help-desc">Minimum 8 characters with upper, lower and a number.</p></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.trustProxyHeaders</code></td>
-        <td><strong>Trust proxy IP headers (Cloudflare)</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.enforceSameOrigin</code></td>
-        <td><strong>Reject cross-origin form posts (CSRF)</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>security.maxActivePerAccount</code></td>
-        <td><strong>Max sign-ins per account per 10 minutes</strong></td>
-        <td><span class="badge badge-type">number</span></td>
-        <td class="font-mono text-xs text-break">20<br><small class="text-muted">रेंज: 5 से 100</small></td>
-        <td class="text-sm">बॉट हमलों, कूपन ब्रूट-फोर्सिंग और स्पैम ऑर्डर्स को रोकने के लिए ब्राउज़र बैकग्राउंड कंप्यूटेशन पहेली लागू करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
-
-    <div class="page-break"></div>
-    <h3>8.7 समूह: Feature switches (FEATURES)</h3>
-    <p>इस समूह में <strong>14 सेटिंग्स</strong> शामिल हैं, जो Feature switches के समस्त व्यवहार और रीयल-टाइम रेंडरिंग को नियंत्रित करती हैं।</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%;">की (Key)</th>
-          <th style="width:22%;">लेबल व विवरण</th>
-          <th style="width:10%;">प्रकार</th>
-          <th style="width:20%;">डिफ़ॉल्ट मान (Default)</th>
-          <th style="width:26%;">व्यापारिक प्रभाव (Impact)</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-      <tr>
-        <td class="font-mono text-xs"><code>features.wishlist</code></td>
-        <td><strong>Wishlist</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.reviews</code></td>
-        <td><strong>Ratings &amp; reviews</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.coupons</code></td>
-        <td><strong>Coupon codes</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.cod</code></td>
-        <td><strong>Cash on Delivery</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.onlinePayment</code></td>
-        <td><strong>Online payment (UPI / card)</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.notifications</code></td>
-        <td><strong>Notifications centre</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.addressBook</code></td>
-        <td><strong>Saved address book</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.storesDirectory</code></td>
-        <td><strong>Public stores directory</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.occasions</code></td>
-        <td><strong>Occasion chips</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.sellerHub</code></td>
-        <td><strong>Seller onboarding &amp; hub</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">सेलर पोर्टल रजिस्ट्रेशन, स्वचालित प्रोफाइल अप्रूवल और कमीशन प्रतिशत की गणना नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.analytics</code></td>
-        <td><strong>Privacy-friendly analytics</strong></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">true</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>features.showDemoAccounts</code></td>
-        <td><strong>Show demo accounts box on sign-in page</strong><p class="help-desc">Enable only during staging or testing. Keep disabled in live production.</p></td>
-        <td><span class="badge badge-type">boolean</span></td>
-        <td class="font-mono text-xs text-break">false</td>
-        <td class="text-sm">स्टोर संचालन और features कार्यप्रणाली को रीयल-टाइम में नियंत्रित करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>ai.provider</code></td>
-        <td><strong>Default AI provider</strong><p class="help-desc">Global AI provider for seller product copywriting, search and recommendations. &#039;auto&#039; selects the best available free tier API key.</p></td>
-        <td><span class="badge badge-type">select</span></td>
-        <td class="font-mono text-xs text-break">auto<br><small class="text-muted">विकल्प: auto, gemini, groq, mistral</small></td>
-        <td class="text-sm">सेलर हब में 1-क्लिक हिंग्लिश उत्पाद विवरण और SEO कीवर्ड्स जेनरेशन मॉडल को सक्रिय करता है।</td>
-      </tr>
-    
-
-      <tr>
-        <td class="font-mono text-xs"><code>ai.model</code></td>
-        <td><strong>AI Model override</strong><p class="help-desc">Optional model override (e.g. &#039;gemini-2.5-flash&#039;, &#039;llama-3.3-70b-versatile&#039;, or &#039;mistral-small-latest&#039;). Leave blank for automatic best model.</p></td>
-        <td><span class="badge badge-type">text</span></td>
-        <td class="font-mono text-xs text-break">—</td>
-        <td class="text-sm">सेलर हब में 1-क्लिक हिंग्लिश उत्पाद विवरण और SEO कीवर्ड्स जेनरेशन मॉडल को सक्रिय करता है।</td>
-      </tr>
-    
-      </tbody>
-    </table>
-  
+  ${groupedSettingsHtml}
 
   <!-- ==================== CHAPTER 9 ==================== -->
   <div class="page-break"></div>
@@ -2481,7 +1481,7 @@ const isVerified = Boolean(deliveredOrder && deliveredOrder.items.length > 0);</
         <td><strong>Backblaze B2 Free</strong></td>
         <td>10 GB मुफ़्त डेटा स्टोरेज</td>
         <td>लगभग 4,000 से 5,000 हाई-क्वालिटी परिधान तस्वीरों के बाद स्पेस समाप्त हो जाएगा।</td>
-        <td>wsrv.nl के जरिए तस्वीरों को 80% WebP में कंप्रेस करके अपलोड करें। अतिरिक्त 100GB के लिए मात्र $0.60/माह लगता है।</td>
+        <td>wsrv.nl के जरिए तस्वीरों को 80% WebP में कंप्रेस करके अपलोड करें। अतिरिक्त 100GB के लिए मात्र \$0.60/माह लगता है।</td>
       </tr>
       <tr>
         <td><strong>UPI UTR सत्यापन</strong></td>
@@ -2590,7 +1590,7 @@ const isVerified = Boolean(deliveredOrder && deliveredOrder.items.length > 0);</
   <strong>उ:</strong> हाँ! एडमिन सेटिंग्स में <code>commerce.codEnabled</code> को true करके COD चालू किया जा सकता है, तथा RTO नुकसान से बचने हेतु <code>commerce.codSurcharge</code> (उदा. ₹99) भी लगाया जा सकता है।</p>
 
   <p><strong>प्र. 4: यदि Neon Postgres का 0.5 GB भर जाए तो क्या साइट बंद हो जाएगी?</strong><br>
-  <strong>उ:</strong> नहीं। Neon आपको ईमेल चेतावनी देता है। आप पुराने <code>audit_logs</code> और <code>security_events</code> को हटा सकते हैं या मात्र $19/माह देकर असीमित स्टोरेज में अपग्रेड कर सकते हैं।</p>
+  <strong>उ:</strong> नहीं। Neon आपको ईमेल चेतावनी देता है। आप पुराने <code>audit_logs</code> और <code>security_events</code> को हटा सकते हैं या मात्र \$19/माह देकर असीमित स्टोरेज में अपग्रेड कर सकते हैं।</p>
 
   <!-- ==================== APPENDIX A ==================== -->
   <div class="page-break"></div>
@@ -2882,3 +1882,44 @@ const isVerified = Boolean(deliveredOrder && deliveredOrder.items.length > 0);</
 
 </body>
 </html>
+`;
+
+fs.writeFileSync(htmlFile, htmlContent, "utf8");
+console.log(`[SUCCESS] Generated ${htmlFile} (${(Buffer.byteLength(htmlContent) / 1024).toFixed(1)} KB)`);
+
+// Generate MD
+const mdContent = `# 👑 आलम वस्त्रालय (Aalm Vastralay)
+## 100% प्रोडक्शन ग्रेड मास्टर संचालन, वास्तुकला व क्लाउड डिप्लॉयमेंट महाग्रंथ (Master Operations Bible)
+**संस्करण:** v0.1.11 (Production Gold) | **आर्किटेक्चर:** Archify 3.0 / Enterprise Edge | **दिनांक:** 06 अक्टूबर 2026
+
+---
+
+### 🌐 महत्वपूर्ण त्वरित लिंक्स (Quick Reference Links)
+- 🛍️ **लाइव प्रोडक्शन वेबसाइट:** [aalm-vastralay.vercel.app](https://aalm-vastralay.vercel.app)
+- 🗺️ **इंटरैक्टिव आर्किटेक्चर विजुअलाइज़र:** [aalm-vastralay.vercel.app/architecture](https://aalm-vastralay.vercel.app/architecture)
+- 📄 **डाउनलोड प्रिंटेबल मास्टर PDF (50+ Pages):** [docs/AALM_VASTRALAY_MANUAL_HI.pdf](file:///D:/aalm-vastralay/docs/AALM_VASTRALAY_MANUAL_HI.pdf)
+- 🏛️ **स्टैटिक आर्किटेक्चर शोकेस फाइल:** [public/architecture.html](file:///D:/aalm-vastralay/public/architecture.html)
+
+---
+
+## विषय-सूची (Table of Contents)
+1. **अध्याय 1:** विजन, वास्तुकला दर्शन एवं ₹0/माह फ्री-टीयर सिद्धांत
+2. **अध्याय 2:** सम्पूर्ण 6 क्लाउड सर्विसेज डिप्लॉयमेंट गाइड (Neon, B2, Cloudflare, GAS, Gemini, Vercel)
+3. **अध्याय 3:** डेटाबेस स्कीमा और 19 टेबल्स का गहन तकनीकी विश्लेषण
+4. **अध्याय 4:** विक्रेता हब (Seller Hub) — A to Z विस्तृत संचालन व उत्पाद प्रविष्टि बाइबल
+5. **अध्याय 5:** समीक्षा व रेटिंग प्रणाली — BIS IS 19000:2022 मानक अनुपालन
+6. **अध्याय 6:** ग्राहक यात्रा व भारतीय ई-कॉमर्स इंजन नवाचार
+7. **अध्याय 7:** सुपर-एडमिन मास्टर कंट्रोल कंसोल
+8. **अध्याय 8:** 105+ एडमिन सेटिंग्स का 100% सम्पूर्ण शब्दकोश (Settings Dictionary)
+9. **अध्याय 9:** बैंक-ग्रेड सुरक्षा वास्तुकला व सुरक्षात्मक उपाय (10 PoW Archetypes)
+10. **अध्याय 10:** इंटरैक्टिव आर्किटेक्चर विजुअलाइज़र — Archify 3.0 शोकेस
+11. **अध्याय 11:** निष्पक्ष तकनीकी मूल्यांकन — "क्या तैयार है और क्या कमियां/सीमाएं हैं"
+12. **अध्याय 12:** आपातकालीन समाधान, ट्रबलशूटिंग रनबुक व विस्तृत FAQ
+
+---
+
+*(विस्तृत स्वरूप हेतु कृपया पूर्ण HTML प्रारूप [docs/HINDI_MASTER_MANUAL.html](file:///D:/aalm-vastralay/docs/HINDI_MASTER_MANUAL.html) या संकलित PDF [docs/AALM_VASTRALAY_MANUAL_HI.pdf](file:///D:/aalm-vastralay/docs/AALM_VASTRALAY_MANUAL_HI.pdf) देखें)*
+`;
+
+fs.writeFileSync(mdFile, mdContent, "utf8");
+console.log(`[SUCCESS] Generated ${mdFile}`);

@@ -23,9 +23,10 @@
 <br/>
 
 **[🌐 Live Storefront](https://aalm-vastralay.vercel.app)** &nbsp;•&nbsp;
+**[🗺️ Interactive Architecture Showcase](https://aalm-vastralay.vercel.app/architecture)** &nbsp;•&nbsp;
 **[⚡ Admin Console](https://aalm-vastralay.vercel.app/admin)** &nbsp;•&nbsp;
 **[🏪 Seller Hub](https://aalm-vastralay.vercel.app/seller)** &nbsp;•&nbsp;
-**[📖 Architecture](docs/TECH_STACK_AND_ARCHITECTURE.md)** &nbsp;•&nbsp;
+**[📄 52-Page Hindi Master PDF](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** &nbsp;•&nbsp;
 **[🚀 3-Minute Setup](docs/SETUP.md)**
 
 <br/>
@@ -88,24 +89,28 @@
 
 ---
 
-## 🇮🇳 सम्पूर्ण हिंदी मार्गदर्शिका व डिप्लॉयमेंट मैनुअल (Hindi Master Manual & PDF)
+## 🇮🇳 सम्पूर्ण हिंदी महाग्रंथ, डिप्लॉयमेंट मैनुअल व लाइव शोकेस (Master Manual & Archify Showcase)
 
-भारतीय दुकानदारों, डेवलपर्स और विक्रेताओं के लिए इस पूरे प्लेटफॉर्म का आसान हिंदी में संचालन और क्लाउड डिप्लॉयमेंट मैनुअल तैयार किया गया है:
+भारतीय दुकानदारों, डेवलपर्स और विक्रेताओं के लिए इस पूरे प्लेटफॉर्म का 50+ पृष्ठों का विस्तृत सचित्र हिंदी महाग्रंथ, प्रिंटेबल PDF और इंटरैक्टिव आर्किटेक्चर विजुअलाइज़र उपलब्ध है:
 
 | प्रारूप (Format) | दस्तावेज़ लिंक (Document Link) | मुख्य विवरण (Description) |
 | :--- | :--- | :--- |
-| 📖 **विस्तृत हिंदी मैनुअल** | **[HINDI_MASTER_MANUAL.md](docs/HINDI_MASTER_MANUAL.md)** | संपूर्ण 6-अध्यायों का विस्तृत संचालन गाइड (Markdown). |
-| 📄 **ऑफिशियल प्रिंटेबल PDF** | **[AALM_VASTRALAY_MANUAL_HI.pdf](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** | हाई-क्वालिटी A4 प्रिंटेबल PDF (~925 KB) — सीधे प्रिंट व डाउनलोड करें. |
-| 🎨 **प्रिंट-रेडी विजुअल HTML** | **[HINDI_MASTER_MANUAL.html](docs/HINDI_MASTER_MANUAL.html)** | रॉयल मैरून व गोल्ड थीम वाला ब्राउज़र प्रिंट-फ्रेंडली HTML लेआउट. |
+| 📄 **ऑफिशियल प्रिंटेबल PDF (52 पृष्ठ)** | **[AALM_VASTRALAY_MANUAL_HI.pdf](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** | हाई-क्वालिटी 52-पेज A4 प्रिंटेबल PDF (~2.7 MB) — 12 अध्याय, 105+ सेटिंग्स, 19 टेबल्स, 15 रनबुक्स। |
+| 🗺️ **इंटरैक्टिव आर्किटेक्चर शोकेस** | **[aalm-vastralay.vercel.app/architecture](https://aalm-vastralay.vercel.app/architecture)** | Archify 3.0 द्वारा रेंडर किया गया लाइव ज़ूम/पैन 3D आर्किटेक्चर विजुअलाइज़र। |
+| 🏛️ **स्टैटिक आर्किटेक्चर शोकेस** | **[public/architecture.html](public/architecture.html)** | गिटहब पेजेस एवं ऑफलाइन ब्राउज़र हेतु पूर्णतः स्व-निहित 777 KB स्टैटिक शोकेस। |
+| 🎨 **प्रिंट-रेडी विजुअल HTML** | **[HINDI_MASTER_MANUAL.html](docs/HINDI_MASTER_MANUAL.html)** | रॉयल मैरून व गोल्ड थीम वाला सम्पूर्ण वेब मैनुअल (~214 KB). |
+| 📖 **विस्तृत हिंदी मार्कडाउन** | **[HINDI_MASTER_MANUAL.md](docs/HINDI_MASTER_MANUAL.md)** | संपूर्ण 12 अध्यायों का त्वरित संदर्भ गाइड (Markdown). |
 
-### 📌 हिंदी मैनुअल के मुख्य भाग (Quick Hindi Highlights):
+### 📌 महाग्रंथ के 12 मुख्य अध्याय (Master Bible Highlights):
 1. **$0/माह क्लाउड डिप्लॉयमेंट:** Neon PostgreSQL (Pooled), Backblaze B2 प्राइवेट स्टोरेज (10GB फ्री), Cloudflare Worker प्रॉक्सी ($0 इग्रेस), Google Apps Script (फ्री Gmail रिले), Gemini & Groq AI और Vercel डिप्लॉयमेंट का स्टेप-बाय-स्टेप तरीका।
-2. **डिप्लॉयमेंट के बाद की कार्यप्रणाली:**
-   - **ग्राहक (Customer):** 9 रंगों के स्वॉच से प्रोडक्ट खोजना, 5-टियर स्मार्ट इमेज गैलरी, 0% UPI QR पेमेंट (5-मिनट सुरक्षा टाइमर), और सामान मिलने के बाद असली रिव्यू फोटो व Helpful वोट।
-   - **विक्रेता (Seller):** स्टोर प्रोफाइल बनाना, Google Gemini AI द्वारा 1-क्लिक में हिंग्लिश प्रोडक्ट डिस्क्रिप्शन लिखवाना, 3 प्रकार से इमेज जोड़ना (B2, GDrive, Web URL), और DuckDB-Wasm द्वारा 5%/12% GST टैक्स हिसाब देखना।
-   - **प्रशासक (Admin):** 105+ एडमिन सेटिंग्स का नियंत्रण, बैंक SMS से 12-अंकों का UTR मिलाकर 1-क्लिक "Verify UPI" करना, और दिवाली/छठ पूजा पर 1-क्लिक मार्केटिंग ब्रॉडकास्ट भेजना।
-3. **105+ एडमिन सेटिंग्स का प्रभाव:** किस बटन या टॉगल को बदलने से वेबसाइट, इनवॉइस या कूरियर पर क्या प्रभाव पड़ता है, इसका पूरा विवरण।
-4. **ईमानदार तकनीकी विश्लेषण ("क्या तैयार है और क्या कमियां/सीमाएं हैं"):** 40/40 टेस्ट सूट्स की मजबूती बनाम फ्री-टीयर कोटा की सीमाएं (Gmail 500 mails/day, Neon cold-start, मैनुअल UPI UTR मिलान)।
+2. **डेटाबेस स्कीमा (19 टेबल्स):** `products`, `product_variants`, `orders`, `order_items`, `reviews`, `review_votes`, `coupons`, `audit_logs` आदि का पूर्ण DDL व संबंध।
+3. **सेलर हब व 'Add Product' नियमावली:** टाइटल, फैब्रिक, अवसर, साइज मैट्रिक्स (XS-XXL), कलर हेक्स स्वॉचेस, Google Gemini AI हिंग्लिश प्रॉम्प्ट्स, और 3-टीयर इमेज अपलोड।
+4. **BIS IS 19000:2022 समीक्षा प्रणाली:** सत्यापित खरीददार लॉक, मल्टी-फोटो रिव्यू व लाइटबॉक्स, और 'सहायक समीक्षा' (Helpful vote) धोखाधड़ी निवारण।
+5. **ग्राहक व भारतीय ई-कॉमर्स इंजन:** SmartImage 5-टीयर फॉलबैक, 0% NPCI UPI QR जनरेटर, 12-अंकीय UTR सबमिशन, 1-क्लिक WhatsApp चेकआउट, PWA ऑफलाइन सिंक।
+6. **105+ एडमिन सेटिंग्स का 100% सम्पूर्ण शब्दकोश:** Brand, Theme, Home, Commerce, Security, Seller, Features की सभी कीज़ का व्यापारिक प्रभाव।
+7. **बैंक-ग्रेड सुरक्षा:** 10 PoW आर्किटाइप्स, PBKDF2 Web Worker, `pow_used` रीप्ले सुरक्षा, और सबनेट ड्रिफ्ट सहिष्णुता।
+8. **ईमानदार तकनीकी विश्लेषण ("क्या तैयार है और क्या कमियां/सीमाएं हैं"):** 40/40 टेस्ट सूट्स की मजबूती बनाम फ्री-टीयर कोटा की सीमाएं (Gmail 500 mails/day, Neon cold-start, मैनुअल UPI UTR मिलान) और स्केलिंग रोडमैप।
+9. **15 आपातकालीन रनबुक्स एवं 15 FAQ:** उत्पादन व्यवधानों से तुरंत निपटने हेतु तैयार समाधान।
 
 ---
 
@@ -388,10 +393,12 @@ Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md)
 
 | Guide | Covers |
 | :--- | :--- |
+| 📄 [ऑफिशियल प्रिंटेबल PDF (52 पृष्ठ)](docs/AALM_VASTRALAY_MANUAL_HI.pdf) | A4 प्रिंटेबल 52-पेज मास्टर PDF (~2.7 MB) — 12 अध्याय, 105+ सेटिंग्स, 19 टेबल्स, 15 रनबुक्स |
+| 🗺️ [Interactive Architecture Showcase](https://aalm-vastralay.vercel.app/architecture) | Live Next.js Route featuring zoomable, pan-able Archify 3.0 visual topology |
+| 🏛️ [Archify 3.0 Static Showcase](public/architecture.html) | Standalone 777 KB static showcase for GitHub Pages & offline inspection |
+| 🎨 [प्रिंट-रेडी विजुअल HTML मैनुअल](docs/HINDI_MASTER_MANUAL.html) | रॉयल मैरून व गोल्ड थीम वाला ब्राउज़र प्रिंट-फ्रेंडली सम्पूर्ण HTML मैनुअल |
 | 🇮🇳 [सम्पूर्ण हिंदी मार्गदर्शिका (Hindi Manual)](docs/HINDI_MASTER_MANUAL.md) | संपूर्ण हिंदी संचालन गाइड, डिप्लॉयमेंट, 105+ सेटिंग्स व कमियां |
-| 📄 [ऑफिशियल प्रिंटेबल PDF](docs/AALM_VASTRALAY_MANUAL_HI.pdf) | A4 प्रिंटेबल PDF (~925 KB) — ऑफलाइन पठन व आर्काइव |
 | ⭐ [Master Developer Guide](docs/MASTER_DEVELOPER_GUIDE.md) | Developer + operations runbook |
-| 🏛️ [Archify 3.0 Blueprint](.archify/architecture-aalm-vastralay-20261006-134300/architecture.html) | Interactive zoomable system architecture visualizer |
 | 📜 [Architecture Laws (RULES)](docs/RULES.md) | Anti-yes-man principles, execution lifecycle, git discipline |
 | 🐘 [Neon PostgreSQL](docs/NEON_POSTGRESQL.md) | Autoscaling Postgres 16, pooled Mumbai endpoint, zero-loss migrations |
 | ⚡ [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md) | Next.js 16 SSR/ISR, edge regions, zero-downtime releases, rollback |
