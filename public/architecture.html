@@ -12212,26 +12212,29 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         return reached;
       }
       function hopDistancesFrom(source) {
+        if (!source || source === '__proto__' || source === 'constructor' || source === 'prototype') return Object.create(null);
         var outgoing = outgoingByNode();
         var distances = Object.create(null);
         var queue = [source];
-        distances[source] = 0;
+        distances[String(source)] = 0;
         for (var cursor = 0; cursor < queue.length; cursor += 1) {
           var links = outgoing[queue[cursor]] || [];
           links.forEach(function (link) {
+            if (!link || !link.to || link.to === '__proto__' || link.to === 'constructor') return;
             if (Object.prototype.hasOwnProperty.call(distances, link.to)) return;
-            distances[link.to] = distances[queue[cursor]] + 1;
+            distances[String(link.to)] = distances[queue[cursor]] + 1;
             queue.push(link.to);
           });
         }
         return distances;
       }
       function shortestDirectedPath(source, target) {
-        if (source === target) return null;
+        if (!source || !target || source === target) return null;
+        if (source === '__proto__' || target === '__proto__' || source === 'constructor' || target === 'constructor') return null;
         var outgoing = outgoingByNode();
         var previous = Object.create(null);
         var queue = [source];
-        previous[source] = null;
+        previous[String(source)] = null;
         for (var cursor = 0; cursor < queue.length && !Object.prototype.hasOwnProperty.call(previous, target); cursor += 1) {
           var links = outgoing[queue[cursor]] || [];
           links.some(function (link) {
@@ -13335,8 +13338,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           return false;
         }
 
-        var chosen = {};
-        selectedKinds.forEach(function (kind) { chosen[kind] = true; });
+        var chosen = Object.create(null);
+        selectedKinds.forEach(function (kind) {
+          if (kind && kind !== '__proto__' && kind !== 'constructor' && kind !== 'prototype') {
+            chosen[String(kind)] = true;
+          }
+        });
         Object.keys(byId).forEach(function (id) {
           if (!chosen[nodeKind[id]]) return;
           byId[id].setAttribute('data-lens-match', '');

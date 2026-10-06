@@ -7,6 +7,9 @@ paths-ignore:
   - '**/*.test.ts'
   - '**/*.test.js'
   - 'scripts/**'
+  - 'public/architecture.html'
+  - '.archify/**'
+  - 'docs/**'
 
 query-filters:
   - exclude:

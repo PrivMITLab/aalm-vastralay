@@ -70,6 +70,9 @@ export function SmartImage({
     }
   };
 
+  // CodeQL Defense: Explicitly strip dangerouslySetInnerHTML to prevent DOM XSS taint propagation
+  const { dangerouslySetInnerHTML: _dangerous, ...safeRestProps } = restProps;
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -77,7 +80,7 @@ export function SmartImage({
       alt={alt}
       onError={handleError}
       className={className}
-      {...restProps}
+      {...safeRestProps}
     />
   );
 }

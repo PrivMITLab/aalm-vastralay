@@ -108,16 +108,22 @@ export function canonicalizeImageUrl(src: string | null | undefined): string {
       if (photoId) return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1200&q=80`;
     }
 
-    // 8. IndiaMART & eCommerce product page image link auto-normalization
-    if (host.includes("indiamart.com") || host.includes("dir.indiamart.com")) {
+    // 8. IndiaMART & eCommerce product page image link auto-normalization (Strict domain matching)
+    if (host === "indiamart.com" || host.endsWith(".indiamart.com")) {
       // If it's already an image URL or cdn link, return clean canonical
       if (parsed.pathname.match(/\.(jpg|jpeg|png|webp|avif)/i)) {
         return parsed.toString();
       }
     }
 
-    // 9. Wikimedia Commons / Wikipedia file page (File:Example.jpg -> Special:FilePath/Example.jpg)
-    if ((host.endsWith("wikipedia.org") || host.endsWith("wikimedia.org")) && parsed.pathname.includes("/File:")) {
+    // 9. Wikimedia Commons / Wikipedia file page (Strict domain matching)
+    if (
+      (host === "wikipedia.org" ||
+        host.endsWith(".wikipedia.org") ||
+        host === "wikimedia.org" ||
+        host.endsWith(".wikimedia.org")) &&
+      parsed.pathname.includes("/File:")
+    ) {
       const fileName = parsed.pathname.split("/File:")[1]?.split("/")[0];
       if (fileName) return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}`;
     }
@@ -280,19 +286,21 @@ export function sanitizeImageUrl(url: string | null | undefined): string {
   const trimmed = url.trim();
   if (!trimmed) return PLACEHOLDER_IMAGE;
 
+  // Block any dangerous protocol scheme (javascript, data, vbscript, file, etc.)
+  if (/^(?:javascript|data|vbscript|file):/i.test(trimmed)) {
+    return PLACEHOLDER_IMAGE;
+  }
+
   // Safe relative paths: /path (disallowing protocol-relative // or Windows-style /\)
   if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
     return trimmed;
   }
 
-  // Safe absolute URLs
+  // Safe absolute URLs (http and https only)
   try {
     const parsed = new URL(trimmed);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-      return parsed.toString();
-    }
-    if (parsed.protocol === "data:" && parsed.pathname.startsWith("image/")) {
-      return trimmed;
+      return parsed.href;
     }
   } catch {
     // Malformed URL

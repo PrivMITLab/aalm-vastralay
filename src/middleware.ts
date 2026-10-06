@@ -37,16 +37,18 @@ function isValidSessionStructure(token: string | undefined): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 0. Trailing slash redirect for /api/ with explicit Content-Type to satisfy ZAP rule 10019
+  // 0. Root API Gateway handler for /api/ with explicit Content-Type to satisfy ZAP rule 10019
   if (pathname === "/api/") {
-    const redirectUrl = new URL("/api", request.url);
-    redirectUrl.search = request.nextUrl.search;
-    return NextResponse.redirect(redirectUrl, {
-      status: 308,
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-    });
+    return NextResponse.json(
+      { ok: true, name: "Aalm Vastralay API Gateway", version: "1.0.0" },
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
+        },
+      }
+    );
   }
 
   // 1. Bypass genuine public media assets
