@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Aalm Vastralay System Architecture",
+    "output": ".archify/architecture-aalm-vastralay-20261006-134300/architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/SudhirDevOps1/aalm-vastralay.git",
+      "provider": "github",
+      "revision": "49b2cec35536641bcf072a7ee98de2835f765a29"
+    },
+    "views": [
+      {
+        "id": "order-checkout-flow",
+        "label": "Order & Checkout",
+        "focus": ["client-web", "edge-guard", "server-actions", "gst-engine", "neon-db", "logistics-engine", "messaging-gateway"],
+        "note": "End-to-end customer purchase, GST invoice calculation, DB commit, and dispatch tracking."
+      },
+      {
+        "id": "catalog-search-flow",
+        "label": "Catalog & AI Search",
+        "focus": ["client-web", "server-actions", "typesense-search", "ai-orchestrator", "neon-db"],
+        "note": "Typo-tolerant ethnic wear search with Hinglish NLP parsing and Postgres FTS fallback."
+      },
+      {
+        "id": "media-upload-flow",
+        "label": "Direct Media Ingestion",
+        "focus": ["client-web", "b2-storage"],
+        "note": "Direct client streaming to Backblaze B2 via presigned URLs to bypass serverless payload caps."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client-web",
+      "type": "frontend",
+      "label": "Next.js Web & PWA",
+      "sublabel": "React 19 / App Router",
+      "pos": [60, 258],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/app/layout.tsx",
+          "line": 1,
+          "end_line": 45,
+          "label": "Root layout & PWA shell"
+        }
+      ]
+    },
+    {
+      "id": "client-olap",
+      "type": "frontend",
+      "label": "DuckDB-Wasm Client",
+      "sublabel": "In-Browser OLAP Engine",
+      "pos": [60, 70],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/lib/analytics/duckdb-engine.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Browser analytics engine"
+        }
+      ]
+    },
+    {
+      "id": "edge-guard",
+      "type": "security",
+      "label": "Edge Middleware",
+      "sublabel": "PoW & Auth Session Gate",
+      "pos": [330, 258],
+      "size": [150, 64],
+      "tag": "Sub-10ms Fast Path",
+      "sources": [
+        {
+          "path": "src/middleware.ts",
+          "line": 1,
+          "end_line": 60,
+          "label": "Edge request guard"
+        }
+      ]
+    },
+    {
+      "id": "auth-engine",
+      "type": "security",
+      "label": "Better Auth & Sessions",
+      "sublabel": "HMAC Hardened Tokens",
+      "pos": [330, 70],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/lib/auth.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Hardened session tokens"
+        }
+      ]
+    },
+    {
+      "id": "b2-storage",
+      "type": "cloud",
+      "label": "Backblaze B2 & CDN",
+      "sublabel": "Direct Presigned Storage",
+      "pos": [330, 440],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/lib/b2.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "B2 Cold Storage engine"
+        }
+      ]
+    },
+    {
+      "id": "server-actions",
+      "type": "backend",
+      "label": "Server Actions Core",
+      "sublabel": "Next.js App Serverless",
+      "pos": [620, 245],
+      "size": [170, 90],
+      "sources": [
+        {
+          "path": "src/actions/orders.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Orders & checkout actions"
+        }
+      ]
+    },
+    {
+      "id": "ai-orchestrator",
+      "type": "backend",
+      "label": "AI Inference Engine",
+      "sublabel": "Gemini 2.5 & Groq Llama",
+      "pos": [625, 70],
+      "size": [160, 64],
+      "sources": [
+        {
+          "path": "src/lib/ai/client.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Hinglish NLP client"
+        }
+      ]
+    },
+    {
+      "id": "gst-engine",
+      "type": "backend",
+      "label": "Statutory GST Engine",
+      "sublabel": "Rule 46 Tax Invoicing",
+      "pos": [625, 440],
+      "size": [160, 64],
+      "sources": [
+        {
+          "path": "src/lib/gst-invoice.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Statutory GST engine"
+        }
+      ]
+    },
+    {
+      "id": "neon-db",
+      "type": "database",
+      "label": "Neon Postgres DB",
+      "sublabel": "Drizzle ORM & Retry Pool",
+      "pos": [930, 258],
+      "size": [160, 64],
+      "tag": "withDbRetry",
+      "sources": [
+        {
+          "path": "src/lib/db/pool.ts",
+          "line": 1,
+          "end_line": 40,
+          "label": "Connection pool manager"
+        }
+      ]
+    },
+    {
+      "id": "typesense-search",
+      "type": "database",
+      "label": "Typesense Fast Search",
+      "sublabel": "Typo-Tolerant Catalog",
+      "pos": [930, 70],
+      "size": [160, 64],
+      "tag": "Dual-Engine Fail-Soft",
+      "sources": [
+        {
+          "path": "src/lib/typesense.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Instant search adapter"
+        }
+      ]
+    },
+    {
+      "id": "logistics-engine",
+      "type": "external",
+      "label": "Courier Logistics Hub",
+      "sublabel": "Shiprocket & Delhivery",
+      "pos": [930, 440],
+      "size": [160, 64],
+      "sources": [
+        {
+          "path": "src/lib/courier/index.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "Unified courier engine"
+        }
+      ]
+    },
+    {
+      "id": "messaging-gateway",
+      "type": "messagebus",
+      "label": "Messaging Gateway",
+      "sublabel": "WhatsApp & Dual Email",
+      "pos": [1220, 440],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/lib/whatsapp.ts",
+          "line": 1,
+          "end_line": 45,
+          "label": "WhatsApp & email channels"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "Client & Edge Boundary",
+      "wraps": ["client-web", "client-olap", "edge-guard", "auth-engine"]
+    },
+    {
+      "kind": "region",
+      "label": "Vercel Serverless Application Runtime",
+      "wraps": ["server-actions", "ai-orchestrator", "gst-engine"]
+    },
+    {
+      "kind": "region",
+      "label": "Data Persistence & Downstream Services",
+      "wraps": ["neon-db", "typesense-search", "logistics-engine", "messaging-gateway"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "web-to-edge",
+      "from": "client-web",
+      "to": "edge-guard",
+      "label": "HTTPS Requests",
+      "variant": "emphasis"
+    },
+    {
+      "id": "web-to-olap",
+      "from": "client-web",
+      "to": "client-olap",
+      "label": "Client Analytics",
+      "variant": "default"
+    },
+    {
+      "id": "web-to-b2",
+      "from": "client-web",
+      "to": "b2-storage",
+      "label": "Direct Upload",
+      "variant": "dashed"
+    },
+    {
+      "id": "edge-to-auth",
+      "from": "edge-guard",
+      "to": "auth-engine",
+      "label": "Session HMAC",
+      "variant": "security"
+    },
+    {
+      "id": "edge-to-actions",
+      "from": "edge-guard",
+      "to": "server-actions",
+      "label": "Protected Dispatch",
+      "variant": "emphasis"
+    },
+    {
+      "id": "actions-to-db",
+      "from": "server-actions",
+      "to": "neon-db",
+      "label": "withDbRetry",
+      "variant": "emphasis"
+    },
+    {
+      "id": "actions-to-gst",
+      "from": "server-actions",
+      "to": "gst-engine",
+      "label": "Tax Calculation",
+      "variant": "default"
+    },
+    {
+      "id": "actions-to-ai",
+      "from": "server-actions",
+      "to": "ai-orchestrator",
+      "label": "NLP & Search Parse",
+      "variant": "default"
+    },
+    {
+      "id": "actions-to-typesense",
+      "from": "server-actions",
+      "to": "typesense-search",
+      "label": "Instant Query",
+      "variant": "default"
+    },
+    {
+      "id": "typesense-to-db",
+      "from": "typesense-search",
+      "to": "neon-db",
+      "label": "FTS Fallback",
+      "variant": "dashed"
+    },
+    {
+      "id": "actions-to-logistics",
+      "from": "server-actions",
+      "to": "logistics-engine",
+      "label": "AWB Manifest",
+      "variant": "default"
+    },
+    {
+      "id": "logistics-to-messaging",
+      "from": "logistics-engine",
+      "to": "messaging-gateway",
+      "label": "Dispatch Alert",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Client & Edge Tier",
+      "items": [
+        "Next.js 16 App Router with React 19 Server Components and PWA offline capability",
+        "Zero-latency DuckDB-Wasm in-browser analytical query engine",
+        "Sub-10ms Edge middleware with Click-to-Solve PoW anti-bot challenges"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Application & Intelligence",
+      "items": [
+        "Transactional Next.js Server Actions with retry-resilient database pooling",
+        "Dual AI inference (Gemini 2.5 Flash + Groq Llama-3.3-70B) with ai_cache acceleration",
+        "Rule 46 statutory Indian GST tax engine splitting intra-state & inter-state duties"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Data & Logistics",
+      "items": [
+        "Neon Serverless PostgreSQL with automated connection pooling and transient retry",
+        "Typesense federated search with seamless Postgres FTS fallback",
+        "Direct Backblaze B2 S3-compatible media upload bypassing 4.5MB Vercel payload limit",
+        "Automated Shiprocket & Delhivery AWB dispatch with real-time WhatsApp updates"
+      ]
+    }
+  ]
+}

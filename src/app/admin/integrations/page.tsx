@@ -66,7 +66,14 @@ export default async function AdminIntegrationsPage() {
     } catch {
       configured = false;
     }
-    return { ...svc, configured };
+    return {
+      name: svc.name,
+      purpose: svc.purpose,
+      envKeys: svc.envKeys,
+      docs: svc.docs,
+      configured,
+      testKey: svc.testKey,
+    };
   });
 
   return (

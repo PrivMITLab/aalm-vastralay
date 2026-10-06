@@ -375,33 +375,40 @@ export async function autoEnsureTables() {
   }
 
   // Safe zero-loss migration for password reset OTP, users is_active, Better Auth fields, and UPI UTR fields
-  try {
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "is_active" boolean DEFAULT true NOT NULL;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "name" text;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "image" text;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false NOT NULL;`));
-    await db.execute(sql.raw(`ALTER TABLE "users" ALTER COLUMN "clerk_id" SET DEFAULT ('local_' || gen_random_uuid()::text);`));
-    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`));
-    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`));
-    await db.execute(sql.raw(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`));
-    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_orders_upi_utr" ON "orders" ("upi_utr");`));
-    await db.execute(sql.raw(`CREATE UNIQUE INDEX IF NOT EXISTS "idx_orders_idempotency" ON "orders" ("idempotency_key");`));
-    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "push_subscriptions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "endpoint" text UNIQUE NOT NULL, "keys_p256dh" text NOT NULL, "keys_auth" text NOT NULL, "created_at" timestamptz DEFAULT now());`));
-    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now());`));
-    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`));
-    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'info' NOT NULL;`));
-    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL;`));
-    await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`));
-    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "user_activity" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "guest_id" text, "activity_type" text NOT NULL, "product_id" uuid REFERENCES "products"("id") ON DELETE CASCADE, "search_query" text, "metadata" jsonb DEFAULT '{}'::jsonb, "created_at" timestamptz DEFAULT now());`));
-    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "ai_cache" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "cache_key" text NOT NULL UNIQUE, "feature" text NOT NULL, "response" jsonb NOT NULL, "hit_count" integer DEFAULT 1 NOT NULL, "created_at" timestamptz DEFAULT now(), "updated_at" timestamptz DEFAULT now());`));
-    await db.execute(sql.raw(`ALTER TABLE "reviews" ADD COLUMN IF NOT EXISTS "helpful_count" integer DEFAULT 0 NOT NULL;`));
-    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "review_votes" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "review_id" uuid REFERENCES "reviews"("id") ON DELETE CASCADE NOT NULL, "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "ip_hash" text, "created_at" timestamptz DEFAULT now() NOT NULL);`));
-    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_review_votes_review" ON "review_votes" ("review_id");`));
-    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_review_votes_user" ON "review_votes" ("user_id");`));
-  } catch {
-    // Non-fatal if columns/indexes exist
+  // Safe zero-loss migration for user reset OTP, Better Auth, notifications, reviews, and review votes
+  const MIGRATION_STATEMENTS = [
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp" text;`,
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "reset_otp_expires_at" timestamp with time zone;`,
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "is_active" boolean DEFAULT true NOT NULL;`,
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "name" text;`,
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "image" text;`,
+    `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false NOT NULL;`,
+    `ALTER TABLE "users" ALTER COLUMN "clerk_id" SET DEFAULT ('local_' || gen_random_uuid()::text);`,
+    `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "upi_utr" text;`,
+    `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "idempotency_key" text;`,
+    `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "verified_at" timestamp with time zone;`,
+    `CREATE INDEX IF NOT EXISTS "idx_orders_upi_utr" ON "orders" ("upi_utr");`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "idx_orders_idempotency" ON "orders" ("idempotency_key");`,
+    `CREATE TABLE IF NOT EXISTS "push_subscriptions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "endpoint" text UNIQUE NOT NULL, "keys_p256dh" text NOT NULL, "keys_auth" text NOT NULL, "created_at" timestamptz DEFAULT now());`,
+    `CREATE TABLE IF NOT EXISTS "pow_used" ("challenge_hash" text PRIMARY KEY, "used_at" timestamptz DEFAULT now());`,
+    `CREATE INDEX IF NOT EXISTS "idx_pow_used_at" ON "pow_used" ("used_at");`,
+    `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "priority" text DEFAULT 'info' NOT NULL;`,
+    `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "channel_id" text DEFAULT 'orders_and_alerts' NOT NULL;`,
+    `ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`,
+    `CREATE TABLE IF NOT EXISTS "user_activity" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "guest_id" text, "activity_type" text NOT NULL, "product_id" uuid REFERENCES "products"("id") ON DELETE CASCADE, "search_query" text, "metadata" jsonb DEFAULT '{}'::jsonb, "created_at" timestamptz DEFAULT now());`,
+    `CREATE TABLE IF NOT EXISTS "ai_cache" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "cache_key" text NOT NULL UNIQUE, "feature" text NOT NULL, "response" jsonb NOT NULL, "hit_count" integer DEFAULT 1 NOT NULL, "created_at" timestamptz DEFAULT now(), "updated_at" timestamptz DEFAULT now());`,
+    `ALTER TABLE "reviews" ADD COLUMN IF NOT EXISTS "helpful_count" integer DEFAULT 0 NOT NULL;`,
+    `CREATE TABLE IF NOT EXISTS "review_votes" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "review_id" uuid REFERENCES "reviews"("id") ON DELETE CASCADE NOT NULL, "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "ip_hash" text, "created_at" timestamptz DEFAULT now() NOT NULL);`,
+    `CREATE INDEX IF NOT EXISTS "idx_review_votes_review" ON "review_votes" ("review_id");`,
+    `CREATE INDEX IF NOT EXISTS "idx_review_votes_user" ON "review_votes" ("user_id");`,
+  ];
+
+  for (const stmt of MIGRATION_STATEMENTS) {
+    try {
+      await db.execute(sql.raw(stmt));
+    } catch {
+      // Non-fatal per-statement fallback ensures subsequent migrations always run
+    }
   }
 }
 

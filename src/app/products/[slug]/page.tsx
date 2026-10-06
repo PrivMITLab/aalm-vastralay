@@ -52,58 +52,95 @@ async function loadProduct(slug: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const row = await loadProduct(slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const row = (await loadProduct(decodedSlug)) ?? (await loadProduct(slug));
   if (!row) return { title: "Product not found" };
+  const firstImg = Array.isArray(row.product.images) && row.product.images.length > 0 ? row.product.images[0] : null;
   return {
     title: `${row.product.title} – ${formatINR(row.product.price)}`,
     description: row.product.description?.slice(0, 160),
-    openGraph: { images: [resolveImage(row.product.images[0])] },
+    openGraph: { images: [resolveImage(firstImg)] },
   };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const row = await loadProduct(slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const row = (await loadProduct(decodedSlug)) ?? (await loadProduct(slug));
   const user = await getCurrentUser();
   if (!row) notFound();
   const { product, store, category } = row;
   const isOwner = user && (user.id === store.ownerId || user.role === "admin");
   if ((!product.isActive || !store.isActive) && !isOwner) notFound();
 
-  const [commerce, reviewsEnabled, [variants, reviewRows, similar, wish, parentCat]] = await Promise.all([
+  const [commerce, reviewsEnabled] = await Promise.all([
     getCommerce(),
     getSettingBool("features.reviews", true),
-    Promise.all([
-    db.select().from(productVariants).where(eq(productVariants.productId, product.id)),
-    db
-      .select({ review: reviews, userName: users.fullName, userRole: users.role })
-      .from(reviews)
-      .leftJoin(users, eq(reviews.userId, users.id))
-      .where(eq(reviews.productId, product.id))
-      .orderBy(desc(reviews.createdAt))
-      .limit(30),
-    product.categoryId
-      ? db
-          .select({ product: products, storeName: stores.storeName })
-          .from(products)
-          .innerJoin(stores, eq(products.storeId, stores.id))
-          .where(and(eq(products.categoryId, product.categoryId), ne(products.id, product.id), eq(products.isActive, true), eq(stores.isActive, true)))
-          .orderBy(desc(products.rating))
-          .limit(4)
-      : Promise.resolve([]),
-    user
-      ? db
-          .select({ id: wishlist.id })
-          .from(wishlist)
-          .where(and(eq(wishlist.userId, user.id), eq(wishlist.productId, product.id)))
-          .limit(1)
-      : Promise.resolve([]),
-      category?.parentId ? db.select().from(categories).where(eq(categories.id, category.parentId)).limit(1) : Promise.resolve([]),
-    ]),
   ]);
 
+  let variants: any[] = [];
+  let reviewRows: any[] = [];
+  let similar: any[] = [];
+  let wish: any[] = [];
+  let parentCat: any[] = [];
+
+  try {
+    variants = await db.select().from(productVariants).where(eq(productVariants.productId, product.id));
+  } catch (err) {
+    console.warn("[ProductPage] Variants query fallback:", err);
+  }
+
+  if (reviewsEnabled) {
+    try {
+      reviewRows = await db
+        .select({ review: reviews, userName: users.fullName, userRole: users.role })
+        .from(reviews)
+        .leftJoin(users, eq(reviews.userId, users.id))
+        .where(eq(reviews.productId, product.id))
+        .orderBy(desc(reviews.createdAt))
+        .limit(30);
+    } catch (err) {
+      console.warn("[ProductPage] Reviews query fallback:", err);
+    }
+  }
+
+  if (product.categoryId) {
+    try {
+      similar = await db
+        .select({ product: products, storeName: stores.storeName })
+        .from(products)
+        .innerJoin(stores, eq(products.storeId, stores.id))
+        .where(and(eq(products.categoryId, product.categoryId), ne(products.id, product.id), eq(products.isActive, true), eq(stores.isActive, true)))
+        .orderBy(desc(products.rating))
+        .limit(4);
+    } catch (err) {
+      console.warn("[ProductPage] Similar products query fallback:", err);
+    }
+  }
+
+  if (user) {
+    try {
+      wish = await db
+        .select({ id: wishlist.id })
+        .from(wishlist)
+        .where(and(eq(wishlist.userId, user.id), eq(wishlist.productId, product.id)))
+        .limit(1);
+    } catch (err) {
+      console.warn("[ProductPage] Wishlist query fallback:", err);
+    }
+  }
+
+  if (category?.parentId) {
+    try {
+      parentCat = await db.select().from(categories).where(eq(categories.id, category.parentId)).limit(1);
+    } catch (err) {
+      console.warn("[ProductPage] Parent category query fallback:", err);
+    }
+  }
+
   variants.sort((a, b) => sizeRank(a.size) - sizeRank(b.size) || (a.color ?? "").localeCompare(b.color ?? ""));
-  const images = (product.images.length ? product.images : [null]).map((src) => resolveImage(src, { width: 900 }));
+  const rawImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [null];
+  const images = rawImages.map((src) => resolveImage(src, { width: 900 }));
   const video = resolveVideo(product.videoUrl);
   const discount = Math.round(Number(product.discountPercent ?? 0));
   const mrp = product.mrp ?? product.price;
@@ -136,7 +173,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "@type": "Product",
     name: product.title,
     description: product.description || undefined,
-    image: product.images.map((img) => resolveImage(img)),
+    image: Array.isArray(product.images) && product.images.length > 0 ? product.images.map((img) => resolveImage(img)) : [resolveImage(null)],
     sku: product.sku || product.id,
     brand: {
       "@type": "Brand",

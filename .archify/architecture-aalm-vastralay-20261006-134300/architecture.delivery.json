@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ca2ee02e-8239-4e87-b9a1-a68a291b08cf",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\aalm-vastralay\\.archify\\architecture-aalm-vastralay-20261006-134300\\candidate.json",
+  "output": "D:\\aalm-vastralay\\.archify\\architecture-aalm-vastralay-20261006-134300\\architecture.html",
+  "specification": {
+    "sha256": "9be787f5d3886f69f9ae6e93465dac891231e8917d4ea0f5b8ff6c501ac5c168",
+    "bytes": 9678
+  },
+  "artifact": {
+    "sha256": "f2d8cc2003e09f3147594b21f4271027312195619a2705e8e94c2ebf93a95bc2",
+    "bytes": 777763
+  }
+}
