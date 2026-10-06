@@ -59,7 +59,7 @@ export function SmartImage({
 
   const rawActiveSrc = fallbackChain[currentIndex] || PLACEHOLDER_IMAGE;
   // CodeQL Defense: Strictly sanitize protocol and characters before rendering in DOM
-  const safeSrc = sanitizeImageUrl(rawActiveSrc);
+  const safeSrc = encodeURI(sanitizeImageUrl(rawActiveSrc));
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     if (currentIndex < fallbackChain.length - 1) {

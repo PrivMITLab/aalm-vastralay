@@ -286,21 +286,28 @@ export function sanitizeImageUrl(url: string | null | undefined): string {
   const trimmed = url.trim();
   if (!trimmed) return PLACEHOLDER_IMAGE;
 
-  // Block any dangerous protocol scheme (javascript, data, vbscript, file, etc.)
-  if (/^(?:javascript|data|vbscript|file):/i.test(trimmed)) {
+  // Strict allowlist: must start with https://, http://, or safe root path / (blocking javascript:, data:, vbscript:, etc.)
+  const isSafeProtocol =
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("http://") ||
+    (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\"));
+
+  if (!isSafeProtocol) {
     return PLACEHOLDER_IMAGE;
   }
 
-  // Safe relative paths: /path (disallowing protocol-relative // or Windows-style /\)
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
-    return trimmed;
+  // Defend against HTML quote escapes
+  if (/["'<>]/.test(trimmed)) {
+    return PLACEHOLDER_IMAGE;
   }
 
-  // Safe absolute URLs (http and https only)
   try {
+    if (trimmed.startsWith("/")) {
+      return encodeURI(trimmed);
+    }
     const parsed = new URL(trimmed);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-      return parsed.href;
+      return encodeURI(parsed.href);
     }
   } catch {
     // Malformed URL
