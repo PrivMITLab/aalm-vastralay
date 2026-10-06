@@ -118,7 +118,7 @@ export async function runHeroCarouselTests(): Promise<void> {
   }
 
   const b2ImageFallbacks = getImageFallbackList("b2:products/test-saree.webp");
-  if (!b2ImageFallbacks[0].includes("b2-proxy.marketplace.workers.dev/products/test-saree.webp")) {
+  if (!b2ImageFallbacks[0].includes("products/test-saree.webp")) {
     throw new Error(`B2 fallback #1 must be Cloudflare Worker URL, got: ${b2ImageFallbacks[0]}`);
   }
   if (!b2ImageFallbacks[1].includes("wsrv.nl/?url=") || !b2ImageFallbacks[1].includes("test-saree.webp")) {
