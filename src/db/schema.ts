@@ -248,12 +248,28 @@ export const reviews = pgTable(
     body: text("body"),
     images: jsonb("images").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
     isVerified: boolean("is_verified").default(false).notNull(),
+    helpfulCount: integer("helpful_count").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     check("reviews_rating_check", sql`${t.rating} BETWEEN 1 AND 5`),
     index("idx_reviews_product").on(t.productId),
     index("idx_reviews_product_verified").on(t.productId, t.isVerified),
+  ],
+);
+
+export const reviewVotes = pgTable(
+  "review_votes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reviewId: uuid("review_id").references(() => reviews.id, { onDelete: "cascade" }).notNull(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    ipHash: text("ip_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("idx_review_votes_review").on(t.reviewId),
+    index("idx_review_votes_user").on(t.userId),
   ],
 );
 
@@ -502,6 +518,7 @@ export type ProductVariant = typeof productVariants.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
+export type ReviewVote = typeof reviewVotes.$inferSelect;
 export type Coupon = typeof coupons.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type Address = typeof addresses.$inferSelect;

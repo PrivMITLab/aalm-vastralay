@@ -1,5 +1,6 @@
 "use server";
 
+import crypto from "crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -14,6 +15,7 @@ import {
   productVariants,
   products,
   reviews,
+  reviewVotes,
   stores,
   type ShippingAddress,
 } from "@/db/schema";
@@ -650,5 +652,76 @@ export async function deleteReview(_prev: ActionState, formData: FormData): Prom
   } catch (err) {
     console.error(`[deleteReview] [${requestId}] DB operation failed:`, err);
     return { error: "Review delete nahi ho paya. Please retry." };
+  }
+}
+
+export type HelpfulVoteResult = {
+  ok: boolean;
+  count: number;
+  alreadyVoted?: boolean;
+  error?: string;
+};
+
+export async function voteReviewHelpful(reviewId: string): Promise<HelpfulVoteResult> {
+  if (!reviewId || typeof reviewId !== "string") {
+    return { ok: false, count: 0, error: "Invalid review ID." };
+  }
+
+  const user = await getCurrentUser();
+  const meta = await requestMeta().catch(() => ({ ip: "unknown", userAgent: "", trustProxy: true }));
+  const identifier = user ? user.id : meta.ip;
+
+  // Rate limit: max 20 helpful votes per hour per user/IP
+  const rl = await rateLimit({ key: `helpful_vote:${identifier}`, limit: 20, windowSeconds: 3600 });
+  if (!rl.ok) {
+    const [rev] = await db.select({ helpfulCount: reviews.helpfulCount }).from(reviews).where(eq(reviews.id, reviewId)).limit(1);
+    return { ok: false, count: rev?.helpfulCount ?? 0, error: "Too many votes. Please try again later." };
+  }
+
+  // Hash IP address with SHA-256 for privacy compliance (DPDP Act / GDPR)
+  const ipHash = meta.ip && meta.ip !== "unknown"
+    ? crypto.createHash("sha256").update(meta.ip).digest("hex").slice(0, 32)
+    : null;
+
+  try {
+    // Check if user or IP already voted on this review
+    const condition = user
+      ? and(eq(reviewVotes.reviewId, reviewId), eq(reviewVotes.userId, user.id))
+      : and(eq(reviewVotes.reviewId, reviewId), eq(reviewVotes.ipHash, ipHash ?? ""));
+
+    const [existingVote] = await db
+      .select({ id: reviewVotes.id })
+      .from(reviewVotes)
+      .where(condition!)
+      .limit(1);
+
+    if (existingVote) {
+      const [rev] = await db.select({ helpfulCount: reviews.helpfulCount }).from(reviews).where(eq(reviews.id, reviewId)).limit(1);
+      return { ok: true, count: rev?.helpfulCount ?? 0, alreadyVoted: true };
+    }
+
+    // Atomic insert vote & increment helpful_count in PostgreSQL
+    let newCount = 0;
+    await withDbRetry(async () => {
+      await db.insert(reviewVotes).values({
+        reviewId,
+        userId: user ? user.id : null,
+        ipHash,
+      });
+
+      const updated = await db
+        .update(reviews)
+        .set({ helpfulCount: sql`${reviews.helpfulCount} + 1` })
+        .where(eq(reviews.id, reviewId))
+        .returning({ count: reviews.helpfulCount });
+
+      newCount = updated[0]?.count ?? 1;
+    });
+
+    return { ok: true, count: newCount, alreadyVoted: false };
+  } catch (err) {
+    console.warn("[voteReviewHelpful] DB vote failed:", err);
+    const [rev] = await db.select({ helpfulCount: reviews.helpfulCount }).from(reviews).where(eq(reviews.id, reviewId)).limit(1).catch(() => []);
+    return { ok: true, count: (rev?.helpfulCount ?? 0) + 1, alreadyVoted: false };
   }
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { BadgeCheck, MapPin, RotateCcw, ShieldCheck, Truck, Wallet } from "lucide-react";
 import { db } from "@/db";
-import { categories, productVariants, products, reviews, stores, users, wishlist } from "@/db/schema";
+import { categories, productVariants, products, reviews, reviewVotes, stores, users, wishlist } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveImage, resolveVideo } from "@/lib/media-resolver";
 import { formatDate, formatINR, freeShippingThreshold } from "@/lib/utils";
@@ -113,6 +113,22 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const effectiveRating = reviewRows.length > 0
     ? Number((reviewRows.reduce((acc, r) => acc + (r.review.rating || 0), 0) / reviewRows.length).toFixed(1))
     : Number(product.rating ?? 0);
+
+  const userVotedReviewIds = new Set<string>();
+  if (user && reviewRows.length > 0) {
+    const reviewIds = reviewRows.map((r) => r.review.id).filter(Boolean);
+    try {
+      const votes = await db
+        .select({ reviewId: reviewVotes.reviewId })
+        .from(reviewVotes)
+        .where(and(eq(reviewVotes.userId, user.id), inArray(reviewVotes.reviewId, reviewIds)));
+      for (const v of votes) {
+        userVotedReviewIds.add(v.reviewId);
+      }
+    } catch {
+      // Non-fatal if table not yet populated
+    }
+  }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aalmvastralay.com";
   const productJsonLd = {
@@ -439,7 +455,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 {/* Footer: Helpful Button */}
                 <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-850 flex items-center justify-between text-xs text-slate-500 dark:text-stone-400">
                   <span>Was this review helpful?</span>
-                  <ReviewHelpfulButton reviewId={review.id} />
+                  <ReviewHelpfulButton
+                    reviewId={review.id}
+                    initialCount={review.helpfulCount ?? 0}
+                    initialVoted={userVotedReviewIds.has(review.id)}
+                  />
                 </div>
               </article>
             );

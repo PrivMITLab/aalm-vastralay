@@ -150,8 +150,17 @@ const TABLE_DDL_STATEMENTS = [
     "body" text,
     "images" jsonb DEFAULT '[]'::jsonb NOT NULL,
     "is_verified" boolean DEFAULT false NOT NULL,
+    "helpful_count" integer DEFAULT 0 NOT NULL,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "reviews_rating_check" CHECK ("rating" BETWEEN 1 AND 5)
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS "review_votes" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    "review_id" uuid REFERENCES "reviews"("id") ON DELETE CASCADE NOT NULL,
+    "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE,
+    "ip_hash" text,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL
   )`,
 
   `CREATE TABLE IF NOT EXISTS "coupons" (
@@ -387,6 +396,10 @@ export async function autoEnsureTables() {
     await db.execute(sql.raw(`ALTER TABLE "notifications" ADD COLUMN IF NOT EXISTS "action_buttons" jsonb DEFAULT '[]'::jsonb NOT NULL;`));
     await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "user_activity" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "guest_id" text, "activity_type" text NOT NULL, "product_id" uuid REFERENCES "products"("id") ON DELETE CASCADE, "search_query" text, "metadata" jsonb DEFAULT '{}'::jsonb, "created_at" timestamptz DEFAULT now());`));
     await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "ai_cache" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "cache_key" text NOT NULL UNIQUE, "feature" text NOT NULL, "response" jsonb NOT NULL, "hit_count" integer DEFAULT 1 NOT NULL, "created_at" timestamptz DEFAULT now(), "updated_at" timestamptz DEFAULT now());`));
+    await db.execute(sql.raw(`ALTER TABLE "reviews" ADD COLUMN IF NOT EXISTS "helpful_count" integer DEFAULT 0 NOT NULL;`));
+    await db.execute(sql.raw(`CREATE TABLE IF NOT EXISTS "review_votes" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "review_id" uuid REFERENCES "reviews"("id") ON DELETE CASCADE NOT NULL, "user_id" uuid REFERENCES "users"("id") ON DELETE CASCADE, "ip_hash" text, "created_at" timestamptz DEFAULT now() NOT NULL);`));
+    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_review_votes_review" ON "review_votes" ("review_id");`));
+    await db.execute(sql.raw(`CREATE INDEX IF NOT EXISTS "idx_review_votes_user" ON "review_votes" ("user_id");`));
   } catch {
     // Non-fatal if columns/indexes exist
   }
