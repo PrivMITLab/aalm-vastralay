@@ -71,6 +71,7 @@
 
 ## 📑 Table of Contents
 
+- [🇮🇳 सम्पूर्ण हिंदी मार्गदर्शिका व PDF](#-सम्पूर्ण-हिंदी-मार्गदर्शिका-व-डिप्लॉयमेंट-मैनुअल-hindi-master-manual--pdf)
 - [🛍️ Storefront Features](#️-storefront-features)
 - [🏪 Seller Hub Features](#-seller-hub-features)
 - [👑 Admin Console Features](#-admin-console-features)
@@ -84,6 +85,27 @@
 - [🧪 Verification Suite](#-verification-suite)
 - [☁️ Deployment](#️-deployment)
 - [📚 Documentation](#-documentation)
+
+---
+
+## 🇮🇳 सम्पूर्ण हिंदी मार्गदर्शिका व डिप्लॉयमेंट मैनुअल (Hindi Master Manual & PDF)
+
+भारतीय दुकानदारों, डेवलपर्स और विक्रेताओं के लिए इस पूरे प्लेटफॉर्म का आसान हिंदी में संचालन और क्लाउड डिप्लॉयमेंट मैनुअल तैयार किया गया है:
+
+| प्रारूप (Format) | दस्तावेज़ लिंक (Document Link) | मुख्य विवरण (Description) |
+| :--- | :--- | :--- |
+| 📖 **विस्तृत हिंदी मैनुअल** | **[HINDI_MASTER_MANUAL.md](docs/HINDI_MASTER_MANUAL.md)** | संपूर्ण 6-अध्यायों का विस्तृत संचालन गाइड (Markdown). |
+| 📄 **ऑफिशियल प्रिंटेबल PDF** | **[AALM_VASTRALAY_MANUAL_HI.pdf](docs/AALM_VASTRALAY_MANUAL_HI.pdf)** | हाई-क्वालिटी A4 प्रिंटेबल PDF (~925 KB) — सीधे प्रिंट व डाउनलोड करें. |
+| 🎨 **प्रिंट-रेडी विजुअल HTML** | **[HINDI_MASTER_MANUAL.html](docs/HINDI_MASTER_MANUAL.html)** | रॉयल मैरून व गोल्ड थीम वाला ब्राउज़र प्रिंट-फ्रेंडली HTML लेआउट. |
+
+### 📌 हिंदी मैनुअल के मुख्य भाग (Quick Hindi Highlights):
+1. **$0/माह क्लाउड डिप्लॉयमेंट:** Neon PostgreSQL (Pooled), Backblaze B2 प्राइवेट स्टोरेज (10GB फ्री), Cloudflare Worker प्रॉक्सी ($0 इग्रेस), Google Apps Script (फ्री Gmail रिले), Gemini & Groq AI और Vercel डिप्लॉयमेंट का स्टेप-बाय-स्टेप तरीका।
+2. **डिप्लॉयमेंट के बाद की कार्यप्रणाली:**
+   - **ग्राहक (Customer):** 9 रंगों के स्वॉच से प्रोडक्ट खोजना, 5-टियर स्मार्ट इमेज गैलरी, 0% UPI QR पेमेंट (5-मिनट सुरक्षा टाइमर), और सामान मिलने के बाद असली रिव्यू फोटो व Helpful वोट।
+   - **विक्रेता (Seller):** स्टोर प्रोफाइल बनाना, Google Gemini AI द्वारा 1-क्लिक में हिंग्लिश प्रोडक्ट डिस्क्रिप्शन लिखवाना, 3 प्रकार से इमेज जोड़ना (B2, GDrive, Web URL), और DuckDB-Wasm द्वारा 5%/12% GST टैक्स हिसाब देखना।
+   - **प्रशासक (Admin):** 105+ एडमिन सेटिंग्स का नियंत्रण, बैंक SMS से 12-अंकों का UTR मिलाकर 1-क्लिक "Verify UPI" करना, और दिवाली/छठ पूजा पर 1-क्लिक मार्केटिंग ब्रॉडकास्ट भेजना।
+3. **105+ एडमिन सेटिंग्स का प्रभाव:** किस बटन या टॉगल को बदलने से वेबसाइट, इनवॉइस या कूरियर पर क्या प्रभाव पड़ता है, इसका पूरा विवरण।
+4. **ईमानदार तकनीकी विश्लेषण ("क्या तैयार है और क्या कमियां/सीमाएं हैं"):** 40/40 टेस्ट सूट्स की मजबूती बनाम फ्री-टीयर कोटा की सीमाएं (Gmail 500 mails/day, Neon cold-start, मैनुअल UPI UTR मिलान)।
 
 ---
 
@@ -366,6 +388,8 @@ Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md)
 
 | Guide | Covers |
 | :--- | :--- |
+| 🇮🇳 [सम्पूर्ण हिंदी मार्गदर्शिका (Hindi Manual)](docs/HINDI_MASTER_MANUAL.md) | संपूर्ण हिंदी संचालन गाइड, डिप्लॉयमेंट, 105+ सेटिंग्स व कमियां |
+| 📄 [ऑफिशियल प्रिंटेबल PDF](docs/AALM_VASTRALAY_MANUAL_HI.pdf) | A4 प्रिंटेबल PDF (~925 KB) — ऑफलाइन पठन व आर्काइव |
 | ⭐ [Master Developer Guide](docs/MASTER_DEVELOPER_GUIDE.md) | Developer + operations runbook |
 | 🏛️ [Archify 3.0 Blueprint](.archify/architecture-aalm-vastralay-20261006-134300/architecture.html) | Interactive zoomable system architecture visualizer |
 | 📜 [Architecture Laws (RULES)](docs/RULES.md) | Anti-yes-man principles, execution lifecycle, git discipline |

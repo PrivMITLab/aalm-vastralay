@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>आलम वस्त्रालय — सम्पूर्ण संचालन व क्लाउड डिप्लॉयमेंट मार्गदर्शिका (Master Operations Manual)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4A148C;
+      --secondary: #7A1F2B;
+      --accent: #D4AF37;
+      --accent-dark: #B38F24;
+      --bg: #FFFDF9;
+      --surface: #FFFFFF;
+      --surface-subtle: #FAF5EE;
+      --text-main: #1F161A;
+      --text-muted: #5C4D56;
+      --border: #E8DCBA;
+      --border-dark: #C9B275;
+      --success: #1E6B37;
+      --warning: #B36B00;
+      --shadow: 0 4px 20px -2px rgba(74, 20, 140, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.65;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 48px 56px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Cover / Hero Header */
+    .hero {
+      text-align: center;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 36px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--secondary);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .hero .sub {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-dark);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .hero .tagline {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .spec-pills {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .spec-pill {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Section Styles */
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--secondary);
+      border-left: 5px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 24px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0 28px 0;
+      font-size: 13px;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: var(--surface-subtle);
+      color: var(--secondary);
+      text-align: left;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-top: 2px solid var(--border-dark);
+      border-bottom: 2px solid var(--border-dark);
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #FAF8F5;
+    }
+
+    /* Cards / Callouts */
+    .callout {
+      background: var(--surface-subtle);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 13.5px;
+      page-break-inside: avoid;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .callout.success {
+      border-left-color: var(--success);
+      background: #F2F8F4;
+    }
+
+    .callout.warning {
+      border-left-color: var(--warning);
+      background: #FFF9ED;
+    }
+
+    /* Code blocks */
+    pre, code {
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    code {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--secondary);
+    }
+
+    pre {
+      background: #1A121E;
+      color: #F8F5FB;
+      padding: 16px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0 24px 0;
+      border: 1px solid #362242;
+      page-break-inside: avoid;
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Steps list */
+    .steps {
+      counter-reset: step-counter;
+      list-style: none;
+      margin: 18px 0;
+    }
+
+    .steps li {
+      counter-increment: step-counter;
+      position: relative;
+      padding-left: 40px;
+      margin-bottom: 18px;
+    }
+
+    .steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 26px;
+      height: 26px;
+      background: var(--secondary);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--accent);
+    }
+
+    /* Architecture diagram boxes */
+    .diagram-container {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+
+    .diagram-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .diagram-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .diagram-box strong {
+      color: var(--secondary);
+      display: block;
+      font-size: 12.5px;
+      margin-bottom: 4px;
+    }
+
+    .diagram-box span {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: block;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Print styles for A4 */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 15mm 15mm 18mm 15mm;
+      }
+
+      body {
+        background: #FFF;
+        padding: 0;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+
+      .hero {
+        padding-bottom: 20px;
+        margin-bottom: 24px;
+      }
+
+      .hero h1 {
+        font-size: 26px;
+      }
+
+      h2 {
+        font-size: 18px;
+        margin-top: 26px;
+        margin-bottom: 12px;
+      }
+
+      h3 {
+        font-size: 14px;
+        margin-top: 18px;
+        margin-bottom: 8px;
+      }
+
+      pre {
+        background: #F4F1EA !important;
+        color: #1F161A !important;
+        border: 1px solid #D6C7A1;
+        padding: 10px 14px;
+      }
+
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Hero / Header -->
+    <header class="hero">
+      <div class="hero-badge">उत्पादन-ग्रेड आधिकारिक संचालन मैनुअल</div>
+      <h1>👑 आलम वस्त्रालय (Aalm Vastralay)</h1>
+      <div class="sub">भारतीय शादी व एथनिक परिधान मल्टी-वेंडर ई-कॉमर्स इंजन</div>
+      <p class="tagline">"बेहतरीन क्वालिटी, उचित मूल्य — आपकी पसंद, हमारी पहचान"</p>
+
+      <div class="spec-pills">
+        <div class="spec-pill">Next.js 16 (App Router)</div>
+        <div class="spec-pill">React 19.2</div>
+        <div class="spec-pill">Neon PostgreSQL 16</div>
+        <div class="spec-pill">100% ₹0 / Month Perpetual Free Tier</div>
+        <div class="spec-pill">40/40 Enterprise Test Suites</div>
+      </div>
+    </header>
+
+    <!-- भाग 1 -->
+    <section>
+      <h2>1. 📐 परिचय व शून्य-लागत आर्किटेक्चर (Zero-Cost Philosophy)</h2>
+      <p>
+        <strong>आलम वस्त्रालय</strong> एक एंटरप्राइज-ग्रेड भारतीय एथनिक वियर (साड़ी, लहंगा, शेरवानी, कुर्ता सेट्स, ज्वेलरी) मल्टी-वेंडर ई-कॉमर्स प्लेटफॉर्म है। 
+        अधिकांश ई-कॉमर्स सॉफ्टवेयर (Shopify, Magento, WooCommerce) में हर महीने ₹5,000 से ₹25,000 तक का सर्वर और प्लगइन खर्च आता है।
+      </p>
+      <p>
+        इस प्लेटफॉर्म को ऐसे आर्किटेक्ट किया गया है कि इसका <strong>मासिक इंफ्रास्ट्रक्चर खर्च हमेशा ₹0 ($0/month)</strong> रहता है, 
+        बिना किसी पेड थर्ड-पार्टी कैप्चा, बिना फेक रिव्यूज और बिना किसी डेटा लॉस के।
+      </p>
+
+      <div class="diagram-container">
+        <strong style="color: var(--secondary); font-size: 14px;">आलम वस्त्रालय का 6-आयामी शून्य-लागत आर्किटेक्चर</strong>
+        <div class="diagram-grid">
+          <div class="diagram-box">
+            <strong>1. Neon PostgreSQL</strong>
+            <span>0.5GB सर्वरलेस स्टोरेज, मुंबई (ap-south-1) रीजन, 19 टेबल्स, कनेक्शन पूलिंग।</span>
+          </div>
+          <div class="diagram-box">
+            <strong>2. Vercel Edge</strong>
+            <span>100GB ग्लोबल CDN बैंडविड्थ, टर्बोपैक कम्पाइलर, सर्वर एक्शन्स, 0ms एज राउटिंग।</span>
+          </div>
+          <div class="diagram-box">
+            <strong>3. Backblaze B2</strong>
+            <span>10GB परमानेंट फ्री मीडिया स्टोरेज, 0 क्लास-सी लिस्टिंग कॉल्स (DB कैश्ड)।</span>
+          </div>
+          <div class="diagram-box">
+            <strong>4. Cloudflare Worker</strong>
+            <span>बैंडविड्थ एलायंस के तहत B2 से $0 इग्रेस (Egress) और 1-वर्षीय एज कैश।</span>
+          </div>
+          <div class="diagram-box">
+            <strong>5. Google Apps Script</strong>
+            <span>बिना कस्टम डोमेन खरीदे आपके साधारण Gmail से 500 OTP व इनवॉइस मेल्स/दिन फ्री।</span>
+          </div>
+          <div class="diagram-box">
+            <strong>6. Gemini & Groq AI</strong>
+            <span>मुफ्त हिंग्लिश कॉपीराइटर (1500 कॉल्स/दिन) और सब-300ms पर्सनलाइज्ड रिकमेंडेशन।</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- भाग 2 -->
+    <section>
+      <h2>2. ☁️ स्टेप-बाय-स्टेप क्लाउड डिप्लॉयमेंट गाइड ($0/माह खर्च)</h2>
+
+      <h3>2.1 Neon Serverless PostgreSQL डेटाबेस</h3>
+      <ol class="steps">
+        <li><strong>अकाउंट बनाएं:</strong> <a href="https://neon.tech">neon.tech</a> पर जाएं और फ्री अकाउंट बनाएं।</li>
+        <li><strong>प्रोजेक्ट बनाएं:</strong> <code>aalm-vastralay-prod</code> नाम दें और <code>Asia-Pacific (Mumbai) ap-south-1</code> रीजन चुनें।</li>
+        <li><strong>Pooled कनेक्शन कॉपी करें:</strong> डैशबोर्ड पर <strong>Pooled connection</strong> चेक करें। <em>(होस्टनेम में <code>-pooler</code> होना अनिवार्य है ताकि सर्वरलेस कनेक्शन फुल न हों)</em>।</li>
+        <li><strong>ऑटो-माइग्रेशन चलाएं:</strong> टर्मिनल में <code>npm run db:auto-migrate</code> रन करें। यह बिना डेटा नुकसान के सभी 19 टेबल्स और सुपर-एडमिन बना देगा।</li>
+      </ol>
+
+      <h3>2.2 Backblaze B2 प्राइवेट स्टोरेज (10GB फ्री)</h3>
+      <ol class="steps">
+        <li><a href="https://backblaze.com/b2/">backblaze.com/b2</a> पर फ्री अकाउंट बनाएं।</li>
+        <li><strong>बकेट बनाएं:</strong> <code>aalm-vastralay-media</code> नाम दें और <strong>Private</strong> रखें।</li>
+        <li><strong>App Keys बनाएं:</strong> <strong>Add a New Application Key</strong> दबाकर Read/Write परमिशन के साथ <code>keyID</code> और <code>applicationKey</code> नोट कर लें।</li>
+      </ol>
+
+      <h3>2.3 Cloudflare Worker प्रॉक्सी डिप्लॉयमेंट ($0 Egress)</h3>
+      <p>B2 से मीडिया डाउनलोड को हमेशा ₹0 रखने के लिए टर्मिनल में सिर्फ एक ऑटोमेशन कमांड चलाएं:</p>
+      <pre><code>npm run setup:b2</code></pre>
+      <p>यह स्क्रिप्ट Cloudflare KV और Worker प्रॉक्सी डिप्लॉय करके आपको लाइव URL देगी (उदा: <code>https://aalm-b2-proxy.yourname.workers.dev</code>)।</p>
+
+      <h3>2.4 Google Apps Script (GAS) मुफ्त Gmail रिले</h3>
+      <ol class="steps">
+        <li>गूगल ड्राइव में एक नई Google Sheet बनाएं -> <strong>Extensions</strong> -> <strong>Apps Script</strong> खोलें।</li>
+        <li>रिपोजिटरी फाइल <code>scripts/mailer/Code.gs</code> का कोड पेस्ट करें।</li>
+        <li><strong>Script Properties</strong> में <code>AUTH_TOKEN</code> को 32-अक्षर के सीक्रेट टोकन के रूप में सेव करें।</li>
+        <li><strong>Deploy as Web App</strong> (Execute as: Me, Who has access: Anyone) करके वेब ऐप URL कॉपी कर लें।</li>
+      </ol>
+
+      <h3>2.5 Vercel प्रोडक्शन डिप्लॉयमेंट</h3>
+      <p>टर्मिनल में मास्टर विजार्ड चलाएं जो 1-क्लिक में सारे वेरिएबल्स Vercel पर भेज देता है:</p>
+      <pre><code>npm run setup:env</code></pre>
+      <p>Vercel पर रिपोजिटरी इम्पोर्ट करें और <strong>Deploy</strong> दबाएं। 90 सेकंड में साइट लाइव हो जाएगी!</p>
+    </section>
+
+    <!-- भाग 3 -->
+    <section class="page-break">
+      <h2>3. 👥 डिप्लॉयमेंट के बाद की कार्यप्रणाली (Roles & Real-Life Flow)</h2>
+
+      <h3>3.1 ग्राहक अनुभव (Customer Journey)</h3>
+      <table style="margin-top: 12px;">
+        <thead>
+          <tr>
+            <th style="width: 25%;">कदम (Step)</th>
+            <th>क्या होता है? (Customer Experience)</th>
+            <th>पीछे का तकनीकी डेटा फ्लो (Backend Action)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. ब्राउज़िंग</strong></td>
+            <td>हल्दी (पीला), मेहंदी (हरा), संगीत या शादी कलेक्शन पर क्लिक करके 9 रंगों के स्वॉच से चुनना।</td>
+            <td>Drizzle ORM इंडेक्स <code>idx_products_active</code> और Typesense सब-मिलीसेकंड सर्च।</td>
+          </tr>
+          <tr>
+            <td><strong>2. प्रोडक्ट पेज</strong></td>
+            <td>5-टियर स्मार्ट इमेज गैलरी, साइज (XS-XXL) चुनना, पिनकोड डालकर डिलीवरी टाइम जांचना।</td>
+            <td><code>resolveCoordinatesToPincode()</code> और <code>withDbRetry</code> फॉलबैक प्रोटेक्शन।</td>
+          </tr>
+          <tr>
+            <td><strong>3. 0% UPI चेकआउट</strong></td>
+            <td>PhonePe / GPay से 5-मिनट टाइमर वाला NPCI डायनामिक QR स्कैन करना और 12-अंकों का UTR डालना।</td>
+            <td>ऑर्डर <code>pending-verification</code> के साथ सेव होता है, बैंक 2% गेटवे फीस बचती है।</td>
+          </tr>
+          <tr>
+            <td><strong>4. ऑथेंटिक रिव्यू</strong></td>
+            <td>सामान मिलने के बाद फोटो रिव्यू लिखना और अन्य ग्राहकों द्वारा 👍 Helpful वोट देना।</td>
+            <td>BIS IS 19000:2022 नियम लागू; वोट <code>review_votes</code> टेबल में IP-हैश के साथ सेव।</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.2 विक्रेता हब (Seller Hub — <code>/seller</code>)</h3>
+      <div class="callout">
+        <div class="callout-title">🏪 विक्रेता गोपनीयता व सीमा (Tenant Isolation)</div>
+        विक्रेता केवल अपने स्टोर के प्रोडक्ट्स और ऑर्डर्स ही देख सकता है। अन्य सेलर्स का डेटा पूरी तरह अगम्य (Inaccessible) रहता है।
+      </div>
+      <ol class="steps">
+        <li><strong>स्टोर प्रोफाइल:</strong> सेलर अपना नाम, दुकान का नाम (उदा: <em>"मिथिला सिल्क हाउस"</em>), GSTIN और बिहार का पता भरता है।</li>
+        <li><strong>AI कॉपीराइटर से प्रोडक्ट जोड़ना:</strong> <em>"AI से विवरण लिखें"</em> दबाते ही Gemini 2.5 Flash सेकंडों में पारंपरिक हिंग्लिश शब्दावली (जरी, बनारसी, कारीगरी, शुद्ध सिल्क) के साथ विवरण लिख देता है।</li>
+        <li><strong>3 प्रकार से इमेज जोड़ना:</strong> 
+          <br/>• <strong>B2 अपलोड:</strong> डायरेक्ट ड्रैग-ड्रॉप।
+          <br/>• <strong>Google Drive शेयर लिंक:</strong> सिस्टम उसे अपने-आप ₹0 CDN स्ट्रीम में बदल देता है।
+          <br/>• <strong>Web Link:</strong> किसी भी वेब URL को <code>wsrv.nl</code> WebP में बदल देता है।
+        </li>
+        <li><strong>DuckDB-Wasm एनालिटिक्स:</strong> सेलर के ब्राउज़र की RAM में बिना डेटाबेस पर भार डाले 5% और 12% GST टैक्स व बिक्री का पूरा हिसाब दिखता है।</li>
+      </ol>
+
+      <h3>3.3 सुपर-एडमिन कंसोल (Admin Console — <code>/admin</code>)</h3>
+      <ol class="steps">
+        <li><strong>UPI UTR सत्यापन:</strong> अपने बैंक SMS में 12-अंकों का UTR देखकर ऑर्डर के सामने <strong>"Verify UPI"</strong> दबाते ही ऑर्डर 'Paid' हो जाता है।</li>
+        <li><strong>1-क्लिक मार्केटिंग ब्रॉडकास्ट:</strong> दिवाली, छठ पूजा या शादी सीजन पर सभी ग्राहकों को 1-क्लिक में सुनहरे शाही टेम्पलेट में ईमेल व नोटिफिकेशन भेजना।</li>
+        <li><strong>कूरियर लेबल प्रिंटिंग:</strong> Delhivery / Shiprocket का Code128 बारकोड वाला 4x6 थर्मल शिपिंग लेबल तुरंत प्रिंट करना।</li>
+      </ol>
+    </section>
+
+    <!-- भाग 4 -->
+    <section class="page-break">
+      <h2>4. ⚙️ 105+ एडमिन सेटिंग्स का 100% सम्पूर्ण विश्लेषण</h2>
+      <p>एडमिन पैनल (<code>/admin/settings</code>) में सेटिंग्स बदलने पर दुकान पर क्या असर पड़ता है:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%;">सेटिंग की (Setting Key)</th>
+            <th style="width: 22%;">डिफ़ॉल्ट मान (Default)</th>
+            <th>वास्तविक प्रभाव व उपयोग (Real-Life Business Impact)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>brand.name</code></td>
+            <td><code>"आलम वस्त्रालय"</code></td>
+            <td>हेडर, फुटर, बिल और ईमेल पर दिखने वाला मुख्य व्यापारिक नाम।</td>
+          </tr>
+          <tr>
+            <td><code>brand.whatsappNumber</code></td>
+            <td><code>"919876543210"</code></td>
+            <td>प्रोडक्ट पर 1-क्लिक व्हाट्सएप ब्राइडल कंसल्टेशन और साइज पूछने का नंबर।</td>
+          </tr>
+          <tr>
+            <td><code>theme.primary</code></td>
+            <td><code>"#4A148C"</code> (रॉयल पर्पल)</td>
+            <td>वेबसाइट के मुख्य बटन्स, लिंक्स और एक्टिव टैब्स का रंग।</td>
+          </tr>
+          <tr>
+            <td><code>theme.accent</code></td>
+            <td><code>"#D4AF37"</code> (इम्पीरियल गोल्ड)</td>
+            <td>गोल्डन बॉर्डर्स, महाबचत बैज और लक्जरी हाइलाइट्स का रंग।</td>
+          </tr>
+          <tr>
+            <td><code>home.slides</code></td>
+            <td><code>[5 Slides JSON]</code></td>
+            <td>होमपेज पर Flipkart/Myntra की तरह घूमने वाले 5 ऑटो-रोटेटिंग बैनर्स।</td>
+          </tr>
+          <tr>
+            <td><code>home.announcementText</code></td>
+            <td><code>"🔥 महाबचत सेल..."</code></td>
+            <td>हेडर के सबसे ऊपर चलने वाली सुनहरी प्रोमोशनल पट्टी।</td>
+          </tr>
+          <tr>
+            <td><code>commerce.freeShippingThreshold</code></td>
+            <td><code>999</code></td>
+            <td>कितने रुपये से ऊपर का ऑर्डर होने पर डिलीवरी फीस ₹0 हो जाएगी।</td>
+          </tr>
+          <tr>
+            <td><code>commerce.codFee</code></td>
+            <td><code>0</code></td>
+            <td>कैश ऑन डिलीवरी चुनने पर लगने वाला अतिरिक्त शुल्क (उदा. ₹49)।</td>
+          </tr>
+          <tr>
+            <td><code>commerce.taxRate</code></td>
+            <td><code>5.0</code></td>
+            <td>₹1000 से कम के कपड़ों पर 5% और ऊपर पर 12% GST ऑटो-स्प्लिट।</td>
+          </tr>
+          <tr>
+            <td><code>security.botProtection</code></td>
+            <td><code>"turnstile"</code></td>
+            <td>बॉट शील्ड का रूप: turnstile, altcha, biometric, shagun, slide या invisible।</td>
+          </tr>
+          <tr>
+            <td><code>security.powDifficulty</code></td>
+            <td><code>3</code></td>
+            <td>बॉट चुनौती की जटिलता। '3' मोबाइल पर 0.2s में सॉल्व होता है और बॉट्स को रोकता है।</td>
+          </tr>
+          <tr>
+            <td><code>seller.defaultCommissionPercent</code></td>
+            <td><code>2.5</code></td>
+            <td>वेंडर्स की बिक्री पर मार्केटप्लेस का कमीशन प्रतिशत।</td>
+          </tr>
+          <tr>
+            <td><code>seller.freeLaunchMonths</code></td>
+            <td><code>6</code></td>
+            <td>नए विक्रेताओं के लिए कितने महीने 0% कमीशन की छूट रहेगी।</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- भाग 5 -->
+    <section>
+      <h2>5. 🔍 निष्पक्ष तकनीकी मूल्यांकन ("क्या तैयार है और क्या सीमाएं/कमियां हैं")</h2>
+
+      <div class="callout success">
+        <div class="callout-title">✅ पूर्ण व रॉक-सॉलिड (Production Strengths)</div>
+        • <strong>शून्य डेटा नुकसान:</strong> टेबल या कॉलम कभी नष्ट नहीं होते; ऑटो-माइग्रेशन सुरक्षित है।<br/>
+        • <strong>रूट एरर बाउंड्रीज:</strong> डेटाबेस धीमा होने पर भी हेडर, फुटर और खरीदारी चालू रहती है।<br/>
+        • <strong>40/40 एंटरप्राइज टेस्ट सूट्स:</strong> 1.08s में 100% टेस्ट पास। टाइपचेक में 0 एरर।<br/>
+        • <strong>0% गेटवे फीस:</strong> NPCI UPI QR से 2-3% की बचत सीधी मालिक के खाते में।
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-title">⚠️ सीमाएं और व्यावहारिक सावधानियां (Quotas & Realities)</div>
+        • <strong>Gmail 500 ईमेल्स/दिन की सीमा:</strong> पर्सनल जीमेल से 24 घंटे में 500 ईमेल्स ही जा सकते हैं। जब रोजाना 500+ ऑर्डर्स आएं, तो Resend या Amazon SES API की डाल दें।<br/>
+        • <strong>Neon डेटाबेस का स्लीप मोड (Cold Start):</strong> 15 मिनट इनएक्टिव रहने पर फ्री नियोन डेटाबेस सो जाता है। पहले विजिटर को डेटा लोड में 3-5 सेकंड लग सकते हैं। (24x7 तत्काल गति के लिए $19/माह प्लान ले सकते हैं)।<br/>
+        • <strong>मैनुअल UPI सुलह:</strong> एडमिन को बैंक SMS या UPI ऐप देखकर 12-अंकों का UTR मिलाना पड़ता है।
+      </div>
+    </section>
+
+    <!-- भाग 6 -->
+    <section>
+      <h2>6. 🛠️ अक्सर पूछे जाने वाले सवाल (FAQ)</h2>
+      <p><strong>प्र: क्या मैं अपने लैपटॉप से सीधे प्रोडक्शन पर डिप्लॉय कर सकता हूँ?</strong><br/>
+      उत्तर: हाँ! बस <code>npm run setup:env</code> चलाएं। यह आपके स्थानीय पर्यावरण और Vercel को आपस में जोड़ देता है।</p>
+
+      <p><strong>प्र: अगर ग्राहक गलत 12-अंकों का UTR भर दे तो क्या होगा?</strong><br/>
+      उत्तर: ऑर्डर 'Pending Verification' में रहेगा। जब तक एडमिन बैंक स्टेटमेंट में पैसा आने की पुष्टि करके "Verify UPI" नहीं दबाता, तब तक ऑर्डर डिस्पैच नहीं होगा।</p>
+    </section>
+
+    <footer class="footer">
+      <p><strong>आलम वस्त्रालय (Aalm Vastralay)</strong> • बिहार, भारत</p>
+      <p>उत्पादन-ग्रेड एंटरप्राइज ई-कॉमर्स इंजन • सर्वाधिकार सुरक्षित 2026</p>
+    </footer>
+
+  </div>
+
+</body>
+</html>
