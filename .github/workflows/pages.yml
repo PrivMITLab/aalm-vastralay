@@ -21,6 +21,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.repository == 'SudhirDevOps1/aalm-vastralay'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
