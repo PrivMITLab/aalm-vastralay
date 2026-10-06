@@ -66,7 +66,18 @@ export default function ArchitectureShowcasePage() {
           title="Aalm Vastralay Archify Architecture Showcase"
           className="w-full h-full border-0 absolute inset-0"
           loading="eager"
-        />
+          allow="fullscreen"
+        >
+          <div className="p-8 text-center text-zinc-300">
+            <p className="mb-4">यदि आरेख लोड नहीं हो रहा है, तो कृपया नीचे दिए गए बटन पर क्लिक करें:</p>
+            <a
+              href="/architecture.html"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-black font-semibold"
+            >
+              ओपन स्टैंडअलोन आर्किटेक्चर (Open Standalone)
+            </a>
+          </div>
+        </iframe>
       </main>
     </div>
   );
